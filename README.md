@@ -1,223 +1,39 @@
-# Project Name 🚀
+# IQ BENE — System Design Documentation
 
-> **One-line value proposition** - What problem does this solve and who is it for?
-
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/user/repo)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://makeapullrequest.com)
+> Pre-build design documentation for the Venue Intelligence Platform — built on the IQKV open-source foundation.
 
 ---
 
-## 🎯 What Is This?
+## Documents
 
-Brief origin story or context. Explain what this project is in 2-3 sentences:
+| Document                                                                | Audience                   | What it covers                                                   |
+| ----------------------------------------------------------------------- | -------------------------- | ---------------------------------------------------------------- |
+| [What is IQ BENE?](docs/what-is-vip.md)                                 | Anyone                     | Plain-language overview: the problem, the solution, who it's for |
+| [Business Overview](docs/business-overview.md)                          | Founders, team             | ICP, feature roadmap, monetization, GTM, risks                   |
+| [Competitive Landscape](docs/intelligence-and-competitive-landscape.md) | Engineering, founding team | Competitor analysis, ETL pipeline, intelligence layer            |
+| [Architecture Reference](docs/architecture.md)                          | Engineers, architects      | Domain model, services, schema, API, event contracts             |
 
-- **🎯 Purpose**: What it does (not how it works)
-- **💡 Key Benefit**: Why someone should care
-- **✅ Status**: Production-ready, experimental, or in development
-- **🔧 Use Case**: When to use this
-
-**Think of it as**: A simple analogy that makes it instantly clear.
-
----
-
-## ⚡ Quick Start
-
-### Prerequisites
-
-- Node.js 18+ / Python 3.9+ / Java 17+ (adjust as needed)
-- pnpm 8+ (required for Node.js projects)
-- Docker (optional)
-- Any other required tools
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/user/repo.git
-cd repo
-
-# Install dependencies
-pnpm install
-# or: pip install -r requirements.txt
-# or: mvn clean install
-
-# Configure environment
-cp .env.example .env
-# Edit .env with your settings
-
-# Run the project
-pnpm start
-# or: python main.py
-# or: java -jar target/app.jar
-```
-
-### Docker Quick Start (Optional)
-
-```bash
-docker-compose up -d
-```
+Russian translations: [`docs/ru/`](docs/ru/)
 
 ---
 
-## 📖 Usage
+## Platform Context
 
-### Basic Example
+IQ BENE is a new product built on top of the IQKV open-source foundation. It introduces two services and one shared library:
 
-```javascript
-// Show the simplest possible usage
-const result = doSomething();
-console.log(result);
-```
+- **`vip-venue-service`** — core domain: venue profiles, assets, metadata, search, plan enforcement
+- **`vip-venue-ingestion-worker`** — async sidecar: document ETL, AI extraction, embeddings, scheduled jobs
+- **`vip-venue-model`** — shared library: domain entities, event contracts, Liquibase migrations
 
-### Common Use Cases
-
-| Scenario         | Command/Code        | When to Use                   |
-| ---------------- | ------------------- | ----------------------------- |
-| 🔧 Basic usage   | `pnpm run basic`    | Getting started, simple tasks |
-| 🚀 Advanced mode | `pnpm run advanced` | Complex workflows, production |
-| 🧪 Testing       | `pnpm test`         | Validation, CI/CD             |
+**Stage:** pre-launch MVP — design complete, implementation not yet started.
+Open decisions: [Architecture §15](docs/architecture.md#15-open-decisions-resolve-before-sprint-1).
 
 ---
 
-## 🏗️ Architecture
+## License
 
-Brief overview of how it works:
+Copyright © 2026 IQKV. All rights reserved.
 
-```
-┌─────────────┐      ┌─────────────┐      ┌─────────────┐
-│   Input     │─────▶│  Processing │─────▶│   Output    │
-└─────────────┘      └─────────────┘      └─────────────┘
-```
+This software and its documentation are proprietary and confidential. The source code is made available to authorized licensees only. You may not use, copy, modify, distribute, or sublicense this software except as expressly permitted under a written agreement with IQKV.
 
-Key components:
-
-- **Component A**: What it does
-- **Component B**: What it does
-- **Component C**: What it does
-
----
-
-## 🔧 Configuration
-
-### Environment Variables
-
-```bash
-# Required
-API_KEY=your_api_key_here
-DATABASE_URL=postgresql://localhost:5432/db
-
-# Optional
-LOG_LEVEL=info
-CACHE_ENABLED=true
-```
-
-### Configuration File
-
-```yaml
-# config.yml
-server:
-  port: 8080
-  host: localhost
-features:
-  feature_a: enabled
-  feature_b: disabled
-```
-
----
-
-## 🧪 Development
-
-### Setup Development Environment
-
-```bash
-# Install dev dependencies
-pnpm install -D
-
-# Run in development mode
-pnpm dev
-
-# Run tests
-pnpm test
-
-# Run linter
-pnpm lint
-```
-
-### Project Structure
-
-```
-project/
-├── src/           # Source code
-├── tests/         # Test files
-├── docs/          # Documentation
-├── config/        # Configuration files
-└── scripts/       # Utility scripts
-```
-
----
-
-## 📊 Features
-
-- ✅ Feature 1: Brief description
-- ✅ Feature 2: Brief description
-- ✅ Feature 3: Brief description
-- 🚧 Feature 4: Coming soon
-- 📋 Feature 5: Planned
-
----
-
-## 🤝 Contributing
-
-Contributions welcome! Here's how:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
-
----
-
-## 📜 License
-
-MIT License - Use freely, commercially or personally. See [LICENSE](LICENSE) for details.
-
----
-
-## 🙏 Acknowledgments
-
-- Thanks to contributors and community members
-- Inspired by [related project](https://github.com/example)
-- Built with [key technology](https://example.com)
-
----
-
-## 📚 Resources
-
-- [Documentation](https://docs.example.com)
-- [API Reference](https://api.example.com)
-- [Examples](./examples)
-- [Changelog](CHANGELOG.md)
-
----
-
-## 💬 Community
-
-- **GitHub Issues**: [Report bugs or request features](https://github.com/user/repo/issues)
-- **Discussions**: [Ask questions and share ideas](https://github.com/user/repo/discussions)
-- **Discord/Slack**: [Join the community](https://discord.gg/example)
-
----
-
-<div align="center">
-
-**🚀 Ready to get started? 🚀**
-
-[⭐ Star this repo](https://github.com/user/repo) • [🍴 Fork it](https://github.com/user/repo/fork) • [🐛 Report an issue](https://github.com/user/repo/issues)
-
-Made with ❤️ by [Your Name/Team]
-
-</div>
+The underlying IQKV platform is built on open-source components, each governed by their respective licenses.
