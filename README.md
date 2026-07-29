@@ -6,18 +6,29 @@
 
 ## Documents
 
-| Document                                                | Audience                   | What it covers                                                   |
-| ------------------------------------------------------- | -------------------------- | ---------------------------------------------------------------- |
-| [What is iQ BENE?](docs/README.md)                      | Anyone                     | Plain-language overview: the problem, the solution, who it's for |
-| [Business Overview](docs/business/overview.md)          | Founders, team             | ICP, feature roadmap, monetization, GTM, risks                   |
-| [Competitive Landscape](docs/business/comparison.md)    | Engineering, founding team | Competitor analysis, ETL pipeline, intelligence layer            |
-| [Architecture Reference](docs/platform/architecture.md) | Engineers, architects      | Domain model, services, schema, API, event contracts             |
+| Document                                                | Audience              | What it covers                                                   |
+| ------------------------------------------------------- | --------------------- | ---------------------------------------------------------------- |
+| [What is iQ BENE?](docs/README.md)                      | Anyone                | Plain-language overview: the problem, the solution, who it's for |
+| [Business Proposal](docs/business/proposal.md)          | Founders, team        | ICP, feature roadmap, monetization, GTM, risks                   |
+| [Competitive Landscape](docs/business/comparison.md)    | Founders, team        | Competitor analysis and gap summary matrix                       |
+| [Pitch](docs/business/sales/pitch.md)                   | Founders, team        | Intro call and demo narrative flow                               |
+| [Battlecards](docs/business/sales/battlecards.md)       | Founders, team        | Per-competitor positioning for live conversations                |
+| [Objections](docs/business/sales/objections.md)         | Founders, team        | Objection handling: underlying concern, response, follow-up      |
+| [Architecture Reference](docs/platform/architecture.md) | Engineers, architects | Domain model, services, schema, API, event contracts             |
+| [Intelligence Layer](docs/platform/intelligence.md)     | Engineers, architects | ETL pipeline, extraction, AI layer, technology decisions         |
+| [Roadmap Vision](docs/roadmap/vision.md)                | Founders, team        | Product direction, strategic bets, north star metric             |
 
 Russian translations: [`docs/ru/`](docs/ru/)
 
 ---
 
-## Platform Context
+## Contributing to this documentation
+
+Read [AGENTS.md](AGENTS.md) before adding or editing any document. It defines the repository structure, audience tagging, document type rules, writing standards, and what agents and contributors must not do.
+
+---
+
+## Platform context
 
 iQ BENE is a new product built on top of the IQKV open-source foundation. It introduces two services and one shared library:
 
