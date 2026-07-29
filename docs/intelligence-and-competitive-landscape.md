@@ -1,9 +1,9 @@
 # Venue Intelligence Platform — Intelligence Layer & Competitive Landscape
 
 > Technical and strategic reference for the document intelligence, ETL pipeline,
-> and competitive positioning of IQ BENE.
+> and competitive positioning of iQ BENE.
 
-**Docs:** [What is IQ BENE?](what-is-vip.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](overview.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
 
 ---
 
@@ -27,7 +27,7 @@ These are the established players. None of them are _document intelligence_ plat
 - Full event lifecycle: sourcing → registration → onsite → reporting
 - Global footprint, strong enterprise contracts
 
-**Gaps relevant to IQ BENE:**
+**Gaps relevant to iQ BENE:**
 
 - Cvent is a _discovery and booking_ platform — it doesn't help you manage your own venue library
 - Venues in Cvent are self-submitted by venue owners, not extracted from your own documents
@@ -35,7 +35,7 @@ These are the established players. None of them are _document intelligence_ plat
 - No team-owned venue knowledge base
 - Enterprise pricing puts it out of reach for SMB agencies
 
-**Verdict:** Not a direct competitor. Cvent is a venue marketplace. IQ BENE is an intelligence layer for your own venue portfolio. They could be _complementary_ (import discovered venues from Cvent into IQ BENE).
+**Verdict:** Not a direct competitor. Cvent is a venue marketplace. iQ BENE is an intelligence layer for your own venue portfolio. They could be _complementary_ (import discovered venues from Cvent into iQ BENE).
 
 ---
 
@@ -50,14 +50,14 @@ These are the established players. None of them are _document intelligence_ plat
 - AI for: demand forecasting, F&B inventory recommendations, conversational analytics, peer benchmarking
 - Deeply embedded in hospitality operations
 
-**Gaps relevant to IQ BENE:**
+**Gaps relevant to iQ BENE:**
 
 - Tripleseat is built _for venues_ to manage their events — not _for planners_ to manage their venue portfolio
 - Their AI runs on their own transactional data (bookings), not on unstructured documents
 - No document parsing, no cross-venue search for planners
 - No support for planner's own uploaded assets
 
-**Verdict:** Different side of the market. Tripleseat serves venues; IQ BENE serves planners. The intelligence architectures are fundamentally different: Tripleseat mines structured operational data; IQ BENE mines unstructured documents.
+**Verdict:** Different side of the market. Tripleseat serves venues; iQ BENE serves planners. The intelligence architectures are fundamentally different: Tripleseat mines structured operational data; iQ BENE mines unstructured documents.
 
 ---
 
@@ -72,14 +72,14 @@ These are the established players. None of them are _document intelligence_ plat
 - 20+ years of venue and event intelligence baked into their models
 - WeTrack product for safety/sustainability/risk management
 
-**Gaps relevant to IQ BENE:**
+**Gaps relevant to iQ BENE:**
 
 - Heavy enterprise product, not accessible to SMB agencies
 - Focused on venue operators managing their own space, not planners curating a portfolio
 - No document intelligence or ETL pipeline
 - Implementation takes months, not minutes
 
-**Verdict:** Enterprise venue ops software. No overlap with IQ BENE's document intelligence core.
+**Verdict:** Enterprise venue ops software. No overlap with iQ BENE's document intelligence core.
 
 ---
 
@@ -91,7 +91,7 @@ These are the established players. None of them are _document intelligence_ plat
 
 **Gaps:** No AI, no document intelligence, no team venue library concept. More CRM than intelligence platform.
 
-**Verdict:** Irrelevant to IQ BENE's positioning. Different price/feature tier entirely.
+**Verdict:** Irrelevant to iQ BENE's positioning. Different price/feature tier entirely.
 
 ---
 
@@ -107,7 +107,7 @@ These are the established players. None of them are _document intelligence_ plat
 - AI-ranking algorithm boosts venues that respond quickly to enquiries
 - Expanding beyond UK into international markets
 
-**Gaps relevant to IQ BENE:**
+**Gaps relevant to iQ BENE:**
 
 - Pure _discovery and booking_ marketplace — venues are listed by venue owners, not extracted from planner-owned documents
 - No planner-side venue library or knowledge base
@@ -115,7 +115,7 @@ These are the established players. None of them are _document intelligence_ plat
 - AI is limited to ranking and response-time scoring, not semantic extraction
 - No cross-venue comparison against a planner's own portfolio
 
-**Verdict:** VenueScanner is a consumer-grade venue search engine, not a planner intelligence tool. A planner who already knows their preferred venues gets nothing from VenueScanner — it only helps with first-pass discovery of venues they haven't worked with yet. Complementary to IQ BENE, not competitive.
+**Verdict:** VenueScanner is a consumer-grade venue search engine, not a planner intelligence tool. A planner who already knows their preferred venues gets nothing from VenueScanner — it only helps with first-pass discovery of venues they haven't worked with yet. Complementary to iQ BENE, not competitive.
 
 ---
 
@@ -132,7 +132,7 @@ These are the established players. None of them are _document intelligence_ plat
 - Broad scope: corporate events and celebrations, suggesting a wide venue inventory or intent to build one
 - Straightforward positioning that's easy for non-technical buyers to understand
 
-**Gaps relevant to IQ BENE:**
+**Gaps relevant to iQ BENE:**
 
 - Discovery platform: works from a database of venues that _have listed themselves_ — not from documents a planner already owns
 - No planner-side knowledge base — recommendations are ephemeral, not stored as a team asset
@@ -140,7 +140,7 @@ These are the established players. None of them are _document intelligence_ plat
 - Human concierge layer adds latency and doesn't scale to a planner's full portfolio of 50–100 known venues
 - AI recommendations are only as good as what venues have self-submitted — the moment a planner needs intelligence from their own files (a venue deck sent by email, a floor plan from 2019), VenueFindAI has nothing
 
-**Verdict:** Same quadrant as VenueScanner and Cvent — a venue marketplace/sourcing tool for _discovering_ new venues. IQ BENE solves the adjacent and complementary problem: once you've found and worked with venues, how do you manage, extract intelligence from, and search across everything you already know about them. A planner could use VenueFindAI to discover a venue, then use IQ BENE to ingest that venue's documents and build a permanent, searchable profile.
+**Verdict:** Same quadrant as VenueScanner and Cvent — a venue marketplace/sourcing tool for _discovering_ new venues. iQ BENE solves the adjacent and complementary problem: once you've found and worked with venues, how do you manage, extract intelligence from, and search across everything you already know about them. A planner could use VenueFindAI to discover a venue, then use iQ BENE to ingest that venue's documents and build a permanent, searchable profile.
 
 ---
 
@@ -157,20 +157,20 @@ These are the established players. None of them are _document intelligence_ plat
 - CRM with client data visibility and lead capture
 - Cloud-based, mid-market pricing
 
-**Gaps relevant to IQ BENE:**
+**Gaps relevant to iQ BENE:**
 
 - Serves _venue operators_, not event planners — the same side-of-market distinction as Momentus and Tripleseat
 - No document intelligence, no PDF/floor plan ingestion, no ETL pipeline
 - No planner-facing portfolio management
 - Narrow vertical: performing arts centres and theatres, not the broader corporate/social events market
 
-**Verdict:** Niche venue operations software for a specific vertical (performing arts). No overlap with IQ BENE's core use case. Closer to a lighter-weight Momentus than anything in IQ BENE's competitive set.
+**Verdict:** Niche venue operations software for a specific vertical (performing arts). No overlap with iQ BENE's core use case. Closer to a lighter-weight Momentus than anything in iQ BENE's competitive set.
 
 ---
 
 ### 1.2 Digital Asset Management (DAM) Platforms
 
-DAM platforms are the closest adjacent category to IQ BENE — they centralize, tag, search, and distribute digital files for marketing and brand teams. Unlike the booking/CRM tools above, DAMs do handle unstructured files (images, PDFs, videos). But their intelligence is built for brand governance, not venue intelligence.
+DAM platforms are the closest adjacent category to iQ BENE — they centralize, tag, search, and distribute digital files for marketing and brand teams. Unlike the booking/CRM tools above, DAMs do handle unstructured files (images, PDFs, videos). But their intelligence is built for brand governance, not venue intelligence.
 
 ---
 
@@ -190,7 +190,7 @@ DAM platforms are the closest adjacent category to IQ BENE — they centralize, 
 
 **Pricing:** Quote-only. Entry-level around $450/month; enterprise contracts average ~$41K/year based on procurement data.
 
-**Gaps relevant to IQ BENE:**
+**Gaps relevant to iQ BENE:**
 
 - Built for _brand assets_ (logos, campaign images, marketing docs) — not venue intelligence
 - No venue-specific extraction schema (no capacity, amenities, room configurations, restrictions)
@@ -200,7 +200,7 @@ DAM platforms are the closest adjacent category to IQ BENE — they centralize, 
 - No cross-document aggregation or conflict resolution
 - Priced for enterprise marketing teams, not event planning agencies
 
-**Verdict:** Bynder is a sophisticated content library, not an intelligence platform. If a planner stored venue PDFs in Bynder, they'd get organized storage and generic AI tags. They would _not_ get extracted capacity data, structured room configurations, or answers to "find me a venue with a freight elevator and kosher catering." The intelligence layer IQ BENE provides simply doesn't exist in any DAM.
+**Verdict:** Bynder is a sophisticated content library, not an intelligence platform. If a planner stored venue PDFs in Bynder, they'd get organized storage and generic AI tags. They would _not_ get extracted capacity data, structured room configurations, or answers to "find me a venue with a freight elevator and kosher catering." The intelligence layer iQ BENE provides simply doesn't exist in any DAM.
 
 ---
 
@@ -221,7 +221,7 @@ DAM platforms are the closest adjacent category to IQ BENE — they centralize, 
 
 **Pricing:** Custom, quote-based. Two tiers (Premium and Enterprise). Starting point reported around $1,600/month; median contracts around $24,700/year.
 
-**Gaps relevant to IQ BENE:**
+**Gaps relevant to iQ BENE:**
 
 - Same fundamental limitation as Bynder: designed for _brand/marketing assets_, not venue intelligence
 - Brand Intelligence tags visual content generically — no understanding of venue-specific semantics
@@ -230,7 +230,7 @@ DAM platforms are the closest adjacent category to IQ BENE — they centralize, 
 - No event planner workflow: no RFP support, no venue comparison, no sourcing history
 - Smartsheet integration helps with _work management_ (tasks, approvals) — not with venue knowledge
 
-**Verdict:** Brandfolder is Bynder's strongest mid-market competitor, with a cleaner UX and a stronger AI tagging story. Neither is a venue intelligence platform. A planner using Brandfolder gets a well-organized file library with good visual search — and nothing more. The gap IQ BENE fills (venue-specific structured extraction, semantic search by venue attributes, multi-source reconciliation) is entirely absent from the DAM category.
+**Verdict:** Brandfolder is Bynder's strongest mid-market competitor, with a cleaner UX and a stronger AI tagging story. Neither is a venue intelligence platform. A planner using Brandfolder gets a well-organized file library with good visual search — and nothing more. The gap iQ BENE fills (venue-specific structured extraction, semantic search by venue attributes, multi-source reconciliation) is entirely absent from the DAM category.
 
 ---
 
@@ -255,7 +255,7 @@ A distinct emerging category: general-purpose AI assistants built specifically f
 - Free tier available; enterprise tier with SSO, custom integrations, and security controls
 - Spark Academy, Spark Excellence (team training), SparkU (student tier): education ecosystem building adoption
 
-**Gaps relevant to IQ BENE:**
+**Gaps relevant to iQ BENE:**
 
 - Spark is a _content generation and workflow automation_ tool — it helps planners write faster, not know their venues better
 - No venue knowledge base: no venue profiles, no stored documents, no portfolio management
@@ -264,13 +264,13 @@ A distinct emerging category: general-purpose AI assistants built specifically f
 - No structured venue metadata schema — outputs are generated text, not queryable structured data
 - No multi-source aggregation or conflict resolution across documents
 
-**Verdict:** Spark is the closest thing to a purpose-built AI assistant for event planners, and it's well-adopted (14,500+ users). But it's a _writing and workflow_ tool, not a _knowledge_ tool. A planner using Spark can draft an RFP faster — but still has no structured, searchable record of what their 50 preferred venues actually offer. IQ BENE and Spark are complementary: Spark generates the content; IQ BENE supplies the venue intelligence that makes that content accurate and specific.
+**Verdict:** Spark is the closest thing to a purpose-built AI assistant for event planners, and it's well-adopted (14,500+ users). But it's a _writing and workflow_ tool, not a _knowledge_ tool. A planner using Spark can draft an RFP faster — but still has no structured, searchable record of what their 50 preferred venues actually offer. iQ BENE and Spark are complementary: Spark generates the content; iQ BENE supplies the venue intelligence that makes that content accurate and specific.
 
 ---
 
 ### 1.4 Document Intelligence & ETL Platforms
 
-These are the infrastructure players. They are the technical substrate that IQ BENE's pipeline either competes with or can leverage.
+These are the infrastructure players. They are the technical substrate that iQ BENE's pipeline either competes with or can leverage.
 
 ---
 
@@ -288,14 +288,14 @@ These are the infrastructure players. They are the technical substrate that IQ B
 
 **Pricing:** Free tier (15K pages, no expiry). Pay-as-you-go (~$2.66/compute hour). Enterprise subscription.
 
-**Relevance to IQ BENE:**
+**Relevance to iQ BENE:**
 
-- Unstructured.io is what IQ BENE's ETL layer _could use as a backend_ rather than building from scratch
+- Unstructured.io is what iQ BENE's ETL layer _could use as a backend_ rather than building from scratch
 - Their open-source library (`unstructured`) can be self-hosted
 - Handles the hardest parsing problems (scanned PDFs, multi-column layouts, tables)
 - Not a product for end users — pure infrastructure/API
 
-**Strategic insight:** IQ BENE doesn't need to reinvent document parsing. Unstructured.io (or Docling) handles the extraction layer. IQ BENE's value add is the _venue-specific intelligence_ on top — the domain schema, the aggregation model, the search experience, the team collaboration.
+**Strategic insight:** iQ BENE doesn't need to reinvent document parsing. Unstructured.io (or Docling) handles the extraction layer. iQ BENE's value add is the _venue-specific intelligence_ on top — the domain schema, the aggregation model, the search experience, the team collaboration.
 
 ---
 
@@ -312,7 +312,7 @@ These are the infrastructure players. They are the technical substrate that IQ B
 - Handles: PDFs, DOCX, PPTX, HTML, images
 - Runs locally, no cloud dependency, MIT license
 
-**Why it matters for IQ BENE:**
+**Why it matters for iQ BENE:**
 
 - Free, open-source, no per-page pricing
 - Superior table and layout understanding vs. naive PDF parsing
@@ -320,7 +320,7 @@ These are the infrastructure players. They are the technical substrate that IQ B
 - IBM Granite-Docling-258M: new ultra-compact VLM for document-to-structured-format conversion
 - Ideal for floor plan PDFs, spec sheets with tables, multi-column venue decks
 
-**Strategic decision for IQ BENE:** Use Docling as the primary document parsing layer. It handles the structural extraction (layout, tables, text) and Spring AI's ETL pipeline then handles chunking, embedding, and vector storage.
+**Strategic decision for iQ BENE:** Use Docling as the primary document parsing layer. It handles the structural extraction (layout, tables, text) and Spring AI's ETL pipeline then handles chunking, embedding, and vector storage.
 
 ---
 
@@ -343,7 +343,7 @@ These are the infrastructure players. They are the technical substrate that IQ B
 - Handles: PDFs, Word, Excel, PowerPoint transparently — same API regardless of file type
 - Used in production for: search engine indexing, content analysis, translation pipelines
 
-**Why it's the right choice for IQ BENE:**
+**Why it's the right choice for iQ BENE:**
 
 - Battle-tested in enterprise Java for 15+ years
 - DWG/DXF support via Tika's AutoCAD parser (direct path for CAD files)
@@ -357,9 +357,9 @@ These are the infrastructure players. They are the technical substrate that IQ B
 
 **What they are:** Python-first AI orchestration frameworks. LlamaIndex has strong document parsing (LlamaExtract, LlamaParse). LangChain has document loaders.
 
-**Relevance to IQ BENE:** These are Python-ecosystem tools. Since IQ BENE is Java/Spring Boot, they are not directly applicable. Spring AI is the Java equivalent and has caught up rapidly.
+**Relevance to iQ BENE:** These are Python-ecosystem tools. Since iQ BENE is Java/Spring Boot, they are not directly applicable. Spring AI is the Java equivalent and has caught up rapidly.
 
-**Note:** If IQ BENE ever needs a Python microservice for specialized extraction (e.g., advanced floor plan analysis), LlamaIndex's LlamaParse is best-in-class for complex PDFs.
+**Note:** If iQ BENE ever needs a Python microservice for specialized extraction (e.g., advanced floor plan analysis), LlamaIndex's LlamaParse is best-in-class for complex PDFs.
 
 ---
 
@@ -371,13 +371,13 @@ Recent well-funded entrants in the document intelligence space:
 - **Raydocs** — Template-based extraction with confidence scores and source links.
 - **Retab** — Pre-seed $3.5M. Non-technical users building extraction templates.
 
-**Pattern:** All these companies are _horizontal_ document intelligence APIs. IQ BENE's opportunity is to be _vertical_ — deeply specialized for venue documents (floor plans, venue decks, CAD files, spec sheets). Horizontal tools extract generic fields. IQ BENE extracts venue-specific intelligence with a purpose-built schema.
+**Pattern:** All these companies are _horizontal_ document intelligence APIs. iQ BENE's opportunity is to be _vertical_ — deeply specialized for venue documents (floor plans, venue decks, CAD files, spec sheets). Horizontal tools extract generic fields. iQ BENE extracts venue-specific intelligence with a purpose-built schema.
 
 ---
 
 ### 1.5 Competitive Gap Summary
 
-| Capability                               | Cvent            | Tripleseat      | Momentus        | VenueScanner    | VenueFindAI     | VenueArc        | Spark (GEVME/PCMA)    | Bynder            | Brandfolder         | Unstructured.io | IQ BENE             |
+| Capability                               | Cvent            | Tripleseat      | Momentus        | VenueScanner    | VenueFindAI     | VenueArc        | Spark (GEVME/PCMA)    | Bynder            | Brandfolder         | Unstructured.io | iQ BENE             |
 | ---------------------------------------- | ---------------- | --------------- | --------------- | --------------- | --------------- | --------------- | --------------------- | ----------------- | ------------------- | --------------- | ------------------- |
 | Venue discovery (marketplace)            | ✅ Best-in-class | ⛔              | ⛔              | ✅ (UK-focused) | ✅ (AI + human) | ⛔              | Partial (DestinAItor) | ⛔                | ⛔                  | ⛔              | Phase 3             |
 | Planner's own venue library              | ⛔               | ⛔              | ⛔              | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ⛔              | ✅                  |
@@ -392,7 +392,7 @@ Recent well-funded entrants in the document intelligence space:
 | Venue-specific schema                    | ⛔               | ✅ (operations) | ✅ (operations) | ⛔              | ⛔              | ✅ (operations) | ⛔                    | ⛔                | ⛔                  | ⛔              | ✅ (intelligence)   |
 | SMB-friendly pricing                     | ⛔               | Partial         | ⛔              | ✅ (free)       | ✅ (free)       | Partial         | ✅ (free tier)        | ⛔                | ⛔                  | ✅              | ✅                  |
 
-**The gap IQ BENE fills:** Nobody provides document intelligence specifically for event planners managing their own venue portfolio. Marketplace/sourcing tools (Cvent, VenueScanner) only know what venues self-report. AI productivity tools (Spark) generate content but have no venue knowledge base. DAM platforms (Bynder, Brandfolder) store files with generic tagging but understand nothing about venue semantics. Operations platforms (Tripleseat, Momentus, VenueArc) serve venue operators, not planners, and contain no document intelligence. Generic document APIs (Unstructured.io) handle extraction but have no venue schema. IQ BENE is the missing layer: structured, searchable, planner-owned venue intelligence extracted from the documents planners already have.
+**The gap iQ BENE fills:** Nobody provides document intelligence specifically for event planners managing their own venue portfolio. Marketplace/sourcing tools (Cvent, VenueScanner) only know what venues self-report. AI productivity tools (Spark) generate content but have no venue knowledge base. DAM platforms (Bynder, Brandfolder) store files with generic tagging but understand nothing about venue semantics. Operations platforms (Tripleseat, Momentus, VenueArc) serve venue operators, not planners, and contain no document intelligence. Generic document APIs (Unstructured.io) handle extraction but have no venue schema. iQ BENE is the missing layer: structured, searchable, planner-owned venue intelligence extracted from the documents planners already have.
 
 ---
 
@@ -411,7 +411,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 | Reader                       | Handles                                         | Notes                                                       |
 | ---------------------------- | ----------------------------------------------- | ----------------------------------------------------------- |
-| `TikaDocumentReader`         | PDF, DOCX, XLSX, PPTX, HTML, XML, 1000+ formats | Apache Tika under the hood. **Primary reader for IQ BENE.** |
+| `TikaDocumentReader`         | PDF, DOCX, XLSX, PPTX, HTML, XML, 1000+ formats | Apache Tika under the hood. **Primary reader for iQ BENE.** |
 | `PagePdfDocumentReader`      | PDFs, page-by-page                              | Preserves page boundaries, useful for floor plans           |
 | `ParagraphPdfDocumentReader` | PDFs, paragraph-level                           | Better semantic chunking for venue decks                    |
 | `MarkdownDocumentReader`     | Markdown files                                  | Useful for structured venue specs                           |
@@ -426,7 +426,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 | `ContentFormatTransformer`     | Normalizes text format                                                               |
 | `SummaryMetadataEnricher`      | Generates document summary using LLM, stored as metadata                             |
 | `KeywordMetadataEnricher`      | Extracts keywords using LLM, stored as metadata                                      |
-| Custom `VenueMetadataEnricher` | **IQ BENE-specific:** extracts capacity, amenities, contacts via structured LLM call |
+| Custom `VenueMetadataEnricher` | **iQ BENE-specific:** extracts capacity, amenities, contacts via structured LLM call |
 
 **DocumentWriters (Load):**
 
@@ -436,7 +436,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 | `SimpleVectorStore`  | In-memory (testing/dev)                           |
 | `FileDocumentWriter` | Write to files (useful for debugging pipeline)    |
 
-### 2.2 IQ BENE's Document Processing Pipeline
+### 2.2 iQ BENE's Document Processing Pipeline
 
 ```
                      S3 Asset Storage
@@ -541,7 +541,7 @@ public class VenueAssetProcessingPipeline {
 
 ### 2.4 Chunking Strategy
 
-Document chunking significantly impacts retrieval quality. IQ BENE uses a hybrid strategy:
+Document chunking significantly impacts retrieval quality. iQ BENE uses a hybrid strategy:
 
 **For venue decks (PDFs):**
 
@@ -646,13 +646,13 @@ docling-service:
 
 ---
 
-## 3. The Intelligence Layer IQ BENE Owns
+## 3. The Intelligence Layer iQ BENE Owns
 
-Everything above (Tika, Docling, Spring AI ETL) is infrastructure. IQ BENE's proprietary intelligence sits on top:
+Everything above (Tika, Docling, Spring AI ETL) is infrastructure. iQ BENE's proprietary intelligence sits on top:
 
 ### 3.1 Venue-Specific Extraction Schema
 
-Generic document intelligence tools extract generic fields. IQ BENE extracts fields that matter for event professionals:
+Generic document intelligence tools extract generic fields. iQ BENE extracts fields that matter for event professionals:
 
 ```json
 {
@@ -709,7 +709,7 @@ Generic document intelligence tools extract generic fields. IQ BENE extracts fie
 }
 ```
 
-This schema is what makes IQ BENE a _venue intelligence platform_, not just a document storage system. Every competitor either has operational data (bookings, invoicing) or generic extraction. No one has this schema purpose-built for event planners.
+This schema is what makes iQ BENE a _venue intelligence platform_, not just a document storage system. Every competitor either has operational data (bookings, invoicing) or generic extraction. No one has this schema purpose-built for event planners.
 
 ### 3.2 Confidence-Sourced Metadata Model
 
@@ -735,7 +735,7 @@ No existing venue tool surfaces this level of data provenance. Users see not jus
 
 Venues send the same venue in multiple formats — a marketing deck, a floor plan PDF, a technical spec sheet, a photo set. Each source may have conflicting or complementary data.
 
-IQ BENE's aggregation engine:
+iQ BENE's aggregation engine:
 
 1. Collects all extraction events per venue (event log)
 2. Applies priority rules: `manual_override > verified > high_confidence_AI > low_confidence_AI`
@@ -772,7 +772,7 @@ Upload → S3 → AssetUploadedEvent → RabbitMQ → N consumers → Processing
 | 1M venues        | ~$1,000 | Auto-scaled, still manageable          |
 | 100M venues      | ~$100K  | Optimize with cheaper models + caching |
 
-At the $0.001/venue cost of GPT-4o extraction + embedding generation, IQ BENE can process 1 million venues for approximately $1,000 in AI costs. This is not a cost problem.
+At the $0.001/venue cost of GPT-4o extraction + embedding generation, iQ BENE can process 1 million venues for approximately $1,000 in AI costs. This is not a cost problem.
 
 ### Vector Search Scaling
 
@@ -820,4 +820,4 @@ pgvector with IVFFlat index:
 
 ---
 
-**Docs:** [What is IQ BENE?](what-is-vip.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](overview.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)

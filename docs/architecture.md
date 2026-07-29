@@ -1,32 +1,32 @@
-# Venue Intelligence Platform (IQ BENE) — Architecture Reference
+# Venue Intelligence Platform (iQ BENE) — Architecture Reference
 
 > **Audience:** Engineers, architects.
 > **Purpose:** Single source of truth for all technical decisions before development starts.
 
-**Docs:** [What is IQ BENE?](what-is-vip.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](overview.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
 
 ---
 
 ## 1. Platform Context
 
-IQ BENE is a new product service built **on top of the IQKV foundation**. It does not replace or fork any existing service. It reuses:
+iQ BENE is a new product service built **on top of the IQKV foundation**. It does not replace or fork any existing service. It reuses:
 
-| Foundation service           | What IQ BENE inherits                                                                   |
+| Foundation service           | What iQ BENE inherits                                                                   |
 | ---------------------------- | --------------------------------------------------------------------------------------- |
 | `foundation-gateway-service` | JWT validation, tenant routing, header propagation — no changes needed                  |
 | `foundation-iam-service`     | Auth, multi-tenancy, team invitations, SSO, presigned S3 upload pattern                 |
 | `foundation-billing-service` | Plan entitlements (`max_venues`, `ai_extraction_enabled`, etc.), subscription lifecycle |
-| `foundation-audit-service`   | Compliance log — consumes IQ BENE events passively, no code changes                     |
+| `foundation-audit-service`   | Compliance log — consumes iQ BENE events passively, no code changes                     |
 | `foundation-ui-app`          | Extended (not forked) with new `/venues/*` routes under FSD architecture                |
 | `foundation-tenancy`         | Schema-per-tenant isolation library reused directly                                     |
 
-**New services introduced by IQ BENE:**
+**New services introduced by iQ BENE:**
 
-- `vip-venue-model` — shared library (JAR). Canonical domain model, event contracts, enums, and Liquibase migrations. No Spring beans, no business logic — pure model and schema. Imported by both services.
-- `vip-venue-service` — core domain: venues, assets, metadata, search, plan enforcement. Synchronous request/response only.
-- `vip-venue-ingestion-worker` — async sidecar: document ETL pipeline, extraction orchestration, embedding generation, scheduled jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `vip-venue-service`.
+- `iqbene-venue-model` — shared library (JAR). Canonical domain model, event contracts, enums, and Liquibase migrations. No Spring beans, no business logic — pure model and schema. Imported by both services.
+- `iqbene-venue-service` — core domain: venues, assets, metadata, search, plan enforcement. Synchronous request/response only.
+- `iqbene-venue-ingestion-worker` — async sidecar: document ETL pipeline, extraction orchestration, embedding generation, scheduled jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `iqbene-venue-service`.
 
-**New infrastructure introduced by IQ BENE:**
+**New infrastructure introduced by iQ BENE:**
 
 - pgvector extension on existing PostgreSQL (not a new service)
 - PostGIS extension on existing PostgreSQL (not a new service)
@@ -236,12 +236,12 @@ Aggregation is debounced (5s) to batch rapid successive events.
                     └────────┬─────────┘     └────────┬─────────┘
                              │                        │ plan entitlements
                     ┌────────▼────────────────────────▼─────────┐
-                    │              vip-venue-service              │
+                    │              iqbene-venue-service              │
                     │  venues · assets · metadata · search · api │
                     └────────┬─────────────────────────┬─────────┘
                              │ RabbitMQ: asset.uploaded │ read/write
                     ┌────────▼─────────┐     ┌─────────▼────────┐
-                    │ vip-ingestion-   │     │   PostgreSQL      │
+                    │ iqbene-ingestion-   │     │   PostgreSQL      │
                     │    worker        │────►│   + pgvector      │
                     │ (async sidecar)  │     │   + PostGIS       │
                     └──────────────────┘     └──────────────────┘
@@ -251,49 +251,49 @@ Aggregation is debounced (5s) to batch rapid successive events.
                     └──────────────────┘
 ```
 
-### vip-venue-service
+### iqbene-venue-service
 
 - **Responsibilities:** venue CRUD, asset upload flow (presigned URL), metadata read/write, search API, plan entitlement enforcement
-- **Database:** owns the IQ BENE PostgreSQL schema (schema-per-tenant via `foundation-tenancy`). Shared with `vip-venue-ingestion-worker` — no cross-service API calls for data.
+- **Database:** owns the iQ BENE PostgreSQL schema (schema-per-tenant via `foundation-tenancy`). Shared with `iqbene-venue-ingestion-worker` — no cross-service API calls for data.
 - **Exposes:** REST API at `/api/v1/venues`
 - **Publishes:** `venue.created`, `venue.updated`, `asset.uploaded`, `asset.deleted` (RabbitMQ)
 - **Consumes:** `extraction.completed`, `extraction.failed` (RabbitMQ) — triggers metadata aggregation
 
-### vip-venue-ingestion-worker
+### iqbene-venue-ingestion-worker
 
 - **Responsibilities:** document ETL pipeline (parse → chunk → extract → embed), extraction job lifecycle, metadata aggregation, scheduled maintenance jobs (stale re-aggregation, cost reporting)
 - **Nature:** async sidecar — no inbound HTTP, no REST API, no service discovery entry. Event-driven only.
-- **Database:** shared PostgreSQL schema with `vip-venue-service`. Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `venue_vectors`, `ai_cost_tracking`.
+- **Database:** shared PostgreSQL schema with `iqbene-venue-service`. Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `venue_vectors`, `ai_cost_tracking`.
 - **Consumes:** `asset.uploaded` (RabbitMQ) — triggers ETL pipeline
 - **Publishes:** `extraction.started`, `extraction.completed`, `extraction.failed` (RabbitMQ)
 - **External calls:** OpenAI API (GPT-4o, text-embedding-3-small), optionally Docling sidecar (Phase 2)
-- **Scaling:** replicas scaled independently based on RabbitMQ queue depth — no impact on `vip-venue-service`
+- **Scaling:** replicas scaled independently based on RabbitMQ queue depth — no impact on `iqbene-venue-service`
 
 ### Table Ownership
 
 Both services share one PostgreSQL schema. Ownership defines who may write to a table. Cross-boundary reads are permitted; cross-boundary writes are not.
 
-| Table                   | Owner                        | The other service may…                                                       |
-| ----------------------- | ---------------------------- | ---------------------------------------------------------------------------- |
-| `venues`                | `vip-venue-service`          | read (ingestion-worker: resolve venue_id only)                               |
-| `venue_assets`          | `vip-venue-service`          | read (ingestion-worker: fetch asset for processing)                          |
-| `venue_metadata_events` | `vip-venue-service`          | write via event reaction (`extraction.completed` → venue-service aggregates) |
-| `extraction_jobs`       | `vip-venue-ingestion-worker` | read (venue-service: expose job status to API)                               |
-| `venue_vectors`         | `vip-venue-ingestion-worker` | read (venue-service: vector search queries)                                  |
-| `ai_cost_tracking`      | `vip-venue-ingestion-worker` | read (venue-service: expose cost summary to API)                             |
+| Table                   | Owner                           | The other service may…                                                       |
+| ----------------------- | ------------------------------- | ---------------------------------------------------------------------------- |
+| `venues`                | `iqbene-venue-service`          | read (ingestion-worker: resolve venue_id only)                               |
+| `venue_assets`          | `iqbene-venue-service`          | read (ingestion-worker: fetch asset for processing)                          |
+| `venue_metadata_events` | `iqbene-venue-service`          | write via event reaction (`extraction.completed` → venue-service aggregates) |
+| `extraction_jobs`       | `iqbene-venue-ingestion-worker` | read (venue-service: expose job status to API)                               |
+| `venue_vectors`         | `iqbene-venue-ingestion-worker` | read (venue-service: vector search queries)                                  |
+| `ai_cost_tracking`      | `iqbene-venue-ingestion-worker` | read (venue-service: expose cost summary to API)                             |
 
-The single legitimate cross-boundary read from `vip-venue-ingestion-worker` is a `SELECT` on `venue_assets` by `asset_id` (delivered in the `asset.uploaded` event payload). This is a foreign key lookup, not business logic — acceptable and intentional.
+The single legitimate cross-boundary read from `iqbene-venue-ingestion-worker` is a `SELECT` on `venue_assets` by `asset_id` (delivered in the `asset.uploaded` event payload). This is a foreign key lookup, not business logic — acceptable and intentional.
 
 ---
 
-## 4a. Shared Library — vip-venue-model
+## 4a. Shared Library — iqbene-venue-model
 
-`vip-venue-model` is a plain Java library (JAR, no Spring Boot, no `@SpringBootApplication`). Both `vip-venue-service` and `vip-venue-ingestion-worker` declare it as a compile dependency. It is the single source of truth for anything both services need to agree on.
+`iqbene-venue-model` is a plain Java library (JAR, no Spring Boot, no `@SpringBootApplication`). Both `iqbene-venue-service` and `iqbene-venue-ingestion-worker` declare it as a compile dependency. It is the single source of truth for anything both services need to agree on.
 
 **Contents:**
 
 ```
-vip-venue-model/
+iqbene-venue-model/
 ├── model/
 │   ├── venue/
 │   │   ├── Venue.java                  JPA entity (aggregate root)
@@ -338,14 +338,14 @@ vip-venue-model/
 **Dependency graph:**
 
 ```
-vip-venue-model  (library, no runtime)
-      ├── vip-venue-service     (Spring Boot, imports model)
-      └── vip-venue-ingestion-worker  (Spring Boot, imports model)
+iqbene-venue-model  (library, no runtime)
+      ├── iqbene-venue-service     (Spring Boot, imports model)
+      └── iqbene-venue-ingestion-worker  (Spring Boot, imports model)
 ```
 
 ---
 
-## 5. ETL Pipeline (vip-venue-ingestion-worker)
+## 5. ETL Pipeline (iqbene-venue-ingestion-worker)
 
 Built on **Spring AI's ETL framework**. Three composable stages:
 
@@ -393,7 +393,7 @@ Retry on failure: 3 attempts with exponential backoff. After 3 failures → `ext
 
 ## 6. Search Architecture
 
-All search is served by `vip-venue-service` querying PostgreSQL directly. No separate search service.
+All search is served by `iqbene-venue-service` querying PostgreSQL directly. No separate search service.
 
 ### Search Modes
 
@@ -415,7 +415,7 @@ All search is served by `vip-venue-service` querying PostgreSQL directly. No sep
 
 ---
 
-## 7. API Surface (vip-venue-service)
+## 7. API Surface (iqbene-venue-service)
 
 Base path: `/api/v1/venues`
 
@@ -460,7 +460,7 @@ Base path: `/api/v1/venues`
 
 Exchange: `iqkv.events` (Topic) — same exchange used by all foundation services.
 
-### Published by vip-venue-service
+### Published by iqbene-venue-service
 
 | Routing key      | Payload fields                                                  | Description                           |
 | ---------------- | --------------------------------------------------------------- | ------------------------------------- |
@@ -469,7 +469,7 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 | `asset.uploaded` | asset_id, venue_id, tenant_id, asset_type, s3_key, content_type | Asset confirmed, ready for extraction |
 | `asset.deleted`  | asset_id, venue_id, tenant_id                                   | Asset removed                         |
 
-### Published by vip-venue-ingestion-worker
+### Published by iqbene-venue-ingestion-worker
 
 | Routing key            | Payload fields                                | Description           |
 | ---------------------- | --------------------------------------------- | --------------------- |
@@ -477,14 +477,14 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 | `extraction.completed` | job_id, asset_id, venue_id, tenant_id         | Extraction succeeded  |
 | `extraction.failed`    | job_id, asset_id, venue_id, tenant_id, reason | All retries exhausted |
 
-### Consumed by vip-venue-ingestion-worker
+### Consumed by iqbene-venue-ingestion-worker
 
 | Routing key      | Queue                                  | Action                                |
 | ---------------- | -------------------------------------- | ------------------------------------- |
 | `asset.uploaded` | `vip.extraction.priority` (Enterprise) | Trigger ETL pipeline immediately      |
 | `asset.uploaded` | `vip.extraction.standard` (Free/Pro)   | Trigger ETL pipeline (standard queue) |
 
-### Consumed by vip-venue-service
+### Consumed by iqbene-venue-service
 
 | Routing key            | Queue                      | Action                                |
 | ---------------------- | -------------------------- | ------------------------------------- |
@@ -521,7 +521,7 @@ Enforcement via `PlanFeatureGuard` (same pattern as IAM service's existing imple
 
 ## 10. Database Schema (Liquibase, tenant schema)
 
-Migrations live in `vip-venue-model` under `src/main/resources/db/changelog/tenant/` — the shared library is the single source of truth for schema. Both `vip-venue-service` and `vip-venue-ingestion-worker` include the library on their classpath; `vip-venue-service` runs the migrations on startup (or a dedicated init container applies them on tenant provisioning via `TenantProvisionedEvent` listener, same pattern as IAM).
+Migrations live in `iqbene-venue-model` under `src/main/resources/db/changelog/tenant/` — the shared library is the single source of truth for schema. Both `iqbene-venue-service` and `iqbene-venue-ingestion-worker` include the library on their classpath; `iqbene-venue-service` runs the migrations on startup (or a dedicated init container applies them on tenant provisioning via `TenantProvisionedEvent` listener, same pattern as IAM).
 
 ```sql
 -- extensions (applied once per tenant schema)
@@ -629,7 +629,7 @@ CREATE INDEX idx_ai_cost_month ON ai_cost_tracking (DATE_TRUNC('month', created_
 
 ## 11. UI Integration (foundation-ui-app)
 
-Extend `foundation-ui-app` — do **not** fork. New IQ BENE features live under:
+Extend `foundation-ui-app` — do **not** fork. New iQ BENE features live under:
 
 ```
 src/features/venue-management/
@@ -661,7 +661,7 @@ Reuse without modification:
 
 ## 12. Observability
 
-Both IQ BENE services follow foundation patterns exactly.
+Both iQ BENE services follow foundation patterns exactly.
 
 **Prometheus metrics to add:**
 
@@ -713,10 +713,10 @@ Full rationale and competitor analysis: see `venue-intelligence-platform-intelli
 
 ## 15. Open Decisions (resolve before Sprint 1)
 
-- [x] **One service or two?** ~~`vip-venue-service` + `vip-ai-service` vs. a single `vip-venue-service` with an internal AI module.~~ **Decided:** Two deployments — `vip-venue-service` (synchronous API, data-tied) and `vip-venue-ingestion-worker` (async sidecar, shared schema, no inbound HTTP). Services are tied to data; ingestion is a processing concern, not a peer service.
-- [x] **Naming convention.** Service names reflect domain/purpose, not implementation technology. `vip-venue-ingestion-worker` describes what it does (ingest and process assets), not how (AI/ML).
+- [x] **One service or two?** ~~`iqbene-venue-service` + `iqbene-ai-service` vs. a single `iqbene-venue-service` with an internal AI module.~~ **Decided:** Two deployments — `iqbene-venue-service` (synchronous API, data-tied) and `iqbene-venue-ingestion-worker` (async sidecar, shared schema, no inbound HTTP). Services are tied to data; ingestion is a processing concern, not a peer service.
+- [x] **Naming convention.** Service names reflect domain/purpose, not implementation technology. `iqbene-venue-ingestion-worker` describes what it does (ingest and process assets), not how (AI/ML).
 - [ ] **Docling in Phase 1?** Start with pure Tika (simpler). Add Docling sidecar in Phase 2 when floor plan / table fidelity is needed. **Lean: Tika-only for Phase 1.**
-- [ ] **Chunking table** in separate schema or same as venue tables? Spring AI's `PgVectorStore` defaults to a `vector_store` table. IQ BENE uses `venue_vectors` to be explicit. Confirm naming before first migration.
+- [ ] **Chunking table** in separate schema or same as venue tables? Spring AI's `PgVectorStore` defaults to a `vector_store` table. iQ BENE uses `venue_vectors` to be explicit. Confirm naming before first migration.
 - [ ] **Cost tracking granularity:** per-asset or per-tenant-per-month? Both are in schema; decide which is surfaced in UI.
 
 ---
@@ -760,4 +760,4 @@ Full rationale and competitor analysis: see `venue-intelligence-platform-intelli
 
 ---
 
-**Docs:** [What is IQ BENE?](what-is-vip.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](overview.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)

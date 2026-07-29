@@ -1,32 +1,32 @@
-# Venue Intelligence Platform (IQ BENE) — Справочник по архитектуре
+# Venue Intelligence Platform (iQ BENE) — Справочник по архитектуре
 
 > **Аудитория:** Инженеры, архитекторы.
 > **Назначение:** Единый источник истины для всех технических решений до начала разработки.
 
-**Документы:** [Что такое IQ BENE?](what-is-vip.md) · [Бизнес-обзор](business-overview.md) · [Конкурентная среда](intelligence-and-competitive-landscape.md) · [Архитектура](architecture.md)
+**Документы:** [Что такое iQ BENE?](overview.md) · [Бизнес-обзор](business-overview.md) · [Конкурентная среда](intelligence-and-competitive-landscape.md) · [Архитектура](architecture.md)
 
 ---
 
 ## 1. Контекст платформы
 
-IQ BENE — это новый продуктовый сервис, построенный **поверх фундамента IQKV**. Он не заменяет и не форкает ни один существующий сервис. Он повторно использует:
+iQ BENE — это новый продуктовый сервис, построенный **поверх фундамента IQKV**. Он не заменяет и не форкает ни один существующий сервис. Он повторно использует:
 
-| Фундаментальный сервис       | Что наследует IQ BENE                                                                                 |
+| Фундаментальный сервис       | Что наследует iQ BENE                                                                                 |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------- |
 | `foundation-gateway-service` | Валидация JWT, маршрутизация по тенантам, распространение заголовков — изменения не нужны             |
 | `foundation-iam-service`     | Авторизация, мультитенантность, приглашения в команду, SSO, паттерн подписанных URL для загрузки в S3 |
 | `foundation-billing-service` | Полномочия тарифа (`max_venues`, `ai_extraction_enabled` и т.д.), жизненный цикл подписки             |
-| `foundation-audit-service`   | Журнал соответствия — пассивно потребляет события IQ BENE, изменения кода не нужны                    |
+| `foundation-audit-service`   | Журнал соответствия — пассивно потребляет события iQ BENE, изменения кода не нужны                    |
 | `foundation-ui-app`          | Расширен (не форкнут) новыми маршрутами `/venues/*` в рамках архитектуры FSD                          |
 | `foundation-tenancy`         | Библиотека изоляции схема-на-тенант используется напрямую                                             |
 
-**Новые сервисы, вводимые IQ BENE:**
+**Новые сервисы, вводимые iQ BENE:**
 
-- `vip-venue-model` — общая библиотека (JAR). Каноническая доменная модель, контракты событий, перечисления и миграции Liquibase. Нет Spring-бин, нет бизнес-логики — чистая модель и схема. Импортируется обоими сервисами.
-- `vip-venue-service` — основная доменная логика: площадки, активы, метаданные, поиск, применение правил тарифа. Только синхронные запрос/ответ.
-- `vip-venue-ingestion-worker` — асинхронный сайдкар: ETL-конвейер документов, оркестрация извлечения, генерация эмбеддингов, плановые задания. Нет входящего HTTP — только событийно-управляемый. Использует ту же схему PostgreSQL, что и `vip-venue-service`.
+- `iqbene-venue-model` — общая библиотека (JAR). Каноническая доменная модель, контракты событий, перечисления и миграции Liquibase. Нет Spring-бин, нет бизнес-логики — чистая модель и схема. Импортируется обоими сервисами.
+- `iqbene-venue-service` — основная доменная логика: площадки, активы, метаданные, поиск, применение правил тарифа. Только синхронные запрос/ответ.
+- `iqbene-venue-ingestion-worker` — асинхронный сайдкар: ETL-конвейер документов, оркестрация извлечения, генерация эмбеддингов, плановые задания. Нет входящего HTTP — только событийно-управляемый. Использует ту же схему PostgreSQL, что и `iqbene-venue-service`.
 
-**Новая инфраструктура, вводимая IQ BENE:**
+**Новая инфраструктура, вводимая iQ BENE:**
 
 - Расширение pgvector в существующей PostgreSQL (не новый сервис)
 - Расширение PostGIS в существующей PostgreSQL (не новый сервис)
@@ -236,12 +236,12 @@ LOW_CONFIDENCE_AI   → уверенность < 0.7
                     └────────┬─────────┘     └────────┬─────────┘
                              │                        │ полномочия тарифа
                     ┌────────▼────────────────────────▼─────────┐
-                    │              vip-venue-service              │
+                    │              iqbene-venue-service              │
                     │  площадки · активы · метаданные · поиск · api │
                     └────────┬─────────────────────────┬─────────┘
                              │ RabbitMQ: asset.uploaded │ чтение/запись
                     ┌────────▼─────────┐     ┌─────────▼────────┐
-                    │ vip-ingestion-   │     │   PostgreSQL      │
+                    │ iqbene-ingestion-   │     │   PostgreSQL      │
                     │    worker        │────►│   + pgvector      │
                     │ (async sidecar)  │     │   + PostGIS       │
                     └──────────────────┘     └──────────────────┘
@@ -251,49 +251,49 @@ LOW_CONFIDENCE_AI   → уверенность < 0.7
                     └──────────────────┘
 ```
 
-### vip-venue-service
+### iqbene-venue-service
 
 - **Обязанности:** CRUD площадок, поток загрузки активов (подписанный URL), чтение/запись метаданных, API поиска, применение полномочий тарифа
-- **База данных:** владеет схемой IQ BENE в PostgreSQL (схема-на-тенант через `foundation-tenancy`). Общая с `vip-venue-ingestion-worker` — межсервисные вызовы API для данных нет.
+- **База данных:** владеет схемой iQ BENE в PostgreSQL (схема-на-тенант через `foundation-tenancy`). Общая с `iqbene-venue-ingestion-worker` — межсервисные вызовы API для данных нет.
 - **Предоставляет:** REST API на `/api/v1/venues`
 - **Публикует:** `venue.created`, `venue.updated`, `asset.uploaded`, `asset.deleted` (RabbitMQ)
 - **Потребляет:** `extraction.completed`, `extraction.failed` (RabbitMQ) — запускает агрегацию метаданных
 
-### vip-venue-ingestion-worker
+### iqbene-venue-ingestion-worker
 
 - **Обязанности:** ETL-конвейер документов (парсинг → чанкинг → извлечение → эмбеддинг), жизненный цикл заданий извлечения, агрегация метаданных, плановые обслуживающие задания (обновление устаревшей агрегации, отчёты по стоимости)
 - **Природа:** асинхронный сайдкар — нет входящего HTTP, нет REST API, нет записи в service discovery. Только событийно-управляемый.
-- **База данных:** общая схема PostgreSQL с `vip-venue-service`. Читает `venue_assets`, пишет `extraction_jobs`, `venue_metadata_events`, `venue_vectors`, `ai_cost_tracking`.
+- **База данных:** общая схема PostgreSQL с `iqbene-venue-service`. Читает `venue_assets`, пишет `extraction_jobs`, `venue_metadata_events`, `venue_vectors`, `ai_cost_tracking`.
 - **Потребляет:** `asset.uploaded` (RabbitMQ) — запускает ETL-конвейер
 - **Публикует:** `extraction.started`, `extraction.completed`, `extraction.failed` (RabbitMQ)
 - **Внешние вызовы:** OpenAI API (GPT-4o, text-embedding-3-small), опционально сайдкар Docling (Фаза 2)
-- **Масштабирование:** реплики масштабируются независимо на основе глубины очереди RabbitMQ — без влияния на `vip-venue-service`
+- **Масштабирование:** реплики масштабируются независимо на основе глубины очереди RabbitMQ — без влияния на `iqbene-venue-service`
 
 ### Владение таблицами
 
 Оба сервиса используют одну схему PostgreSQL. Владение определяет, кто может писать в таблицу. Кросс-граничные чтения разрешены; кросс-граничные записи — нет.
 
-| Таблица                 | Владелец                     | Другой сервис может…                                                                |
-| ----------------------- | ---------------------------- | ----------------------------------------------------------------------------------- |
-| `venues`                | `vip-venue-service`          | читать (ingestion-worker: только разрешать venue_id)                                |
-| `venue_assets`          | `vip-venue-service`          | читать (ingestion-worker: получать актив для обработки)                             |
-| `venue_metadata_events` | `vip-venue-service`          | писать через реакцию на событие (`extraction.completed` → venue-service агрегирует) |
-| `extraction_jobs`       | `vip-venue-ingestion-worker` | читать (venue-service: показывать статус задания в API)                             |
-| `venue_vectors`         | `vip-venue-ingestion-worker` | читать (venue-service: векторные поисковые запросы)                                 |
-| `ai_cost_tracking`      | `vip-venue-ingestion-worker` | читать (venue-service: показывать сводку по стоимости в API)                        |
+| Таблица                 | Владелец                        | Другой сервис может…                                                                |
+| ----------------------- | ------------------------------- | ----------------------------------------------------------------------------------- |
+| `venues`                | `iqbene-venue-service`          | читать (ingestion-worker: только разрешать venue_id)                                |
+| `venue_assets`          | `iqbene-venue-service`          | читать (ingestion-worker: получать актив для обработки)                             |
+| `venue_metadata_events` | `iqbene-venue-service`          | писать через реакцию на событие (`extraction.completed` → venue-service агрегирует) |
+| `extraction_jobs`       | `iqbene-venue-ingestion-worker` | читать (venue-service: показывать статус задания в API)                             |
+| `venue_vectors`         | `iqbene-venue-ingestion-worker` | читать (venue-service: векторные поисковые запросы)                                 |
+| `ai_cost_tracking`      | `iqbene-venue-ingestion-worker` | читать (venue-service: показывать сводку по стоимости в API)                        |
 
-Единственный законный кросс-граничный чтение из `vip-venue-ingestion-worker` — это `SELECT` по `venue_assets` по `asset_id` (переданному в полезной нагрузке события `asset.uploaded`). Это поиск по внешнему ключу, не бизнес-логика — допустимо и намеренно.
+Единственный законный кросс-граничный чтение из `iqbene-venue-ingestion-worker` — это `SELECT` по `venue_assets` по `asset_id` (переданному в полезной нагрузке события `asset.uploaded`). Это поиск по внешнему ключу, не бизнес-логика — допустимо и намеренно.
 
 ---
 
-## 4a. Общая библиотека — vip-venue-model
+## 4a. Общая библиотека — iqbene-venue-model
 
-`vip-venue-model` — это обычная Java-библиотека (JAR, без Spring Boot, без `@SpringBootApplication`). И `vip-venue-service`, и `vip-venue-ingestion-worker` объявляют её как compile-зависимость. Это единый источник истины для всего, по чему оба сервиса должны договориться.
+`iqbene-venue-model` — это обычная Java-библиотека (JAR, без Spring Boot, без `@SpringBootApplication`). И `iqbene-venue-service`, и `iqbene-venue-ingestion-worker` объявляют её как compile-зависимость. Это единый источник истины для всего, по чему оба сервиса должны договориться.
 
 **Содержимое:**
 
 ```
-vip-venue-model/
+iqbene-venue-model/
 ├── model/
 │   ├── venue/
 │   │   ├── Venue.java                  JPA-сущность (корень агрегата)
@@ -338,14 +338,14 @@ vip-venue-model/
 **Граф зависимостей:**
 
 ```
-vip-venue-model  (библиотека, без среды выполнения)
-      ├── vip-venue-service     (Spring Boot, импортирует model)
-      └── vip-venue-ingestion-worker  (Spring Boot, импортирует model)
+iqbene-venue-model  (библиотека, без среды выполнения)
+      ├── iqbene-venue-service     (Spring Boot, импортирует model)
+      └── iqbene-venue-ingestion-worker  (Spring Boot, импортирует model)
 ```
 
 ---
 
-## 5. ETL-конвейер (vip-venue-ingestion-worker)
+## 5. ETL-конвейер (iqbene-venue-ingestion-worker)
 
 Построен на **ETL-фреймворке Spring AI**. Три компонуемых стадии:
 
@@ -393,7 +393,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 ## 6. Архитектура поиска
 
-Весь поиск обслуживается `vip-venue-service`, делающим запросы напрямую в PostgreSQL. Нет отдельного поискового сервиса.
+Весь поиск обслуживается `iqbene-venue-service`, делающим запросы напрямую в PostgreSQL. Нет отдельного поискового сервиса.
 
 ### Режимы поиска
 
@@ -415,7 +415,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 ---
 
-## 7. Поверхность API (vip-venue-service)
+## 7. Поверхность API (iqbene-venue-service)
 
 Базовый путь: `/api/v1/venues`
 
@@ -460,7 +460,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 Обменник: `iqkv.events` (Topic) — тот же обменник, что используют все фундаментальные сервисы.
 
-### Публикуется vip-venue-service
+### Публикуется iqbene-venue-service
 
 | Ключ маршрутизации | Поля полезной нагрузки                                          | Описание                              |
 | ------------------ | --------------------------------------------------------------- | ------------------------------------- |
@@ -469,7 +469,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 | `asset.uploaded`   | asset_id, venue_id, tenant_id, asset_type, s3_key, content_type | Актив подтверждён, готов к извлечению |
 | `asset.deleted`    | asset_id, venue_id, tenant_id                                   | Актив удалён                          |
 
-### Публикуется vip-venue-ingestion-worker
+### Публикуется iqbene-venue-ingestion-worker
 
 | Ключ маршрутизации     | Поля полезной нагрузки                        | Описание              |
 | ---------------------- | --------------------------------------------- | --------------------- |
@@ -477,14 +477,14 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 | `extraction.completed` | job_id, asset_id, venue_id, tenant_id         | Извлечение удалось    |
 | `extraction.failed`    | job_id, asset_id, venue_id, tenant_id, reason | Все повторы исчерпаны |
 
-### Потребляется vip-venue-ingestion-worker
+### Потребляется iqbene-venue-ingestion-worker
 
 | Ключ маршрутизации | Очередь                                | Действие                                     |
 | ------------------ | -------------------------------------- | -------------------------------------------- |
 | `asset.uploaded`   | `vip.extraction.priority` (Enterprise) | Запустить ETL-конвейер немедленно            |
 | `asset.uploaded`   | `vip.extraction.standard` (Free/Pro)   | Запустить ETL-конвейер (стандартная очередь) |
 
-### Потребляется vip-venue-service
+### Потребляется iqbene-venue-service
 
 | Ключ маршрутизации     | Очередь                    | Действие                                    |
 | ---------------------- | -------------------------- | ------------------------------------------- |
@@ -521,7 +521,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 ## 10. Схема базы данных (Liquibase, схема тенанта)
 
-Миграции живут в `vip-venue-model` под `src/main/resources/db/changelog/tenant/` — общая библиотека это единый источник истины для схемы. И `vip-venue-service`, и `vip-venue-ingestion-worker` включают библиотеку в свой classpath; `vip-venue-service` запускает миграции при старте (или выделенный init-контейнер применяет их при предоставлении тенанта через слушатель `TenantProvisionedEvent`, тот же паттерн, что и в IAM).
+Миграции живут в `iqbene-venue-model` под `src/main/resources/db/changelog/tenant/` — общая библиотека это единый источник истины для схемы. И `iqbene-venue-service`, и `iqbene-venue-ingestion-worker` включают библиотеку в свой classpath; `iqbene-venue-service` запускает миграции при старте (или выделенный init-контейнер применяет их при предоставлении тенанта через слушатель `TenantProvisionedEvent`, тот же паттерн, что и в IAM).
 
 ```sql
 -- расширения (применяются один раз на схему тенанта)
@@ -629,7 +629,7 @@ CREATE INDEX idx_ai_cost_month ON ai_cost_tracking (DATE_TRUNC('month', created_
 
 ## 11. UI-интеграция (foundation-ui-app)
 
-Расширяем `foundation-ui-app` — **не** форкаем. Новые функции IQ BENE живут под:
+Расширяем `foundation-ui-app` — **не** форкаем. Новые функции iQ BENE живут под:
 
 ```
 src/features/venue-management/
@@ -661,7 +661,7 @@ src/features/venue-management/
 
 ## 12. Наблюдаемость
 
-Оба сервиса IQ BENE строго следуют фундаментальным паттернам.
+Оба сервиса iQ BENE строго следуют фундаментальным паттернам.
 
 **Добавляемые метрики Prometheus:**
 
@@ -713,10 +713,10 @@ src/features/venue-management/
 
 ## 15. Открытые решения (разрешить перед Спринтом 1)
 
-- [x] **Один сервис или два?** ~~`vip-venue-service` + `vip-ai-service` vs. единый `vip-venue-service` с внутренним AI-модулем.~~ **Решено:** Две развёртывания — `vip-venue-service` (синхронный API, привязанный к данным) и `vip-venue-ingestion-worker` (асинхронный сайдкар, общая схема, нет входящего HTTP). Сервисы привязаны к данным; ингеста — это задача обработки, а не равноправный сервис.
-- [x] **Соглашение об именовании.** Имена сервисов отражают предметную область/назначение, а не технологию реализации. `vip-venue-ingestion-worker` описывает, что он делает (ингеста и обработка активов), а не как (AI/ML).
+- [x] **Один сервис или два?** ~~`iqbene-venue-service` + `iqbene-ai-service` vs. единый `iqbene-venue-service` с внутренним AI-модулем.~~ **Решено:** Две развёртывания — `iqbene-venue-service` (синхронный API, привязанный к данным) и `iqbene-venue-ingestion-worker` (асинхронный сайдкар, общая схема, нет входящего HTTP). Сервисы привязаны к данным; ингеста — это задача обработки, а не равноправный сервис.
+- [x] **Соглашение об именовании.** Имена сервисов отражают предметную область/назначение, а не технологию реализации. `iqbene-venue-ingestion-worker` описывает, что он делает (ингеста и обработка активов), а не как (AI/ML).
 - [ ] **Docling в Фазе 1?** Начать с чистого Tika (проще). Добавить сайдкар Docling в Фазе 2, когда понадобится точность планов этажей / таблиц. **Склонность: только Tika для Фазы 1.**
-- [ ] **Таблица чанков** в отдельной схеме или той же, что и таблицы площадок? `PgVectorStore` Spring AI по умолчанию использует таблицу `vector_store`. IQ BENE использует `venue_vectors` для явности. Подтвердить именование перед первой миграцией.
+- [ ] **Таблица чанков** в отдельной схеме или той же, что и таблицы площадок? `PgVectorStore` Spring AI по умолчанию использует таблицу `vector_store`. iQ BENE использует `venue_vectors` для явности. Подтвердить именование перед первой миграцией.
 - [ ] **Детализация отслеживания стоимости:** на актив или на тенанта-в-месяц? Оба варианта есть в схеме; решить, какой показывать в UI.
 
 ---
@@ -760,4 +760,4 @@ src/features/venue-management/
 
 ---
 
-**Документы:** [Что такое IQ BENE?](what-is-vip.md) · [Бизнес-обзор](business-overview.md) · [Конкурентная среда](intelligence-and-competitive-landscape.md) · [Архитектура](architecture.md)
+**Документы:** [Что такое iQ BENE?](overview.md) · [Бизнес-обзор](business-overview.md) · [Конкурентная среда](intelligence-and-competitive-landscape.md) · [Архитектура](architecture.md)

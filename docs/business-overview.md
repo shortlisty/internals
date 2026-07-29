@@ -1,8 +1,8 @@
-# Venue Intelligence Platform (IQ BENE) — Business Overview
+# Venue Intelligence Platform (iQ BENE) — Business Overview
 
 > Solo-built MVP. US market first, platform-native for global expansion.
 
-**Docs:** [What is IQ BENE?](what-is-vip.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](overview.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
 
 ---
 
@@ -30,7 +30,7 @@ This happens multiple times a week at every agency. The cost is not just time �
 
 **Upload once. AI organizes everything. Search finds any venue in seconds.**
 
-IQ BENE turns fragmented venue documentation into a structured, searchable intelligence layer.
+iQ BENE turns fragmented venue documentation into a structured, searchable intelligence layer.
 
 Drop in a venue deck, a floor plan, a photo set, a spec sheet — the platform reads all of it automatically and extracts what matters: capacity in every room configuration, amenities, catering policy, AV specs, restrictions, contacts, pricing indicators. Every venue becomes a rich, queryable profile instead of a pile of files.
 
@@ -66,7 +66,7 @@ In-house teams at larger companies running recurring events — quarterly offsit
 
 Venues themselves want to reach planners. Right now they send the same PDF deck to every inquiry and hope it stands out. Most of it ends up in an inbox never to be found again.
 
-IQ BENE's long-term direction is a two-sided marketplace: planners manage their portfolio for free, venues pay for visibility and to reach planners actively searching. The venue intelligence layer is the foundation that makes that marketplace trusted — planners share structured, verified venue profiles rather than raw PDF dumps.
+iQ BENE's long-term direction is a two-sided marketplace: planners manage their portfolio for free, venues pay for visibility and to reach planners actively searching. The venue intelligence layer is the foundation that makes that marketplace trusted — planners share structured, verified venue profiles rather than raw PDF dumps.
 
 ---
 
@@ -74,7 +74,7 @@ IQ BENE's long-term direction is a two-sided marketplace: planners manage their 
 
 ### B2B Buyers — who signs the contract and pays
 
-These are the people IQ BENE needs to convince. They control budget and make the purchase decision.
+These are the people iQ BENE needs to convince. They control budget and make the purchase decision.
 
 **Agency Owner / Managing Director**
 
@@ -104,11 +104,11 @@ These are the people IQ BENE needs to convince. They control budget and make the
 
 ### End Users — who uses it every day
 
-These are the people IQ BENE needs to delight. If they don't find it useful in the first week, the buyer cancels.
+These are the people iQ BENE needs to delight. If they don't find it useful in the first week, the buyer cancels.
 
 **Event Planner / Account Manager (agency)**
 
-- Uses IQ BENE on every client brief — searches first, uploads new venues after site visits
+- Uses iQ BENE on every client brief — searches first, uploads new venues after site visits
 - Cares about: search speed, accurate extraction, mobile upload during site visits
 - Aha moment: types a client requirement and gets the right venue back in under 10 seconds
 - Churn risk: if search results are inaccurate or extraction misses key fields, they stop trusting it and go back to email
@@ -153,7 +153,7 @@ These are the people IQ BENE needs to delight. If they don't find it useful in t
 
 **Confidence.** Every data point is sourced. The system shows which document it came from, what page, and how confident it is. Planners can verify anything with one click.
 
-**Conflict resolution.** When two documents give different capacity numbers, IQ BENE surfaces the conflict and lets the planner resolve it once — rather than discovering the discrepancy mid-proposal.
+**Conflict resolution.** When two documents give different capacity numbers, iQ BENE surfaces the conflict and lets the planner resolve it once — rather than discovering the discrepancy mid-proposal.
 
 ---
 
@@ -248,8 +248,8 @@ These are the people IQ BENE needs to delight. If they don't find it useful in t
 
 **Marketplace Features**
 
-- Venue-facing profiles: venues claim and enhance their IQ BENE listing
-- Planner-to-venue discovery: search across the full IQ BENE venue network, not just your own library
+- Venue-facing profiles: venues claim and enhance their iQ BENE listing
+- Planner-to-venue discovery: search across the full iQ BENE venue network, not just your own library
 - Venue subscription: venues pay for enhanced visibility, direct inquiry routing, analytics
 
 ---
@@ -333,27 +333,27 @@ The platform launches US-first to validate the core product. The architecture su
 The detailed competitive landscape analysis is in `intelligence-and-competitive-landscape.md`. Summary:
 
 **vs. Dropbox / Google Drive**
-They store files. IQ BENE understands them. The difference is AI extraction and structured search — a planner can ask a question and get an answer, not a list of files to open.
+They store files. iQ BENE understands them. The difference is AI extraction and structured search — a planner can ask a question and get an answer, not a list of files to open.
 
 **vs. Airtable / Notion**
-Flexible general-purpose tools that require manual data entry to be useful. Every field someone types in is a field that goes out of date. IQ BENE extracts from source documents automatically, so the data stays in sync with what venues actually sent.
+Flexible general-purpose tools that require manual data entry to be useful. Every field someone types in is a field that goes out of date. iQ BENE extracts from source documents automatically, so the data stays in sync with what venues actually sent.
 
 **vs. Cvent / VenueScanner / VenueFindAI**
-Marketplace and discovery tools — they know what venues self-submit publicly. IQ BENE works with documents the planner already has, extracted into a private, team-owned knowledge base. Complementary, not competing.
+Marketplace and discovery tools — they know what venues self-submit publicly. iQ BENE works with documents the planner already has, extracted into a private, team-owned knowledge base. Complementary, not competing.
 
 **vs. Bynder / Brandfolder (DAM platforms)**
 Store and tag files for brand teams. No venue-specific schema, no structured extraction, no understanding of capacity or catering policy. A well-organized filing cabinet is not an intelligence layer.
 
 **vs. Spark (GEVME/PCMA)**
-Helps planners write faster — content generation, agenda drafting, RFP copy. Does not help them know their venues better. IQ BENE provides the venue intelligence that makes Spark's output accurate and specific.
+Helps planners write faster — content generation, agenda drafting, RFP copy. Does not help them know their venues better. iQ BENE provides the venue intelligence that makes Spark's output accurate and specific.
 
-**The gap IQ BENE fills:**
+**The gap iQ BENE fills:**
 Nobody provides document intelligence specifically for event planners managing their own venue portfolio. The slot is unoccupied.
 
-**IQ BENE's durable edge:**
+**iQ BENE's durable edge:**
 
 - Venue-specific extraction schema — not generic field detection, but the exact fields event planners use (capacity configurations, catering policy, curfew, rigging points, load-in access)
-- Multi-source aggregation with conflict resolution — when five documents disagree, IQ BENE surfaces it and resolves it, rather than silently picking one value
+- Multi-source aggregation with conflict resolution — when five documents disagree, iQ BENE surfaces it and resolves it, rather than silently picking one value
 - Full provenance — every data point traces back to a source document and page
 - Global-ready from day one — architecture, not afterthought
 
@@ -375,7 +375,7 @@ Personal and direct. No paid acquisition yet.
 
 - Product Hunt launch
 - Industry press: BizBash, Skift Meetings, EventMB
-- Content marketing: "The state of venue research in 2026" — a short survey + report that surfaces the pain quantitatively, positions IQ BENE as the authority, and generates inbound leads
+- Content marketing: "The state of venue research in 2026" — a short survey + report that surfaces the pain quantitatively, positions iQ BENE as the authority, and generates inbound leads
 - Demo video (2–3 min): live AI extraction from a real venue PDF, no narration needed
 - PCMA and MPI partnership / sponsorship — Spark (GEVME/PCMA) is a complementary tool and a potential distribution channel
 
@@ -437,7 +437,7 @@ The venue knowledge that currently lives in scattered files, personal folders, a
 
 ## Plain English
 
-For anyone who wants to understand what this is without the business language — see [`what-is-vip.md`](what-is-vip.md).
+For anyone who wants to understand what this is without the business language — see [`overview.md`](overview.md).
 
 ---
 
@@ -447,4 +447,4 @@ For anyone who wants to understand what this is without the business language �
 
 ---
 
-**Docs:** [What is IQ BENE?](what-is-vip.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](overview.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
