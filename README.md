@@ -14,6 +14,7 @@
 | [Pitch](docs/business/sales/pitch.md)                   | Founders, team        | Intro call and demo narrative flow                               |
 | [Battlecards](docs/business/sales/battlecards.md)       | Founders, team        | Per-competitor positioning for live conversations                |
 | [Objections](docs/business/sales/objections.md)         | Founders, team        | Objection handling: underlying concern, response, follow-up      |
+| [Messaging](docs/business/sales/messaging.md)           | Founders, team        | Taglines, hero copy, value pillars, naming — copy bank           |
 | [Architecture Reference](docs/platform/architecture.md) | Engineers, architects | Domain model, services, schema, API, event contracts             |
 | [Intelligence Layer](docs/platform/intelligence.md)     | Engineers, architects | ETL pipeline, extraction, AI layer, technology decisions         |
 | [Roadmap Vision](docs/roadmap/vision.md)                | Founders, team        | Product direction, strategic bets, north star metric             |

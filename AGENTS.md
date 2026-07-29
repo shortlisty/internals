@@ -33,7 +33,8 @@ iqbene-system-design-documentation/
     │   └── sales/
     │       ├── pitch.md               ← Demo and intro call narrative flow
     │       ├── battlecards.md         ← Per-competitor positioning for live conversations
-    │       └── objections.md          ← Objection handling: concern, response, follow-up
+    │       ├── objections.md          ← Objection handling: concern, response, follow-up
+    │       └── messaging.md           ← Taglines, hero copy, value pillars, naming (copy bank)
     ├── platform/
     │   ├── architecture.md            ← Domain model, services, schema, API, events
     │   └── intelligence.md            ← ETL pipeline, extraction, AI layer
@@ -139,6 +140,7 @@ Do not invent new audience tags. If a document genuinely serves two separate aud
 - **pitch.md** — structured as named beats with a goal per beat and a transition. No script prose. Must include a "what not to do" section.
 - **battlecards.md** — one `###` section per competitor. Each card must contain exactly: What they have, What they do not have, When a prospect brings them up (with a verbatim example response in a blockquote), Win condition. The win condition is one sentence.
 - **objections.md** — one `###` section per objection. Each entry must contain exactly: the stated objection as a heading, the underlying concern in italics, the response, and the follow-up question. Do not write the response as a rebuttal — acknowledge and reframe first.
+- **messaging.md** — a copy bank. Every entry must have a `Status` field: `Candidate`, `Approved`, or `Retired`. Never delete `Retired` entries. Only `Approved` copy is used in external-facing materials. Add a one-line note when retiring an entry.
 - Do not duplicate content from `comparison.md` into `battlecards.md`. Battlecards reference the competitive analysis; they do not reproduce it.
 - Do not include pricing figures that are not confirmed. Mark uncertain numbers with `(TBC)`.
 
