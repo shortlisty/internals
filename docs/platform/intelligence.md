@@ -3,7 +3,7 @@
 > Technical reference for the document intelligence, ETL pipeline, and the proprietary
 > intelligence layer of iQ BENE.
 
-**Docs:** [What is iQ BENE?](../README.md) · [Business Overview](../business/overview.md) · [Competitive Landscape](../business/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)
 
 ---
 
@@ -431,4 +431,4 @@ pgvector with IVFFlat index:
 
 ---
 
-**Docs:** [What is iQ BENE?](../README.md) · [Business Overview](../business/overview.md) · [Competitive Landscape](../business/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)

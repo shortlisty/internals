@@ -3,7 +3,7 @@
 > **Аудитория:** Инженеры, архитекторы.
 > **Назначение:** Единый источник истины для всех технических решений до начала разработки.
 
-**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](../business/overview.md) · [Конкурентная среда](../business/comparison.md) · [Архитектура](architecture.md)
+**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](../business/proposal.md) · [Конкурентная среда](../business/comparison.md) · [Архитектура](architecture.md)
 
 ---
 
@@ -760,4 +760,4 @@ src/features/venue-management/
 
 ---
 
-**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](../business/overview.md) · [Конкурентная среда](../business/comparison.md) · [Архитектура](architecture.md)
+**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](../business/proposal.md) · [Конкурентная среда](../business/comparison.md) · [Архитектура](architecture.md)

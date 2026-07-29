@@ -1,8 +1,8 @@
-# Venue Intelligence Platform (iQ BENE) — Business Overview
+# Venue Intelligence Platform (iQ BENE) — Business Proposal
 
 > Solo-built MVP. US market first, platform-native for global expansion.
 
-**Docs:** [What is iQ BENE?](../README.md) · [Business Overview](overview.md) · [Competitive Landscape](comparison.md) · [Architecture](../platform/architecture.md)
+**Docs:** [What is iQ BENE?](../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../platform/architecture.md)
 
 ---
 
@@ -447,4 +447,4 @@ For anyone who wants to understand what this is without the business language �
 
 ---
 
-**Docs:** [What is iQ BENE?](../README.md) · [Business Overview](overview.md) · [Competitive Landscape](comparison.md) · [Architecture](../platform/architecture.md)
+**Docs:** [What is iQ BENE?](../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../platform/architecture.md)

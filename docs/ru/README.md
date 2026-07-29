@@ -2,7 +2,7 @@
 
 _Что это такое, зачем существует и имеет ли смысл как бизнес — без жаргона._
 
-**Документы:** [Что такое iQ BENE?](README.md) · [Бизнес-обзор](business/overview.md) · [Конкурентная среда](business/comparison.md) · [Архитектура](platform/architecture.md)
+**Документы:** [Что такое iQ BENE?](README.md) · [Бизнес-обзор](business/proposal.md) · [Конкурентная среда](business/comparison.md) · [Архитектура](platform/architecture.md)
 
 ---
 
@@ -115,4 +115,4 @@ _Хотите увидеть в действии? 2-минутное демо п
 
 ---
 
-**Документы:** [Что такое iQ BENE?](README.md) · [Бизнес-обзор](business/overview.md) · [Конкурентная среда](business/comparison.md) · [Архитектура](platform/architecture.md)
+**Документы:** [Что такое iQ BENE?](README.md) · [Бизнес-обзор](business/proposal.md) · [Конкурентная среда](business/comparison.md) · [Архитектура](platform/architecture.md)

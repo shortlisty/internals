@@ -3,7 +3,7 @@
 > Технический справочник по интеллекту документов, ETL-конвейеру и собственному
 > слою интеллекта iQ BENE.
 
-**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](../business/overview.md) · [Конкурентная среда](../business/comparison.md) · [Слой интеллекта](intelligence.md) · [Архитектура](architecture.md)
+**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](../business/proposal.md) · [Конкурентная среда](../business/comparison.md) · [Слой интеллекта](intelligence.md) · [Архитектура](architecture.md)
 
 ---
 
@@ -431,4 +431,4 @@ pgvector с индексом IVFFlat:
 
 ---
 
-**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](../business/overview.md) · [Конкурентная среда](../business/comparison.md) · [Слой интеллекта](intelligence.md) · [Архитектура](architecture.md)
+**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](../business/proposal.md) · [Конкурентная среда](../business/comparison.md) · [Слой интеллекта](intelligence.md) · [Архитектура](architecture.md)

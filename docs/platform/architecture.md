@@ -3,7 +3,7 @@
 > **Audience:** Engineers, architects.
 > **Purpose:** Single source of truth for all technical decisions before development starts.
 
-**Docs:** [What is iQ BENE?](../README.md) · [Business Overview](../business/overview.md) · [Competitive Landscape](../business/comparison.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Architecture](architecture.md)
 
 ---
 
@@ -760,4 +760,4 @@ Full rationale and competitor analysis: see `../business/comparison.md`.
 
 ---
 
-**Docs:** [What is iQ BENE?](../README.md) · [Business Overview](../business/overview.md) · [Competitive Landscape](../business/comparison.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Architecture](architecture.md)

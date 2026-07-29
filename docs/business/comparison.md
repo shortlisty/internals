@@ -2,7 +2,7 @@
 
 > Strategic reference for the competitive positioning of iQ BENE.
 
-**Docs:** [What is iQ BENE?](../README.md) · [Business Overview](overview.md) · [Competitive Landscape](comparison.md) · [Intelligence Layer](../platform/intelligence.md) · [Architecture](../platform/architecture.md)
+**Docs:** [What is iQ BENE?](../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Intelligence Layer](../platform/intelligence.md) · [Architecture](../platform/architecture.md)
 
 ---
 
@@ -409,4 +409,4 @@ The document intelligence infrastructure, ETL pipeline architecture, venue-speci
 
 ---
 
-**Docs:** [What is iQ BENE?](../README.md) · [Business Overview](overview.md) · [Competitive Landscape](comparison.md) · [Intelligence Layer](../platform/intelligence.md) · [Architecture](../platform/architecture.md)
+**Docs:** [What is iQ BENE?](../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Intelligence Layer](../platform/intelligence.md) · [Architecture](../platform/architecture.md)

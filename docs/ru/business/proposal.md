@@ -2,7 +2,7 @@
 
 > MVP, построенный в одиночку. Сначала рынок США, нативная платформа для глобального расширения.
 
-**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](overview.md) · [Конкурентная среда](comparison.md) · [Архитектура](../platform/architecture.md)
+**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](proposal.md) · [Конкурентная среда](comparison.md) · [Архитектура](../platform/architecture.md)
 
 ---
 
@@ -447,4 +447,4 @@ iQ BENE превращает фрагментированную документ
 
 ---
 
-**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](overview.md) · [Конкурентная среда](comparison.md) · [Архитектура](../platform/architecture.md)
+**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](proposal.md) · [Конкурентная среда](comparison.md) · [Архитектура](../platform/architecture.md)

@@ -2,7 +2,7 @@
 
 > Стратегический справочник по конкурентному позиционированию iQ BENE.
 
-**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](overview.md) · [Конкурентная среда](comparison.md) · [Слой интеллекта](../platform/intelligence.md) · [Архитектура](../platform/architecture.md)
+**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](proposal.md) · [Конкурентная среда](comparison.md) · [Слой интеллекта](../platform/intelligence.md) · [Архитектура](../platform/architecture.md)
 
 ---
 
@@ -409,4 +409,4 @@ DAM-платформы — это ближайшая смежная катего
 
 ---
 
-**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](overview.md) · [Конкурентная среда](comparison.md) · [Слой интеллекта](../platform/intelligence.md) · [Архитектура](../platform/architecture.md)
+**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](proposal.md) · [Конкурентная среда](comparison.md) · [Слой интеллекта](../platform/intelligence.md) · [Архитектура](../platform/architecture.md)
