@@ -2,7 +2,7 @@
 
 > Solo-built MVP. US market first, platform-native for global expansion.
 
-**Docs:** [What is iQ BENE?](overview.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](../README.md) · [Business Overview](overview.md) · [Competitive Landscape](comparison.md) · [Architecture](../platform/architecture.md)
 
 ---
 
@@ -330,7 +330,7 @@ The platform launches US-first to validate the core product. The architecture su
 
 ## Competitive Positioning
 
-The detailed competitive landscape analysis is in `intelligence-and-competitive-landscape.md`. Summary:
+The detailed competitive landscape analysis is in `comparison.md`. Summary:
 
 **vs. Dropbox / Google Drive**
 They store files. iQ BENE understands them. The difference is AI extraction and structured search — a planner can ask a question and get an answer, not a list of files to open.
@@ -437,7 +437,7 @@ The venue knowledge that currently lives in scattered files, personal folders, a
 
 ## Plain English
 
-For anyone who wants to understand what this is without the business language — see [`overview.md`](overview.md).
+For anyone who wants to understand what this is without the business language — see [`../README.md`](../README.md).
 
 ---
 
@@ -447,4 +447,4 @@ For anyone who wants to understand what this is without the business language �
 
 ---
 
-**Docs:** [What is iQ BENE?](overview.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](../README.md) · [Business Overview](overview.md) · [Competitive Landscape](comparison.md) · [Architecture](../platform/architecture.md)

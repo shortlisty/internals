@@ -2,7 +2,7 @@
 
 _What this is, why it exists, and whether it makes sense as a business — no jargon._
 
-**Docs:** [What is iQ BENE?](overview.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](README.md) · [Business Overview](business/overview.md) · [Competitive Landscape](business/comparison.md) · [Architecture](platform/architecture.md)
 
 ---
 
@@ -115,4 +115,4 @@ _Want to see it in action? A 2-minute demo shows more than any document can._
 
 ---
 
-**Docs:** [What is iQ BENE?](overview.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](README.md) · [Business Overview](business/overview.md) · [Competitive Landscape](business/comparison.md) · [Architecture](platform/architecture.md)

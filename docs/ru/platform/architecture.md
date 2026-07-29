@@ -3,7 +3,7 @@
 > **Аудитория:** Инженеры, архитекторы.
 > **Назначение:** Единый источник истины для всех технических решений до начала разработки.
 
-**Документы:** [Что такое iQ BENE?](overview.md) · [Бизнес-обзор](business-overview.md) · [Конкурентная среда](intelligence-and-competitive-landscape.md) · [Архитектура](architecture.md)
+**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](../business/overview.md) · [Конкурентная среда](../business/comparison.md) · [Архитектура](architecture.md)
 
 ---
 
@@ -707,7 +707,7 @@ src/features/venue-management/
 | Асинхронная обработка | RabbitMQ (существующий фундамент)                | Приоритетные очереди, DLQ, уже в платформе                                                     |
 | Файловое хранилище    | S3 / MinIO (существующий фундамент)              | Паттерн подписанных URL уже проверен в IAM                                                     |
 
-Полное обоснование и анализ конкурентов: см. `venue-intelligence-platform-intelligence.md`.
+Полное обоснование и анализ конкурентов: см. `../business/comparison.md`.
 
 ---
 
@@ -760,4 +760,4 @@ src/features/venue-management/
 
 ---
 
-**Документы:** [Что такое iQ BENE?](overview.md) · [Бизнес-обзор](business-overview.md) · [Конкурентная среда](intelligence-and-competitive-landscape.md) · [Архитектура](architecture.md)
+**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](../business/overview.md) · [Конкурентная среда](../business/comparison.md) · [Архитектура](architecture.md)

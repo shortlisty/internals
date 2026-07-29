@@ -3,7 +3,7 @@
 > Технический и стратегический справочник по интеллекту документов, ETL-конвейеру
 > и конкурентному позиционированию iQ BENE.
 
-**Документы:** [Что такое iQ BENE?](overview.md) · [Бизнес-обзор](business-overview.md) · [Конкурентная среда](intelligence-and-competitive-landscape.md) · [Архитектура](architecture.md)
+**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](overview.md) · [Конкурентная среда](comparison.md) · [Архитектура](../platform/architecture.md)
 
 ---
 
@@ -820,4 +820,4 @@ pgvector с индексом IVFFlat:
 
 ---
 
-**Документы:** [Что такое iQ BENE?](overview.md) · [Бизнес-обзор](business-overview.md) · [Конкурентная среда](intelligence-and-competitive-landscape.md) · [Архитектура](architecture.md)
+**Документы:** [Что такое iQ BENE?](../README.md) · [Бизнес-обзор](overview.md) · [Конкурентная среда](comparison.md) · [Архитектура](../platform/architecture.md)

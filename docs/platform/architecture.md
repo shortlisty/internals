@@ -3,7 +3,7 @@
 > **Audience:** Engineers, architects.
 > **Purpose:** Single source of truth for all technical decisions before development starts.
 
-**Docs:** [What is iQ BENE?](overview.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](../README.md) · [Business Overview](../business/overview.md) · [Competitive Landscape](../business/comparison.md) · [Architecture](architecture.md)
 
 ---
 
@@ -707,7 +707,7 @@ Grafana dashboard added to `docker/grafana/provisioning/dashboards/VipService.js
 | Async processing    | RabbitMQ (existing foundation)                 | Priority queues, DLQ, already in platform                                     |
 | File storage        | S3 / MinIO (existing foundation)               | Presigned URL pattern already proven in IAM                                   |
 
-Full rationale and competitor analysis: see `venue-intelligence-platform-intelligence.md`.
+Full rationale and competitor analysis: see `../business/comparison.md`.
 
 ---
 
@@ -760,4 +760,4 @@ Full rationale and competitor analysis: see `venue-intelligence-platform-intelli
 
 ---
 
-**Docs:** [What is iQ BENE?](overview.md) · [Business Overview](business-overview.md) · [Competitive Landscape](intelligence-and-competitive-landscape.md) · [Architecture](architecture.md)
+**Docs:** [What is iQ BENE?](../README.md) · [Business Overview](../business/overview.md) · [Competitive Landscape](../business/comparison.md) · [Architecture](architecture.md)

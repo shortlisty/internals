@@ -6,12 +6,12 @@
 
 ## Documents
 
-| Document                                                                | Audience                   | What it covers                                                   |
-| ----------------------------------------------------------------------- | -------------------------- | ---------------------------------------------------------------- |
-| [What is iQ BENE?](docs/overview.md)                                    | Anyone                     | Plain-language overview: the problem, the solution, who it's for |
-| [Business Overview](docs/business-overview.md)                          | Founders, team             | ICP, feature roadmap, monetization, GTM, risks                   |
-| [Competitive Landscape](docs/intelligence-and-competitive-landscape.md) | Engineering, founding team | Competitor analysis, ETL pipeline, intelligence layer            |
-| [Architecture Reference](docs/architecture.md)                          | Engineers, architects      | Domain model, services, schema, API, event contracts             |
+| Document                                                | Audience                   | What it covers                                                   |
+| ------------------------------------------------------- | -------------------------- | ---------------------------------------------------------------- |
+| [What is iQ BENE?](docs/README.md)                      | Anyone                     | Plain-language overview: the problem, the solution, who it's for |
+| [Business Overview](docs/business/overview.md)          | Founders, team             | ICP, feature roadmap, monetization, GTM, risks                   |
+| [Competitive Landscape](docs/business/comparison.md)    | Engineering, founding team | Competitor analysis, ETL pipeline, intelligence layer            |
+| [Architecture Reference](docs/platform/architecture.md) | Engineers, architects      | Domain model, services, schema, API, event contracts             |
 
 Russian translations: [`docs/ru/`](docs/ru/)
 
@@ -26,7 +26,7 @@ iQ BENE is a new product built on top of the IQKV open-source foundation. It int
 - **`iqbene-venue-model`** — shared library: domain entities, event contracts, Liquibase migrations
 
 **Stage:** pre-launch MVP — design complete, implementation not yet started.
-Open decisions: [Architecture §15](docs/architecture.md#15-open-decisions-resolve-before-sprint-1).
+Open decisions: [Architecture §15](docs/platform/architecture.md#15-open-decisions-resolve-before-sprint-1).
 
 ---
 
