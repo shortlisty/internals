@@ -787,34 +787,142 @@ For full tenant deletion (GDPR right to erasure):
 
 ---
 
-### Registry population strategy
+### Registry population strategy (cold start for MVP)
 
-The `public.venue_registry` table is the platform's canonical venue reference. It is never populated by tenant uploads. Population paths:
+The `public.venue_registry` table is the platform's canonical venue reference. It is never populated by tenant uploads. Registry is a secondary, gap-fill-only source. Tenant data always wins (see §3 conflict resolution priority: `REGISTRY` is lowest).
 
-| Path                         | Mechanism                                                                                                                                 | Source in `venue_registry.source` |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| **Cold-start seed**          | Admin CSV upload → S3 `vip/registry/imports/{id}/` → import job → INSERT                                                                  | `platform_seed`                   |
-| **Admin web scrape import**  | Scrape pipeline produces JSONL → S3 `vip/registry/imports/{id}/` → import job                                                             | `web_scrape`                      |
-| **Admin manual import**      | Registry Admin API (Phase 2): `POST /admin/registry/import` → presigned S3 PUT → import job                                               | `admin_import`                    |
-| **Tenant-signal enrichment** | After extraction.completed, if tenant data has high-confidence fields not in registry → candidate event (Phase 3, no reverse flow in MVP) | — (not in MVP)                    |
+Registry population in MVP uses **three human-in-the-loop channels**. No automatic scraper-to-INSERT pipeline. No AI/embeddings in the population process.
 
-**Import job steps** (run by `iqbene-venue-ingestion-worker` on a scheduled trigger, or triggered by an admin RabbitMQ event):
+| Channel                                                    | Mechanism                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Source in `venue_registry.source` |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------- |
+| **1. Pre-provisioned seed migrations (MVP cold-start)**    | Hardcoded rows in Liquibase XML changesets under `iqbene-venue-model/src/main/resources/db/changelog/system/`. Curated shortlist of 50–200 high-signal venues (top convention centres, major hotel chains in target launch cities). Runs on first startup against `public` schema via `TenantLiquibaseRunner`. Zero code, zero S3, zero admin interaction.                                                                                                                                                         | `platform_seed`                   |
+| **2. Platform admin manual entry (MVP)**                   | Registry Admin API (§17: Phase 2 design signal — pull forward for MVP, single-entity CRUD only, no bulk): `POST /api/v1/admin/registry/entries`, `PATCH /api/v1/admin/registry/entries/{id}`, `POST /api/v1/admin/registry/entries/{id}/aliases`. Authority `PLATFORM_ADMIN` only. Admin provides every field manually; deduplication check runs server-side as a pre-write validation and returns a list of candidate duplicates for human review (admin clicks "Confirm insert" or "Merge with existing #1234"). | `admin_import`                    |
+| **3. Scraper scripts (Cvent et al.) + human review (MVP)** | Standalone scripts outside the service (cron, admin laptop, or optional scheduled container) produce CSV/JSONL output files, upload to S3 `vip/registry/imports/{importId}/` with manifest. `VenueRegistryImportOrchestrator` in `iqbene-venue-ingestion-worker` runs only when triggered by an admin RabbitMQ event (`admin.registry.import.dry-run`) → produces a CSV audit report → uploads to `vip/registry/imports/reports/{importId}_review.csv`. Admin reviews the report (each row: action `INSERT`        | `MERGE #id`                       | `SKIP` with name_sim + geo_distance + duplicate candidates list), edits the Action column, re-uploads reviewed CSV. Admin then fires `admin.registry.import.apply` → worker applies the reviewed actions exactly, never making its own merge/insert decision. | `web_scrape` |
+| **Tenant-signal enrichment**                               | After `extraction.completed`, if tenant data has high-confidence fields not in registry → candidate event (Phase 3, no reverse flow in MVP)                                                                                                                                                                                                                                                                                                                                                                        | — (not in MVP)                    |
 
-1. List objects under `vip/registry/imports/{importId}/`.
-2. Parse each file (CSV or JSONL). Each row must have at minimum: `name`, `address`, `country_code`.
-3. For each row: attempt name + PostGIS proximity deduplication against existing `venue_registry` entries. Dedup threshold: name similarity ≥ 0.85 (trigram) AND location within 100m (if lat/lng provided). On match → UPDATE (merge non-null fields, bump `confidence`, add new aliases). On no match → INSERT.
-4. Alias normalisation: strip articles ("The ", "A "), lowercase, strip punctuation. Store both the original name and the normalised form as `venue_registry_aliases` rows. This enables fuzzy match when a tenant uploads a document that refers to "Bowery Hotel NYC" but the registry entry is "The Bowery Hotel".
-5. Move processed source file to `vip/registry/imports/processed/{importId}/`.
-6. Append an entry to the nightly export queue. The nightly snapshot job compacts all registry rows into `vip/registry/exports/{date}/venue_registry_snapshot.jsonl.gz` for external consumers (Phase 3 partner API).
+### Alias normalisation (shared by all population channels + extraction matcher)
 
-**Alias strategy for registry matching during extraction:**
+Before any name comparison (INSERT-time dedup check, scraper dry-run report, extraction-time gap-fill), both sides of the comparison pass through the same normalisation function so that trivial differences do not break the match:
 
-When `VenueRegistryMatcher` runs after a tenant document is extracted:
+```
+normalize(name):
+  1. Trim leading/trailing whitespace
+  2. Strip case-insensitive leading articles: "^the\s+", "^a\s+", "^an\s+"
+  3. Lowercase
+  4. Strip any character that is not alphanumeric or whitespace (keep ASCII spaces only)
+  5. Collapse consecutive whitespace into single space
+  6. Trim again
+```
 
-1. Primary match: `venues.name` against `venue_registry.name` + `venue_registry_aliases.alias` (trigram similarity, GIN index on `alias`).
-2. Secondary match: PostGIS `ST_DWithin(venues.location, venue_registry.location, 200)` — 200m radius.
-3. Combined confidence: `0.6 * name_similarity + 0.4 * (1 if geo_match else 0)`. Threshold: ≥ 0.7 triggers gap-fill.
-4. On match: copy registry fields into `venues.metadata` for any field not already populated by extraction. Tag each copied field with `source_type = REGISTRY` in `metadata_sources`. This is a one-time copy — the tenant record is fully independent from this point.
+Example: `"The  Bowery-Hotel, NYC!"` → `"bowery hotel nyc"`.
+
+Both the original name and the normalised form are stored. `venue_registry_aliases` holds the original-name alias, and the normalised form is computed on-the-fly during comparison (or stored redundantly in the same row for index-friendliness).
+
+### Scraper import — dry-run dedup check
+
+Channel 3 scraper dry-run and channel 2 admin INSERT pre-write validation share one deduplication rule set. **Never auto-apply.** Rule set:
+
+```
+For a candidate import row (name_raw, address_raw, country_code, location_raw):
+  candidates = SELECT r.id, r.name, r.location
+               FROM venue_registry r
+               LEFT JOIN venue_registry_aliases a ON a.venue_registry_entry_id = r.id
+               WHERE normalize(name_raw) % normalize(COALESCE(a.alias, r.name))
+               ORDER BY similarity DESC
+               LIMIT 5
+
+  For each candidate:
+    name_sim = similarity( normalize(name_raw), normalize(COALESCE(a.alias, r.name)) )
+    if both locations available:
+        geo_distance_m = ST_Distance( location_raw, r.location )::int
+        geo_ok         = geo_distance_m <= 150
+    else:
+        geo_distance_m = null
+        geo_ok         = null
+
+  Action recommendation (for human review, non-binding):
+    if (name_sim >= 0.90 AND geo_ok = true)
+       OR (geo_distance_m is null AND name_sim >= 0.95):
+        -> MERGE candidate #id (show confidence)
+    else if name_sim >= 0.75 OR geo_distance_m <= 300:
+        -> REVIEW CANDIDATE #id (list top 3, show sim + dist table)
+    else:
+        -> INSERT (new)
+```
+
+Admin always has the final say via the reviewed CSV action column or the confirm-insert API call.
+
+### Extraction-time gap-fill (VenueRegistryMatcher) — algorithm and thresholds
+
+After a tenant document finishes extraction, `VenueRegistryMatcher` runs as step 3 in §5 Stage 3 (Load). It compares the tenant's `Venue` record against `public.venue_registry` using the same `normalize()` function above. **No LLM calls. No embedding similarity. Pure PostgreSQL pg_trgm + PostGIS, zero external cost.**
+
+```
+Query strategy:
+  1. Fetch top-5 registry candidates via trigram GIN index on
+     venue_registry_aliases.alias (normalised match).
+  2. For each candidate:
+       name_sim = similarity( normalize(venue.name),
+                              normalize(best alias OR registry.name) )
+       if venue.location not null AND candidate.location not null:
+           geo_within_200m = ST_DWithin( venue.location, candidate.location, 200 )
+           geo_weight = 1.0
+       else:
+           geo_within_200m = null   // signal unavailable
+           geo_weight = 0.0
+
+Combined confidence:
+  if geo_within_200m is not null:
+      combined = 0.60 * name_sim  +  0.40 * (geo_within_200m ? 1.0 : 0.0)
+  else:
+      combined = 1.00 * name_sim   // name-only threshold is much stricter
+
+Outcome and thresholds:
+  MATCH (copy fields):
+      (geo_within_200m is not null AND combined >= 0.75)
+      OR
+      (geo_within_200m is null     AND combined >= 0.90)
+      AND
+      the top candidate has >= 0.08 confidence gap over the 2nd-place
+      candidate (not ambiguous).
+    →
+      For every canonical metadata field where:
+        (a) tenant venue.metadata.{field} is null/empty AND
+        (b) candidate.metadata.{field} is not null AND
+        (c) the field is a leaf key (not a nested dict merge):
+          copy field value
+          set metadata_sources.{field} = { source: "REGISTRY",
+                                            source_id: registry_entry.id,
+                                            confidence: combined,
+                                            applied_at: now() }
+
+  NO MATCH / AMBIGUOUS (everything else, including < 0.08 delta
+  between top-2 candidates above 0.60):
+      → silent no-op. No venue_metadata_events row written.
+        Registry is secondary; we do not surface candidates to UI in MVP.
+```
+
+After a successful copy, `venues.metadata_aggregated_at` is set to `NOW()` so the subsequent aggregation step (§3) sees the REGISTRY source and applies conflict-resolution priority correctly (`REGISTRY` lowest, overridden by any later extraction/user input).
+
+### Observability for match quality
+
+`VenueRegistryMatcher` records two Micrometer metrics (§12) on every extraction run:
+
+| Metric                                            | Tags                            | Purpose                                                                             |
+| ------------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------- |
+| `iqbene_registry_match_total`                     | `stage="extraction"`, `outcome` | `matched` vs `no_match` vs `ambiguous` counts. Tracks how often registry is useful. |
+| `iqbene_registry_match_confidence_seconds` (hist) | `stage="extraction"`            | Distribution of `combined` score across all runs. Calibrate thresholds from this.   |
+
+Additionally, the scraper dry-run report CSV is retained in S3 for 90 days as an audit trail of every registry population decision.
+
+### Before Sprint 1: threshold calibration dry-run
+
+Before any production tenant has access, run a mandatory calibration pass to de-risk the 0.75/0.90 thresholds:
+
+1. Assemble a fixture set of **50 real-world venue PDFs** from target launch cities. Manually attach the "correct" `venue_registry_entry.id` ground truth to each row (or "no registry match" if none applies).
+2. Run `VenueRegistryMatcher` in **dry-run mode**: no writes to tenant schema. For every fixture, log: top-5 candidates with individual `name_sim`, `geo_within_200m`, `combined`, final outcome `matched|ambiguous|no_match`.
+3. Build confusion matrix against ground truth: TP, FP, FN counts.
+4. **Acceptance criterion: FP rate ≤ 1 %.** A wrong copy poisons tenant data; an FN is just a missed gap-fill that the user fills manually. If FP > 1 %, raise thresholds incrementally (e.g. 0.75 → 0.78 → 0.80) until criterion passes and note the final calibrated thresholds in CHANGELOG.md.
+5. Delete the calibration run log from any environment that stores real tenant PII.
 
 ---
 
@@ -850,7 +958,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 1. **Embed** — `EmbeddingModel` (`text-embedding-3-small`, 1536 dims).
 2. **Store** — `TenantAwarePgVectorStore` writes chunks + embeddings to `venue_vectors` table in the tenant's schema.
-3. **Registry match** — `VenueRegistryMatcher` queries `public.venue_registry` by name similarity + PostGIS proximity. If a match is found above the confidence threshold, registry metadata fields are copied into the tenant venue record for any fields not already populated by extraction. Source tagged as `REGISTRY` in `metadata_sources`. Copying, not linking — the tenant's record is independent from this point forward.
+3. **Registry match** — `VenueRegistryMatcher` runs the full gap-fill algorithm documented above (trigram name similarity via `pg_trgm` GIN index on `venue_registry_aliases`, PostGIS `ST_DWithin` 200m radius, combined confidence formula, thresholds 0.75 with geo / 0.90 name-only, ambiguity delta guard ≥ 0.08). Registry is secondary only. No LLM calls, no embedding similarity. Full algorithm, thresholds, and field-copy semantics in the "Extraction-time gap-fill" subsection above.
 4. **Aggregate** — publishes `extraction.completed` event → `MetadataAggregationConsumer` updates `venues.metadata`.
 
 ### Processing SLA
@@ -1315,17 +1423,19 @@ Both iQ BENE services follow foundation patterns exactly.
 
 **Prometheus metrics to add:**
 
-| Metric                                       | Labels                            | Notes                                                                                                                                                                                                                                                                                                                       |
-| -------------------------------------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `iqbene_venues_total`                        | tenant_id, status                 | Venue count by state                                                                                                                                                                                                                                                                                                        |
-| `iqbene_assets_uploaded_total`               | tenant_id, asset_type             | Upload volume                                                                                                                                                                                                                                                                                                               |
-| `iqbene_extractions_total`                   | tenant_id, extractor_type, status | Success/failure rates                                                                                                                                                                                                                                                                                                       |
-| `iqbene_extraction_duration_seconds`         | extractor_type                    | Latency histogram                                                                                                                                                                                                                                                                                                           |
-| `iqbene_ai_cost_usd_total`                   | tenant_id, model                  | Cost tracking                                                                                                                                                                                                                                                                                                               |
-| `iqbene_search_requests_total`               | search_mode                       | keyword / semantic / hybrid                                                                                                                                                                                                                                                                                                 |
-| `iqbene_search_latency_seconds`              | search_mode                       | Search latency                                                                                                                                                                                                                                                                                                              |
-| `iqbene_metadata_schema_version_seen_total`  | tenant_id, schema_version, op     | Counter incremented on every `migrateToCurrent()` or `ensureCurrent()` call — labels the schema version the document had _before_ migration. `op` = `read` or `write`. Lets us see how many legacy v0/v1/vN docs are still in the read/write hot paths so we know when old migration classes are candidates for retirement. |
-| `iqbene_metadata_migration_duration_seconds` | target_version                    | Latency histogram for the full migration chain (per target version — always CURRENT_SCHEMA_VERSION in steady state). Alerts if a new migration step is unexpectedly slow for large JSONB payloads.                                                                                                                          |
+| Metric                                       | Labels                            | Notes                                                                                                                                                                                                                                                                                                                                        |
+| -------------------------------------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `iqbene_venues_total`                        | tenant_id, status                 | Venue count by state                                                                                                                                                                                                                                                                                                                         |
+| `iqbene_assets_uploaded_total`               | tenant_id, asset_type             | Upload volume                                                                                                                                                                                                                                                                                                                                |
+| `iqbene_extractions_total`                   | tenant_id, extractor_type, status | Success/failure rates                                                                                                                                                                                                                                                                                                                        |
+| `iqbene_extraction_duration_seconds`         | extractor_type                    | Latency histogram                                                                                                                                                                                                                                                                                                                            |
+| `iqbene_ai_cost_usd_total`                   | tenant_id, model                  | Cost tracking                                                                                                                                                                                                                                                                                                                                |
+| `iqbene_search_requests_total`               | search_mode                       | keyword / semantic / hybrid                                                                                                                                                                                                                                                                                                                  |
+| `iqbene_search_latency_seconds`              | search_mode                       | Search latency                                                                                                                                                                                                                                                                                                                               |
+| `iqbene_metadata_schema_version_seen_total`  | tenant_id, schema_version, op     | Counter incremented on every `migrateToCurrent()` or `ensureCurrent()` call — labels the schema version the document had _before_ migration. `op` = `read` or `write`. Lets us see how many legacy v0/v1/vN docs are still in the read/write hot paths so we know when old migration classes are candidates for retirement.                  |
+| `iqbene_metadata_migration_duration_seconds` | target_version                    | Latency histogram for the full migration chain (per target version — always CURRENT_SCHEMA_VERSION in steady state). Alerts if a new migration step is unexpectedly slow for large JSONB payloads.                                                                                                                                           |
+| `iqbene_registry_match_total`                | stage, outcome                    | `stage` = `"extraction"` (tenant gap-fill) or `"import_dedup"` (scraper/admin pre-write). `outcome` = `matched` / `ambiguous` / `no_match`. Tracks how often the registry produces useful hits. If `matched` plateaus near 0, the seed set is too small and scraper runs are overdue.                                                        |
+| `iqbene_registry_match_confidence_seconds`   | stage                             | Histogram of the `combined` confidence score per matcher invocation. Buckets 0.5–0.6, 0.6–0.7, 0.7–0.8, 0.8–0.9, 0.9–1.0. Used during post-launch threshold recalibration — drift above the 0.75 MATCH bar indicates thresholds can be tightened; a spike of 0.72–0.75 near-boundary hits suggests a small bump to 0.78 would eliminate FPs. |
 
 Grafana dashboard added to `docker/grafana/provisioning/dashboards/VipService.json`.
 
@@ -1371,7 +1481,7 @@ Full rationale and competitor analysis: see `../business/comparison.md`.
 - [x] **Metadata schema versioning and JSONB drift.** Every `venues.metadata` and `venue_registry.metadata` JSONB document carries a top-level integer `_schema_version` (initial: 1; absent = 0 "legacy"). The shared library `iqbene-venue-model` contains an append-only chain of pure-function `MetadataMigration` classes (`v0→v1`, `v1→v2`, …) and a `VenueMetadataMigrator` runner. Every read upgrades the shape in memory via a MyBatis `VenueMetadataTypeHandler`; every write stamps the document to `CURRENT_SCHEMA_VERSION` before persist. No offline backfill job, incremental online convergence. Same migrator classpath-identical in both services, zero drift. Full design in §2a.
 - [x] **Metadata aggregation race condition prevention.** How to prevent Lost Update when N extraction jobs for the same venue publish `extraction.completed` concurrently? **Rejected:** optimistic locking with retry-loop (complex retry code, hard to test livelock scenarios, conflicts hit the database first). **Rejected:** distributed locks (Redis or advisory locks — new dependency, deadlock surface, operational complexity). **Rejected:** `SELECT … FOR UPDATE` row locks (serialises at the DB, works but requires explicit transaction scripting and still contends on hot venues). **Decided:** RabbitMQ FIFO routing per `venue_id` using hash-partitioned queues (§3). Eliminates the race at the messaging layer before the consumer runs. Zero new dependencies, no retry code. Variant A1 (single queue, concurrency=1, prefetch=1) for MVP; variant A2 (16 hash-slot queues) when throughput requires. Consumer wraps the SELECT+merge+UPDATE in a single DB transaction + MANUAL ack only after COMMIT. Composes naturally with the existing 5 s debounce window — three rapid events become one aggregation. Full design in §3 "Concurrency Control and Race Condition Prevention" and §8 queue configuration.
 - [ ] **Docling in Phase 1?** Start with pure Tika (simpler). Add Docling sidecar in Phase 2 when floor plan / table fidelity is needed. **Lean: Tika-only for Phase 1.**
-- [ ] **Registry match threshold.** What confidence score triggers a registry gap-fill? What algorithm — fuzzy name + PostGIS proximity, or embedding similarity? Needs calibration against real venue documents before Sprint 1.
+- [x] **Registry match threshold and algorithm.** Fuzzy name + PostGIS proximity, **no embeddings/LLM in the match path.** Registry is explicitly secondary — FP rate must stay ≤ 1 %, even at cost of elevated FN. Shared `normalize()` function strips leading articles, lowercases, strips non-alnum, collapses whitespace — applied identically to both sides of every comparison. **Cold-start population paths:** (1) hardcoded Liquibase XML seed rows (50–200 high-signal venues) in `iqbene-venue-model/src/main/resources/db/changelog/system/` → source `platform_seed`; (2) Platform Admin single-entity CRUD API (no bulk MVP) with pre-write dedup candidate list → admin confirms Merge/Insert manually → source `admin_import`; (3) standalone scraper scripts (Cvent etc.) → S3 `vip/registry/imports/{id}/` → admin-triggered `admin.registry.import.dry-run` RabbitMQ event → `VenueRegistryImportOrchestrator` produces a review CSV with `name_sim` + `geo_distance` + per-row action recommendation (MERGE/REVIEW/INSERT thresholds: 0.90+150m → MERGE rec, 0.75/300m → REVIEW rec, else INSERT rec) → admin edits Action column, re-uploads, fires `admin.registry.import.apply` → worker applies verbatim with no independent decisions → source `web_scrape`. **Tenant extraction-time gap-fill:** combined confidence = geo available ? `0.60·name_trigram_sim + 0.40·(geo_within_200m ? 1 : 0)` : `1.00·name_trigram_sim`. MATCH threshold = combined ≥ 0.75 (with geo) OR ≥ 0.90 (name-only) AND top-2 candidate delta ≥ 0.08 (not ambiguous). Below thresholds → silent no-op; REGISTRY is lowest conflict-resolution priority so tenant extraction/user input always overrides the copy. **Before Sprint 1 dry-run calibration on 50 real PDFs:** ground-truth each fixture, run `VenueRegistryMatcher` in no-write mode, build confusion matrix, accept only if FP ≤ 1 %, else incrementally raise thresholds. Full design: see "Registry population strategy (cold start for MVP)" section above. Micrometer metrics `iqbene_registry_match_total{stage,outcome}` + `iqbene_registry_match_confidence_seconds{stage}` histogram added to §12.
 - [ ] **Chunking table** in separate schema or same as venue tables? Spring AI's `PgVectorStore` defaults to a `vector_store` table. iQ BENE uses `venue_vectors` to be explicit. Confirm naming before first migration.
 - [ ] **Cost tracking granularity:** per-asset or per-tenant-per-month? Both are in schema; decide which is surfaced in UI.
 - [ ] **Old migration class retirement policy.** After how many consecutive months of zero hits on the `schema_version < N` Prometheus counter do we delete the oldest migration classes from the chain? Define the guardrail before the first schema bump so we do not accumulate deprecated code indefinitely.
@@ -1717,6 +1827,7 @@ One `@RestControllerAdvice` per service. Every handler uses the same `problem(ty
 - [ ] **MVP scope cut** — Phase 1 is: venue profiles, asset upload, basic extraction (PDF only), keyword + semantic search, team collaboration. Everything else is Phase 2+.
 - [ ] **Implement `VenueMetadataMigrator` v0 + v1 chain** in `iqbene-venue-model` before any service code reads or writes `venues.metadata`. Wire `VenueMetadataTypeHandler` into the `VenueResultMap`. Add a 1-line counter Micrometer call inside `migrateToCurrent()` so version distribution metrics work from day zero. Add JUnit tests for `MetadataMigrationV0ToV1` with 5+ fixture JSON shapes (empty `{}`, `{}` without `_schema_version`, full v1 shape, partial v1 shape, registry-copy shape) to cover legacy-bootstrapping edge cases.
 - [ ] **Implement metadata aggregation FIFO routing (A1 for MVP)** in `iqbene-venue-service` `MetadataAggregationConsumer`: configure `@RabbitListener` on `vip.metadata.aggregation` with `concurrency=1`, `prefetchCount=1`, `acknowledgeMode=MANUAL`. Wrap the full SELECT → debounce check → merge via VenueMetadataMigrator → UPDATE → venue_metadata_events consume cycle in a single `@Transactional` DB transaction. Ack the RabbitMQ message only after the transaction commits; nack with requeue (up to 3x) on transient exceptions, then DLQ. Add an integration test that publishes three `extraction.completed` events for the same `venue_id` in quick succession, consumes the queue, and asserts that the final `venues.metadata` contains merged fields from all three sources AND that exactly one SQL `UPDATE` was executed (debounce + FIFO coalescing). When queue depth metrics show sustained backlog > 1 s, promote from A1 to A2 (16 hash-slot queues + publisher-side slot computation); consumer handler code is unchanged.
+- [ ] **Implement VenueRegistryMatcher + dry-run threshold calibration.** Code: `VenueRegistryMatcher` class in `iqbene-venue-ingestion-worker` (pure PostgreSQL pg_trgm + PostGIS, shared `normalize()` 6-step function (strip articles, lowercase, strip non-alnum, collapse whitespace, trim both sides of every comparison), fetch top-5 trigram candidates via GIN index, PostGIS ST_DWithin 200m radius, combined confidence formula with 0.60·name + 0.40·geo (or pure name when geo missing), MATCH thresholds 0.75 with geo / 0.90 name-only, ambiguity guard delta ≥ 0.08, field copy only for leaf keys that are null on tenant side + REGISTRY source tag in metadata_sources, set metadata_aggregated_at = NOW() after copy. Micrometer counters matched/ambiguous/no_match counter + confidence histogram. Unit tests: 10+ synthetic pairs (exact, fuzzy, geo cross-city mismatch, no geo strict, ambiguous 2-cand delta=0.05 ambiguous guard). Dry-run calibration: 50 real PDFs with ground truth, build confusion matrix, acceptance FP-rate ≤ 1 %, adjust thresholds and document final numbers → release. Admin single-entity CRUD MVP: `POST/PATCH /api/v1/admin/registry/entries` + dedup candidate endpoint returning review list. Scraper dry-run review CSV + `VenueRegistryImportOrchestrator` RabbitMQ events `admin.registry.import.dry-run` → report → `admin.registry.import.apply` verbatim apply (never autonmy the worker's side.
 
 ### Phase 2 Design (post-MVP signal)
 
