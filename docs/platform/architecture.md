@@ -291,21 +291,24 @@ Aggregation is debounced (5s) to batch rapid successive events.
                     ┌────────▼────────────────────────▼─────────┐
                     │            iqbene-venue-service             │
                     │  venues · assets · metadata · search · api │
-                    └────────┬─────────────────────────┬─────────┘
-                             │ RabbitMQ: asset.uploaded │ read/write
-                    ┌────────▼─────────┐     ┌─────────▼────────┐
-                    │ iqbene-ingestion- │     │   PostgreSQL      │
-                    │    worker        │────►│   t_{tenant}      │
-                    │ (async sidecar)  │     │   + pgvector      │
-                    └────────┬─────────┘     │   + PostGIS       │
-                             │  registry     └──────────────────┘
-                             │  match        ┌──────────────────┐
-                             └─────────────► │   public schema   │
-                                             │ venue_registry    │
-                                             └──────────────────┘
-                    ┌──────────────────┐
-                    │   S3 / MinIO     │  (existing)
-                    └──────────────────┘
+                    └────────┬──────────────┬──────────┬─────────┘
+                             │ RabbitMQ:    │ r/w       │ presigned URL
+                             │ asset.uploa- │           │ issue + delete
+                    ┌────────▼─────────┐  ┌─▼──────────▼──────┐
+                    │ iqbene-ingestion- │  │   PostgreSQL        │
+                    │    worker        │──►│   t_{tenant}        │
+                    │ (async sidecar)  │  │   + pgvector        │
+                    └────────┬─────────┘  │   + PostGIS         │
+                             │ registry   └─────────────────────┘
+                             │ match      ┌─────────────────────┐
+                             ├───────────►│   public schema      │
+                             │            │   venue_registry     │
+                             │            └─────────────────────┘
+                             │ read asset ┌─────────────────────┐
+                             └───────────►│   S3 / MinIO         │◄── client (direct PUT)
+                                          │   vip/tenants/{key}/ │
+                                          │   vip/registry/      │
+                                          └─────────────────────┘
 ```
 
 ### iqbene-venue-service
@@ -406,6 +409,174 @@ iqbene-venue-model  (library, no runtime)
       ├── iqbene-venue-service     (Spring Boot, imports model)
       └── iqbene-venue-ingestion-worker  (Spring Boot, imports model)
 ```
+
+---
+
+## 4b. S3 Storage Layout
+
+S3 (MinIO for local dev) is already in the IQKV stack. iQ BENE adds its own prefix namespace inside the shared bucket (`iqkv-files`) — no new bucket needed in dev/staging. Production can isolate into a dedicated bucket (`iqkv-vip-files`) via a single config change; the key structure is identical either way.
+
+---
+
+### Bucket strategy
+
+| Environment | Bucket           | Notes                                                                                     |
+| ----------- | ---------------- | ----------------------------------------------------------------------------------------- |
+| Dev / CI    | `iqkv-files`     | Shared with foundation services, MinIO default. VIP objects live under `vip/` prefix.     |
+| Staging     | `iqkv-files`     | Same shared bucket, same prefix scheme. Isolated by prefix only.                          |
+| Production  | `iqkv-vip-files` | Dedicated bucket. Separate IAM policy, separate lifecycle rules. Key structure identical. |
+
+MinIO in local dev is configured in `docker-compose.yml` with `MINIO_DEFAULT_BUCKETS=iqkv-files`. No `iqkv-vip-files` bucket is needed until the production deployment config is introduced.
+
+---
+
+### Key naming convention
+
+All VIP objects follow a deterministic, hierarchical key structure. Every segment is lowercase, no spaces.
+
+#### Tenant asset files (uploaded by tenant users)
+
+```
+vip/tenants/{tenantKey}/venues/{venueId}/assets/{assetId}/{fileName}
+```
+
+| Segment       | Value                                                   | Example                            |
+| ------------- | ------------------------------------------------------- | ---------------------------------- |
+| `vip/`        | VIP namespace — separates from other foundation objects | (literal)                          |
+| `tenants/`    | Tenant subtree root                                     | (literal)                          |
+| `{tenantKey}` | 8-char nanoid from JWT `tenant_id` claim                | `acme0001`                         |
+| `venues/`     | Venue subtree                                           | (literal)                          |
+| `{venueId}`   | UUID of the venue (no hyphens — compact form)           | `550e8400e29b41d4a716446655440000` |
+| `assets/`     | Asset subtree                                           | (literal)                          |
+| `{assetId}`   | UUID of the asset (no hyphens)                          | `6ba7b8109dad11d180b400c04fd430c8` |
+| `{fileName}`  | Original file name, URL-safe, max 255 chars             | `grand-ballroom-deck.pdf`          |
+
+Full example:
+
+```
+vip/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/6ba7b8109dad11d180b400c04fd430c8/grand-ballroom-deck.pdf
+```
+
+**Key rules:**
+
+- `{fileName}` is the original client-supplied file name, stripped of path separators (`/`, `\`), URL-encoded where necessary. It is stored as-is after sanitisation — no UUID substitution — so the key stays human-readable in MinIO console / S3 CLI.
+- `{venueId}` and `{assetId}` are UUIDs without hyphens (compact 32-char hex). This keeps keys short and avoids double-encoding issues.
+- The `asset_id` is generated server-side at `POST /assets/initiate` and written to `venue_assets.id` before the presigned URL is issued. The S3 key is computed from that ID and stored in `venue_assets.s3_key`. At confirm time no key re-computation happens — the stored `s3_key` is used directly.
+
+#### Presigned URL issuance
+
+`POST /assets/initiate` response returns:
+
+```json
+{
+  "asset_id": "<uuid>",
+  "upload_url": "https://minio.local/iqkv-files/vip/tenants/acme0001/venues/.../grand-ballroom-deck.pdf?X-Amz-Signature=...",
+  "expires_at": "2025-06-01T12:15:00Z"
+}
+```
+
+The presigned PUT URL is pre-signed server-side with the exact key. The client uploads directly. The service never proxies the file body.
+
+Download presigned URLs (1h TTL) are generated on-demand at `GET /assets/{id}/download-url` — not stored. The key is always re-derived from `venue_assets.s3_key`.
+
+---
+
+#### Platform registry import files (admin / seeding)
+
+Registry seed data and bulk import files are not tenant-owned. They live under a separate subtree:
+
+```
+vip/registry/imports/{importId}/{fileName}
+vip/registry/exports/{date}/{snapshot}.jsonl.gz
+```
+
+| Path                               | Purpose                                                                           |
+| ---------------------------------- | --------------------------------------------------------------------------------- |
+| `vip/registry/imports/{importId}/` | One folder per import batch (admin-triggered). Contains raw CSV/JSON input files. |
+| `vip/registry/exports/{date}/`     | Nightly compacted snapshots of `public.venue_registry` for downstream consumers.  |
+
+`{importId}` is a UUID generated at import initiation. `{date}` is `YYYY-MM-DD`.
+
+Registry import files are processed by a scheduled admin job (no inbound HTTP for import — admin drops files via the Registry Admin API, Phase 2). The import job reads from S3, populates `public.venue_registry` and `public.venue_registry_aliases`, then archives the source object by moving it to `vip/registry/imports/processed/{importId}/`.
+
+---
+
+### Tenant isolation
+
+Tenant data isolation in S3 mirrors the schema-per-tenant approach in PostgreSQL:
+
+- All tenant objects are scoped under `vip/tenants/{tenantKey}/`. Cross-tenant read is structurally impossible without knowing the other tenant's key.
+- The service account used by `iqbene-venue-service` and `iqbene-venue-ingestion-worker` holds a single S3 IAM policy that allows `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on the full `vip/*` prefix. Presigned URLs are scoped to the exact object key — the client cannot enumerate or access any other key.
+- Registry paths (`vip/registry/*`) are not accessible via tenant-issued presigned URLs. They are written only by the platform's internal job service account.
+
+---
+
+### Lifecycle rules and compaction
+
+S3 lifecycle rules are configured on the bucket (not in application code). Two rules apply:
+
+| Rule                       | Prefix                             | Action                                                                                                                                                                                  |
+| -------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Extraction artefact expiry | `vip/tenants/*/venues/*/assets/*/` | Transition to Glacier/IA after 90 days if `extraction_status = COMPLETED` and no re-extraction pending. Managed via tags set on object at confirm time (`extraction_status=completed`). |
+| Registry import cleanup    | `vip/registry/imports/processed/`  | Delete after 30 days.                                                                                                                                                                   |
+| Registry snapshot rotation | `vip/registry/exports/`            | Keep last 14 daily snapshots; delete older.                                                                                                                                             |
+
+Object tags are set by `iqbene-venue-service` at `POST /assets/confirm` using `PutObjectTagging`. Tags used:
+
+| Tag key             | Values                                          | Set by                          |
+| ------------------- | ----------------------------------------------- | ------------------------------- |
+| `extraction_status` | `pending`, `completed`, `failed`                | venue-service at confirm/update |
+| `asset_type`        | `pdf_deck`, `floor_plan`, `photo`, `cad_file` … | venue-service at initiate       |
+| `tenant_key`        | 8-char nanoid                                   | venue-service at initiate       |
+
+Tags enable cost allocation reports per tenant and per asset type in AWS Cost Explorer / MinIO billing.
+
+---
+
+### Deletion cascade
+
+When a tenant deletes an asset (`DELETE /assets/{id}`) or when a tenant account is terminated:
+
+1. `iqbene-venue-service` deletes the `venue_assets` row (DB cascade drops extraction jobs, metadata events referencing the asset).
+2. `iqbene-venue-service` issues `s3:DeleteObject` for `venue_assets.s3_key`.
+3. A `asset.deleted` event is published → `iqbene-venue-ingestion-worker` deletes all `venue_vectors` rows where `metadata->>'asset_id' = :assetId`.
+
+For full tenant deletion (GDPR right to erasure):
+
+1. `DELETE FROM t_{tenantKey}.venues` cascades to all asset rows.
+2. A separate `tenant.deleted` event triggers a background S3 sweep: `s3:DeleteObjects` with all keys matching `vip/tenants/{tenantKey}/*` (batched in 1000-object chunks to respect S3 API limits).
+3. The pgvector sweep deletes all `venue_vectors` rows for the tenant schema (schema drop handles this implicitly if the schema is dropped).
+
+---
+
+### Registry population strategy
+
+The `public.venue_registry` table is the platform's canonical venue reference. It is never populated by tenant uploads. Population paths:
+
+| Path                         | Mechanism                                                                                                                                 | Source in `venue_registry.source` |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| **Cold-start seed**          | Admin CSV upload → S3 `vip/registry/imports/{id}/` → import job → INSERT                                                                  | `platform_seed`                   |
+| **Admin web scrape import**  | Scrape pipeline produces JSONL → S3 `vip/registry/imports/{id}/` → import job                                                             | `web_scrape`                      |
+| **Admin manual import**      | Registry Admin API (Phase 2): `POST /admin/registry/import` → presigned S3 PUT → import job                                               | `admin_import`                    |
+| **Tenant-signal enrichment** | After extraction.completed, if tenant data has high-confidence fields not in registry → candidate event (Phase 3, no reverse flow in MVP) | — (not in MVP)                    |
+
+**Import job steps** (run by `iqbene-venue-ingestion-worker` on a scheduled trigger, or triggered by an admin RabbitMQ event):
+
+1. List objects under `vip/registry/imports/{importId}/`.
+2. Parse each file (CSV or JSONL). Each row must have at minimum: `name`, `address`, `country_code`.
+3. For each row: attempt name + PostGIS proximity deduplication against existing `venue_registry` entries. Dedup threshold: name similarity ≥ 0.85 (trigram) AND location within 100m (if lat/lng provided). On match → UPDATE (merge non-null fields, bump `confidence`, add new aliases). On no match → INSERT.
+4. Alias normalisation: strip articles ("The ", "A "), lowercase, strip punctuation. Store both the original name and the normalised form as `venue_registry_aliases` rows. This enables fuzzy match when a tenant uploads a document that refers to "Bowery Hotel NYC" but the registry entry is "The Bowery Hotel".
+5. Move processed source file to `vip/registry/imports/processed/{importId}/`.
+6. Append an entry to the nightly export queue. The nightly snapshot job compacts all registry rows into `vip/registry/exports/{date}/venue_registry_snapshot.jsonl.gz` for external consumers (Phase 3 partner API).
+
+**Alias strategy for registry matching during extraction:**
+
+When `VenueRegistryMatcher` runs after a tenant document is extracted:
+
+1. Primary match: `venues.name` against `venue_registry.name` + `venue_registry_aliases.alias` (trigram similarity, GIN index on `alias`).
+2. Secondary match: PostGIS `ST_DWithin(venues.location, venue_registry.location, 200)` — 200m radius.
+3. Combined confidence: `0.6 * name_similarity + 0.4 * (1 if geo_match else 0)`. Threshold: ≥ 0.7 triggers gap-fill.
+4. On match: copy registry fields into `venues.metadata` for any field not already populated by extraction. Tag each copied field with `source_type = REGISTRY` in `metadata_sources`. This is a one-time copy — the tenant record is fully independent from this point.
 
 ---
 
@@ -891,15 +1062,15 @@ Both iQ BENE services follow foundation patterns exactly.
 
 **Prometheus metrics to add:**
 
-| Metric                            | Labels                            | Notes                       |
-| --------------------------------- | --------------------------------- | --------------------------- |
-| `vip_venues_total`                | tenant_id, status                 | Venue count by state        |
-| `vip_assets_uploaded_total`       | tenant_id, asset_type             | Upload volume               |
-| `vip_extractions_total`           | tenant_id, extractor_type, status | Success/failure rates       |
-| `vip_extraction_duration_seconds` | extractor_type                    | Latency histogram           |
-| `vip_ai_cost_usd_total`           | tenant_id, model                  | Cost tracking               |
-| `vip_search_requests_total`       | search_mode                       | keyword / semantic / hybrid |
-| `vip_search_latency_seconds`      | search_mode                       | Search latency              |
+| Metric                               | Labels                            | Notes                       |
+| ------------------------------------ | --------------------------------- | --------------------------- |
+| `iqbene_venues_total`                | tenant_id, status                 | Venue count by state        |
+| `iqbene_assets_uploaded_total`       | tenant_id, asset_type             | Upload volume               |
+| `iqbene_extractions_total`           | tenant_id, extractor_type, status | Success/failure rates       |
+| `iqbene_extraction_duration_seconds` | extractor_type                    | Latency histogram           |
+| `iqbene_ai_cost_usd_total`           | tenant_id, model                  | Cost tracking               |
+| `iqbene_search_requests_total`       | search_mode                       | keyword / semantic / hybrid |
+| `iqbene_search_latency_seconds`      | search_mode                       | Search latency              |
 
 Grafana dashboard added to `docker/grafana/provisioning/dashboards/VipService.json`.
 
@@ -907,14 +1078,14 @@ Grafana dashboard added to `docker/grafana/provisioning/dashboards/VipService.js
 
 ## 13. Security
 
-| Concern                 | Approach                                                                                                                       |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Tenant data isolation   | Schema-per-tenant (PostgreSQL + pgvector); S3 key prefix per tenant                                                            |
-| Asset access            | Presigned S3 URLs only (15 min upload, 1h download). No public bucket.                                                         |
-| AI data handling        | Documents sent to OpenAI API per their data processing terms. Enterprise option: Azure OpenAI (data stays in tenant's region). |
-| GDPR / right to erasure | `DELETE tenant` cascades to venues → assets → S3 objects → vector embeddings                                                   |
-| Audit trail             | All `venue.*`, `asset.*`, `extraction.*` events passively consumed by Audit Service                                            |
-| PII in documents        | Warn on upload. Do not log extracted text.                                                                                     |
+| Concern                 | Approach                                                                                                                                                |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tenant data isolation   | Schema-per-tenant (PostgreSQL + pgvector); S3 key prefix `vip/tenants/{tenantKey}/` per tenant — see §4b for full key layout                            |
+| Asset access            | Presigned S3 URLs only (15 min upload, 1h download). No public bucket. Registry paths (`vip/registry/*`) inaccessible via tenant-issued presigned URLs. |
+| AI data handling        | Documents sent to OpenAI API per their data processing terms. Enterprise option: Azure OpenAI (data stays in tenant's region).                          |
+| GDPR / right to erasure | `DELETE tenant` cascades to venues → assets → S3 objects → vector embeddings                                                                            |
+| Audit trail             | All `venue.*`, `asset.*`, `extraction.*` events passively consumed by Audit Service                                                                     |
+| PII in documents        | Warn on upload. Do not log extracted text.                                                                                                              |
 
 ---
 
