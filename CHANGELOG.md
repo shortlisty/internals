@@ -14,6 +14,20 @@
 
 ### Added
 
+- `docs/business/product.md` — product structure in business terms: who the product is for (event managers and agencies), two interfaces (backoffice and storefront), four capability pillars (ETL/self-ingestion, PIM, DAM, read-only storefront), and positioning summary.
+
+### Changed
+
+- `docs/roadmap/vision.md` — sharpened "one sentence" and added "Who this is for" section; added "Product structure" summary section; renamed "For a planner" to "For an event manager"; updated out-of-scope list to explicitly include storefront as a later epic; updated nav footer.
+- `AGENTS.md` — added `product.md` to repository structure tree; added §4.8 Product structure doc type rules; renumbered former §4.8 Competitive landscape to §4.9.
+- `README.md` — added Product Structure row to navigation table.
+
+---
+
+## 2026-07-29 (continued)
+
+### Added
+
 - `docs/business/sales/pitch.md` — demo and intro call narrative: five beats with goal, transition, and "what not to do" section.
 - `docs/business/sales/battlecards.md` — 11 competitor cards across five groups (venue discovery, venue operations, file storage/DAM, AI productivity, document intelligence APIs). Each card: what they have, what they do not have, verbatim response example, win condition.
 - `docs/business/sales/objections.md` — 14 objections across five categories (AI accuracy, switching cost/adoption, data/security, pricing/value, product/roadmap). Each entry: underlying concern, response, follow-up question.

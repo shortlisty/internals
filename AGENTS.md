@@ -30,6 +30,7 @@ iqbene-system-design-documentation/
     ├── business/
     │   ├── proposal.md                ← ICP, monetization, GTM, risks
     │   ├── comparison.md              ← Competitive landscape
+    │   ├── product.md                 ← Product structure in business terms (two interfaces, four pillars)
     │   └── sales/
     │       ├── pitch.md               ← Demo and intro call narrative flow
     │       ├── battlecards.md         ← Per-competitor positioning for live conversations
@@ -144,7 +145,15 @@ Do not invent new audience tags. If a document genuinely serves two separate aud
 - Do not duplicate content from `comparison.md` into `battlecards.md`. Battlecards reference the competitive analysis; they do not reproduce it.
 - Do not include pricing figures that are not confirmed. Mark uncertain numbers with `(TBC)`.
 
-### 4.8 Competitive landscape (`docs/business/comparison.md`)
+### 4.8 Product structure (`docs/business/product.md`)
+
+- Audience is `Founders, team`.
+- Explains the product in business terms: who it is for, the two interfaces (backoffice and storefront), and the four capability pillars (ETL, PIM, DAM, storefront).
+- Do not describe implementation details here. For domain model, schemas, and service boundaries, see `architecture.md`.
+- Do not duplicate the competitive gap analysis from `comparison.md`. The positioning summary here is a one-paragraph conclusion, not a re-analysis.
+- Link to epic files for each pillar rather than re-listing their scope.
+
+### 4.9 Competitive landscape (`docs/business/comparison.md`)
 
 - Structured as: per-competitor sections followed by a gap summary matrix.
 - Each competitor section has exactly: What it is, Strengths, Gaps relevant to iQ BENE, Verdict.

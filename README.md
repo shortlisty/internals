@@ -10,6 +10,7 @@
 | ------------------------------------------------------- | --------------------- | ---------------------------------------------------------------- |
 | [What is iQ BENE?](docs/README.md)                      | Anyone                | Plain-language overview: the problem, the solution, who it's for |
 | [Business Proposal](docs/business/proposal.md)          | Founders, team        | ICP, feature roadmap, monetization, GTM, risks                   |
+| [Product Structure](docs/business/product.md)           | Founders, team        | Tenant app, four capability pillars, UI concept, positioning     |
 | [Competitive Landscape](docs/business/comparison.md)    | Founders, team        | Competitor analysis and gap summary matrix                       |
 | [Pitch](docs/business/sales/pitch.md)                   | Founders, team        | Intro call and demo narrative flow                               |
 | [Battlecards](docs/business/sales/battlecards.md)       | Founders, team        | Per-competitor positioning for live conversations                |
