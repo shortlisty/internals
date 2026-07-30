@@ -10,13 +10,11 @@
 
 ### Added
 
-- `docs/business/market.md` (EN/RU) — market structure and role segmentation: the event chain (five roles), how the market is segmented by role, the monetization pattern (why every tool charges the venue), the vacant slot (event manager as knowledge worker), and where iQ BENE sits.
+- `docs/business/cold-start.md` — cold start strategy: why seed data is a development requirement, tier-2 US city focus (Austin, Nashville, Miami), venue selection criteria, six venue categories, free and open data sources (venue websites, Google Places API, OSM, social media), per-venue collection process, accuracy tracking spreadsheet, and exit criteria checklist.
 
 ### Changed
 
-- `docs/business/comparison.md` (EN/RU) — added Facilitron (public-sector facility operations and rental platform) and Propared (production planning software for arts and events). Updated gap summary matrix with two new columns and a new "Production planning" capability row.
-- `README.md` — added Market Structure row to navigation table.
-- `docs/README.md` — updated nav footer to include Market Structure link.
+- `README.md` — added Cold Start Strategy row to navigation table.
 
 ---
 

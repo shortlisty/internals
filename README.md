@@ -6,20 +6,21 @@
 
 ## Documents
 
-| Document                                                | Audience              | What it covers                                                   |
-| ------------------------------------------------------- | --------------------- | ---------------------------------------------------------------- |
-| [What is iQ BENE?](docs/README.md)                      | Anyone                | Plain-language overview: the problem, the solution, who it's for |
-| [Market Structure](docs/business/market.md)             | Anyone                | The event chain, roles, tool segmentation, the vacant slot       |
-| [Business Proposal](docs/business/proposal.md)          | Founders, team        | ICP, feature roadmap, monetization, GTM, risks                   |
-| [Product Structure](docs/business/product.md)           | Founders, team        | Tenant app, four capability pillars, UI concept, positioning     |
-| [Competitive Landscape](docs/business/comparison.md)    | Founders, team        | Competitor analysis and gap summary matrix                       |
-| [Pitch](docs/business/sales/pitch.md)                   | Founders, team        | Intro call and demo narrative flow                               |
-| [Battlecards](docs/business/sales/battlecards.md)       | Founders, team        | Per-competitor positioning for live conversations                |
-| [Objections](docs/business/sales/objections.md)         | Founders, team        | Objection handling: underlying concern, response, follow-up      |
-| [Messaging](docs/business/sales/messaging.md)           | Founders, team        | Taglines, hero copy, value pillars, naming — copy bank           |
-| [Architecture Reference](docs/platform/architecture.md) | Engineers, architects | Domain model, services, schema, API, event contracts             |
-| [Intelligence Layer](docs/platform/intelligence.md)     | Engineers, architects | ETL pipeline, extraction, AI layer, technology decisions         |
-| [Roadmap Vision](docs/roadmap/vision.md)                | Founders, team        | Product direction, strategic bets, north star metric             |
+| Document                                                | Audience              | What it covers                                                    |
+| ------------------------------------------------------- | --------------------- | ----------------------------------------------------------------- |
+| [What is iQ BENE?](docs/README.md)                      | Anyone                | Plain-language overview: the problem, the solution, who it's for  |
+| [Market Structure](docs/business/market.md)             | Anyone                | The event chain, roles, tool segmentation, the vacant slot        |
+| [Cold Start Strategy](docs/business/cold-start.md)      | Founders, team        | Seeding the venue library before launch: cities, sources, process |
+| [Business Proposal](docs/business/proposal.md)          | Founders, team        | ICP, feature roadmap, monetization, GTM, risks                    |
+| [Product Structure](docs/business/product.md)           | Founders, team        | Tenant app, four capability pillars, UI concept, positioning      |
+| [Competitive Landscape](docs/business/comparison.md)    | Founders, team        | Competitor analysis and gap summary matrix                        |
+| [Pitch](docs/business/sales/pitch.md)                   | Founders, team        | Intro call and demo narrative flow                                |
+| [Battlecards](docs/business/sales/battlecards.md)       | Founders, team        | Per-competitor positioning for live conversations                 |
+| [Objections](docs/business/sales/objections.md)         | Founders, team        | Objection handling: underlying concern, response, follow-up       |
+| [Messaging](docs/business/sales/messaging.md)           | Founders, team        | Taglines, hero copy, value pillars, naming — copy bank            |
+| [Architecture Reference](docs/platform/architecture.md) | Engineers, architects | Domain model, services, schema, API, event contracts              |
+| [Intelligence Layer](docs/platform/intelligence.md)     | Engineers, architects | ETL pipeline, extraction, AI layer, technology decisions          |
+| [Roadmap Vision](docs/roadmap/vision.md)                | Founders, team        | Product direction, strategic bets, north star metric              |
 
 Russian translations: [`docs/ru/`](docs/ru/)
 
