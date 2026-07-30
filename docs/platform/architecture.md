@@ -184,6 +184,10 @@ The `venues.metadata` column stores the **consolidated view** of all extracted a
 **Canonical field set:**
 
 ```
+_schema_version (int)        MANDATORY — schema version for migration, starts at 1. Never absent
+                                 Incremented on every canonical schema change. Read by
+                                 VenueMetadataMigrator (see §2a).
+
 capacity
   └─ max_total (int)
   └─ configurations: banquet, theater, classroom, cocktail, conference (int each)
@@ -243,6 +247,150 @@ pricing
   ]
 }
 ```
+
+---
+
+## 2a. Metadata Schema Versioning & Migration
+
+The canonical `venues.metadata` shape evolves over time — new nested fields are added, types are widened, obsolete keys are retired. Without an explicit version marker and migration pipeline, JSONB documents produced by older extraction prompts or older code versions deserialize incompletely (null pointers, type coercion failures, silent data drops) when read by newer backend code.
+
+### Contract
+
+Every `venues.metadata` JSONB document must carry an integer key `_schema_version` at the top level. The value is the version of the **canonical field set** (§2) that the document was produced against. Documents without `_schema_version` are treated as version `0` — the "legacy, pre-versioning" shape.
+
+| Rule | Value |
+| ---- | ----- |
+| Initial version | `1` (matches the first canonical field set shipped in MVP) |
+| Absent key fallback | `0` (triggers full migration chain from v0) |
+| Bump condition | Any backwards-incompatible change to canonical fields, or any addition of a required nested field |
+| Bump ownership | `iqbene-venue-model` library — only the shared model may define `CURRENT_SCHEMA_VERSION` |
+| Write enforcement | Every write path (aggregation, manual override, bulk import, registry copy) runs the migrator and sets `_schema_version = CURRENT_SCHEMA_VERSION` before persisting |
+| Read enforcement | `VenueMetadataMigrator.migrateToCurrent(JsonNode)` is called on **every read** from `venues.metadata` (via MyBatis ResultMap handler or wrapper mapper) — deserialization never sees stale shapes |
+
+### Migration pipeline — `VenueMetadataMigrator`
+
+The migrator lives in `iqbene-venue-model` (shared library, zero Spring deps — pure Java). Both services use the **same** migrator instance, so read and write paths agree on schema shape with no drift.
+
+```
+                 ┌──────────────────────────────────┐
+  raw JSONB  ──► │  VenueMetadataMigrator           │
+  (any version)  │                                  │
+                 │  1. Extract _schema_version      │
+                 │     (absent → 0)                 │
+                 │                                  │
+                 │  2. Chain ordered migrations:    │
+                 │     v0→v1, v1→v2, v2→v3, …      │
+                 │     (sequential apply, skip if   │
+                 │      at or above target)         │
+                 │                                  │
+                 │  3. Apply defaults for new keys: │
+                 │     null → sensible default /    │
+                 │     Optional.empty (never set to │
+                 │     sentinel "unknown")          │
+                 │                                  │
+                 │  4. Validate against current     │
+                 │     canonical schema (type-only, │
+                 │     no business rules)           │
+                 │                                  │
+                 │  5. Stamp _schema_version = N    │
+                 │     and return JsonNode          │
+                 └──────────────┬───────────────────┘
+                                │
+                                ▼
+                     JsonNode at CURRENT_VERSION
+                     (safe to deserialize into
+                      VenueMetadata POJO)
+```
+
+### Migration classes
+
+Each `N → N+1` step is a single-responsibility class implementing `MetadataMigration` interface. Migrations are registered in an ordered list inside `VenueMetadataMigrator` — the order is the source of truth.
+
+```java
+// iqbene-venue-model: no Spring, no framework deps
+public interface MetadataMigration {
+    int fromVersion();
+    int toVersion();
+    JsonNode apply(JsonNode input, ObjectMapper mapper);
+}
+
+// Example: v1 → v2 adds catering.vegan_available and renames
+// capacity.configurations.banquet → capacity.configurations.round_banquet
+public final class MetadataMigrationV1ToV2 implements MetadataMigration {
+    @Override public int fromVersion() { return 1; }
+    @Override public int toVersion()   { return 2; }
+
+    @Override
+    public JsonNode apply(JsonNode input, ObjectMapper mapper) {
+        var root = (ObjectNode) input.deepCopy();
+        var catering = root.withObject("catering");
+        if (!catering.has("vegan_available")) {
+            catering.putNull("vegan_available");  // explicit null = unknown, NOT false
+        }
+        var caps = root.path("capacity").path("configurations");
+        if (caps.isObject() && caps.has("banquet") && !caps.has("round_banquet")) {
+            ((ObjectNode) root.path("capacity").path("configurations"))
+                .set("round_banquet", caps.get("banquet"));
+            ((ObjectNode) root.path("capacity").path("configurations"))
+                .remove("banquet");
+        }
+        return root;
+    }
+}
+```
+
+Rules for migration authors:
+
+- Migrations are **pure functions**: same input → same output, no side effects, no I/O. Testable with plain unit tests — no Spring context required.
+- Migrations never drop keys they do not recognise. Unknown keys are preserved verbatim so that forward-compatible shapes (e.g. a v3 writer writing while v2 readers are still live) do not lose data.
+- Numeric type widening (int → long, int → double) is done by value coercion, not by dropping the value.
+- Enum string rename: produce a mapping table. Missing values default to `null` with no exception thrown — callers decide how to render an unknown enum value in UI/API.
+- Migration list is append-only. Once a migration class is merged, it is never deleted or reordered. Superseded logic lives on because tenant schemas can contain arbitrarily old JSONB documents (e.g. a venue last updated 18 months ago).
+
+### Write path — stamping the version
+
+All code paths that produce or mutate `venues.metadata` call `migrator.ensureCurrent(node)` **before** the `UPDATE` / `INSERT`. This:
+
+1. Applies any pending migrations from the document's current version.
+2. Sets `_schema_version = CURRENT_SCHEMA_VERSION`.
+3. Returns the node ready to be persisted.
+
+Write paths affected: `MetadataAggregationConsumer` (after conflict resolution), `PATCH /metadata/{field}` handler, bulk import job, registry gap-fill copy, `CreateVenueRequest` default metadata initializer.
+
+### Read path — safe deserialization
+
+Reading `venues.metadata` from the database must never return a raw JSONB value to the caller. The MyBatis result map for `Venue` applies the migrator inside the column handler:
+
+```xml
+<!-- MyBatis mapper: venues result map -->
+<resultMap id="VenueResultMap" type="com.iqkv.iqbene.model.venue.Venue">
+  <id     property="id"        column="id"/>
+  <result property="name"      column="name"/>
+  <!-- …other columns… -->
+  <result property="metadata"  column="metadata"
+          typeHandler="com.iqkv.iqbene.model.metadata.VenueMetadataTypeHandler"/>
+</resultMap>
+```
+
+`VenueMetadataTypeHandler` runs `VenueMetadataMigrator.migrateToCurrent()` between the raw `PGobject` JSONB and `VenueMetadata` POJO construction. If a document is several versions behind, all intermediate migrations run in a single pass inside one handler call. No extra SQL, no batch background job required.
+
+### Backfill: online-only, no offline migration job
+
+Because the migrator runs on every read and every write, schema convergence is incremental and online:
+
+- **First read** of a stale document → migrator upgrades in-memory, returns correct shape to the caller. The DB copy remains stale (lowest cost, no write amplification).
+- **Next write** (aggregation, manual edit, anything that touches the row) → `ensureCurrent()` stamps the DB copy to the latest version permanently.
+- **Warm cache effect**: venues actively used by tenants converge quickly; idle dormant venues are upgraded on their first access and permanently fixed at their next write.
+
+No scheduled backfill job, no downtime, no ALTER TABLE on JSONB. If we later want to force-converge all rows for a tenant (e.g. before a heavy schema jump), a one-shot admin endpoint iterates `SELECT id FROM venues` and issues a no-op `UPDATE venues SET metadata = metadata` to trigger the write-path stamping.
+
+### Version distribution observability
+
+The migrator records the pre-migration version of every document it sees via Micrometer (see §12). This lets us observe how many legacy versions are still in the wild and when it is safe to delete very old migration classes from the chain (typically after all tenants have had their last stale document touched and stamped).
+
+### Schema version in registry metadata
+
+`public.venue_registry.metadata` follows the same `_schema_version` contract. Registry import jobs run `VenueMetadataMigrator.ensureCurrent()` before `INSERT/UPDATE public.venue_registry`. When a tenant copies registry fields into its own venue record (gap-fill, §5 Stage 3), both sides are at known versions and the copy logic merges field-by-field rather than JSON-blob-blit — no cross-version contamination.
 
 ---
 
@@ -370,7 +518,14 @@ iqbene-venue-model/
 │   │   ├── VenueMetadata.java          Value object (mirrors venues.metadata JSONB)
 │   │   ├── VenueCapacity.java          Capacity configurations value object
 │   │   ├── MetadataSource.java         Provenance per field
-│   │   └── MetadataEventType.java      enum: ASSET_EXTRACTED, MANUAL_OVERRIDE, BULK_IMPORT, REGISTRY
+│   │   ├── MetadataEventType.java      enum: ASSET_EXTRACTED, MANUAL_OVERRIDE, BULK_IMPORT, REGISTRY
+│   │   ├── MetadataSchemaVersion.java  Single source of truth: CURRENT_SCHEMA_VERSION = 1
+│   │   ├── MetadataMigration.java      Interface: fromVersion(), toVersion(), apply()
+│   │   ├── VenueMetadataMigrator.java  Migration chain runner: migrateToCurrent(), ensureCurrent()
+│   │   ├── VenueMetadataTypeHandler    MyBatis TypeHandler: auto-apply migrator on every read
+│   │   └── migrations/                 Append-only ordered list of N→N+1 migration classes
+│   │       ├── MetadataMigrationV0ToV1.java   (bootstraps legacy pre-versioned docs → v1)
+│   │       └── MetadataMigrationV1ToV2.java   (reserved for next schema bump)
 │   ├── registry/
 │   │   ├── VenueRegistryEntry.java     Plain POJO — platform registry record (public schema)
 │   │   └── VenueRegistryAlias.java     Plain POJO — alternative names for registry entries
@@ -397,10 +552,13 @@ iqbene-venue-model/
 **Rules:**
 
 - No `@Service`, `@Repository`, `@Component`, or any Spring bean annotation
-- No business logic — plain Java domain classes, value objects, enums, event POJOs only
+- No business logic — plain Java domain classes, value objects, enums, event POJOs only. The `VenueMetadataMigrator` is the single exception: pure-function schema migration is a model-layer concern, not a service concern.
 - No JPA annotations — the platform uses MyBatis, not JPA. Entities are plain POJOs, not `@Entity` classes. ORM annotations must not appear in this library.
 - Liquibase migrations live here so schema changes are a compile-time dependency bump, not a coordination exercise between services
 - Changing an event POJO field is a compile-time break in both services — intentional, prevents silent contract drift
+- `MetadataSchemaVersion.CURRENT_SCHEMA_VERSION` is the **only** place the canonical schema version number is hardcoded. No service may define its own copy. Incrementing this constant is the single action that declares a schema bump; the corresponding `MetadataMigrationV{N}ToV{N+1}` class must be added to the `migrations/` package in the same commit.
+- `VenueMetadataMigrator` has no Spring dependency. It uses Jackson `ObjectMapper` (shaded or provided) and exposes static methods or a singleton instance. Both services share the migrator classpath-identical; one service never lags behind because the library version is a compile dependency.
+- Migration classes under `metadata/migrations/` are added, never removed or reordered. The order of migration registration inside `VenueMetadataMigrator` is the single source of truth for the chain.
 
 **Dependency graph:**
 
@@ -934,7 +1092,7 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
       <column name="status" type="VARCHAR(20)" defaultValue="DRAFT">
         <constraints nullable="false"/>
       </column>
-      <column name="metadata" type="JSONB" defaultValue="{}">
+      <column name="metadata" type="JSONB" defaultValue="{&quot;_schema_version&quot;:1}">
         <constraints nullable="false"/>
       </column>
       <column name="metadata_sources" type="JSONB" defaultValue="{}">
@@ -988,16 +1146,16 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 
 **Public schema (platform-owned, not tenant-scoped):**
 
-| Table                    | Key columns                                                                                                                                                     | Notes                                        |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| `venue_registry`         | `id` UUID PK, `name` VARCHAR(255), `address` TEXT, `city` VARCHAR(100), `location` GEOGRAPHY, `metadata` JSONB, `confidence` NUMERIC(3,2), `source` VARCHAR(50) | Platform seed data. Read-only to tenants.    |
-| `venue_registry_aliases` | `id` UUID PK, `venue_registry_entry_id` UUID FK, `alias` VARCHAR(255)                                                                                           | Alternative names for registry deduplication |
+| Table                    | Key columns                                                                                                                                                     | Notes                                                                             |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `venue_registry`         | `id` UUID PK, `name` VARCHAR(255), `address` TEXT, `city` VARCHAR(100), `location` GEOGRAPHY, `metadata` JSONB, `confidence` NUMERIC(3,2), `source` VARCHAR(50) | Platform seed data. Read-only to tenants. `metadata._schema_version` mandatory.   |
+| `venue_registry_aliases` | `id` UUID PK, `venue_registry_entry_id` UUID FK, `alias` VARCHAR(255)                                                                                           | Alternative names for registry deduplication                                      |
 
 **Tenant schema `t_{tenantKey}` (tenant-owned):**
 
 | Table                   | Key columns                                                                                                                             | Owner                           |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| `venues`                | `id` UUID PK, `status` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY                        | `iqbene-venue-service`          |
+| `venues`                | `id` UUID PK, `status` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY                        | `iqbene-venue-service`. `metadata._schema_version` mandatory, default 1 on insert |
 | `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536)    | `iqbene-venue-service`          |
 | `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB | `iqbene-venue-ingestion-worker` |
 | `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                            | `iqbene-venue-service`          |
@@ -1062,15 +1220,17 @@ Both iQ BENE services follow foundation patterns exactly.
 
 **Prometheus metrics to add:**
 
-| Metric                               | Labels                            | Notes                       |
-| ------------------------------------ | --------------------------------- | --------------------------- |
-| `iqbene_venues_total`                | tenant_id, status                 | Venue count by state        |
-| `iqbene_assets_uploaded_total`       | tenant_id, asset_type             | Upload volume               |
-| `iqbene_extractions_total`           | tenant_id, extractor_type, status | Success/failure rates       |
-| `iqbene_extraction_duration_seconds` | extractor_type                    | Latency histogram           |
-| `iqbene_ai_cost_usd_total`           | tenant_id, model                  | Cost tracking               |
-| `iqbene_search_requests_total`       | search_mode                       | keyword / semantic / hybrid |
-| `iqbene_search_latency_seconds`      | search_mode                       | Search latency              |
+| Metric                                           | Labels                            | Notes                                                                           |
+| ------------------------------------------------ | --------------------------------- | ------------------------------------------------------------------------------- |
+| `iqbene_venues_total`                            | tenant_id, status                 | Venue count by state                                                             |
+| `iqbene_assets_uploaded_total`                   | tenant_id, asset_type             | Upload volume                                                                    |
+| `iqbene_extractions_total`                       | tenant_id, extractor_type, status | Success/failure rates                                                            |
+| `iqbene_extraction_duration_seconds`             | extractor_type                    | Latency histogram                                                                |
+| `iqbene_ai_cost_usd_total`                       | tenant_id, model                  | Cost tracking                                                                    |
+| `iqbene_search_requests_total`                   | search_mode                       | keyword / semantic / hybrid                                                      |
+| `iqbene_search_latency_seconds`                  | search_mode                       | Search latency                                                                   |
+| `iqbene_metadata_schema_version_seen_total`      | tenant_id, schema_version, op     | Counter incremented on every `migrateToCurrent()` or `ensureCurrent()` call — labels the schema version the document had *before* migration. `op` = `read` or `write`. Lets us see how many legacy v0/v1/vN docs are still in the read/write hot paths so we know when old migration classes are candidates for retirement. |
+| `iqbene_metadata_migration_duration_seconds`     | target_version                    | Latency histogram for the full migration chain (per target version — always CURRENT_SCHEMA_VERSION in steady state). Alerts if a new migration step is unexpectedly slow for large JSONB payloads. |
 
 Grafana dashboard added to `docker/grafana/provisioning/dashboards/VipService.json`.
 
@@ -1113,10 +1273,12 @@ Full rationale and competitor analysis: see `../business/comparison.md`.
 - [x] **One service or two?** ~~`iqbene-venue-service` + `iqbene-ai-service` vs. a single `iqbene-venue-service` with an internal AI module.~~ **Decided:** Two deployments — `iqbene-venue-service` (synchronous API, data-tied) and `iqbene-venue-ingestion-worker` (async sidecar, shared schema, no inbound HTTP). Services are tied to data; ingestion is a processing concern, not a peer service.
 - [x] **Naming convention.** Service names reflect domain/purpose, not implementation technology. `iqbene-venue-ingestion-worker` describes what it does (ingest and process assets), not how (AI/ML).
 - [x] **Platform venue registry.** A `public.venue_registry` table seeds new tenant venues with known data at extraction time. Copy-on-match, not link — tenant record is independent after copy. Source tagged `REGISTRY` in `metadata_sources`, lowest priority in conflict resolution. No reverse flow from tenant to registry in MVP.
+- [x] **Metadata schema versioning and JSONB drift.** Every `venues.metadata` and `venue_registry.metadata` JSONB document carries a top-level integer `_schema_version` (initial: 1; absent = 0 "legacy"). The shared library `iqbene-venue-model` contains an append-only chain of pure-function `MetadataMigration` classes (`v0→v1`, `v1→v2`, …) and a `VenueMetadataMigrator` runner. Every read upgrades the shape in memory via a MyBatis `VenueMetadataTypeHandler`; every write stamps the document to `CURRENT_SCHEMA_VERSION` before persist. No offline backfill job, incremental online convergence. Same migrator classpath-identical in both services, zero drift. Full design in §2a.
 - [ ] **Docling in Phase 1?** Start with pure Tika (simpler). Add Docling sidecar in Phase 2 when floor plan / table fidelity is needed. **Lean: Tika-only for Phase 1.**
 - [ ] **Registry match threshold.** What confidence score triggers a registry gap-fill? What algorithm — fuzzy name + PostGIS proximity, or embedding similarity? Needs calibration against real venue documents before Sprint 1.
 - [ ] **Chunking table** in separate schema or same as venue tables? Spring AI's `PgVectorStore` defaults to a `vector_store` table. iQ BENE uses `venue_vectors` to be explicit. Confirm naming before first migration.
 - [ ] **Cost tracking granularity:** per-asset or per-tenant-per-month? Both are in schema; decide which is surfaced in UI.
+- [ ] **Old migration class retirement policy.** After how many consecutive months of zero hits on the `schema_version < N` Prometheus counter do we delete the oldest migration classes from the chain? Define the guardrail before the first schema bump so we do not accumulate deprecated code indefinitely.
 
 ---
 
@@ -1457,6 +1619,7 @@ One `@RestControllerAdvice` per service. Every handler uses the same `problem(ty
 
 - [ ] **Docling in Phase 1?** No — Tika-only for MVP. Add Docling sidecar in Phase 2 for floor plan / table fidelity.
 - [ ] **MVP scope cut** — Phase 1 is: venue profiles, asset upload, basic extraction (PDF only), keyword + semantic search, team collaboration. Everything else is Phase 2+.
+- [ ] **Implement `VenueMetadataMigrator` v0 + v1 chain** in `iqbene-venue-model` before any service code reads or writes `venues.metadata`. Wire `VenueMetadataTypeHandler` into the `VenueResultMap`. Add a 1-line counter Micrometer call inside `migrateToCurrent()` so version distribution metrics work from day zero. Add JUnit tests for `MetadataMigrationV0ToV1` with 5+ fixture JSON shapes (empty `{}`, `{}` without `_schema_version`, full v1 shape, partial v1 shape, registry-copy shape) to cover legacy-bootstrapping edge cases.
 
 ### Phase 2 Design (post-MVP signal)
 
