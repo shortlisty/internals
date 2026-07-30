@@ -8,6 +8,16 @@
 
 ## [Unreleased]
 
+### Added
+
+- `docs/business/market.md` (EN/RU) — market structure and role segmentation: the event chain (five roles), how the market is segmented by role, the monetization pattern (why every tool charges the venue), the vacant slot (event manager as knowledge worker), and where iQ BENE sits.
+
+### Changed
+
+- `docs/business/comparison.md` (EN/RU) — added Facilitron (public-sector facility operations and rental platform) and Propared (production planning software for arts and events). Updated gap summary matrix with two new columns and a new "Production planning" capability row.
+- `README.md` — added Market Structure row to navigation table.
+- `docs/README.md` — updated nav footer to include Market Structure link.
+
 ---
 
 ## 2026-07-29 (continued)

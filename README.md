@@ -9,6 +9,7 @@
 | Document                                                | Audience              | What it covers                                                   |
 | ------------------------------------------------------- | --------------------- | ---------------------------------------------------------------- |
 | [What is iQ BENE?](docs/README.md)                      | Anyone                | Plain-language overview: the problem, the solution, who it's for |
+| [Market Structure](docs/business/market.md)             | Anyone                | The event chain, roles, tool segmentation, the vacant slot       |
 | [Business Proposal](docs/business/proposal.md)          | Founders, team        | ICP, feature roadmap, monetization, GTM, risks                   |
 | [Product Structure](docs/business/product.md)           | Founders, team        | Tenant app, four capability pillars, UI concept, positioning     |
 | [Competitive Landscape](docs/business/comparison.md)    | Founders, team        | Competitor analysis and gap summary matrix                       |

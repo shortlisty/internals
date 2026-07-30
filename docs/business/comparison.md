@@ -82,6 +82,69 @@ These are the established players. None of them are _document intelligence_ plat
 
 ---
 
+#### Facilitron
+
+**What it is:** Fully managed facility scheduling, rental, and operations platform targeting schools, school districts, municipalities, and public organisations. Self-described as "the world's largest public spaces rental marketplace." Funded entirely through service fees on external rental revenue — no licensing cost to facility owners.
+
+**Strengths:**
+
+- Unified scheduling: one calendar for internal events and external community rental requests
+- Public-facing rental storefronts with facility photos (including drone and 360-degree), pricing, real-time availability, and e-commerce-style checkout
+- Managed payments and insurance: handles insurance confirmation, payment processing, and refunds on behalf of the facility owner
+- Work order management: schedule utilities, security, custodial, maintenance, and asset tracking in the same platform
+- Facilitron FIT: mobile facility inspection tool for California Williams Act compliance, from inspection to SAB form submission
+- Strong analytics and KPI dashboards: bookings, revenue, utilisation, cost recovery
+- No direct cost to facility owners — funded by a service fee on external rental amounts
+- 24/7 customer support for community requesters by phone, email, and live chat
+- Fully managed onboarding: account configuration, photo ingestion, schedule migration, and training at no cost
+- Cloud-based, mobile-optimised
+
+**Gaps relevant to iQ BENE:**
+
+- Serves _facility operators_ (schools, districts, cities) — not event managers or event planning agencies
+- No document intelligence: no PDF ingestion, no floor plan parsing, no spec sheet extraction
+- No planner-side venue library or portfolio management — the platform manages one organisation's own facilities, not a curated collection of third-party venues
+- Venue data is entered and managed by the facility owner, not extracted from documents
+- Narrow vertical: public sector institutions (K–12 schools, colleges, municipalities) — not corporate or social event agencies
+- No semantic search across venue attributes extracted from documents
+- No multi-source aggregation or conflict resolution
+- No team knowledge base for event professionals
+
+**Verdict:** Facilitron is a public-sector facility operations and community rental platform. It serves the venue operator side — helping schools and cities manage their own spaces and earn rental revenue from the community. It has no overlap with iQ BENE's core use case. A school district using Facilitron to manage gym rentals is not an iQ BENE customer; an event agency trying to find and brief that school's gym is.
+
+---
+
+#### Propared
+
+**What it is:** Cloud-based production planning and scheduling software built for arts and events organisations — theatres, opera and dance companies, festivals, performing arts centres, and corporate events producers. Covers scheduling, crew management, inventory tracking, and budgeting in one platform. Explicitly no AI, no data repurposing.
+
+**Strengths:**
+
+- Unified production timeline: rehearsals, performances, load-ins, crew calls, deadlines, run-of-show — all in one filterable schedule
+- Auto-updating, shareable webpages for cast, crew, and clients — no login required for viewers
+- Labour management: crew search by position and availability, pay rates, overtime rules, shift scheduling, personal itineraries sent directly to crew
+- Inventory and resource tracking: multiple warehouses, QR code scanning, mobile app, allocation across concurrent projects, over-allocation alerts
+- Live budgeting: estimates by vendor, project, and department; pull lists and rental quote requests generated from the same data
+- Production reports and task management: notes by department, to-dos with status tracking, shareable across projects
+- Project templates and cloning: build a season calendar or recurring event from a past project in hours, not weeks
+- Pricing model based on editing users — viewers are always free, enabling wide sharing without per-seat costs
+- $45/month per editor, 30-day free trial, no setup fees, free onboarding
+- Explicitly privacy-first: no AI, no third-party data repurposing
+
+**Gaps relevant to iQ BENE:**
+
+- Production management tool for event _producers and producers' teams_ — not for event planning agencies managing a venue portfolio
+- No venue knowledge base: no venue profiles, no document ingestion, no extraction from venue-supplied PDFs or floor plans
+- No document intelligence of any kind — attachments are links to external files, not parsed and structured
+- Inventory is the producer's own equipment, not venue assets; "spaces" are scheduling entries, not structured venue data records
+- Search is limited to filtering scheduled events and inventory — not semantic search across extracted venue attributes
+- No multi-source data aggregation or conflict resolution
+- Narrow vertical: performing arts, live events, corporate production teams — not general event planning agencies managing third-party venues
+
+**Verdict:** Propared is production operations software for the teams _producing_ an event — stage managers, production managers, technical directors. iQ BENE is knowledge management software for event managers _finding and briefing_ venues. The workflows are adjacent but the users and the data are entirely different. A production manager at a theatre company uses Propared to schedule the load-in; the event agency that booked that theatre used iQ BENE to find it.
+
+---
+
 #### Perfect Venue / Planning Pod / Event Temple
 
 **What it is:** Lightweight venue management tools targeting independent venues, small hotels, wineries.
@@ -376,20 +439,21 @@ Recent well-funded entrants in the document intelligence space:
 
 ### 1.5 Competitive Gap Summary
 
-| Capability                               | Cvent            | Tripleseat      | Momentus        | VenueScanner    | VenueFindAI     | VenueArc        | Spark (GEVME/PCMA)    | Bynder            | Brandfolder         | Unstructured.io | iQ BENE             |
-| ---------------------------------------- | ---------------- | --------------- | --------------- | --------------- | --------------- | --------------- | --------------------- | ----------------- | ------------------- | --------------- | ------------------- |
-| Venue discovery (marketplace)            | ✅ Best-in-class | ⛔              | ⛔              | ✅ (UK-focused) | ✅ (AI + human) | ⛔              | Partial (DestinAItor) | ⛔                | ⛔                  | ⛔              | Phase 3             |
-| Planner's own venue library              | ⛔               | ⛔              | ⛔              | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ⛔              | ✅                  |
-| Document / asset storage                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔              | ⛔              | ⛔                    | ✅ (brand assets) | ✅ (brand assets)   | ✅ (infra only) | ✅                  |
-| Document intelligence (PDF, floor plans) | ⛔               | ⛔              | ⛔              | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ✅ (infra only) | ✅                  |
-| AI metadata extraction                   | ⛔               | ⛔              | ⛔              | ⛔              | ⛔              | ⛔              | ✅ (generated text)   | ✅ (generic)      | ✅ (generic)        | ✅ (generic)    | ✅ (venue-specific) |
-| Event planning workflow / content gen    | ⛔               | ⛔              | ⛔              | ⛔              | ⛔              | ⛔              | ✅ Best-in-class      | ⛔                | ⛔                  | ⛔              | ⛔                  |
-| CAD file support (DWG/DXF)               | ⛔               | ⛔              | ⛔              | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ⛔              | ✅ (via Tika)       |
-| Semantic search (vector)                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | Partial (NL search) | ⛔              | ✅                  |
-| Team collaboration / shared library      | Partial          | ⛔              | ✅              | ⛔              | ⛔              | ⛔              | Partial               | ✅                | ✅                  | ⛔              | ✅                  |
-| Multi-tenant SaaS                        | ✅               | ✅              | ✅              | ✅              | ✅              | ✅              | ✅                    | ✅                | ✅                  | ✅              | ✅                  |
-| Venue-specific schema                    | ⛔               | ✅ (operations) | ✅ (operations) | ⛔              | ⛔              | ✅ (operations) | ⛔                    | ⛔                | ⛔                  | ⛔              | ✅ (intelligence)   |
-| SMB-friendly pricing                     | ⛔               | Partial         | ⛔              | ✅ (free)       | ✅ (free)       | Partial         | ✅ (free tier)        | ⛔                | ⛔                  | ✅              | ✅                  |
+| Capability                               | Cvent            | Tripleseat      | Momentus        | Facilitron         | Propared         | VenueScanner    | VenueFindAI     | VenueArc        | Spark (GEVME/PCMA)    | Bynder            | Brandfolder         | Unstructured.io | iQ BENE             |
+| ---------------------------------------- | ---------------- | --------------- | --------------- | ------------------ | ---------------- | --------------- | --------------- | --------------- | --------------------- | ----------------- | ------------------- | --------------- | ------------------- |
+| Venue discovery (marketplace)            | ✅ Best-in-class | ⛔              | ⛔              | ✅ (public sector) | ⛔               | ✅ (UK-focused) | ✅ (AI + human) | ⛔              | Partial (DestinAItor) | ⛔                | ⛔                  | ⛔              | Phase 3             |
+| Planner's own venue library              | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ⛔              | ✅                  |
+| Document / asset storage                 | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ✅ (brand assets) | ✅ (brand assets)   | ✅ (infra only) | ✅                  |
+| Document intelligence (PDF, floor plans) | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ✅ (infra only) | ✅                  |
+| AI metadata extraction                   | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ✅ (generated text)   | ✅ (generic)      | ✅ (generic)        | ✅ (generic)    | ✅ (venue-specific) |
+| Event planning workflow / content gen    | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ✅ Best-in-class      | ⛔                | ⛔                  | ⛔              | ⛔                  |
+| Production planning (crew, schedule)     | ⛔               | ⛔              | ⛔              | ⛔                 | ✅ Best-in-class | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ⛔              | ⛔                  |
+| CAD file support (DWG/DXF)               | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ⛔              | ✅ (via Tika)       |
+| Semantic search (vector)                 | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | Partial (NL search) | ⛔              | ✅                  |
+| Team collaboration / shared library      | Partial          | ⛔              | ✅              | ✅ (internal)      | ✅               | ⛔              | ⛔              | ⛔              | Partial               | ✅                | ✅                  | ⛔              | ✅                  |
+| Multi-tenant SaaS                        | ✅               | ✅              | ✅              | ✅                 | ✅               | ✅              | ✅              | ✅              | ✅                    | ✅                | ✅                  | ✅              | ✅                  |
+| Venue-specific schema                    | ⛔               | ✅ (operations) | ✅ (operations) | ✅ (operations)    | ⛔               | ⛔              | ⛔              | ✅ (operations) | ⛔                    | ⛔                | ⛔                  | ⛔              | ✅ (intelligence)   |
+| SMB-friendly pricing                     | ⛔               | Partial         | ⛔              | ✅ (no cost)       | ✅               | ✅ (free)       | ✅ (free)       | Partial         | ✅ (free tier)        | ⛔                | ⛔                  | ✅              | ✅                  |
 
 **The gap iQ BENE fills:** Nobody provides document intelligence specifically for event planners managing their own venue portfolio. Marketplace/sourcing tools (Cvent, VenueScanner) only know what venues self-report. AI productivity tools (Spark) generate content but have no venue knowledge base. DAM platforms (Bynder, Brandfolder) store files with generic tagging but understand nothing about venue semantics. Operations platforms (Tripleseat, Momentus, VenueArc) serve venue operators, not planners, and contain no document intelligence. Generic document APIs (Unstructured.io) handle extraction but have no venue schema. iQ BENE is the missing layer: structured, searchable, planner-owned venue intelligence extracted from the documents planners already have.
 

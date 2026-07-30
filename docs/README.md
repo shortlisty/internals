@@ -2,7 +2,7 @@
 
 _What this is, why it exists, and whether it makes sense as a business — no jargon._
 
-**Docs:** [What is iQ BENE?](README.md) · [Product Structure](business/product.md) · [Business Proposal](business/proposal.md) · [Competitive Landscape](business/comparison.md) · [Architecture](platform/architecture.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
+**Docs:** [What is iQ BENE?](README.md) · [Market Structure](business/market.md) · [Product Structure](business/product.md) · [Business Proposal](business/proposal.md) · [Competitive Landscape](business/comparison.md) · [Architecture](platform/architecture.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
 
 ---
 
@@ -115,4 +115,4 @@ _Want to see it in action? A 2-minute demo shows more than any document can._
 
 ---
 
-**Docs:** [What is iQ BENE?](README.md) · [Product Structure](business/product.md) · [Business Proposal](business/proposal.md) · [Competitive Landscape](business/comparison.md) · [Architecture](platform/architecture.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
+**Docs:** [What is iQ BENE?](README.md) · [Market Structure](business/market.md) · [Product Structure](business/product.md) · [Business Proposal](business/proposal.md) · [Competitive Landscape](business/comparison.md) · [Architecture](platform/architecture.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
