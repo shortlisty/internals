@@ -258,14 +258,14 @@ The canonical `venues.metadata` shape evolves over time — new nested fields ar
 
 Every `venues.metadata` JSONB document must carry an integer key `_schema_version` at the top level. The value is the version of the **canonical field set** (§2) that the document was produced against. Documents without `_schema_version` are treated as version `0` — the "legacy, pre-versioning" shape.
 
-| Rule | Value |
-| ---- | ----- |
-| Initial version | `1` (matches the first canonical field set shipped in MVP) |
-| Absent key fallback | `0` (triggers full migration chain from v0) |
-| Bump condition | Any backwards-incompatible change to canonical fields, or any addition of a required nested field |
-| Bump ownership | `iqbene-venue-model` library — only the shared model may define `CURRENT_SCHEMA_VERSION` |
-| Write enforcement | Every write path (aggregation, manual override, bulk import, registry copy) runs the migrator and sets `_schema_version = CURRENT_SCHEMA_VERSION` before persisting |
-| Read enforcement | `VenueMetadataMigrator.migrateToCurrent(JsonNode)` is called on **every read** from `venues.metadata` (via MyBatis ResultMap handler or wrapper mapper) — deserialization never sees stale shapes |
+| Rule                | Value                                                                                                                                                                                             |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Initial version     | `1` (matches the first canonical field set shipped in MVP)                                                                                                                                        |
+| Absent key fallback | `0` (triggers full migration chain from v0)                                                                                                                                                       |
+| Bump condition      | Any backwards-incompatible change to canonical fields, or any addition of a required nested field                                                                                                 |
+| Bump ownership      | `iqbene-venue-model` library — only the shared model may define `CURRENT_SCHEMA_VERSION`                                                                                                          |
+| Write enforcement   | Every write path (aggregation, manual override, bulk import, registry copy) runs the migrator and sets `_schema_version = CURRENT_SCHEMA_VERSION` before persisting                               |
+| Read enforcement    | `VenueMetadataMigrator.migrateToCurrent(JsonNode)` is called on **every read** from `venues.metadata` (via MyBatis ResultMap handler or wrapper mapper) — deserialization never sees stale shapes |
 
 ### Migration pipeline — `VenueMetadataMigrator`
 
@@ -422,6 +422,86 @@ Aggregation runs (async, via RabbitMQ) when:
 - A scheduled job catches stale venues (24h without re-aggregation)
 
 Aggregation is debounced (5s) to batch rapid successive events.
+
+### Concurrency Control and Race Condition Prevention
+
+Metadata aggregation is a read-modify-write operation: `SELECT venues.metadata` → merge extracted fields → `UPDATE venues.metadata`. If three extraction jobs for the same venue complete in parallel, three workers can simultaneously read stale metadata, each merge one PDF's fields, and each write back — two of the three writes are lost (Lost Update anomaly). The result is a `metadata` JSONB that contains only a subset of the three PDFs' extracted fields.
+
+The chosen approach eliminates the race at the messaging layer, before the message reaches the consumer, using RabbitMQ's built-in capabilities. No distributed locks, no optimistic locking retry loops, no row-level `SELECT … FOR UPDATE` contention.
+
+#### Why RabbitMQ FIFO routing per venue_id
+
+| Constraint satisfied      | How FIFO routing delivers it                                                                                                                                               |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Zero new dependencies     | Uses existing RabbitMQ (§14, already in platform stack). No Redis, no distributed lock library.                                                                            |
+| Minimal code footprint    | One-line routing key computation on publish; consumer configuration only. No retry-loop code, no deadlock corner cases.                                                    |
+| Extraction stays parallel | Three PDFs extract concurrently (CPU/IO-bound work — fast). Only the final metadata merge step (microseconds of in-memory merge + 1 SQL `UPDATE`) is serialised per venue. |
+| No infrastructure cost    | Same RabbitMQ cluster, same number of consumer threads. No extra services or sidecars.                                                                                     |
+| Horizontal scalability    | As venue count grows, increase the hash slot count and consumer pool size. Different venues always process in parallel.                                                    |
+
+#### Implementation variants
+
+Two variants share the same conceptual model. Start with A1 for MVP; both use the same consumer code shape.
+
+**Variant A1 — Simple (MVP).** One queue, one serialising consumer.
+
+| Aspect                | Specification                                                                                                                                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Queue                 | Single queue `vip.metadata.aggregation`.                                                                                                                                             |
+| Publisher routing key | `extraction.completed` unchanged. No slot computation.                                                                                                                               |
+| Consumer              | `@RabbitListener` with `concurrency = 1`, `prefetchCount = 1`. Exactly one thread processes all aggregation events sequentially across all tenants and all venues.                   |
+| Backlog envelope      | Aggregation per event is ~1 ms (merge + SQL `UPDATE`). Even 100 events/s sustained yields a 100 ms backlog, which is invisible to end users and well within the 5 s debounce window. |
+| When to choose        | MVP. The product does not expect mass-parallel upload across many accounts simultaneously. When queue depth metrics breach threshold, migrate to A2.                                 |
+
+**Variant A2 — Scalable (ready immediately, no later migration).** N hash-partitioned queues with per-queue single-threaded consumption.
+
+| Aspect               | Specification                                                                                                                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Queues               | `vip.metadata.aggregation.0` through `vip.metadata.aggregation.15` (16 slots by default; configurable via `application.yml`).                                                                |
+| Publisher routing    | Slot = `Math.abs(venueId.hashCode() % SLOT_COUNT)`. Publisher appends slot suffix to routing key or binds queues via a consistent-hash exchange. Same venue_id always maps to the same slot. |
+| Consumer pool        | 16 consumer threads. Each thread binds to exactly one slot queue with `prefetchCount = 1`.                                                                                                   |
+| Parallelism property | Different venues process in parallel across slots. Same venue always routes to the same slot → strict FIFO ordering per venue.                                                               |
+| When to choose       | If immediate horizontal headroom is desired, or to avoid an A1→A2 queue topology migration later. ~20 extra lines of code on the publisher side.                                             |
+
+#### Consumer-side guarantees (both variants)
+
+Even with FIFO ordering at the messaging layer, the consumer must enclose the entire aggregation step in a single database transaction to guard against consumer crash or restart mid-operation.
+
+```
+Consumer transaction boundary (single DB transaction):
+  1. BEGIN
+  2. SELECT venues.metadata, venues.metadata_aggregated_at
+     FROM venues WHERE id = ?
+  3. If metadata_aggregated_at within 5 s debounce window → no-op, ack message.
+  4. Else → merge all unprocessed venue_metadata_events into metadata
+     via VenueMetadataMigrator.ensureCurrent() + conflict resolution (§3)
+  5. UPDATE venues SET metadata = ?, metadata_sources = ?,
+     metadata_aggregated_at = NOW(), updated_at = NOW()
+     WHERE id = ?
+  6. DELETE / mark-consumed processed venue_metadata_events
+  7. COMMIT
+  8. RabbitMQ ack — only after successful COMMIT
+```
+
+Acknowledgement mode on the listener container must be `MANUAL` (or `AUTO` with `prefetchCount = 1`, which serialises in-flight messages to the same effect). A single worker must never pull a batch of messages and process them interleaved; one message at a time per queue.
+
+#### Debounce + FIFO synergy
+
+The existing 5-second debounce window at line 423 above composes naturally with FIFO ordering:
+
+1. Three PDFs finish extraction almost simultaneously → three `extraction.completed` events published, all routed to the same slot queue for venue X.
+2. Event 1 is consumed first. `metadata_aggregated_at` is older than 5 s → aggregation runs, `metadata_aggregated_at` is set to `NOW()`.
+3. Event 2 is consumed next. `metadata_aggregated_at` is within the 5 s window → no-op, message acked without SQL `UPDATE`.
+4. Event 3 is consumed next. Same no-op path.
+
+Outcome: one SQL `UPDATE` instead of three. The redundant work is eliminated before it reaches the database, not contended inside it.
+
+#### Secondary benefits of this approach
+
+- **No retry loops or conflict handling.** In contrast to optimistic locking (`_version` column), there is no conflict exception, no exponential-backoff retry code, and no test surface for livelock or starvation edge cases.
+- **Event sourcing friendly.** If a future feature replays `venue_metadata_events`, per-venue ordering is preserved at the messaging layer — the consumer sees the same sequence on replay as it did originally.
+- **Straightforward integration testing.** Seed three `extraction.completed` events for the same `venue_id` into the queue, consume, assert that the final `venues.metadata` contains merged fields from all three sources. No `CountDownLatch` multi-threaded test harness for database-level locks.
+- **Compatible with `_schema_version` (§2a).** The `VenueMetadataMigrator` runs inside step 5 of the consumer transaction, before the `UPDATE` commits. Because events are serialised per venue, the migration chain sees a monotonically increasing version sequence with no interleaved writes.
 
 ---
 
@@ -985,6 +1065,8 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 | `extraction.completed` | job_id, asset_id, venue_id, tenant_id         | Extraction succeeded  |
 | `extraction.failed`    | job_id, asset_id, venue_id, tenant_id, reason | All retries exhausted |
 
+For the scalable topology (§3, variant A2), the publisher appends a hash-slot suffix to the `extraction.completed` routing key: `extraction.completed.{slot}` where `slot = Math.abs(venueId.hashCode() % SLOT_COUNT)`. Same `venue_id` always produces the same slot.
+
 ### Consumed by iqbene-venue-ingestion-worker
 
 | Routing key      | Queue                                  | Action                                |
@@ -994,10 +1076,23 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 
 ### Consumed by iqbene-venue-service
 
-| Routing key            | Queue                      | Action                                |
-| ---------------------- | -------------------------- | ------------------------------------- |
-| `extraction.completed` | `vip.metadata.aggregation` | Run metadata aggregation for venue    |
-| `extraction.failed`    | `vip.extraction.dlq`       | Mark asset extraction_status = FAILED |
+| Routing key            | Queue (MVP A1)                            | Queue (Scalable A2)                                                                                                   | Action                                |
+| ---------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| `extraction.completed` | `vip.metadata.aggregation` (single queue) | `vip.metadata.aggregation.0` … `vip.metadata.aggregation.15` (16 slots by default, slot-bound via routing key suffix) | Run metadata aggregation for venue    |
+| `extraction.failed`    | `vip.extraction.dlq`                      | `vip.extraction.dlq`                                                                                                  | Mark asset extraction_status = FAILED |
+
+### Metadata aggregation queue — consumer configuration
+
+The `MetadataAggregationConsumer` listener container in `iqbene-venue-service` must be configured to serialise processing per queue so that per-venue events never execute concurrently:
+
+| Configuration    | Value (A1)                                          | Value (A2)  | Notes                                                                                      |
+| ---------------- | --------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------ |
+| `concurrency`    | `1`                                                 | `16`        | A2: one thread per slot queue. Total threads = `SLOT_COUNT`.                               |
+| `prefetchCount`  | `1`                                                 | `1`         | Critical. A worker must never prefetch a batch; one in-flight message per consumer thread. |
+| Acknowledge mode | `MANUAL`                                            | `MANUAL`    | Ack sent only after the wrapping DB transaction commits (see §3).                          |
+| Error handler    | Reject + requeue on transient (≤3x) → DLQ on fatal. | Same as A1. | Aggregation is idempotent via `metadata_aggregated_at` debounce (§3) → safe requeues.      |
+
+The consumer listens either on one queue (A1) or on all 16 slot queues (A2) via a queue array or wildcard in `@RabbitListener`. The consumer handler code is identical across variants — only the listener container configuration differs.
 
 ### Consumed by foundation-audit-service (passive, no changes)
 
@@ -1146,21 +1241,21 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 
 **Public schema (platform-owned, not tenant-scoped):**
 
-| Table                    | Key columns                                                                                                                                                     | Notes                                                                             |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `venue_registry`         | `id` UUID PK, `name` VARCHAR(255), `address` TEXT, `city` VARCHAR(100), `location` GEOGRAPHY, `metadata` JSONB, `confidence` NUMERIC(3,2), `source` VARCHAR(50) | Platform seed data. Read-only to tenants. `metadata._schema_version` mandatory.   |
-| `venue_registry_aliases` | `id` UUID PK, `venue_registry_entry_id` UUID FK, `alias` VARCHAR(255)                                                                                           | Alternative names for registry deduplication                                      |
+| Table                    | Key columns                                                                                                                                                     | Notes                                                                           |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `venue_registry`         | `id` UUID PK, `name` VARCHAR(255), `address` TEXT, `city` VARCHAR(100), `location` GEOGRAPHY, `metadata` JSONB, `confidence` NUMERIC(3,2), `source` VARCHAR(50) | Platform seed data. Read-only to tenants. `metadata._schema_version` mandatory. |
+| `venue_registry_aliases` | `id` UUID PK, `venue_registry_entry_id` UUID FK, `alias` VARCHAR(255)                                                                                           | Alternative names for registry deduplication                                    |
 
 **Tenant schema `t_{tenantKey}` (tenant-owned):**
 
-| Table                   | Key columns                                                                                                                             | Owner                           |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Table                   | Key columns                                                                                                                             | Owner                                                                             |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | `venues`                | `id` UUID PK, `status` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY                        | `iqbene-venue-service`. `metadata._schema_version` mandatory, default 1 on insert |
-| `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536)    | `iqbene-venue-service`          |
-| `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB | `iqbene-venue-ingestion-worker` |
-| `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                            | `iqbene-venue-service`          |
-| `venue_vectors`         | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table                                | `iqbene-venue-ingestion-worker` |
-| `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                             | `iqbene-venue-ingestion-worker` |
+| `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536)    | `iqbene-venue-service`                                                            |
+| `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB | `iqbene-venue-ingestion-worker`                                                   |
+| `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                            | `iqbene-venue-service`                                                            |
+| `venue_vectors`         | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table                                | `iqbene-venue-ingestion-worker`                                                   |
+| `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                             | `iqbene-venue-ingestion-worker`                                                   |
 
 ### Index strategy summary
 
@@ -1220,17 +1315,17 @@ Both iQ BENE services follow foundation patterns exactly.
 
 **Prometheus metrics to add:**
 
-| Metric                                           | Labels                            | Notes                                                                           |
-| ------------------------------------------------ | --------------------------------- | ------------------------------------------------------------------------------- |
-| `iqbene_venues_total`                            | tenant_id, status                 | Venue count by state                                                             |
-| `iqbene_assets_uploaded_total`                   | tenant_id, asset_type             | Upload volume                                                                    |
-| `iqbene_extractions_total`                       | tenant_id, extractor_type, status | Success/failure rates                                                            |
-| `iqbene_extraction_duration_seconds`             | extractor_type                    | Latency histogram                                                                |
-| `iqbene_ai_cost_usd_total`                       | tenant_id, model                  | Cost tracking                                                                    |
-| `iqbene_search_requests_total`                   | search_mode                       | keyword / semantic / hybrid                                                      |
-| `iqbene_search_latency_seconds`                  | search_mode                       | Search latency                                                                   |
-| `iqbene_metadata_schema_version_seen_total`      | tenant_id, schema_version, op     | Counter incremented on every `migrateToCurrent()` or `ensureCurrent()` call — labels the schema version the document had *before* migration. `op` = `read` or `write`. Lets us see how many legacy v0/v1/vN docs are still in the read/write hot paths so we know when old migration classes are candidates for retirement. |
-| `iqbene_metadata_migration_duration_seconds`     | target_version                    | Latency histogram for the full migration chain (per target version — always CURRENT_SCHEMA_VERSION in steady state). Alerts if a new migration step is unexpectedly slow for large JSONB payloads. |
+| Metric                                       | Labels                            | Notes                                                                                                                                                                                                                                                                                                                       |
+| -------------------------------------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `iqbene_venues_total`                        | tenant_id, status                 | Venue count by state                                                                                                                                                                                                                                                                                                        |
+| `iqbene_assets_uploaded_total`               | tenant_id, asset_type             | Upload volume                                                                                                                                                                                                                                                                                                               |
+| `iqbene_extractions_total`                   | tenant_id, extractor_type, status | Success/failure rates                                                                                                                                                                                                                                                                                                       |
+| `iqbene_extraction_duration_seconds`         | extractor_type                    | Latency histogram                                                                                                                                                                                                                                                                                                           |
+| `iqbene_ai_cost_usd_total`                   | tenant_id, model                  | Cost tracking                                                                                                                                                                                                                                                                                                               |
+| `iqbene_search_requests_total`               | search_mode                       | keyword / semantic / hybrid                                                                                                                                                                                                                                                                                                 |
+| `iqbene_search_latency_seconds`              | search_mode                       | Search latency                                                                                                                                                                                                                                                                                                              |
+| `iqbene_metadata_schema_version_seen_total`  | tenant_id, schema_version, op     | Counter incremented on every `migrateToCurrent()` or `ensureCurrent()` call — labels the schema version the document had _before_ migration. `op` = `read` or `write`. Lets us see how many legacy v0/v1/vN docs are still in the read/write hot paths so we know when old migration classes are candidates for retirement. |
+| `iqbene_metadata_migration_duration_seconds` | target_version                    | Latency histogram for the full migration chain (per target version — always CURRENT_SCHEMA_VERSION in steady state). Alerts if a new migration step is unexpectedly slow for large JSONB payloads.                                                                                                                          |
 
 Grafana dashboard added to `docker/grafana/provisioning/dashboards/VipService.json`.
 
@@ -1274,6 +1369,7 @@ Full rationale and competitor analysis: see `../business/comparison.md`.
 - [x] **Naming convention.** Service names reflect domain/purpose, not implementation technology. `iqbene-venue-ingestion-worker` describes what it does (ingest and process assets), not how (AI/ML).
 - [x] **Platform venue registry.** A `public.venue_registry` table seeds new tenant venues with known data at extraction time. Copy-on-match, not link — tenant record is independent after copy. Source tagged `REGISTRY` in `metadata_sources`, lowest priority in conflict resolution. No reverse flow from tenant to registry in MVP.
 - [x] **Metadata schema versioning and JSONB drift.** Every `venues.metadata` and `venue_registry.metadata` JSONB document carries a top-level integer `_schema_version` (initial: 1; absent = 0 "legacy"). The shared library `iqbene-venue-model` contains an append-only chain of pure-function `MetadataMigration` classes (`v0→v1`, `v1→v2`, …) and a `VenueMetadataMigrator` runner. Every read upgrades the shape in memory via a MyBatis `VenueMetadataTypeHandler`; every write stamps the document to `CURRENT_SCHEMA_VERSION` before persist. No offline backfill job, incremental online convergence. Same migrator classpath-identical in both services, zero drift. Full design in §2a.
+- [x] **Metadata aggregation race condition prevention.** How to prevent Lost Update when N extraction jobs for the same venue publish `extraction.completed` concurrently? **Rejected:** optimistic locking with retry-loop (complex retry code, hard to test livelock scenarios, conflicts hit the database first). **Rejected:** distributed locks (Redis or advisory locks — new dependency, deadlock surface, operational complexity). **Rejected:** `SELECT … FOR UPDATE` row locks (serialises at the DB, works but requires explicit transaction scripting and still contends on hot venues). **Decided:** RabbitMQ FIFO routing per `venue_id` using hash-partitioned queues (§3). Eliminates the race at the messaging layer before the consumer runs. Zero new dependencies, no retry code. Variant A1 (single queue, concurrency=1, prefetch=1) for MVP; variant A2 (16 hash-slot queues) when throughput requires. Consumer wraps the SELECT+merge+UPDATE in a single DB transaction + MANUAL ack only after COMMIT. Composes naturally with the existing 5 s debounce window — three rapid events become one aggregation. Full design in §3 "Concurrency Control and Race Condition Prevention" and §8 queue configuration.
 - [ ] **Docling in Phase 1?** Start with pure Tika (simpler). Add Docling sidecar in Phase 2 when floor plan / table fidelity is needed. **Lean: Tika-only for Phase 1.**
 - [ ] **Registry match threshold.** What confidence score triggers a registry gap-fill? What algorithm — fuzzy name + PostGIS proximity, or embedding similarity? Needs calibration against real venue documents before Sprint 1.
 - [ ] **Chunking table** in separate schema or same as venue tables? Spring AI's `PgVectorStore` defaults to a `vector_store` table. iQ BENE uses `venue_vectors` to be explicit. Confirm naming before first migration.
@@ -1620,6 +1716,7 @@ One `@RestControllerAdvice` per service. Every handler uses the same `problem(ty
 - [ ] **Docling in Phase 1?** No — Tika-only for MVP. Add Docling sidecar in Phase 2 for floor plan / table fidelity.
 - [ ] **MVP scope cut** — Phase 1 is: venue profiles, asset upload, basic extraction (PDF only), keyword + semantic search, team collaboration. Everything else is Phase 2+.
 - [ ] **Implement `VenueMetadataMigrator` v0 + v1 chain** in `iqbene-venue-model` before any service code reads or writes `venues.metadata`. Wire `VenueMetadataTypeHandler` into the `VenueResultMap`. Add a 1-line counter Micrometer call inside `migrateToCurrent()` so version distribution metrics work from day zero. Add JUnit tests for `MetadataMigrationV0ToV1` with 5+ fixture JSON shapes (empty `{}`, `{}` without `_schema_version`, full v1 shape, partial v1 shape, registry-copy shape) to cover legacy-bootstrapping edge cases.
+- [ ] **Implement metadata aggregation FIFO routing (A1 for MVP)** in `iqbene-venue-service` `MetadataAggregationConsumer`: configure `@RabbitListener` on `vip.metadata.aggregation` with `concurrency=1`, `prefetchCount=1`, `acknowledgeMode=MANUAL`. Wrap the full SELECT → debounce check → merge via VenueMetadataMigrator → UPDATE → venue_metadata_events consume cycle in a single `@Transactional` DB transaction. Ack the RabbitMQ message only after the transaction commits; nack with requeue (up to 3x) on transient exceptions, then DLQ. Add an integration test that publishes three `extraction.completed` events for the same `venue_id` in quick succession, consumes the queue, and asserts that the final `venues.metadata` contains merged fields from all three sources AND that exactly one SQL `UPDATE` was executed (debounce + FIFO coalescing). When queue depth metrics show sustained backlog > 1 s, promote from A1 to A2 (16 hash-slot queues + publisher-side slot computation); consumer handler code is unchanged.
 
 ### Phase 2 Design (post-MVP signal)
 
