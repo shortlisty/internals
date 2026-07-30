@@ -809,17 +809,17 @@ ExtractionJobResponse — id, asset_id, status, extractor_type, confidence_score
 
 ### Потребляется iqbene-venue-ingestion-worker
 
-| Ключ маршрутизации | Очередь                                | Действие                                     |
-| ------------------ | -------------------------------------- | -------------------------------------------- |
-| `asset.uploaded`   | `vip.extraction.priority` (Enterprise) | Запустить ETL-конвейер немедленно            |
-| `asset.uploaded`   | `vip.extraction.standard` (Free/Pro)   | Запустить ETL-конвейер (стандартная очередь) |
+| Ключ маршрутизации | Очередь                                   | Действие                                     |
+| ------------------ | ----------------------------------------- | -------------------------------------------- |
+| `asset.uploaded`   | `iqbene.extraction.priority` (Enterprise) | Запустить ETL-конвейер немедленно            |
+| `asset.uploaded`   | `iqbene.extraction.standard` (Free/Pro)   | Запустить ETL-конвейер (стандартная очередь) |
 
 ### Потребляется iqbene-venue-service
 
-| Ключ маршрутизации     | Очередь                    | Действие                                    |
-| ---------------------- | -------------------------- | ------------------------------------------- |
-| `extraction.completed` | `vip.metadata.aggregation` | Запустить агрегацию метаданных для площадки |
-| `extraction.failed`    | `vip.extraction.dlq`       | Пометить extraction_status актива = FAILED  |
+| Ключ маршрутизации     | Очередь                       | Действие                                    |
+| ---------------------- | ----------------------------- | ------------------------------------------- |
+| `extraction.completed` | `iqbene.metadata.aggregation` | Запустить агрегацию метаданных для площадки |
+| `extraction.failed`    | `iqbene.extraction.dlq`       | Пометить extraction_status актива = FAILED  |
 
 ### Потребляется foundation-audit-service (пассивно, без изменений)
 
