@@ -23,8 +23,8 @@ iQ BENE is a new product service built **on top of the IQKV foundation**. It doe
 **New services introduced by iQ BENE:**
 
 - `iqbene-venue-model` — shared library (JAR). Canonical domain model, event contracts, enums, and Liquibase migrations. No Spring beans, no business logic — pure model and schema. Imported by both services.
-- `iqbene-venue-service` — core domain: venues, assets, metadata, search, plan enforcement. Synchronous request/response only.
-- `iqbene-venue-ingestion-worker` — async sidecar: document ETL pipeline, extraction orchestration, embedding generation, scheduled jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `iqbene-venue-service`.
+- `iqbene-venue-service` — core domain: venues, assets, metadata, search, plan enforcement, venue registry lookup. Synchronous request/response only.
+- `iqbene-venue-ingestion-worker` — async sidecar: document ETL pipeline, extraction orchestration, embedding generation, registry matching, scheduled jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `iqbene-venue-service`.
 
 **New infrastructure introduced by iQ BENE:**
 
@@ -125,7 +125,59 @@ iQ BENE is a new product service built **on top of the IQKV foundation**. It doe
 
 ---
 
-### Metadata Schema (JSONB)
+#### `registry/` — Platform Venue Registry
+
+**Not tenant-owned. Lives in `public` schema. Read-only to tenants.**
+
+The venue registry is a platform-level reference dataset — a growing catalogue of known venues, seeded during development (see [cold-start.md](../business/cold-start.md)) and enriched over time. It is not a source of truth; it is a starting point. Tenant data always wins over registry data.
+
+**`VenueRegistryEntry`**
+
+| Field          | Type             | Notes                                         |
+| -------------- | ---------------- | --------------------------------------------- |
+| `id`           | UUID             | PK                                            |
+| `name`         | varchar(255)     |                                               |
+| `address`      | text             |                                               |
+| `city`         | varchar(100)     |                                               |
+| `country_code` | varchar(2)       | ISO 3166-1 alpha-2                            |
+| `location`     | geography(point) | PostGIS, lat/lng                              |
+| `metadata`     | jsonb            | Same field shape as `venues.metadata`         |
+| `confidence`   | numeric(3,2)     | Overall quality score 0.0–1.0                 |
+| `source`       | varchar(50)      | `platform_seed`, `web_scrape`, `admin_import` |
+| `created_at`   | timestamp        |                                               |
+| `updated_at`   | timestamp        |                                               |
+
+**`VenueRegistryAlias`** — alternative names for the same venue (e.g. "The Bowery Hotel" / "Bowery Hotel NYC"):
+
+| Field                     | Type         | Notes               |
+| ------------------------- | ------------ | ------------------- |
+| `id`                      | UUID         | PK                  |
+| `venue_registry_entry_id` | UUID         | FK → venue_registry |
+| `alias`                   | varchar(255) |                     |
+
+---
+
+#### `venue_groups/` — Tenant Library Organisation (Phase 2)
+
+**Tenant-owned. Lives in `t_{tenantKey}` schema.**
+
+Event managers organise their venue library into groups — by city, event type, client, season, or any other taxonomy they choose. Groups are purely a UI/navigation concern; they do not affect search, extraction, or metadata.
+
+**`VenueGroup`**
+
+| Field        | Type         | Notes                                             |
+| ------------ | ------------ | ------------------------------------------------- |
+| `id`         | UUID         | PK                                                |
+| `name`       | varchar(255) |                                                   |
+| `parent_id`  | UUID         | FK → venue_groups (self-referential, for nesting) |
+| `created_by` | UUID         |                                                   |
+| `created_at` | timestamp    |                                                   |
+
+Venues are assigned to groups via a join table `venue_group_members(venue_id, group_id)`. A venue can belong to multiple groups.
+
+This is a Phase 2 feature. The `venue_groups` table is not included in the Phase 1 (MVP) Liquibase migrations.
+
+---
 
 The `venues.metadata` column stores the **consolidated view** of all extracted and manually entered data. The `venues.metadata_sources` column stores **provenance** per field.
 
@@ -206,6 +258,7 @@ VERIFIED_EXTRACTION → admin confirmed the AI result
 HIGH_CONFIDENCE_AI  → confidence ≥ 0.9
 MEDIUM_CONFIDENCE_AI→ confidence 0.7–0.9
 LOW_CONFIDENCE_AI   → confidence < 0.7
+REGISTRY            → platform registry seed (lowest priority — fills gaps only)
 ```
 
 ### Array Fields (amenities, restrictions)
@@ -236,17 +289,21 @@ Aggregation is debounced (5s) to batch rapid successive events.
                     └────────┬─────────┘     └────────┬─────────┘
                              │                        │ plan entitlements
                     ┌────────▼────────────────────────▼─────────┐
-                    │              iqbene-venue-service              │
+                    │            iqbene-venue-service             │
                     │  venues · assets · metadata · search · api │
                     └────────┬─────────────────────────┬─────────┘
                              │ RabbitMQ: asset.uploaded │ read/write
                     ┌────────▼─────────┐     ┌─────────▼────────┐
-                    │ iqbene-ingestion-   │     │   PostgreSQL      │
-                    │    worker        │────►│   + pgvector      │
-                    │ (async sidecar)  │     │   + PostGIS       │
-                    └──────────────────┘     └──────────────────┘
-                             │
-                    ┌────────▼─────────┐
+                    │ iqbene-ingestion- │     │   PostgreSQL      │
+                    │    worker        │────►│   t_{tenant}      │
+                    │ (async sidecar)  │     │   + pgvector      │
+                    └────────┬─────────┘     │   + PostGIS       │
+                             │  registry     └──────────────────┘
+                             │  match        ┌──────────────────┐
+                             └─────────────► │   public schema   │
+                                             │ venue_registry    │
+                                             └──────────────────┘
+                    ┌──────────────────┐
                     │   S3 / MinIO     │  (existing)
                     └──────────────────┘
 ```
@@ -254,16 +311,16 @@ Aggregation is debounced (5s) to batch rapid successive events.
 ### iqbene-venue-service
 
 - **Responsibilities:** venue CRUD, asset upload flow (presigned URL), metadata read/write, search API, plan entitlement enforcement
-- **Database:** owns the iQ BENE PostgreSQL schema (schema-per-tenant via `foundation-tenancy`). Shared with `iqbene-venue-ingestion-worker` — no cross-service API calls for data.
+- **Database:** owns the iQ BENE PostgreSQL schema. Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`. Shared with `iqbene-venue-ingestion-worker` — no cross-service API calls for data.
 - **Exposes:** REST API at `/api/v1/venues`
 - **Publishes:** `venue.created`, `venue.updated`, `asset.uploaded`, `asset.deleted` (RabbitMQ)
 - **Consumes:** `extraction.completed`, `extraction.failed` (RabbitMQ) — triggers metadata aggregation
 
 ### iqbene-venue-ingestion-worker
 
-- **Responsibilities:** document ETL pipeline (parse → chunk → extract → embed), extraction job lifecycle, metadata aggregation, scheduled maintenance jobs (stale re-aggregation, cost reporting)
+- **Responsibilities:** document ETL pipeline (parse → chunk → extract → embed), extraction job lifecycle, registry matching and gap-fill, metadata aggregation, scheduled maintenance jobs (stale re-aggregation, cost reporting)
 - **Nature:** async sidecar — no inbound HTTP, no REST API, no service discovery entry. Event-driven only.
-- **Database:** shared PostgreSQL schema with `iqbene-venue-service`. Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `venue_vectors`, `ai_cost_tracking`.
+- **Database:** shared PostgreSQL schema with `iqbene-venue-service`. Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `venue_vectors`, `ai_cost_tracking`. Also reads `public.venue_registry` for the registry match step.
 - **Consumes:** `asset.uploaded` (RabbitMQ) — triggers ETL pipeline
 - **Publishes:** `extraction.started`, `extraction.completed`, `extraction.failed` (RabbitMQ)
 - **External calls:** OpenAI API (GPT-4o, text-embedding-3-small), optionally Docling sidecar (Phase 2)
@@ -296,21 +353,24 @@ The single legitimate cross-boundary read from `iqbene-venue-ingestion-worker` i
 iqbene-venue-model/
 ├── model/
 │   ├── venue/
-│   │   ├── Venue.java                  JPA entity (aggregate root)
+│   │   ├── Venue.java                  Plain POJO (aggregate root, no JPA annotations)
 │   │   ├── VenueStatus.java            enum: DRAFT, ACTIVE, ARCHIVED
-│   │   └── VenueAsset.java             JPA entity
+│   │   └── VenueAsset.java             Plain POJO
 │   ├── asset/
 │   │   ├── AssetType.java              enum: PDF_DECK, FLOOR_PLAN, PHOTO, CAD_FILE…
 │   │   └── ExtractionStatus.java       enum: PENDING, IN_PROGRESS, COMPLETED, FAILED
 │   ├── extraction/
-│   │   ├── ExtractionJob.java          JPA entity
+│   │   ├── ExtractionJob.java          Plain POJO
 │   │   ├── ExtractorType.java          enum: TIKA_TEXT, GPT4O_DOCUMENT, GPT4O_VISION
-│   │   └── VenueMetadataEvent.java     JPA entity (append-only event log)
+│   │   └── VenueMetadataEvent.java     Plain POJO (append-only event log)
 │   ├── metadata/
-│   │   ├── VenueMetadata.java          value object (mirrors venues.metadata JSONB)
-│   │   ├── VenueCapacity.java          capacity configurations value object
-│   │   ├── MetadataSource.java         provenance per field
-│   │   └── MetadataEventType.java      enum: ASSET_EXTRACTED, MANUAL_OVERRIDE, BULK_IMPORT
+│   │   ├── VenueMetadata.java          Value object (mirrors venues.metadata JSONB)
+│   │   ├── VenueCapacity.java          Capacity configurations value object
+│   │   ├── MetadataSource.java         Provenance per field
+│   │   └── MetadataEventType.java      enum: ASSET_EXTRACTED, MANUAL_OVERRIDE, BULK_IMPORT, REGISTRY
+│   ├── registry/
+│   │   ├── VenueRegistryEntry.java     Plain POJO — platform registry record (public schema)
+│   │   └── VenueRegistryAlias.java     Plain POJO — alternative names for registry entries
 │   └── events/                         RabbitMQ message contracts (POJOs, no framework deps)
 │       ├── AssetUploadedEvent.java
 │       ├── ExtractionStartedEvent.java
@@ -318,20 +378,24 @@ iqbene-venue-model/
 │       └── ExtractionFailedEvent.java
 └── db/
     └── changelog/
-        └── tenant/                     Liquibase migrations — single source of truth
-            ├── 001-venues.sql
-            ├── 002-venue-assets.sql
-            ├── 003-extraction-jobs.sql
-            ├── 004-metadata-events.sql
-            ├── 005-venue-vectors.sql
-            └── 006-ai-cost-tracking.sql
+        ├── system/                     System (public) schema migrations
+        │   ├── master.xml
+        │   └── 20250101000000-create-venue-registry.xml
+        └── tenant/                     Tenant schema migrations — single source of truth
+            ├── master.xml
+            ├── 20250101000001-create-venues.xml
+            ├── 20250101000002-create-venue-assets.xml
+            ├── 20250101000003-create-extraction-jobs.xml
+            ├── 20250101000004-create-metadata-events.xml
+            ├── 20250101000005-create-venue-vectors.xml
+            └── 20250101000006-create-ai-cost-tracking.xml
 ```
 
 **Rules:**
 
 - No `@Service`, `@Repository`, `@Component`, or any Spring bean annotation
-- No business logic — entities, value objects, enums, event POJOs only
-- JPA annotations on entities are acceptable (`@Entity`, `@Table`, `@Column` etc.)
+- No business logic — plain Java domain classes, value objects, enums, event POJOs only
+- No JPA annotations — the platform uses MyBatis, not JPA. Entities are plain POJOs, not `@Entity` classes. ORM annotations must not appear in this library.
 - Liquibase migrations live here so schema changes are a compile-time dependency bump, not a coordination exercise between services
 - Changing an event POJO field is a compile-time break in both services — intentional, prevents silent contract drift
 
@@ -377,7 +441,8 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 1. **Embed** — `EmbeddingModel` (`text-embedding-3-small`, 1536 dims).
 2. **Store** — `TenantAwarePgVectorStore` writes chunks + embeddings to `venue_vectors` table in the tenant's schema.
-3. **Aggregate** — publishes `extraction.completed` event → `MetadataAggregationConsumer` updates `venues.metadata`.
+3. **Registry match** — `VenueRegistryMatcher` queries `public.venue_registry` by name similarity + PostGIS proximity. If a match is found above the confidence threshold, registry metadata fields are copied into the tenant venue record for any fields not already populated by extraction. Source tagged as `REGISTRY` in `metadata_sources`. Copying, not linking — the tenant's record is independent from this point forward.
+4. **Aggregate** — publishes `extraction.completed` event → `MetadataAggregationConsumer` updates `venues.metadata`.
 
 ### Processing SLA
 
@@ -417,42 +482,156 @@ All search is served by `iqbene-venue-service` querying PostgreSQL directly. No 
 
 ## 7. API Surface (iqbene-venue-service)
 
-Base path: `/api/v1/venues`
+All endpoints follow platform conventions based on the actual implementation in `foundation-cms-service` and `foundation-iam-service`:
+
+- Base path: `/api/v1/venues` — always versioned
+- All endpoints require `Bearer` JWT — no public routes
+- `POST` (create) → `201 Created` with resource body
+- `GET` (read) → `200 OK`
+- `PUT` (full replace) → `200 OK`
+- `PATCH` (partial update) → `200 OK`
+- `DELETE` → `204 No Content`
+- Paginated responses: custom wrapper records (e.g. `VenueSummaryListResponse(items, totalElements)`) — not Spring's `Page<T>`
+- Error responses: RFC 7807 `ProblemDetail`, `type` = `about:blank`, includes `correlationId` and `requestId` extension properties
+- Authority strings are bare — `USER`, `ADMIN`, `TENANT_OWNER` (never `ROLE_` prefixed)
+- Tenant context is set automatically by `TenantExtractionFilter` from JWT `tenant_id` claim — no tenant path variable needed on regular tenant-scoped endpoints
+
+---
 
 ### Venues
 
-| Method   | Path      | Auth       | Description                                  |
-| -------- | --------- | ---------- | -------------------------------------------- |
-| `GET`    | `/`       | JWT Member | List venues (paginated, filterable)          |
-| `POST`   | `/`       | JWT Member | Create venue profile                         |
-| `GET`    | `/{id}`   | JWT Member | Get venue with consolidated metadata         |
-| `PATCH`  | `/{id}`   | JWT Admin  | Update venue fields                          |
-| `DELETE` | `/{id}`   | JWT Owner  | Archive venue                                |
-| `GET`    | `/search` | JWT Member | Hybrid search (keyword + semantic + filters) |
+Base: `/api/v1/venues`
+
+| Method   | Path    | Authority               | Status | Request / Response                                                             | Notes                                                                                 |
+| -------- | ------- | ----------------------- | ------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `GET`    | `/`     | `MEMBER`                | 200    | Query: `page`, `size`, `sort`, `status`, `search` → `VenueSummaryListResponse` | Hybrid search + filter when `search` param present                                    |
+| `POST`   | `/`     | `MEMBER`                | 201    | `CreateVenueRequest` → `VenueResponse`                                         | Enforces `max_venues` plan limit before insert                                        |
+| `GET`    | `/{id}` | `MEMBER`                | 200    | → `VenueResponse` (with consolidated metadata)                                 | 404 if not found or belongs to different tenant                                       |
+| `PATCH`  | `/{id}` | `MEMBER`                | 200    | `UpdateVenueRequest` → `VenueResponse`                                         | Partial update — ignores null fields                                                  |
+| `DELETE` | `/{id}` | `ADMIN`, `TENANT_OWNER` | 204    | → empty body                                                                   | Soft delete: sets `status = ARCHIVED`. Hard delete: separate admin endpoint (Phase 3) |
+
+#### Search
+
+Search is served via the list endpoint (`GET /`) with query parameters — no separate `POST /search` needed at this scale. Complex multi-field queries are passed as structured query params.
+
+If query complexity grows beyond what URL params can express cleanly (Phase 2), introduce `POST /search` with a `VenueSearchRequest` body. `GET` with a body is non-standard and must not be used.
+
+| Parameter    | Type              | Description                                                    |
+| ------------ | ----------------- | -------------------------------------------------------------- |
+| `search`     | string            | Natural language or keyword query — triggers hybrid mode       |
+| `status`     | enum              | `DRAFT`, `ACTIVE`, `ARCHIVED`                                  |
+| `capacity`   | integer           | Minimum total capacity                                         |
+| `lat`, `lng` | decimal           | Centre point for geo-spatial search                            |
+| `radius_km`  | decimal           | Radius from lat/lng (requires both to be set)                  |
+| `amenities`  | string[]          | Required amenity codes (comma-separated)                       |
+| `catering`   | enum              | Catering policy filter                                         |
+| `page`       | integer (0-based) | Default: 0                                                     |
+| `size`       | integer           | Default: 20, max: 100                                          |
+| `sort`       | string            | e.g. `name,asc` or `relevance` (default when `search` present) |
+
+#### DTOs
+
+```
+CreateVenueRequest  — name (required), address, description, tags
+UpdateVenueRequest  — all fields optional; null fields ignored (PATCH semantics)
+VenueResponse       — id, name, address, location, status, metadata (consolidated),
+                       metadata_aggregated_at, asset_count, created_by, created_at, updated_at
+```
+
+---
 
 ### Assets
 
-| Method   | Path                             | Auth       | Description                             |
-| -------- | -------------------------------- | ---------- | --------------------------------------- |
-| `POST`   | `/{venueId}/assets/initiate`     | JWT Member | Start upload — returns presigned S3 URL |
-| `POST`   | `/{venueId}/assets/{id}/confirm` | JWT Member | Confirm upload, trigger extraction      |
-| `GET`    | `/{venueId}/assets`              | JWT Member | List assets for venue                   |
-| `DELETE` | `/{venueId}/assets/{id}`         | JWT Member | Delete asset and S3 object              |
+Base: `/api/v1/venues/{venueId}/assets`
+
+Upload uses the two-phase presigned URL pattern (same as IAM avatar upload — no multipart to the service).
+
+| Method   | Path            | Authority               | Status | Request / Response                                 | Notes                                                        |
+| -------- | --------------- | ----------------------- | ------ | -------------------------------------------------- | ------------------------------------------------------------ |
+| `GET`    | `/`             | `MEMBER`                | 200    | → `List<AssetResponse>`                            | All assets for venue; not paginated (reasonable upper bound) |
+| `POST`   | `/initiate`     | `MEMBER`                | 201    | `InitiateUploadRequest` → `InitiateUploadResponse` | Returns `asset_id` + presigned S3 PUT URL (15 min TTL)       |
+| `POST`   | `/{id}/confirm` | `MEMBER`                | 200    | → `AssetResponse`                                  | Marks asset ready, publishes `asset.uploaded` event          |
+| `DELETE` | `/{id}`         | `ADMIN`, `TENANT_OWNER` | 204    | → empty body                                       | Deletes asset record + S3 object + associated vectors        |
+
+Enforces `max_assets_per_venue` plan limit at `POST /initiate`.
+
+#### DTOs
+
+```
+InitiateUploadRequest  — file_name (required), content_type (required), size_bytes (required),
+                          asset_type (required: PDF_DECK | FLOOR_PLAN | PHOTO | VIDEO | CAD_FILE | SPEC_SHEET | MISC)
+InitiateUploadResponse — asset_id (UUID), upload_url (presigned S3 PUT, 15 min), expires_at
+AssetResponse          — id, venue_id, asset_type, file_name, content_type, size_bytes,
+                          extraction_status, uploaded_by, uploaded_at
+```
+
+Plan gate: `cad_support` feature checked at `POST /initiate` when `asset_type = CAD_FILE`. Returns `403 Forbidden` with `ProblemDetail` (feature not on current plan) if not on qualifying plan.
+
+---
 
 ### Metadata
 
-| Method | Path                                   | Auth       | Description                            |
-| ------ | -------------------------------------- | ---------- | -------------------------------------- |
-| `GET`  | `/{venueId}/metadata`                  | JWT Member | Get consolidated metadata + provenance |
-| `POST` | `/{venueId}/metadata/{field}/override` | JWT Member | Manual override for a field            |
-| `GET`  | `/{venueId}/metadata/{field}/history`  | JWT Member | Extraction event history for field     |
+Base: `/api/v1/venues/{venueId}/metadata`
 
-### Extraction Jobs (read-only for clients)
+| Method  | Path               | Authority | Status | Request / Response                                  | Notes                                                                      |
+| ------- | ------------------ | --------- | ------ | --------------------------------------------------- | -------------------------------------------------------------------------- |
+| `GET`   | `/`                | `MEMBER`  | 200    | → `MetadataResponse` (consolidated + provenance)    | Includes confidence scores and source attribution                          |
+| `PATCH` | `/{field}`         | `MEMBER`  | 200    | `MetadataOverrideRequest` → `MetadataFieldResponse` | Manual override — sets source = `MANUAL_OVERRIDE`, triggers re-aggregation |
+| `GET`   | `/{field}/history` | `MEMBER`  | 200    | → `List<MetadataEventResponse>`                     | Full extraction + override history for a single field                      |
 
-| Method | Path                             | Auth       | Description                    |
-| ------ | -------------------------------- | ---------- | ------------------------------ |
-| `GET`  | `/{venueId}/extractions`         | JWT Member | List extraction jobs for venue |
-| `GET`  | `/{venueId}/extractions/{jobId}` | JWT Member | Get job status and result      |
+`PATCH /{field}` is used for manual override (partial update of a single field) — `POST` would imply creating a new resource. `PATCH` semantics are correct here: "update this field to this value."
+
+#### DTOs
+
+```
+MetadataResponse       — fields (map of field → value + confidence + source), aggregated_at,
+                          conflict_count (int: fields with unresolved competing values)
+MetadataOverrideRequest — value (required), reason (optional free text)
+MetadataFieldResponse  — field, value, confidence, source_type, source_id, updated_at
+MetadataEventResponse  — event_type, source_type, source_id, value, confidence, occurred_at, created_by
+```
+
+---
+
+### Extraction Jobs
+
+Base: `/api/v1/venues/{venueId}/extractions`
+
+Read-only for API clients. Jobs are created internally when `asset.uploaded` is consumed.
+
+| Method | Path       | Authority | Status | Response                      | Notes                                             |
+| ------ | ---------- | --------- | ------ | ----------------------------- | ------------------------------------------------- |
+| `GET`  | `/`        | `MEMBER`  | 200    | `List<ExtractionJobResponse>` | All jobs for venue, ordered by `started_at DESC`  |
+| `GET`  | `/{jobId}` | `MEMBER`  | 200    | `ExtractionJobResponse`       | Single job status + extracted data (if completed) |
+
+#### DTOs
+
+```
+ExtractionJobResponse — id, asset_id, status, extractor_type, confidence_scores (map),
+                         started_at, completed_at, error_message
+```
+
+---
+
+### Error responses
+
+All errors use Spring's `ProblemDetail` (RFC 7807). The `type` field is `about:blank` for all errors (matches actual platform implementation in `GlobalExceptionHandler`). Every error response includes `correlationId` and `requestId` as extension properties.
+
+| Scenario                             | Status | Title                   |
+| ------------------------------------ | ------ | ----------------------- |
+| Venue not found                      | 404    | `Not Found`             |
+| Asset not found                      | 404    | `Not Found`             |
+| Venue quota reached (plan limit)     | 402    | `Plan upgrade required` |
+| Asset quota reached (plan limit)     | 402    | `Plan upgrade required` |
+| Feature not on plan (e.g. CAD files) | 403    | `Plan upgrade required` |
+| Validation failure                   | 400    | `Validation Failed`     |
+| Tenant context missing               | 400    | `Bad Request`           |
+| Access denied                        | 403    | `Forbidden`             |
+| Token revoked / expired              | 401    | `Unauthorized`          |
+
+For plan-gated features (`PlanFeatureNotAvailableException`): status `403`, plus `featureCode` extension property naming the specific feature code (e.g. `cad_support`, `semantic_search`).
+
+For quota limits (`PlanMemberQuotaException` equivalent for venues/assets): status `402`.
 
 ---
 
@@ -523,107 +702,154 @@ Enforcement via `PlanFeatureGuard` (same pattern as IAM service's existing imple
 
 Migrations live in `iqbene-venue-model` under `src/main/resources/db/changelog/tenant/` — the shared library is the single source of truth for schema. Both `iqbene-venue-service` and `iqbene-venue-ingestion-worker` include the library on their classpath; `iqbene-venue-service` runs the migrations on startup (or a dedicated init container applies them on tenant provisioning via `TenantProvisionedEvent` listener, same pattern as IAM).
 
-```sql
--- extensions (applied once per tenant schema)
-CREATE EXTENSION IF NOT EXISTS vector;
-CREATE EXTENSION IF NOT EXISTS postgis;
+### Naming and format conventions
 
--- venues
-CREATE TABLE venues (
-  id                      UUID PRIMARY KEY,
-  name                    VARCHAR(255) NOT NULL,
-  address                 TEXT,
-  location                GEOGRAPHY(POINT, 4326),
-  description             TEXT,
-  description_embedding   VECTOR(1536),
-  description_text        TSVECTOR,
-  status                  VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
-  metadata                JSONB NOT NULL DEFAULT '{}',
-  metadata_sources        JSONB NOT NULL DEFAULT '{}',
-  metadata_aggregated_at  TIMESTAMP,
-  created_by              UUID NOT NULL,
-  created_at              TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at              TIMESTAMP NOT NULL DEFAULT NOW()
-);
-CREATE INDEX idx_venues_embedding  ON venues USING ivfflat (description_embedding vector_cosine_ops);
-CREATE INDEX idx_venues_fts        ON venues USING GIN (description_text);
-CREATE INDEX idx_venues_metadata   ON venues USING GIN (metadata jsonb_path_ops);
-CREATE INDEX idx_venues_location   ON venues USING GIST (location);
+Follows the platform coding guidelines (§12):
 
-CREATE TRIGGER trg_venues_tsvector BEFORE INSERT OR UPDATE ON venues
-  FOR EACH ROW EXECUTE FUNCTION
-  tsvector_update_trigger(description_text, 'pg_catalog.english', name, description, address);
+- Format: **XML only** — no SQL scripts, no YAML
+- File naming: `YYYYMMDDhhmmss-description.xml` (timestamp prefix + kebab-case description)
+- Changeset ID: matches filename without `.xml` extension
+- Author: `iqkv`
+- Every changeset must include a `<rollback>` block
+- Never modify an existing changeset — add a new one
 
--- venue_assets
-CREATE TABLE venue_assets (
-  id                       UUID PRIMARY KEY,
-  venue_id                 UUID NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
-  asset_type               VARCHAR(50) NOT NULL,
-  file_name                VARCHAR(255) NOT NULL,
-  content_type             VARCHAR(100) NOT NULL,
-  size_bytes               BIGINT NOT NULL,
-  s3_key                   TEXT NOT NULL,
-  extracted_text           TEXT,
-  extracted_text_embedding VECTOR(1536),
-  extraction_status        VARCHAR(20) NOT NULL DEFAULT 'PENDING',
-  uploaded_by              UUID NOT NULL,
-  uploaded_at              TIMESTAMP NOT NULL DEFAULT NOW()
-);
-CREATE INDEX idx_assets_venue       ON venue_assets (venue_id);
-CREATE INDEX idx_assets_type        ON venue_assets (asset_type);
-CREATE INDEX idx_assets_embedding   ON venue_assets USING ivfflat (extracted_text_embedding vector_cosine_ops);
+### Migration files
 
--- extraction_jobs
-CREATE TABLE extraction_jobs (
-  id               UUID PRIMARY KEY,
-  asset_id         UUID NOT NULL REFERENCES venue_assets(id) ON DELETE CASCADE,
-  status           VARCHAR(20) NOT NULL,
-  extractor_type   VARCHAR(50) NOT NULL,
-  extracted_data   JSONB,
-  confidence_scores JSONB,
-  started_at       TIMESTAMP,
-  completed_at     TIMESTAMP,
-  error_message    TEXT
-);
-CREATE INDEX idx_jobs_asset  ON extraction_jobs (asset_id);
-CREATE INDEX idx_jobs_status ON extraction_jobs (status);
-
--- venue_metadata_events (append-only)
-CREATE TABLE venue_metadata_events (
-  id           UUID PRIMARY KEY,
-  venue_id     UUID NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
-  event_type   VARCHAR(50) NOT NULL,
-  source_type  VARCHAR(50) NOT NULL,
-  source_id    UUID,
-  event_data   JSONB NOT NULL,
-  occurred_at  TIMESTAMP NOT NULL DEFAULT NOW(),
-  created_by   UUID
-);
-CREATE INDEX idx_metadata_events_venue  ON venue_metadata_events (venue_id, occurred_at DESC);
-CREATE INDEX idx_metadata_events_source ON venue_metadata_events (source_id, source_type);
-
--- venue_vectors (Spring AI PgVectorStore table)
-CREATE TABLE venue_vectors (
-  id        UUID PRIMARY KEY,
-  content   TEXT NOT NULL,
-  metadata  JSONB,
-  embedding VECTOR(1536)
-);
-CREATE INDEX idx_vectors_embedding ON venue_vectors USING ivfflat (embedding vector_cosine_ops);
-
--- ai_cost_tracking
-CREATE TABLE ai_cost_tracking (
-  id             UUID PRIMARY KEY,
-  provider       VARCHAR(50) NOT NULL,
-  operation_type VARCHAR(50) NOT NULL,
-  model          VARCHAR(100) NOT NULL,
-  tokens_used    INTEGER,
-  cost_usd       NUMERIC(10, 6) NOT NULL,
-  asset_id       UUID REFERENCES venue_assets(id),
-  created_at     TIMESTAMP NOT NULL DEFAULT NOW()
-);
-CREATE INDEX idx_ai_cost_month ON ai_cost_tracking (DATE_TRUNC('month', created_at));
 ```
+db/changelog/system/
+├── master.xml
+└── 20250101000000-create-venue-registry.xml   ← public schema, platform-owned
+
+db/changelog/tenant/
+├── master.xml
+├── 20250101000001-create-venues.xml
+├── 20250101000002-create-venue-assets.xml
+├── 20250101000003-create-extraction-jobs.xml
+├── 20250101000004-create-metadata-events.xml
+├── 20250101000005-create-venue-vectors.xml
+└── 20250101000006-create-ai-cost-tracking.xml
+```
+
+The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml` first (to the `public` schema), then `tenant/master.xml` to each `t_{tenantKey}` schema. The `venue_registry` and `venue_registry_aliases` tables are created in `public` once, not per-tenant.
+
+### Changeset structure (example: venues table)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.33.xsd">
+
+  <changeSet id="20250101000001-create-venues" author="iqkv">
+
+    <!-- Extensions applied once per tenant schema -->
+    <sql>CREATE EXTENSION IF NOT EXISTS vector;</sql>
+    <sql>CREATE EXTENSION IF NOT EXISTS postgis;</sql>
+
+    <createTable tableName="venues">
+      <column name="id" type="UUID">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="name" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="address" type="TEXT"/>
+      <column name="location" type="GEOGRAPHY(POINT, 4326)"/>
+      <column name="description" type="TEXT"/>
+      <column name="description_embedding" type="VECTOR(1536)"/>
+      <column name="description_text" type="TSVECTOR"/>
+      <column name="status" type="VARCHAR(20)" defaultValue="DRAFT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="metadata" type="JSONB" defaultValue="{}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="metadata_sources" type="JSONB" defaultValue="{}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="metadata_aggregated_at" type="TIMESTAMP"/>
+      <column name="created_by" type="UUID">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createIndex tableName="venues" indexName="idx_venues_embedding" using="ivfflat">
+      <column name="description_embedding vector_cosine_ops"/>
+    </createIndex>
+    <createIndex tableName="venues" indexName="idx_venues_fts" using="gin">
+      <column name="description_text"/>
+    </createIndex>
+    <createIndex tableName="venues" indexName="idx_venues_metadata" using="gin">
+      <column name="metadata jsonb_path_ops"/>
+    </createIndex>
+    <createIndex tableName="venues" indexName="idx_venues_location" using="gist">
+      <column name="location"/>
+    </createIndex>
+
+    <sql>
+      CREATE TRIGGER trg_venues_tsvector BEFORE INSERT OR UPDATE ON venues
+        FOR EACH ROW EXECUTE FUNCTION
+        tsvector_update_trigger(description_text, 'pg_catalog.english', name, description, address);
+    </sql>
+
+    <rollback>
+      <sql>DROP TRIGGER IF EXISTS trg_venues_tsvector ON venues;</sql>
+      <dropIndex tableName="venues" indexName="idx_venues_location"/>
+      <dropIndex tableName="venues" indexName="idx_venues_metadata"/>
+      <dropIndex tableName="venues" indexName="idx_venues_fts"/>
+      <dropIndex tableName="venues" indexName="idx_venues_embedding"/>
+      <dropTable tableName="venues"/>
+    </rollback>
+
+  </changeSet>
+</databaseChangeLog>
+```
+
+### Schema overview (all tables)
+
+**Public schema (platform-owned, not tenant-scoped):**
+
+| Table                    | Key columns                                                                                                                                                     | Notes                                        |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `venue_registry`         | `id` UUID PK, `name` VARCHAR(255), `address` TEXT, `city` VARCHAR(100), `location` GEOGRAPHY, `metadata` JSONB, `confidence` NUMERIC(3,2), `source` VARCHAR(50) | Platform seed data. Read-only to tenants.    |
+| `venue_registry_aliases` | `id` UUID PK, `venue_registry_entry_id` UUID FK, `alias` VARCHAR(255)                                                                                           | Alternative names for registry deduplication |
+
+**Tenant schema `t_{tenantKey}` (tenant-owned):**
+
+| Table                   | Key columns                                                                                                                             | Owner                           |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| `venues`                | `id` UUID PK, `status` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY                        | `iqbene-venue-service`          |
+| `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536)    | `iqbene-venue-service`          |
+| `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB | `iqbene-venue-ingestion-worker` |
+| `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                            | `iqbene-venue-service`          |
+| `venue_vectors`         | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table                                | `iqbene-venue-ingestion-worker` |
+| `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                             | `iqbene-venue-ingestion-worker` |
+
+### Index strategy summary
+
+| Table              | Index name                   | Type    | Column(s)                         | Purpose                   |
+| ------------------ | ---------------------------- | ------- | --------------------------------- | ------------------------- |
+| `venues`           | `idx_venues_embedding`       | IVFFlat | `description_embedding`           | Semantic search           |
+| `venues`           | `idx_venues_fts`             | GIN     | `description_text`                | Full-text search          |
+| `venues`           | `idx_venues_metadata`        | GIN     | `metadata jsonb_path_ops`         | JSONB attribute filters   |
+| `venues`           | `idx_venues_location`        | GIST    | `location`                        | Geo-spatial queries       |
+| `venue_assets`     | `idx_assets_venue`           | btree   | `venue_id`                        | FK lookup                 |
+| `venue_assets`     | `idx_assets_type`            | btree   | `asset_type`                      | Filter by type            |
+| `venue_assets`     | `idx_assets_embedding`       | IVFFlat | `extracted_text_embedding`        | Chunk-level vector search |
+| `extraction_jobs`  | `idx_jobs_asset`             | btree   | `asset_id`                        | FK lookup                 |
+| `extraction_jobs`  | `idx_jobs_status`            | btree   | `status`                          | Queue polling             |
+| `metadata_events`  | `idx_metadata_events_venue`  | btree   | `venue_id, occurred_at DESC`      | Timeline queries          |
+| `metadata_events`  | `idx_metadata_events_source` | btree   | `source_id, source_type`          | Provenance lookup         |
+| `venue_vectors`    | `idx_vectors_embedding`      | IVFFlat | `embedding`                       | Vector similarity search  |
+| `ai_cost_tracking` | `idx_ai_cost_month`          | btree   | `DATE_TRUNC('month', created_at)` | Monthly cost rollup       |
 
 ---
 
@@ -715,13 +941,346 @@ Full rationale and competitor analysis: see `../business/comparison.md`.
 
 - [x] **One service or two?** ~~`iqbene-venue-service` + `iqbene-ai-service` vs. a single `iqbene-venue-service` with an internal AI module.~~ **Decided:** Two deployments — `iqbene-venue-service` (synchronous API, data-tied) and `iqbene-venue-ingestion-worker` (async sidecar, shared schema, no inbound HTTP). Services are tied to data; ingestion is a processing concern, not a peer service.
 - [x] **Naming convention.** Service names reflect domain/purpose, not implementation technology. `iqbene-venue-ingestion-worker` describes what it does (ingest and process assets), not how (AI/ML).
+- [x] **Platform venue registry.** A `public.venue_registry` table seeds new tenant venues with known data at extraction time. Copy-on-match, not link — tenant record is independent after copy. Source tagged `REGISTRY` in `metadata_sources`, lowest priority in conflict resolution. No reverse flow from tenant to registry in MVP.
 - [ ] **Docling in Phase 1?** Start with pure Tika (simpler). Add Docling sidecar in Phase 2 when floor plan / table fidelity is needed. **Lean: Tika-only for Phase 1.**
+- [ ] **Registry match threshold.** What confidence score triggers a registry gap-fill? What algorithm — fuzzy name + PostGIS proximity, or embedding similarity? Needs calibration against real venue documents before Sprint 1.
 - [ ] **Chunking table** in separate schema or same as venue tables? Spring AI's `PgVectorStore` defaults to a `vector_store` table. iQ BENE uses `venue_vectors` to be explicit. Confirm naming before first migration.
 - [ ] **Cost tracking granularity:** per-asset or per-tenant-per-month? Both are in schema; decide which is surfaced in UI.
 
 ---
 
-## 16. Next Steps & Design Iterations
+## 16. Implementation patterns (grounded in actual platform code)
+
+This section records how core cross-cutting concerns are implemented in the existing foundation services. iQ BENE must follow these patterns exactly — they are not aspirational, they are the actual running code.
+
+---
+
+### Stack
+
+| Concern          | Technology                                 | Notes                                                      |
+| ---------------- | ------------------------------------------ | ---------------------------------------------------------- |
+| Web tier         | Spring MVC (`spring-boot-starter-web`)     | Blocking servlet stack — no WebFlux except in the gateway  |
+| Persistence      | MyBatis (`mybatis-spring-boot-starter`)    | No JPA, no Hibernate, no `@Entity` annotations anywhere    |
+| Messaging        | RabbitMQ (`spring-boot-starter-amqp`)      | No Kafka, no Spring Cloud Stream                           |
+| Schema migration | Liquibase XML changesets                   | No Flyway, no SQL scripts, no YAML changesets              |
+| Domain objects   | Plain Java POJOs                           | No `@Entity`, no `@Column`, no ORM annotations of any kind |
+| SQL mapping      | MyBatis `@Mapper` interfaces + XML mappers | `ResultMap` per entity, `SET search_path` via interceptor  |
+| Security         | Spring Security OAuth2 Resource Server     | JWT validation via `NimbusJwtDecoder`, RS256 only          |
+
+---
+
+### Multi-tenancy: how it actually works
+
+Tenancy is **schema-level**, not row-level. There is no `tenant_id` column on any table.
+
+**Schema naming:** each tenant gets a PostgreSQL schema named `t_{tenantKey}` (e.g. `t_acme0001`). The `public` schema holds system-level tables (tenants registry, platform users).
+
+**Routing mechanism — `MyBatisSchemaInterceptor`:**
+Before every MyBatis statement execution, the interceptor sets:
+
+```sql
+SET search_path TO t_{tenantKey}, public
+```
+
+This is done via a MyBatis `StatementHandler.prepare` interceptor that reads `TenantContext.getCurrentTenant()`. If no tenant context is active (system-level operation), the interceptor skips and leaves the default `public` search path in place.
+
+**TenantContext:**
+`ThreadLocal<String>` holder in `foundation-tenancy`. Must be set before any DB call and cleared in a `finally` block after every request.
+
+```java
+// Set by TenantExtractionFilter before the request reaches the controller
+TenantContext.setCurrentTenant(tenantKey);
+try {
+    filterChain.doFilter(request, response);
+} finally {
+    TenantContext.clear();  // always, even on exception
+}
+```
+
+**`TenantExtractionFilter`** — `@Order(HIGHEST_PRECEDENCE + 1)`, present in every service:
+
+1. Check `X-Tenant-ID` header (set by the Gateway — priority 1)
+2. Decode Bearer JWT, read `tenant_id` claim (priority 2)
+3. If neither resolves → `400 Bad Request` with inline `application/problem+json` body, request stops
+4. Set `TenantContext`, continue filter chain
+5. `finally` → `TenantContext.clear()`
+
+Paths excluded from tenant extraction (`shouldNotFilter`):
+
+- `/actuator/**`, `/api-docs/**`, `/swagger-ui/**`
+- Admin cross-tenant paths (e.g. `/api/v1/venues/admin/**`)
+- Any path where the controller sets `TenantContext` manually
+
+**`TenantLiquibaseRunner`** — `ApplicationRunner` startup sequence:
+
+1. Migrate `public` schema (system changelog)
+2. If `iqkv.liquibase.upgrade-existing-tenants=true`: discover all `t_*` schemas from `information_schema.schemata` and apply pending tenant changesets to each — failures are logged and skipped, they do not abort startup
+3. Apply tenant migrations to any `iqkv.liquibase.bootstrap-tenants` list (idempotent)
+4. Always migrate the `platform` tenant (landing zone for new users before org creation)
+
+---
+
+### When to use public schema instead of tenant schema
+
+Schema-per-tenant isolation (`t_{tenantKey}`) is the default for tenant-owned business data. It is not a hard rule for every table. The right choice depends on data granularity, volume, and isolation requirements.
+
+**Use `public` schema when:**
+
+- The data is platform-level and shared across all tenants — e.g. the tenants registry itself, platform users, platform-wide announcements, locale lists, token denylist
+- The data volume is small and the cost of per-tenant schema duplication outweighs the benefit
+- The data requires cross-tenant queries — a row-level `tenant_key` column is faster and simpler than union queries across schemas
+- Isolation is non-critical — the data carries no per-tenant secrets or PII that would be exposed by cross-tenant reads
+
+**Use `t_{tenantKey}` schema when:**
+
+- The data is tenant-owned business content — venues, assets, CMS pages, extraction jobs
+- Data volume per tenant can grow independently and benefits from isolated storage
+- Hard isolation is required — one tenant must never be able to read another tenant's rows even in the event of a query bug
+
+**IAM service as the canonical example:**
+All provisioned SaaS tenants, users, memberships, and invitations live in `public` with a `tenant_key` column providing logical separation:
+
+```xml
+<!-- 20260115120000-create-tenants-table.xml -->
+<createTable tableName="tenants" schemaName="public">
+    <column name="tenant_key" type="VARCHAR(12)"/>
+    ...
+</createTable>
+
+<!-- 20260115120100-create-users-table.xml -->
+<createTable tableName="users" schemaName="public">
+    <column name="id" type="UUID"/>
+    <column name="email" type="VARCHAR(255)"/>
+    ...
+</createTable>
+```
+
+Users are not duplicated per tenant schema — they are global identities. The `users` table has no `tenant_key` column; membership records in a separate `tenant_memberships` table link users to tenants. This is correct: a user can belong to multiple tenants, and storing them in a per-tenant schema would require duplicating the user record across schemas.
+
+**iQ BENE decision:**
+All venue intelligence data (venues, assets, extraction jobs, vectors, metadata events) lives in `t_{tenantKey}` schemas — correct, because this is per-tenant business content with potentially large volume and a hard isolation requirement. If a future feature needs a cross-tenant platform table (e.g. a public venue directory or a shared taxonomy of venue categories), that table goes in `public` with a `tenant_key` column, not in per-tenant schemas.
+
+---
+
+### Security: how it actually works
+
+**`SecurityConfig` pattern** (identical structure in every consumer service):
+
+```java
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/api-docs/**", "/swagger-ui/**").permitAll()
+                // service-specific public paths...
+                .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt
+                    .decoder(jwtDecoder())
+                    .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                )
+            )
+            .addFilterBefore(correlationIdFilter, BearerTokenAuthenticationFilter.class)
+            .addFilterAfter(tenantExtractionFilter, CorrelationIdFilter.class);
+        return http.build();
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        // Deployed: JWKS URI (Nimbus caches keys, handles rotation transparently)
+        if (jwksUri is configured) {
+            return NimbusJwtDecoder.withJwkSetUri(jwksUri).build();
+        }
+        // Local dev / tests: RSA public key from PEM file (classpath: or file: path)
+        return NimbusJwtDecoder.withPublicKey(loadRsaPublicKey(publicKeyPath)).build();
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        var converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            List<String> authorities = jwt.getClaimAsStringList(JwtClaimNames.AUTHORITIES);
+            if (authorities == null) return List.of();
+            return authorities.stream()
+                .map(SimpleGrantedAuthority::new)
+                .map(a -> (GrantedAuthority) a)
+                .toList();
+        });
+        return converter;
+    }
+}
+```
+
+Key points:
+
+- RS256 only — no HS256, no symmetric keys
+- Authority strings are read directly from JWT `authorities` claim — no `ROLE_` prefix, no `JwtGrantedAuthoritiesConverter.setAuthorityPrefix`
+- No `UserContext` class — authority is read from Spring Security's `Authentication` object
+- Consumer services validate using JWKS URI (deployed) or local PEM (dev), never a shared secret
+
+**JWT claim names** (actual wire names from `JwtClaimNames.java`):
+
+| Constant               | Wire key               | Notes                                             |
+| ---------------------- | ---------------------- | ------------------------------------------------- |
+| `USER_ID`              | `user_id`              | snake_case — not `userId`                         |
+| `EMAIL`                | `email`                |                                                   |
+| `FIRST_NAME`           | `first_name`           | snake_case — not `firstName`                      |
+| `LAST_NAME`            | `last_name`            | snake_case — not `lastName`                       |
+| `TENANT_ID`            | `tenant_id`            | 8-char nanoid `tenant_key`, not the internal UUID |
+| `AUTHORITIES`          | `authorities`          | `List<String>`, bare strings                      |
+| `PLAN_CODE`            | `plan_code`            | Active plan code, used for entitlement checks     |
+| `EMAIL_VERIFIED`       | `email_verified`       |                                                   |
+| `ONBOARDING_COMPLETED` | `onboarding_completed` |                                                   |
+| `PROFILE_COMPLETED`    | `profile_completed`    |                                                   |
+| `TYPE`                 | `type`                 | `"access"` or `"refresh"`                         |
+
+**Authority strings in use** (actual, from `UserServiceConstants.java`):
+
+| Authority        | Scope          | Who holds it                                                                                                       |
+| ---------------- | -------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `PLATFORM_ADMIN` | Platform-level | Platform operator. Cross-tenant. Never auto-assigned — must be granted explicitly by a platform admin out-of-band. |
+| `TENANT_OWNER`   | Tenant-scoped  | Tenant owner — full control within their tenant                                                                    |
+| `ADMIN`          | Tenant-scoped  | Tenant admin — elevated access within their tenant                                                                 |
+| `MEMBER`         | Tenant-scoped  | Regular authenticated tenant member                                                                                |
+
+`USER` does not exist on this platform. Use `MEMBER` for regular authenticated users.
+
+Use `hasAnyAuthority(...)` in `@PreAuthorize`. Never `hasRole(...)`.
+
+**`JwtAuthenticationFilter` in IAM** is a denylist checker — it is IAM-specific, not a pattern to replicate in iQ BENE. Consumer services like iQ BENE do not need a denylist filter; revocation is enforced by token TTL and the IAM's Redis denylist at source.
+
+---
+
+### REST controllers: how they actually work
+
+Three access patterns exist in the platform. iQ BENE uses the first two:
+
+**Pattern 1 — Tenant-scoped (standard).**
+Controller at `/api/v1/venues/**`. `TenantExtractionFilter` sets `TenantContext` from JWT before the request hits the controller. No tenant path variable. No manual `TenantContext.setCurrentTenant()` in the controller.
+
+```java
+@RestController
+@RequestMapping("/api/v1/venues")
+@Tag(name = "Venues", description = "Venue management")
+@SecurityRequirement(name = "bearerAuth")
+@PreAuthorize("hasAnyAuthority('TENANT_OWNER', 'ADMIN', 'MEMBER')")
+public class VenueRestResource {
+
+    @PostMapping
+    public ResponseEntity<VenueDtos.VenueResponse> create(
+            @Valid @RequestBody VenueDtos.CreateVenueRequest request) {
+        // TenantContext is already set by TenantExtractionFilter
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(venueService.create(request));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('TENANT_OWNER', 'ADMIN')")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        venueService.archive(id);
+        return ResponseEntity.noContent().build();
+    }
+}
+```
+
+**Pattern 2 — Admin cross-tenant.**
+Controller at `/api/v1/venues/admin/{tenantKey}/**`. `TenantExtractionFilter` is excluded for `/admin/` paths. Controller sets `TenantContext` manually in try/finally per method.
+
+```java
+@RestController
+@RequestMapping("/api/v1/venues/admin/{tenantKey}")
+@PreAuthorize("hasAuthority('PLATFORM_ADMIN')")
+public class AdminVenueRestResource {
+
+    @GetMapping
+    public ResponseEntity<VenueDtos.VenueSummaryListResponse> getAll(
+            @PathVariable String tenantKey,
+            @RequestParam(defaultValue = "20") int limit,
+            @RequestParam(defaultValue = "0") int offset) {
+        try {
+            TenantContext.setCurrentTenant(tenantKey);
+            return ResponseEntity.ok(venueService.getAllSummary(limit, offset));
+        } finally {
+            TenantContext.clear();
+        }
+    }
+}
+```
+
+**What `@PreAuthorize` at class level means:** it applies to every method. Override per-method for stricter access (e.g. `DELETE` requiring `ADMIN` when the class allows `USER`).
+
+---
+
+### DTO pattern
+
+All DTOs are Java **records**, grouped in a single `{Domain}Dtos.java` container class. Response wrappers for lists include `items` and `totalElements` — no Spring `Page<T>` in API responses.
+
+```java
+public final class VenueDtos {
+    private VenueDtos() {}
+
+    public record CreateVenueRequest(
+        @NotBlank @Size(max = 255) String name,
+        String address,
+        String description) {}
+
+    public record UpdateVenueRequest(
+        @Size(max = 255) String name,
+        String address,
+        String description) {}
+
+    public record VenueResponse(
+        UUID id,
+        String name,
+        String address,
+        VenueStatus status,
+        Object metadata,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt) {}
+
+    public record VenueSummaryListResponse(
+        List<VenueResponse> items,
+        long totalElements) {}
+}
+```
+
+---
+
+### MyBatis mapper pattern
+
+```java
+@Mapper
+public interface VenueMapper {
+    Optional<Venue> findById(UUID id);
+    List<Venue> findAll(@Param("limit") int limit, @Param("offset") int offset);
+    long countAll();
+    void insert(Venue venue);
+    void update(Venue venue);
+    void updateStatus(@Param("id") UUID id, @Param("status") String status);
+    boolean existsById(UUID id);
+}
+```
+
+SQL in XML mapper. `search_path` is set to `t_{tenantKey}` by `MyBatisSchemaInterceptor` before every statement — mappers write plain table names with no schema prefix.
+
+---
+
+### GlobalExceptionHandler pattern
+
+One `@RestControllerAdvice` per service. Every handler uses the same `problem(type, title, status, detail, request)` helper that sets `type = "about:blank"`, adds `correlationId` (from MDC) and `requestId` (generated short UUID). No `https://api.iqkv.site/errors/` URIs — the actual implementation uses `about:blank` throughout.
+
+---
+
+## 17. Next Steps & Design Iterations
 
 ### Before Sprint 1 — Resolve These First
 
@@ -736,6 +1295,8 @@ Full rationale and competitor analysis: see `../business/comparison.md`.
 - Notification delivery — decide WebSocket vs. polling for extraction status (can reuse IAM's WebSocket infra)
 - CAD visual extraction — convert DWG/DXF to image, then GPT-4o vision
 - Video walkthroughs — keyframe extraction via ffmpeg, vision-based amenity detection
+- **Venue groups** — `venue_groups` and `venue_group_members` tables, tenant-owned library organisation by city / event type / client / season. Tree/folder navigation in the tenant app. No impact on search or extraction.
+- **Registry admin API** — internal platform endpoint for bulk-importing seed data, managing registry entries, reviewing match quality. `PLATFORM_ADMIN` authority only.
 
 ### Phase 3 Design
 
