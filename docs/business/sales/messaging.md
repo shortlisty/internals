@@ -48,12 +48,12 @@ Status values: `Candidate` | `Approved` | `Retired`
 **Status:** `Candidate`
 
 ```
-iQ BENE
+BENE
 
 Beneficial AI-Powered Asset Management & Instant Spec Search for Event Agencies
 
 Stop digging through 50-page venue PDFs, broken links, and scattered CAD decks.
-iQ BENE ingests every floor plan, power limit, and spatial spec into a single,
+BENE ingests every floor plan, power limit, and spatial spec into a single,
 vector-searchable workspace.
 
 Search specs in seconds. Manage spatial assets effortlessly. Build flawless proposals.
@@ -85,11 +85,11 @@ These are the three-pillar structures for landing page sections, pitch decks, an
 
 Short statements for use in email outreach, LinkedIn copy, and investor context.
 
-| Copy                                                                                                                   | Status    | Notes                                        |
-| ---------------------------------------------------------------------------------------------------------------------- | --------- | -------------------------------------------- |
-| iQ BENE turns the pile of venue files your team has collected over the years into a searchable, shared knowledge base. | Approved  | Canonical. Used in docs/README.md.           |
-| Stop digging through 50-page venue PDFs. iQ BENE reads them and makes every detail searchable in seconds.              | Candidate | Direct pain-first opener. Good for outreach. |
-| The venue knowledge your team has built over years is buried in files. iQ BENE gives it a brain.                       | Candidate | Metaphor variant. Test against the above.    |
+| Copy                                                                                                                | Status    | Notes                                        |
+| ------------------------------------------------------------------------------------------------------------------- | --------- | -------------------------------------------- |
+| BENE turns the pile of venue files your team has collected over the years into a searchable, shared knowledge base. | Approved  | Canonical. Used in docs/README.md.           |
+| Stop digging through 50-page venue PDFs. BENE reads them and makes every detail searchable in seconds.              | Candidate | Direct pain-first opener. Good for outreach. |
+| The venue knowledge your team has built over years is buried in files. BENE gives it a brain.                       | Candidate | Metaphor variant. Test against the above.    |
 
 ---
 
@@ -97,9 +97,9 @@ Short statements for use in email outreach, LinkedIn copy, and investor context.
 
 - The B.E.N.E. acronym expansion is a secondary layer — it should never need explaining. The name works without it.
 - "Beneficial" as a recurring word threads through taglines and pillars. It reinforces the acronym without spelling it out.
-- "iQ" prefix connects to the IQKV platform family. Keep it consistent: `iQ BENE`, not `IQ Bene`, `iqbene`, or `IQBene` in any external copy.
+- "iQ" prefix connects to the IQ Key Value platform family. Keep it consistent: `BENE`, not `IQ Bene`, `iqbene`, or `IQBene` in any external copy.
 - "Venue Intelligence Platform" is the product category name used in technical and architectural documents. In sales and marketing copy, prefer "AI-powered asset management and spec search" — it describes the job to be done, not the product category.
 
 ---
 
-**Docs:** [What is iQ BENE?](../../README.md) · [Business Proposal](../proposal.md) · [Pitch](pitch.md) · [Battlecards](battlecards.md) · [Objections](objections.md)
+**Docs:** [What is BENE?](../../README.md) · [Business Proposal](../proposal.md) · [Pitch](pitch.md) · [Battlecards](battlecards.md) · [Objections](objections.md)

@@ -1,13 +1,13 @@
 # Vision
 
 > **Audience:** Founders, team.
-> **Purpose:** Describe where iQ BENE is going and why — not what has been built. For completed work, see [CHANGELOG.md](../../CHANGELOG.md) and the milestone files.
+> **Purpose:** Describe where BENE Intelligence is going and why — not what has been built. For completed work, see [CHANGELOG.md](../../CHANGELOG.md) and the milestone files.
 
 ---
 
 ## One sentence
 
-iQ BENE is the knowledge base for event professionals — turning the venue files, floor plans, and spec sheets a team has collected over years into a structured, searchable library so anyone can find any detail in seconds and organise better events, faster.
+BENE Intelligence is the knowledge base for event professionals — turning the venue files, floor plans, and spec sheets a team has collected over years into a structured, searchable library so anyone can find any detail in seconds and organise better events, faster.
 
 ---
 
@@ -21,7 +21,7 @@ Product structure in business terms: [product.md](../business/product.md).
 
 ## Who this is for
 
-iQ BENE is built for event managers and event agencies — the professionals whose job is to find, evaluate, and brief venues on behalf of clients. They manage weddings, corporate events, conferences, workshops, and private parties. They visit dozens of venues a year and receive hundreds of documents: PDFs, floor plans, spec sheets, photo packs, branded decks.
+BENE Intelligence is built for event managers and event agencies — the professionals whose job is to find, evaluate, and brief venues on behalf of clients. They manage weddings, corporate events, conferences, workshops, and private parties. They visit dozens of venues a year and receive hundreds of documents: PDFs, floor plans, spec sheets, photo packs, branded decks.
 
 The end client — the person commissioning the event — is not a user of the tool. They are the recipient of better, faster answers from the manager who uses it.
 
@@ -49,7 +49,7 @@ Nothing is lost when a manager leaves. New hires can answer client questions ind
 
 ### For the platform
 
-iQ BENE becomes the intelligence layer that sits beneath every stage of the event planning workflow. Venues are no longer a pile of files — they are structured, versioned, queryable knowledge assets. The platform earns trust by being accurate, sourced, and transparent about what it knows and what it is uncertain about.
+BENE becomes the intelligence layer that sits beneath every stage of the event planning workflow. Venues are no longer a pile of files — they are structured, versioned, queryable knowledge assets. The platform earns trust by being accurate, sourced, and transparent about what it knows and what it is uncertain about.
 
 ---
 
@@ -88,9 +88,9 @@ No existing tool combines planner-owned document ingestion, AI extraction with a
 The following are deliberate exclusions from the initial product. They may be revisited as the platform matures.
 
 - **Venue discovery and marketplace.** We are not building a public venue database. We help managers work with venues they already know. Discovery is a Phase 3 direction.
-- **Booking and operations.** Contracts, invoicing, calendar management, and RFP sending are venue operator problems. iQ BENE serves event professionals, not operators.
-- **CRM and contact management.** iQ BENE extracts venue contacts from documents and stores them as structured data on the venue profile. It does not replace a CRM or manage deal pipelines.
-- **Event planning workflow tools.** Content generation, agenda drafting, and speaker management are out of scope. iQ BENE provides the venue intelligence that makes those workflows accurate — it does not own the workflows themselves.
+- **Booking and operations.** Contracts, invoicing, calendar management, and RFP sending are venue operator problems. BENE serves event professionals, not operators.
+- **CRM and contact management.** BENE extracts venue contacts from documents and stores them as structured data on the venue profile. It does not replace a CRM or manage deal pipelines.
+- **Event planning workflow tools.** Content generation, agenda drafting, and speaker management are out of scope. BENE provides the venue intelligence that makes those workflows accurate — it does not own the workflows themselves.
 - **Video walkthroughs.** Keyframe extraction and vision-based walkthrough analysis are deferred to Phase 2. The Phase 1 pipeline handles PDFs, images, DOCX, and CAD files.
 
 ---
@@ -99,7 +99,7 @@ The following are deliberate exclusions from the initial product. They may be re
 
 **Weekly active searches per team.**
 
-A team that searches weekly is using iQ BENE as a knowledge tool, not a filing tool. This metric proves that the intelligence layer is trusted and embedded in daily work. Venue uploads and extraction jobs are inputs. Searches are the outcome.
+A team that searches weekly is using BENE as a knowledge tool, not a filing tool. This metric proves that the intelligence layer is trusted and embedded in daily work. Venue uploads and extraction jobs are inputs. Searches are the outcome.
 
 ---
 
@@ -109,4 +109,4 @@ The tenant app is the foundation. Once the venue knowledge base is proven — ac
 
 ---
 
-**Docs:** [What is iQ BENE?](../README.md) · [Product Structure](../business/product.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Architecture](../platform/architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Product Structure](../business/product.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Architecture](../platform/architecture.md)

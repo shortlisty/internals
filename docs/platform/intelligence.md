@@ -1,9 +1,9 @@
 # Venue Intelligence Platform — Intelligence Layer & ETL Pipeline
 
 > Technical reference for the document intelligence, ETL pipeline, and the proprietary
-> intelligence layer of iQ BENE.
+> intelligence layer of BENE.
 
-**Docs:** [What is iQ BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)
 
 ---
 
@@ -20,24 +20,24 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 **DocumentReaders (Extract) — available out of the box:**
 
-| Reader                       | Handles                                         | Notes                                                       |
-| ---------------------------- | ----------------------------------------------- | ----------------------------------------------------------- |
-| `TikaDocumentReader`         | PDF, DOCX, XLSX, PPTX, HTML, XML, 1000+ formats | Apache Tika under the hood. **Primary reader for iQ BENE.** |
-| `PagePdfDocumentReader`      | PDFs, page-by-page                              | Preserves page boundaries, useful for floor plans           |
-| `ParagraphPdfDocumentReader` | PDFs, paragraph-level                           | Better semantic chunking for venue decks                    |
-| `MarkdownDocumentReader`     | Markdown files                                  | Useful for structured venue specs                           |
-| `JsonMetadataReader`         | JSON with metadata                              | Useful for structured imports                               |
-| `JsoupDocumentReader`        | HTML pages                                      | Web scraping venue information                              |
+| Reader                       | Handles                                         | Notes                                                    |
+| ---------------------------- | ----------------------------------------------- | -------------------------------------------------------- |
+| `TikaDocumentReader`         | PDF, DOCX, XLSX, PPTX, HTML, XML, 1000+ formats | Apache Tika under the hood. **Primary reader for BENE.** |
+| `PagePdfDocumentReader`      | PDFs, page-by-page                              | Preserves page boundaries, useful for floor plans        |
+| `ParagraphPdfDocumentReader` | PDFs, paragraph-level                           | Better semantic chunking for venue decks                 |
+| `MarkdownDocumentReader`     | Markdown files                                  | Useful for structured venue specs                        |
+| `JsonMetadataReader`         | JSON with metadata                              | Useful for structured imports                            |
+| `JsoupDocumentReader`        | HTML pages                                      | Web scraping venue information                           |
 
 **DocumentTransformers (Transform):**
 
-| Transformer                    | What it does                                                                         |
-| ------------------------------ | ------------------------------------------------------------------------------------ |
-| `TokenTextSplitter`            | Splits large documents into chunks respecting token limits                           |
-| `ContentFormatTransformer`     | Normalizes text format                                                               |
-| `SummaryMetadataEnricher`      | Generates document summary using LLM, stored as metadata                             |
-| `KeywordMetadataEnricher`      | Extracts keywords using LLM, stored as metadata                                      |
-| Custom `VenueMetadataEnricher` | **iQ BENE-specific:** extracts capacity, amenities, contacts via structured LLM call |
+| Transformer                    | What it does                                                                      |
+| ------------------------------ | --------------------------------------------------------------------------------- |
+| `TokenTextSplitter`            | Splits large documents into chunks respecting token limits                        |
+| `ContentFormatTransformer`     | Normalizes text format                                                            |
+| `SummaryMetadataEnricher`      | Generates document summary using LLM, stored as metadata                          |
+| `KeywordMetadataEnricher`      | Extracts keywords using LLM, stored as metadata                                   |
+| Custom `VenueMetadataEnricher` | **BENE-specific:** extracts capacity, amenities, contacts via structured LLM call |
 
 **DocumentWriters (Load):**
 
@@ -47,7 +47,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 | `SimpleVectorStore`  | In-memory (testing/dev)                           |
 | `FileDocumentWriter` | Write to files (useful for debugging pipeline)    |
 
-### 1.2 iQ BENE's Document Processing Pipeline
+### 1.2 BENE's Document Processing Pipeline
 
 ```
                      S3 Asset Storage
@@ -152,7 +152,7 @@ public class VenueAssetProcessingPipeline {
 
 ### 1.4 Chunking Strategy
 
-Document chunking significantly impacts retrieval quality. iQ BENE uses a hybrid strategy:
+Document chunking significantly impacts retrieval quality. BENE uses a hybrid strategy:
 
 **For venue decks (PDFs):**
 
@@ -257,13 +257,13 @@ docling-service:
 
 ---
 
-## 2. The Intelligence Layer iQ BENE Owns
+## 2. The Intelligence Layer BENE Owns
 
-Everything above (Tika, Docling, Spring AI ETL) is infrastructure. iQ BENE's proprietary intelligence sits on top:
+Everything above (Tika, Docling, Spring AI ETL) is infrastructure. BENE's proprietary intelligence sits on top:
 
 ### 2.1 Venue-Specific Extraction Schema
 
-Generic document intelligence tools extract generic fields. iQ BENE extracts fields that matter for event professionals:
+Generic document intelligence tools extract generic fields. BENE extracts fields that matter for event professionals:
 
 ```json
 {
@@ -320,7 +320,7 @@ Generic document intelligence tools extract generic fields. iQ BENE extracts fie
 }
 ```
 
-This schema is what makes iQ BENE a _venue intelligence platform_, not just a document storage system. Every competitor either has operational data (bookings, invoicing) or generic extraction. No one has this schema purpose-built for event planners.
+This schema is what makes BENE a _venue intelligence platform_, not just a document storage system. Every competitor either has operational data (bookings, invoicing) or generic extraction. No one has this schema purpose-built for event planners.
 
 ### 2.2 Confidence-Sourced Metadata Model
 
@@ -346,7 +346,7 @@ No existing venue tool surfaces this level of data provenance. Users see not jus
 
 Venues send the same venue in multiple formats — a marketing deck, a floor plan PDF, a technical spec sheet, a photo set. Each source may have conflicting or complementary data.
 
-iQ BENE's aggregation engine:
+BENE's aggregation engine:
 
 1. Collects all extraction events per venue (event log)
 2. Applies priority rules: `manual_override > verified > high_confidence_AI > low_confidence_AI`
@@ -383,7 +383,7 @@ Upload → S3 → AssetUploadedEvent → RabbitMQ → N consumers → Processing
 | 1M venues        | ~$1,000 | Auto-scaled, still manageable          |
 | 100M venues      | ~$100K  | Optimize with cheaper models + caching |
 
-At the $0.001/venue cost of GPT-4o extraction + embedding generation, iQ BENE can process 1 million venues for approximately $1,000 in AI costs. This is not a cost problem.
+At the $0.001/venue cost of GPT-4o extraction + embedding generation, BENE can process 1 million venues for approximately $1,000 in AI costs. This is not a cost problem.
 
 ### Vector Search Scaling
 
@@ -410,7 +410,7 @@ pgvector with IVFFlat index:
 | **Async processing**    | RabbitMQ (existing foundation)                   | Already in platform, priority queues, DLQ                                 |
 | **File storage**        | S3 / MinIO (existing foundation)                 | Already in IAM service, same pattern                                      |
 
-**Principle:** Use proven infrastructure that already exists in the IQKV foundation. Introduce the minimum number of new services. The only truly new infrastructure is pgvector (a PostgreSQL extension, not a new service) and optionally a self-hosted Docling container for advanced PDF parsing.
+**Principle:** Use proven infrastructure that already exists in the IQ Key Value foundation. Introduce the minimum number of new services. The only truly new infrastructure is pgvector (a PostgreSQL extension, not a new service) and optionally a self-hosted Docling container for advanced PDF parsing.
 
 ---
 
@@ -431,4 +431,4 @@ pgvector with IVFFlat index:
 
 ---
 
-**Docs:** [What is iQ BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)

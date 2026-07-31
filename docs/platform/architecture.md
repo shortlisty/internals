@@ -1,32 +1,32 @@
-# Venue Intelligence Platform (iQ BENE) — Architecture Reference
+# Venue Intelligence Platform (BENE) — Architecture Reference
 
 > **Audience:** Engineers, architects.
 > **Purpose:** Single source of truth for all technical decisions before development starts.
 
-**Docs:** [What is iQ BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Architecture](architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Architecture](architecture.md)
 
 ---
 
 ## 1. Platform Context
 
-iQ BENE is a new product service built **on top of the IQKV foundation**. It does not replace or fork any existing service. It reuses:
+BENE Intelligence is a new product service built **on top of the IQ Key Value foundation**. It does not replace or fork any existing service. It reuses:
 
-| Foundation service           | What iQ BENE inherits                                                                   |
+| Foundation service           | What BENE inherits                                                                      |
 | ---------------------------- | --------------------------------------------------------------------------------------- |
 | `foundation-gateway-service` | JWT validation, tenant routing, header propagation — no changes needed                  |
 | `foundation-iam-service`     | Auth, multi-tenancy, team invitations, SSO, presigned S3 upload pattern                 |
 | `foundation-billing-service` | Plan entitlements (`max_venues`, `ai_extraction_enabled`, etc.), subscription lifecycle |
-| `foundation-audit-service`   | Compliance log — consumes iQ BENE events passively, no code changes                     |
+| `foundation-audit-service`   | Compliance log — consumes BENE events passively, no code changes                        |
 | `foundation-ui-app`          | Extended (not forked) with new `/venues/*` routes under FSD architecture                |
 | `foundation-tenancy`         | Schema-per-tenant isolation library reused directly                                     |
 
-**New services introduced by iQ BENE:**
+**New services introduced by BENE Intelligence:**
 
 - `iqbene-venue-model` — shared library (JAR). Canonical domain model, event contracts, enums, and Liquibase migrations. No Spring beans, no business logic — pure model and schema. Imported by both services.
 - `iqbene-venue-service` — core domain: venues, assets, metadata, search, plan enforcement, venue registry lookup. Synchronous request/response only.
 - `iqbene-venue-ingestion-worker` — async sidecar: document ETL pipeline, extraction orchestration, embedding generation, registry matching, scheduled jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `iqbene-venue-service`.
 
-**New infrastructure introduced by iQ BENE:**
+**New infrastructure introduced by BENE Intelligence:**
 
 - pgvector extension on existing PostgreSQL (not a new service)
 - PostGIS extension on existing PostgreSQL (not a new service)
@@ -542,7 +542,7 @@ Outcome: one SQL `UPDATE` instead of three. The redundant work is eliminated bef
 ### iqbene-venue-service
 
 - **Responsibilities:** venue CRUD, asset upload flow (presigned URL), metadata read/write, search API, plan entitlement enforcement
-- **Database:** owns the iQ BENE PostgreSQL schema. Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`. Shared with `iqbene-venue-ingestion-worker` — no cross-service API calls for data.
+- **Database:** owns the BENE PostgreSQL schema. Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`. Shared with `iqbene-venue-ingestion-worker` — no cross-service API calls for data.
 - **Exposes:** REST API at `/api/v1/venues`
 - **Publishes:** `venue.created`, `venue.updated`, `asset.uploaded`, `asset.deleted` (RabbitMQ)
 - **Consumes:** `extraction.completed`, `extraction.failed` (RabbitMQ) — triggers metadata aggregation
@@ -652,7 +652,7 @@ iqbene-venue-model  (library, no runtime)
 
 ## 4b. S3 Storage Layout
 
-S3 (MinIO for local dev) is already in the IQKV stack. iQ BENE adds its own prefix namespace inside the shared bucket (`iqkv-files`) — no new bucket needed in dev/staging. Production can isolate into a dedicated bucket (`iqkv-vip-files`) via a single config change; the key structure is identical either way.
+S3 (MinIO for local dev) is already in the IQ Key Value stack. BENE adds its own prefix namespace inside the shared bucket (`iqkv-files`) — no new bucket needed in dev/staging. Production can isolate into a dedicated bucket (`iqkv-vip-files`) via a single config change; the key structure is identical either way.
 
 ---
 
@@ -1507,7 +1507,7 @@ PostgreSQL schema-per-tenant tenancy model means `public.venue_registry` lives i
 
 ## 11. UI Integration (foundation-ui-app)
 
-Extend `foundation-ui-app` — do **not** fork. New iQ BENE features live under:
+Extend `foundation-ui-app` — do **not** fork. New BENE features live under:
 
 ```
 src/features/venue-management/
@@ -1539,7 +1539,7 @@ Reuse without modification:
 
 ## 12. Observability
 
-Both iQ BENE services follow foundation patterns exactly.
+Both BENE services follow foundation patterns exactly.
 
 **Prometheus metrics to add:**
 
@@ -1613,7 +1613,7 @@ Full rationale and competitor analysis: see `../business/comparison.md`.
 
 ## 16. Implementation patterns (grounded in actual platform code)
 
-This section records how core cross-cutting concerns are implemented in the existing foundation services. iQ BENE must follow these patterns exactly — they are not aspirational, they are the actual running code.
+This section records how core cross-cutting concerns are implemented in the existing foundation services. BENE must follow these patterns exactly — they are not aspirational, they are the actual running code.
 
 ---
 
@@ -1719,7 +1719,7 @@ All provisioned SaaS tenants, users, memberships, and invitations live in `publi
 
 Users are not duplicated per tenant schema — they are global identities. The `users` table has no `tenant_key` column; membership records in a separate `tenant_memberships` table link users to tenants. This is correct: a user can belong to multiple tenants, and storing them in a per-tenant schema would require duplicating the user record across schemas.
 
-**iQ BENE decision:**
+**BENE decision:**
 All venue intelligence data (venues, assets, extraction jobs, vectors, metadata events) lives in `t_{tenantKey}` schemas — correct, because this is per-tenant business content with potentially large volume and a hard isolation requirement. If a future feature needs a cross-tenant platform table (e.g. a public venue directory or a shared taxonomy of venue categories), that table goes in `public` with a `tenant_key` column, not in per-tenant schemas.
 
 ---
@@ -1818,13 +1818,13 @@ Key points:
 
 Use `hasAnyAuthority(...)` in `@PreAuthorize`. Never `hasRole(...)`.
 
-**`JwtAuthenticationFilter` in IAM** is a denylist checker — it is IAM-specific, not a pattern to replicate in iQ BENE. Consumer services like iQ BENE do not need a denylist filter; revocation is enforced by token TTL and the IAM's Redis denylist at source.
+**`JwtAuthenticationFilter` in IAM** is a denylist checker — it is IAM-specific, not a pattern to replicate in BENE. Consumer services like BENE do not need a denylist filter; revocation is enforced by token TTL and the IAM's Redis denylist at source.
 
 ---
 
 ### REST controllers: how they actually work
 
-Three access patterns exist in the platform. iQ BENE uses the first two:
+Three access patterns exist in the platform. BENE uses the first two:
 
 **Pattern 1 — Tenant-scoped (standard).**
 Controller at `/api/v1/venues/**`. `TenantExtractionFilter` sets `TenantContext` from JWT before the request hits the controller. No tenant path variable. No manual `TenantContext.setCurrentTenant()` in the controller.
@@ -1990,4 +1990,4 @@ One `@RestControllerAdvice` per service. Every handler uses the same `problem(ty
 
 ---
 
-**Docs:** [What is iQ BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Architecture](architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Architecture](architecture.md)

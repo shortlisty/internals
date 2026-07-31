@@ -1,6 +1,6 @@
-# iQ BENE — System Design Documentation
+# BENE Intelligence — System Design Documentation
 
-> Pre-build design documentation for the Venue Intelligence Platform — built on the IQKV open-source foundation.
+> Pre-build design documentation for the Venue Intelligence Platform — built on the IQ Key Value open-source foundation.
 
 ---
 
@@ -8,7 +8,7 @@
 
 | Document                                                | Audience              | What it covers                                                    |
 | ------------------------------------------------------- | --------------------- | ----------------------------------------------------------------- |
-| [What is iQ BENE?](docs/README.md)                      | Anyone                | Plain-language overview: the problem, the solution, who it's for  |
+| [What is BENE?](docs/README.md)                         | Anyone                | Plain-language overview: the problem, the solution, who it's for  |
 | [Market Structure](docs/business/market.md)             | Anyone                | The event chain, roles, tool segmentation, the vacant slot        |
 | [Cold Start Strategy](docs/business/cold-start.md)      | Founders, team        | Seeding the venue library before launch: cities, sources, process |
 | [Business Proposal](docs/business/proposal.md)          | Founders, team        | ICP, feature roadmap, monetization, GTM, risks                    |
@@ -34,7 +34,7 @@ Read [AGENTS.md](AGENTS.md) before adding or editing any document. It defines th
 
 ## Platform context
 
-iQ BENE is a new product built on top of the IQKV open-source foundation. It introduces two services and one shared library:
+BENE Intelligence is a new product built on top of the IQ Key Value open-source foundation. It introduces two services and one shared library:
 
 - **`iqbene-venue-service`** — core domain: venue profiles, assets, metadata, search, plan enforcement
 - **`iqbene-venue-ingestion-worker`** — async sidecar: document ETL, AI extraction, embeddings, scheduled jobs
@@ -47,8 +47,8 @@ Open decisions: [Architecture §15](docs/platform/architecture.md#15-open-decisi
 
 ## License
 
-Copyright © 2026 IQKV. All rights reserved.
+Copyright © 2026 IQ Key Value. All rights reserved.
 
-This software and its documentation are proprietary and confidential. The source code is made available to authorized licensees only. You may not use, copy, modify, distribute, or sublicense this software except as expressly permitted under a written agreement with IQKV.
+This software and its documentation are proprietary and confidential. The source code is made available to authorized licensees only. You may not use, copy, modify, distribute, or sublicense this software except as expressly permitted under a written agreement with IQ Key Value.
 
-The underlying IQKV platform is built on open-source components, each governed by their respective licenses.
+The underlying IQ Key Value platform is built on open-source components, each governed by their respective licenses.

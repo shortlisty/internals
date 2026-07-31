@@ -65,7 +65,7 @@
 
 ### Added
 
-- `docs/README.md` — plain-language product overview. Audience: anyone. Covers the problem, what iQ BENE does, who it is for, how it works, monetization model, and one-sentence summary.
+- `docs/README.md` — plain-language product overview. Audience: anyone. Covers the problem, what BENE does, who it is for, how it works, monetization model, and one-sentence summary.
 - `docs/business/proposal.md` — full business proposal: ICP matrix, feature phases (Phase 1–3), monetization tiers, go-to-market strategy, international expansion plan, key risks, and open questions.
 - `docs/business/comparison.md` — competitive landscape analysis: Cvent, Tripleseat, Momentus, VenueScanner, VenueFindAI, VenueArc, Spark (GEVME/PCMA), Bynder, Brandfolder, Unstructured.io, Docling, Apache Tika. Includes gap summary matrix.
 - `docs/platform/architecture.md` — architecture reference: platform context, domain model (Venue, VenueAsset, ExtractionJob, MetadataEvent), metadata aggregation engine, service architecture (iqbene-venue-service, iqbene-venue-ingestion-worker, iqbene-venue-model), ETL pipeline, search architecture, API surface, event contracts, plan entitlement mapping, database schema, UI integration, observability, security, technology decisions, and open decisions.

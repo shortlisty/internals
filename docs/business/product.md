@@ -1,13 +1,13 @@
 # Product structure
 
 > **Audience:** Founders, team.
-> **Purpose:** Explain what iQ BENE is made of in business terms — the tenant app, the four capability pillars, the UI concept, and the positioning logic. Read this before the architecture reference.
+> **Purpose:** Explain what BENE Intelligence is made of in business terms — the tenant app, the four capability pillars, the UI concept, and the positioning logic. Read this before the architecture reference.
 
 ---
 
 ## What the product is
 
-iQ BENE is a knowledge base and workflow tool for event managers and event agencies. Its job is to help them organise venues faster, find the right one sooner, and run better events — without the manual work that currently slows everything down.
+BENE Intelligence is a knowledge base and workflow tool for event managers and event agencies. Its job is to help them organise venues faster, find the right one sooner, and run better events — without the manual work that currently slows everything down.
 
 The product has one user: the event professional. Everything is designed around their daily workflow — receiving venue documents, building a library of trusted venues, answering client briefs, and preparing proposals. The end client (the person who commissions the event) is a recipient of output from that workflow, not a user of the tool.
 
@@ -44,7 +44,7 @@ Corresponds to epic: [E2 — Document intelligence](../roadmap/epics/E2-document
 
 The structured knowledge store. All textual and structured information about a venue lives here: room names and descriptions, capacity configurations, catering policy, pricing, available options, contact details, restrictions.
 
-"Product" in PIM maps to "venue" in iQ BENE. Each venue is a structured record with a schema. The PIM layer enforces that schema, tracks provenance (which source each field came from), manages confidence scores, and resolves conflicts when multiple documents disagree.
+"Product" in PIM maps to "venue" in BENE. Each venue is a structured record with a schema. The PIM layer enforces that schema, tracks provenance (which source each field came from), manages confidence scores, and resolves conflicts when multiple documents disagree.
 
 This is the core of the platform. Search, sharing, and every downstream workflow depend on the quality of data here.
 
@@ -54,7 +54,7 @@ Corresponds to epics: [E1 — Venue profiles](../roadmap/epics/E1-venue-profiles
 
 The media store. Floor plans, photos, video walkthroughs, 3D tours, CAD files, branded decks — all binary assets associated with a venue.
 
-DAM in iQ BENE is not generic asset storage. Assets are attached to venues and to specific rooms or spaces within a venue. A floor plan is not just a file — it is a spatial asset linked to a room with known dimensions. That linkage is what makes the asset searchable and useful, not just stored.
+DAM in BENE Intelligence is not generic asset storage. Assets are attached to venues and to specific rooms or spaces within a venue. A floor plan is not just a file — it is a spatial asset linked to a room with known dimensions. That linkage is what makes the asset searchable and useful, not just stored.
 
 Corresponds to epics: [E1 — Venue profiles](../roadmap/epics/E1-venue-profiles.md) (asset sub-model), [E2 — Document intelligence](../roadmap/epics/E2-document-intelligence.md) (floor plan processing).
 
@@ -70,12 +70,12 @@ Corresponds to epic: [E3 — Search](../roadmap/epics/E3-search.md).
 
 ## Positioning summary
 
-iQ BENE occupies a gap that existing tools do not fill.
+BENE occupies a gap that existing tools do not fill.
 
 Generic file storage (Drive, Dropbox) holds venue documents but cannot read them. Enterprise DAM platforms (Bynder, Brandfolder) manage assets generically with no venue schema and no extraction. Venue marketplaces (Cvent, VenueScanner) know publicly listed venues but not the ones in a planner's own files. Generic AI tools (ChatGPT) can answer a one-off question about a PDF but have no memory, no schema, and no team sharing.
 
-iQ BENE combines ETL, PIM, DAM, and search in a single tenant app focused specifically on the venue management workflow. It is not a general-purpose tool adapted to events — it is built from the ground up for event professionals, at the interface density that working professionals need.
+BENE combines ETL, PIM, DAM, and search in a single tenant app focused specifically on the venue management workflow. It is not a general-purpose tool adapted to events — it is built from the ground up for event professionals, at the interface density that working professionals need.
 
 ---
 
-**Docs:** [What is iQ BENE?](../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../platform/architecture.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is BENE?](../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../platform/architecture.md) · [Vision](../roadmap/vision.md)

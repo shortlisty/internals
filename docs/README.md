@@ -20,7 +20,7 @@ All the knowledge exists. It is just buried.
 
 ## What BENE does
 
-BENE is like giving your entire collection of venue files a brain. It reads them and turns them into searchable profiles.
+BENE Intelligence is like giving your entire collection of venue files a brain. It reads them and turns them into searchable profiles.
 
 You drop in a PDF, a floor plan, a photo set. BENE pulls out the details that matter - how many people fit, what catering is available, whether there is a freight elevator, what is and is not allowed, who to call - and saves them as a structured profile. Your whole team can see it. Anyone can search it.
 
@@ -38,7 +38,7 @@ File tools like Dropbox and Google Drive store your files but cannot read them. 
 
 Spreadsheets and Notion work for a while, but someone has to type everything in manually. That never stays current.
 
-BENE is the missing piece - it takes documents you already have, understands what is in them, and makes that knowledge searchable and shared across your whole team.
+BENE Intelligence is the missing piece - it takes documents you already have, understands what is in them, and makes that knowledge searchable and shared across your whole team.
 
 ---
 
@@ -91,9 +91,9 @@ Vertical SaaS products that solve one specific workflow pain for professionals a
 
 ## Why this is the right background to build it
 
-Building BENE is hard because reading messy documents and pulling out reliable structured data is hard. Most people trying to build this would be learning that skill from scratch while also learning the event industry. That is not the case here.
+Building BENE Intelligence is hard because reading messy documents and pulling out reliable structured data is hard. Most people trying to build this would be learning that skill from scratch while also learning the event industry. That is not the case here.
 
-The hardest engineering challenge in BENE is extracting structured data from messy, inconsistent documents and reconciling conflicts when multiple sources disagree. That is exactly what hotel content ETL pipelines do - normalize unstructured property content from hundreds of suppliers into a consistent schema. It is also exactly what a Product Information Manager does for ecommerce. Different domain, same problem.
+The hardest engineering challenge in BENE Intelligence is extracting structured data from messy, inconsistent documents and reconciling conflicts when multiple sources disagree. That is exactly what hotel content ETL pipelines do - normalize unstructured property content from hundreds of suppliers into a consistent schema. It is also exactly what a Product Information Manager does for ecommerce. Different domain, same problem.
 
 Most founders building something like this would be learning both the domain and the engineering at the same time. That is not the case here.
 

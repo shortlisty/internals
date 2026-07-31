@@ -23,7 +23,7 @@ Ask one question: "When a client calls with a specific brief, how do you find th
 
 Let them answer. Do not interrupt. The answer will be some version of: email search, shared drive, asking a colleague, memory. That is the problem.
 
-Transition: "That's exactly what we built iQ BENE to fix."
+Transition: "That's exactly what we built BENE to fix."
 
 ---
 
@@ -31,7 +31,7 @@ Transition: "That's exactly what we built iQ BENE to fix."
 
 **Goal:** name the pain precisely so the prospect nods.
 
-> "The knowledge your team has built up over years — every venue you've visited, every deck you've received, every detail you've verified — it's all there. It's just buried in files. iQ BENE gives it a brain."
+> "The knowledge your team has built up over years — every venue you've visited, every deck you've received, every detail you've verified — it's all there. It's just buried in files. BENE gives it a brain."
 
 Do not over-explain. One sentence, then move.
 
@@ -58,7 +58,7 @@ Pause after step 4 and ask: "Is that the kind of data you'd want on every venue 
 
 **Goal:** shift from individual value to organisational value. This is where the buying trigger lives.
 
-> "Right now, this knowledge lives in one person's head or one person's inbox. When they're on holiday, or when they leave, it's gone. iQ BENE makes it shared and permanent. Every new hire starts with the full library on day one."
+> "Right now, this knowledge lives in one person's head or one person's inbox. When they're on holiday, or when they leave, it's gone. BENE makes it shared and permanent. Every new hire starts with the full library on day one."
 
 If the prospect is an agency owner: lean on the knowledge-retention angle.
 If the prospect is a head of events at a corporate: lean on the "stop repeating the same research every cycle" angle.
@@ -92,4 +92,4 @@ If an objection comes up during the pitch, see [objections.md](objections.md) fo
 
 ---
 
-**Docs:** [What is iQ BENE?](../../README.md) · [Business Proposal](../proposal.md) · [Competitive Landscape](../comparison.md) · [Battlecards](battlecards.md) · [Objections](objections.md)
+**Docs:** [What is BENE?](../../README.md) · [Business Proposal](../proposal.md) · [Competitive Landscape](../comparison.md) · [Battlecards](battlecards.md) · [Objections](objections.md)

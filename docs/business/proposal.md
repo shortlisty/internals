@@ -1,7 +1,7 @@
 # Business proposal
 
 > **Audience:** Founders, team.
-> **Purpose:** Full business case for iQ BENE — ICP, feature phases, monetization, go-to-market, risks, and open questions. US market first, platform-native for global expansion.
+> **Purpose:** Full business case for BENE Intelligence — ICP, feature phases, monetization, go-to-market, risks, and open questions. US market first, platform-native for global expansion.
 
 ---
 
@@ -29,7 +29,7 @@ This happens multiple times a week at every agency. The cost is not just time �
 
 **Upload once. AI organises everything. Search finds any venue in seconds.**
 
-iQ BENE turns fragmented venue documentation into a structured, searchable intelligence layer.
+BENE turns fragmented venue documentation into a structured, searchable intelligence layer.
 
 Drop in a venue deck, a floor plan, a photo set, a spec sheet — the platform reads all of it automatically and extracts what matters: capacity in every room configuration, amenities, catering policy, AV specs, restrictions, contacts, pricing indicators. Every venue becomes a rich, queryable profile instead of a pile of files.
 
@@ -103,7 +103,7 @@ The long-horizon direction is a two-sided marketplace: event professionals manag
 
 **Event manager / account manager (agency)**
 
-- Uses iQ BENE on every client brief — searches first, uploads new venues after site visits
+- Uses BENE on every client brief — searches first, uploads new venues after site visits
 - Cares about: search speed, accurate extraction, mobile upload during site visits
 - Aha moment: types a client requirement and gets the right venue back in under ten seconds
 - Churn risk: if search results are inaccurate or extraction misses key fields, they stop trusting it and go back to email
@@ -146,7 +146,7 @@ The long-horizon direction is a two-sided marketplace: event professionals manag
 
 **Confidence.** Every data point is sourced. The system shows which document it came from, what page, and how confident it is. Event professionals can verify anything with one click.
 
-**Conflict resolution.** When two documents give different capacity numbers, iQ BENE surfaces the conflict and lets the manager resolve it once — rather than discovering the discrepancy mid-proposal.
+**Conflict resolution.** When two documents give different capacity numbers, BENE surfaces the conflict and lets the manager resolve it once — rather than discovering the discrepancy mid-proposal.
 
 ---
 
@@ -237,7 +237,7 @@ The long-horizon direction is a two-sided marketplace: event professionals manag
 
 **Long horizon — marketplace and client-facing features**
 
-Venues claiming profiles, planner-to-venue discovery across the full iQ BENE network, venue subscriptions for enhanced visibility, and client-facing shareable views are long-horizon directions. They are not part of Phase 1, 2, or 3 planning. See [vision.md](../roadmap/vision.md) for the long-horizon framing.
+Venues claiming profiles, planner-to-venue discovery across the full BENE network, venue subscriptions for enhanced visibility, and client-facing shareable views are long-horizon directions. They are not part of Phase 1, 2, or 3 planning. See [vision.md](../roadmap/vision.md) for the long-horizon framing.
 
 ---
 
@@ -319,22 +319,22 @@ The platform launches US-first to validate the core product. The architecture su
 
 The detailed competitive landscape analysis is in [comparison.md](comparison.md). Summary:
 
-**vs. Dropbox / Google Drive** — they store files. iQ BENE understands them. A manager can ask a question and get an answer, not a list of files to open.
+**vs. Dropbox / Google Drive** — they store files. BENE understands them. A manager can ask a question and get an answer, not a list of files to open.
 
-**vs. Airtable / Notion** — flexible general-purpose tools that require manual data entry. Every field someone types in is a field that goes out of date. iQ BENE extracts from source documents automatically.
+**vs. Airtable / Notion** — flexible general-purpose tools that require manual data entry. Every field someone types in is a field that goes out of date. BENE extracts from source documents automatically.
 
-**vs. Cvent / VenueScanner / VenueFindAI** — marketplace and discovery tools that know what venues self-submit publicly. iQ BENE works with documents the manager already has, extracted into a private team-owned knowledge base. Complementary, not competing.
+**vs. Cvent / VenueScanner / VenueFindAI** — marketplace and discovery tools that know what venues self-submit publicly. BENE works with documents the manager already has, extracted into a private team-owned knowledge base. Complementary, not competing.
 
 **vs. Bynder / Brandfolder** — store and tag files for brand teams. No venue-specific schema, no structured extraction, no understanding of capacity or catering policy.
 
-**vs. Spark (GEVME/PCMA)** — helps event professionals write faster. Does not help them know their venues better. iQ BENE provides the venue intelligence that makes Spark's output accurate and specific.
+**vs. Spark (GEVME/PCMA)** — helps event professionals write faster. Does not help them know their venues better. BENE provides the venue intelligence that makes Spark's output accurate and specific.
 
-**The gap iQ BENE fills:** nobody provides document intelligence specifically for event professionals managing their own venue portfolio. The slot is unoccupied.
+**The gap BENE fills:** nobody provides document intelligence specifically for event professionals managing their own venue portfolio. The slot is unoccupied.
 
-**iQ BENE's durable edge:**
+**BENE's durable edge:**
 
 - Venue-specific extraction schema — the exact fields event professionals use (capacity configurations, catering policy, curfew, rigging points, load-in access)
-- Multi-source aggregation with conflict resolution — when five documents disagree, iQ BENE surfaces it and resolves it rather than silently picking one value
+- Multi-source aggregation with conflict resolution — when five documents disagree, BENE surfaces it and resolves it rather than silently picking one value
 - Full provenance — every data point traces back to a source document and page
 - Global-ready from day one — architecture, not afterthought
 
@@ -356,7 +356,7 @@ Personal and direct. No paid acquisition yet.
 
 - Product Hunt launch
 - Industry press: BizBash, Skift Meetings, EventMB
-- Content marketing: "The state of venue research in 2026" — a short survey and report that surfaces the pain quantitatively, positions iQ BENE as the authority, and generates inbound leads
+- Content marketing: "The state of venue research in 2026" — a short survey and report that surfaces the pain quantitatively, positions BENE as the authority, and generates inbound leads
 - Demo video (two to three minutes): live AI extraction from a real venue PDF, no narration needed
 - PCMA and MPI partnership / sponsorship
 
@@ -399,4 +399,4 @@ Personal and direct. No paid acquisition yet.
 
 ---
 
-**Docs:** [What is iQ BENE?](../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../platform/architecture.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is BENE?](../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../platform/architecture.md) · [Vision](../roadmap/vision.md)

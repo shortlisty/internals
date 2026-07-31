@@ -1,4 +1,4 @@
-# AGENTS.md — Documentation Rules for iQ BENE System Design
+# AGENTS.md — Documentation Rules for BENE System Design
 
 > Rules, structure, and patterns for every document in this repository.
 > Any agent, contributor, or tool writing or editing docs here must follow this file.
@@ -7,7 +7,7 @@
 
 ## 1. What this repository is for
 
-This repository is the **single source of truth for iQ BENE's pre-build and in-flight system design**. It covers:
+This repository is the **single source of truth for BENE's pre-build and in-flight system design**. It covers:
 
 - Business rationale and competitive positioning
 - Architecture decisions and domain model
@@ -156,7 +156,7 @@ Do not invent new audience tags. If a document genuinely serves two separate aud
 ### 4.9 Competitive landscape (`docs/business/comparison.md`)
 
 - Structured as: per-competitor sections followed by a gap summary matrix.
-- Each competitor section has exactly: What it is, Strengths, Gaps relevant to iQ BENE, Verdict.
+- Each competitor section has exactly: What it is, Strengths, Gaps relevant to BENE, Verdict.
 - The verdict is one sentence only.
 - The gap matrix is a Markdown table. Add a column for every competitor analysed.
 
@@ -188,7 +188,7 @@ Do not invent new audience tags. If a document genuinely serves two separate aud
 ```markdown
 ---
 
-**Docs:** [What is iQ BENE?](../README.md) · [link](path) · [link](path)
+**Docs:** [What is BENE?](../README.md) · [link](path) · [link](path)
 ```
 
 - The navigation footer must be the last element in the file.
@@ -267,4 +267,4 @@ If a rule in this file is wrong or needs updating, change this file first, then 
 
 ---
 
-**Docs:** [What is iQ BENE?](docs/README.md) · [Architecture](docs/platform/architecture.md) · [Roadmap Vision](docs/roadmap/vision.md)
+**Docs:** [What is BENE?](docs/README.md) · [Architecture](docs/platform/architecture.md) · [Roadmap Vision](docs/roadmap/vision.md)

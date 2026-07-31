@@ -15,7 +15,7 @@ Every event involves five distinct roles. Understanding them is the key to under
 
 **Event producer / production team** — the people who execute the event on the ground: stage managers, technical directors, production managers, crew coordinators. They care about timelines, equipment, labour, and budgets for a specific event.
 
-**Event manager / agency** — the professional who finds the right venue for a client, briefs it, and coordinates the high-level plan. They work across many venues and many clients. Their job is to know the landscape of available venues and match briefs to the right space. This is the role iQ BENE is built for.
+**Event manager / agency** — the professional who finds the right venue for a client, briefs it, and coordinates the high-level plan. They work across many venues and many clients. Their job is to know the landscape of available venues and match briefs to the right space. This is the role BENE Intelligence is built for.
 
 **End client** — the person or company commissioning the event: a bride and groom, a corporate marketing team, a conference organiser. They do not manage venues or production — they receive the output of the event manager's work.
 
@@ -106,9 +106,9 @@ The slot is vacant not because nobody noticed it, but because every incumbent's 
 
 ---
 
-## Where iQ BENE sits
+## Where BENE sits
 
-iQ BENE is the tool for the vacant slot: the event manager's venue knowledge base.
+BENE Intelligence is the tool for the vacant slot: the event manager's venue knowledge base.
 
 It sits downstream of discovery (you already know the venues) and upstream of production (you are still in the briefing and selection phase). It serves one role — the event manager and the agency they work in — and does one thing: turns the venue documents they already have into a structured, searchable, shared library.
 
@@ -120,4 +120,4 @@ For the business case: [proposal.md](proposal.md).
 
 ---
 
-**Docs:** [What is iQ BENE?](../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is BENE?](../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Vision](../roadmap/vision.md)

@@ -1,13 +1,13 @@
 # Battlecards
 
 > **Audience:** Founders, team.
-> **Purpose:** Per-competitor handling for live sales conversations. One card per competitor: what they are strong at, where they fall short for our buyer, and how to position iQ BENE when a prospect brings them up.
+> **Purpose:** Per-competitor handling for live sales conversations. One card per competitor: what they are strong at, where they fall short for our buyer, and how to position BENE when a prospect brings them up.
 
 ---
 
 ## How to use these
 
-A prospect will rarely say "I'm comparing you to Bynder." More often they say "we already use Google Drive" or "our agency uses Cvent" or "can't ChatGPT just do this?" These cards give you the framing to acknowledge their tool, validate it where it deserves it, and land iQ BENE's differentiation without disparaging the competitor.
+A prospect will rarely say "I'm comparing you to Bynder." More often they say "we already use Google Drive" or "our agency uses Cvent" or "can't ChatGPT just do this?" These cards give you the framing to acknowledge their tool, validate it where it deserves it, and land BENE's differentiation without disparaging the competitor.
 
 The verdict in each card is the one sentence to leave the prospect with.
 
@@ -25,7 +25,7 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "Cvent is great for discovering venues you haven't worked with yet. iQ BENE is for the venues you already know and trust — the ones in your email, your shared drive, your colleagues' heads. They solve different problems. Some of our customers use both."
+> "Cvent is great for discovering venues you haven't worked with yet. BENE Intelligence is for the venues you already know and trust — the ones in your email, your shared drive, your colleagues' heads. They solve different problems. Some of our customers use both."
 
 **Win condition:** The prospect recognises that most of their searches are for venues they already have files on, not venues they are discovering for the first time.
 
@@ -39,7 +39,7 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "VenueScanner helps you find venues you don't know yet. iQ BENE helps you get more value from the venues you already know. A planner who has worked in London for five years doesn't need to discover new venues — they need to find the right one from the hundred they already trust. That's the gap we fill."
+> "VenueScanner helps you find venues you don't know yet. BENE helps you get more value from the venues you already know. A planner who has worked in London for five years doesn't need to discover new venues — they need to find the right one from the hundred they already trust. That's the gap we fill."
 
 **Win condition:** The prospect is a mid-career planner with an existing venue portfolio, not someone just starting out.
 
@@ -53,7 +53,7 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "VenueFindAI finds venues for you. iQ BENE organises the ones you've already found. Most experienced planners have a shortlist of trusted venues they return to — iQ BENE makes all the intelligence from those venues searchable and shared with your team."
+> "VenueFindAI finds venues for you. BENE organises the ones you've already found. Most experienced planners have a shortlist of trusted venues they return to — BENE makes all the intelligence from those venues searchable and shared with your team."
 
 **Win condition:** The prospect values their existing venue relationships over discovery of new ones.
 
@@ -69,7 +69,7 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "Tripleseat is what the venues you work with use to manage their side. iQ BENE is what you use to manage yours. They're on opposite sides of the same relationship."
+> "Tripleseat is what the venues you work with use to manage their side. BENE Intelligence is what you use to manage yours. They're on opposite sides of the same relationship."
 
 **Win condition:** The prospect understands they are the buyer, not the venue. Usually instant.
 
@@ -95,7 +95,7 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "Google Drive is where your files live. iQ BENE is what lets you actually use them. You don't have to replace Drive — you upload to iQ BENE the files that matter, and it reads them so you don't have to."
+> "Google Drive is where your files live. BENE Intelligence is what lets you actually use them. You don't have to replace Drive — you upload to BENE the files that matter, and it reads them so you don't have to."
 
 **Win condition:** The prospect has ever spent more than ten minutes searching through Drive for a specific venue detail. Almost universal.
 
@@ -109,7 +109,7 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:** Unlikely for SMB agencies given the price point. If it comes up in a corporate context:
 
-> "Bynder is built for marketing asset management — logos, campaign images, brand documents. It has no concept of venue semantics. Their AI would tag a venue floor plan as 'building interior' and stop there. iQ BENE extracts the capacity table, the room names, the AV specs, and makes them searchable."
+> "Bynder is built for marketing asset management — logos, campaign images, brand documents. It has no concept of venue semantics. Their AI would tag a venue floor plan as 'building interior' and stop there. BENE extracts the capacity table, the room names, the AV specs, and makes them searchable."
 
 **Win condition:** The prospect has tried tagging venue documents in a generic DAM and found the results useless.
 
@@ -135,7 +135,7 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "ChatGPT can answer a question about one PDF right now. iQ BENE remembers every document you've ever uploaded, extracts structured data your whole team can search, and tells you when two documents about the same venue disagree. It's the difference between a conversation and a knowledge base."
+> "ChatGPT can answer a question about one PDF right now. BENE remembers every document you've ever uploaded, extracts structured data your whole team can search, and tells you when two documents about the same venue disagree. It's the difference between a conversation and a knowledge base."
 
 **Win condition:** The prospect has tried using ChatGPT for venue research and found it useful for one-off questions but frustrating for anything that requires memory or team access.
 
@@ -149,9 +149,9 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "Spark helps you write faster. iQ BENE helps you know more. They're complementary — use Spark to draft the RFP, use iQ BENE to make sure the venue details in that RFP are accurate. Some of our target customers already use Spark."
+> "Spark helps you write faster. BENE helps you know more. They're complementary — use Spark to draft the RFP, use BENE to make sure the venue details in that RFP are accurate. Some of our target customers already use Spark."
 
-**Win condition:** The prospect sees the tools as additive. Position iQ BENE as the knowledge layer that makes Spark's outputs more accurate and specific.
+**Win condition:** The prospect sees the tools as additive. Position BENE as the knowledge layer that makes Spark's outputs more accurate and specific.
 
 ---
 
@@ -163,10 +163,10 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:** They are probably a developer or technical buyer evaluating whether to build vs. buy.
 
-> "Unstructured.io is infrastructure — it handles document parsing at the API level. iQ BENE is the product built on top: the venue schema, the multi-source aggregation, the conflict resolution, the semantic search, the team collaboration layer. You could build iQ BENE's extraction pipeline using Unstructured.io. We did it better and faster with Apache Tika and Spring AI, and we wrapped it in a product that planners can use without touching an API."
+> "Unstructured.io is infrastructure — it handles document parsing at the API level. BENE Intelligence is the product built on top: the venue schema, the multi-source aggregation, the conflict resolution, the semantic search, the team collaboration layer. You could build BENE's extraction pipeline using Unstructured.io. We did it better and faster with Apache Tika and Spring AI, and we wrapped it in a product that planners can use without touching an API."
 
 **Win condition:** The prospect is evaluating build vs. buy. The answer is almost always buy unless they have a team of ML engineers with nothing else to do.
 
 ---
 
-**Docs:** [What is iQ BENE?](../../README.md) · [Business Proposal](../proposal.md) · [Competitive Landscape](../comparison.md) · [Pitch](pitch.md) · [Objections](objections.md)
+**Docs:** [What is BENE?](../../README.md) · [Business Proposal](../proposal.md) · [Competitive Landscape](../comparison.md) · [Pitch](pitch.md) · [Objections](objections.md)
