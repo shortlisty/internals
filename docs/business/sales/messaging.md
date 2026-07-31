@@ -27,49 +27,105 @@ Status values: `Candidate` | `Approved` | `Retired`
 
 ### Primary tagline
 
-| Copy                                                                               | Status    | Notes                                           |
-| ---------------------------------------------------------------------------------- | --------- | ----------------------------------------------- |
-| Beneficial AI-powered asset management and instant spec search for Event Agencies. | Candidate | Functional and clear. Long for a hero headline. |
+| Copy                                             | Status   | Notes                                                                                                 |
+| ------------------------------------------------ | -------- | ----------------------------------------------------------------------------------------------------- |
+| Every venue your team knows. Finally searchable. | Approved | Outcome-first. ICP language. Used in homepage H1.                                                     |
+| Turn scattered venue files into instant answers. | Retired  | Leads with AI transformation, not the outcome. Good for secondary copy but not as a primary headline. |
 
 ### Punchy alternatives
 
-| Copy                                                                              | Status    | Notes                                                     |
-| --------------------------------------------------------------------------------- | --------- | --------------------------------------------------------- |
-| Beneficial Intelligence for Event Logistics: Instant Specs, Smart Assets.         | Candidate | Colon structure works well in headlines.                  |
-| Beneficial AI for Event Agencies: From Unstructured Specs to Instant Layouts.     | Candidate | Technical angle — resonates with ops-minded buyers.       |
-| Smart Asset Management & Instant Spec Search — Built for Fast-Moving Event Teams. | Candidate | No AI mention. Tests whether the AI framing is necessary. |
+| Copy                                                                              | Status    | Notes                                                         |
+| --------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------- |
+| Stop losing venue knowledge. Start finding it in seconds.                         | Candidate | Pain-first. Strong for outreach and ads.                      |
+| Your team's venue knowledge, all in one place.                                    | Candidate | Softer, KB-positioning. Good for nurture email subject lines. |
+| Beneficial AI-Powered Asset Management & Instant Spec Search for Event Agencies.  | Retired   | Category-first, not ICP language. Too technical for homepage. |
+| Beneficial Intelligence for Event Logistics: Instant Specs, Smart Assets.         | Retired   | Colon structure okay in headlines but too jargon-heavy.       |
+| Beneficial AI for Event Agencies: From Unstructured Specs to Instant Layouts.     | Retired   | Technical angle — not the right tone for agency owner buyers. |
+| Smart Asset Management & Instant Spec Search — Built for Fast-Moving Event Teams. | Retired   | No AI mention feels incomplete now. Replaced by approved set. |
 
 ---
 
 ## Hero section
 
-### Version A — Full hero block
+### Version B — Outcome-first (current homepage)
 
-**Status:** `Candidate`
+**Status:** `Approved`
+
+```
+Venue knowledge base · For event planning teams
+
+Every venue your team knows.
+Finally searchable.
+
+Drop in a PDF, floor plan, or spec sheet. BENE reads it and turns it into a
+structured venue profile your whole team can search in seconds — not 45 minutes.
+
+No spreadsheets. No manual entry. No lost knowledge when someone leaves.
+```
+
+**Notes:** AI is present through the verb "reads" — not announced. Outcome leads. ICP recognises the 45-minute problem immediately.
+
+---
+
+### Version A — Transformation-first (previous homepage)
+
+**Status:** `Retired`
 
 ```
 BENE
 
-Beneficial AI-Powered Asset Management & Instant Spec Search for Event Agencies
+Venue Intelligence · For event planning teams
 
-Stop digging through 50-page venue PDFs, broken links, and scattered CAD decks.
-BENE ingests every floor plan, power limit, and spatial spec into a single,
-vector-searchable workspace.
+Turn scattered venue files into instant answers.
 
-Search specs in seconds. Manage spatial assets effortlessly. Build flawless proposals.
+Event planning agencies manage hundreds of venues — but the venue intelligence
+lives in scattered PDFs, inboxes, floor plans, spec sheets, and people's heads.
+When a client asks for a venue matching specific capacity, catering policy, or AV
+specs, the answer takes 45 minutes to dig up.
+
+BENE Intelligence extracts and structures every venue detail automatically —
+room capacities, catering restrictions, AV equipment, logistics, contacts.
+Your whole team searches any venue detail in seconds.
 ```
 
-**Notes:** Strong opening problem statement. "Vector-searchable workspace" may be too technical for non-engineer buyers — test with agency owners before committing.
+**Notes:** Retired in favour of Version B. Problem statement was too long for a hero. Led with the AI transformation rather than the outcome the ICP cares about.
+
+---
+
+## Workaround strip
+
+Short cross-reference copy for the "replaces your current tools" section. SEO signal + ICP recognition.
+
+### Set A
+
+**Status:** `Approved`
+
+| Tool                   | Copy                                                                                                         |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Google Drive & Dropbox | Your files stay where they are. BENE reads them and makes every detail searchable — without moving anything. |
+| Notion & Airtable      | No more manual entry that goes stale. Upload a venue deck and BENE fills the record automatically.           |
+| Spreadsheets           | Every planner has one. Nobody trusts it. Replace it with a shared venue library that updates itself.         |
+
+**Section label:** Works where your team already works
 
 ---
 
 ## Value pillars
 
-These are the three-pillar structures for landing page sections, pitch decks, and one-pagers. Each pillar has a headline, a one-sentence description, and optional supporting detail.
+### Set B — Outcome framing (current)
 
-### Set A — Technical framing
+**Status:** `Approved`
 
-**Status:** `Candidate`
+| Pillar                 | Headline                            | Description                                                                                                                  |
+| ---------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Knowledge preservation | Venue knowledge that stays          | When a planner leaves, their venue expertise stays in the team library — not in their inbox or personal folders.             |
+| Instant retrieval      | Find any venue detail in seconds    | Search your entire portfolio in plain language. "200 capacity, kosher catering, downtown" returns the right venue instantly. |
+| Effortless ingestion   | Upload once. BENE does the rest.    | Drop a PDF, floor plan, or spec sheet. Capacity, catering, AV specs, restrictions, and contacts — extracted automatically.   |
+| Team-wide access       | Everyone on your team can search it | New hires get up to speed on the full portfolio from day one. No tribal knowledge ramp-up.                                   |
+
+### Set A — Technical framing (previous)
+
+**Status:** `Retired`
 
 | Pillar                   | Headline                    | Description                                                                                                                                  |
 | ------------------------ | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -77,19 +133,57 @@ These are the three-pillar structures for landing page sections, pitch decks, an
 | Smart asset management   | 📂 Smart Asset Management   | Centralise PDFs, high-res floor plans, vector layouts, and media decks in one canonical single source of truth.                              |
 | Beneficial AI extraction | 🤖 Beneficial AI Extraction | Automatically parse unstructured venue decks into structured, actionable spatial data without manual data entry.                             |
 
-**Notes:** "DAM" label dropped in favour of "Smart Asset Management" — cleaner for non-technical buyers. Emoji icons are placeholders; confirm whether the design system uses them before publishing.
+**Notes:** "DAM" and "asset management" language dropped — too technical for agency owner buyers. Emoji icons confirmed as placeholders only; not used in production.
+
+---
+
+## How it works — 3 steps
+
+**Status:** `Approved`
+
+1. **Add a venue** — name and address to start, or bulk import from a spreadsheet
+2. **Upload your files** — PDFs, floor plans, photos, spec sheets, anything venues have sent you
+3. **Search everything** — your whole team can find any venue detail instantly
+
+_If BENE gets something wrong, fix it with one click._
+
+---
+
+## FAQ copy (SEO block)
+
+**Status:** `Approved`
+
+These questions are phrased to match natural search queries. Used verbatim in the homepage FAQ section.
+
+| Question                                               | Answer                                                                                                                                                                                                                     |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Can I search venue PDFs without opening them?          | Yes. BENE reads every uploaded document and makes the contents searchable — capacity, catering rules, AV specs, restrictions, contacts — across your entire portfolio.                                                     |
+| How do event agencies track venue specifications?      | Most agencies use a mix of Google Drive folders, Notion pages, Airtable databases, and spreadsheets. BENE replaces that patchwork with a single structured venue library that updates automatically from source documents. |
+| What happens to venue knowledge when a planner leaves? | In most agencies, it leaves with them. BENE keeps every extracted venue detail in a shared team library — independent of individuals.                                                                                      |
+| Do I need to enter venue data manually?                | No. Upload a venue PDF, floor plan, or spec sheet and BENE extracts the structured data automatically. Manual entry is available for corrections and additions.                                                            |
+| Is this only for large agencies?                       | No. Solo planners and small teams use BENE to stop carrying venue knowledge in their heads. Larger agencies use it to protect institutional knowledge and onboard new hires faster.                                        |
 
 ---
 
 ## Positioning statements
 
-Short statements for use in email outreach, LinkedIn copy, and investor context.
+| Copy                                                                                                                                                            | Status    | Notes                                                     |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | --------------------------------------------------------- |
+| BENE turns the pile of venue files your team has collected over the years into a searchable, shared knowledge base.                                             | Approved  | Canonical. Used in docs/README.md and footer CTA.         |
+| Stop digging through 50-page venue PDFs. BENE reads them and makes every detail searchable in seconds.                                                          | Approved  | Direct pain-first opener. Good for outreach and ads.      |
+| The venue knowledge your team has built over years is buried in files. BENE gives it a brain.                                                                   | Candidate | Metaphor variant. Test against pain-first opener above.   |
+| Your team has spent years building expertise on hundreds of venues. BENE turns that into a searchable, shared library — so the knowledge stays, whoever leaves. | Approved  | Used in homepage footer CTA. Retention + knowledge angle. |
 
-| Copy                                                                                                                | Status    | Notes                                        |
-| ------------------------------------------------------------------------------------------------------------------- | --------- | -------------------------------------------- |
-| BENE turns the pile of venue files your team has collected over the years into a searchable, shared knowledge base. | Approved  | Canonical. Used in docs/README.md.           |
-| Stop digging through 50-page venue PDFs. BENE reads them and makes every detail searchable in seconds.              | Candidate | Direct pain-first opener. Good for outreach. |
-| The venue knowledge your team has built over years is buried in files. BENE gives it a brain.                       | Candidate | Metaphor variant. Test against the above.    |
+---
+
+## AI presence rule
+
+AI must appear on the page — but as a _how_, not the headline.
+
+- ✅ Named once in benefits copy, followed immediately by a concrete list of what it extracts
+- ✅ Present through action verbs elsewhere: _reads, extracts, fills, parses_
+- ❌ Not in the H1, eyebrow, or primary tagline
+- ❌ Not as a category label ("AI-powered platform") without an immediate payoff
 
 ---
 
@@ -97,8 +191,9 @@ Short statements for use in email outreach, LinkedIn copy, and investor context.
 
 - The B.E.N.E. acronym expansion is a secondary layer — it should never need explaining. The name works without it.
 - "Beneficial" as a recurring word threads through taglines and pillars. It reinforces the acronym without spelling it out.
-- "iQ" prefix connects to the IQ Key Value platform family. Keep it consistent: `BENE`, not `IQ Bene`, `iqbene`, or `IQBene` in any external copy.
-- "Venue Intelligence Platform" is the product category name used in technical and architectural documents. In sales and marketing copy, prefer "AI-powered asset management and spec search" — it describes the job to be done, not the product category.
+- Keep it consistent: `BENE Intelligence`, not `IQ Bene`, `IQBene` in any external copy.
+- "Venue Intelligence Platform" is the product category name used in technical and architectural documents. In sales and marketing copy, prefer "venue knowledge base" or "venue library" — language the ICP uses naturally.
+- "AI-powered venue knowledge base for event planning agencies" is the approved phrasing for meta descriptions and structured data, where category language serves SEO without cluttering the visitor experience.
 
 ---
 
