@@ -1,6 +1,6 @@
 # What is iQ BENE?
 
-_What this is, why it exists, and whether it makes sense as a business — no jargon._
+_What this is, why it exists, and whether it makes sense as a business._
 
 **Docs:** [What is iQ BENE?](README.md) · [Market Structure](business/market.md) · [Product Structure](business/product.md) · [Business Proposal](business/proposal.md) · [Competitive Landscape](business/comparison.md) · [Architecture](platform/architecture.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
 
