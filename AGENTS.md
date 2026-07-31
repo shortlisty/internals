@@ -21,7 +21,7 @@ It is **not** a code repository, a changelog of Git commits, or a deployment run
 ## 2. Repository structure
 
 ```
-iqbene-system-design-documentation/
+system-design-documentation/
 ├── AGENTS.md                          ← This file. Read before writing anything.
 ├── CHANGELOG.md                       ← Product-level doc changelog (not Git log)
 ├── README.md                          ← Entry point. Navigation table only.

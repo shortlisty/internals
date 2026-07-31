@@ -36,9 +36,9 @@ Read [AGENTS.md](AGENTS.md) before adding or editing any document. It defines th
 
 BENE Intelligence is a new product built on top of the IQ Key Value open-source foundation. It introduces two services and one shared library:
 
-- **`iqbene-venue-service`** — core domain: venue profiles, assets, metadata, search, plan enforcement
-- **`iqbene-venue-ingestion-worker`** — async sidecar: document ETL, AI extraction, embeddings, scheduled jobs
-- **`iqbene-venue-model`** — shared library: domain entities, event contracts, Liquibase migrations
+- **`bene-venue-service`** — core domain: venue profiles, assets, metadata, search, plan enforcement
+- **`bene-venue-ingestion-worker`** — async sidecar: document ETL, AI extraction, embeddings, scheduled jobs
+- **`bene-venue-model`** — shared library: domain entities, event contracts, Liquibase migrations
 
 **Stage:** pre-launch MVP — design complete, implementation not yet started.
 Open decisions: [Architecture §15](docs/platform/architecture.md#15-open-decisions-resolve-before-sprint-1).

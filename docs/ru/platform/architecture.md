@@ -22,9 +22,9 @@ BENE Intelligence — это новый продуктовый сервис, п�
 
 **Новые сервисы, вводимые BENE Intelligence:**
 
-- `iqbene-venue-model` — общая библиотека (JAR). Каноническая доменная модель, контракты событий, перечисления и миграции Liquibase. Нет Spring-бин, нет бизнес-логики — чистая модель и схема. Импортируется обоими сервисами.
-- `iqbene-venue-service` — основная доменная логика: площадки, активы, метаданные, поиск, применение правил тарифа, поиск в реестре площадок. Только синхронные запрос/ответ.
-- `iqbene-venue-ingestion-worker` — асинхронный сайдкар: ETL-конвейер документов, оркестрация извлечения, генерация эмбеддингов, сопоставление с реестром, плановые задания. Нет входящего HTTP — только событийно-управляемый. Использует ту же схему PostgreSQL, что и `iqbene-venue-service`.
+- `bene-venue-model` — общая библиотека (JAR). Каноническая доменная модель, контракты событий, перечисления и миграции Liquibase. Нет Spring-бин, нет бизнес-логики — чистая модель и схема. Импортируется обоими сервисами.
+- `bene-venue-service` — основная доменная логика: площадки, активы, метаданные, поиск, применение правил тарифа, поиск в реестре площадок. Только синхронные запрос/ответ.
+- `bene-venue-ingestion-worker` — асинхронный сайдкар: ETL-конвейер документов, оркестрация извлечения, генерация эмбеддингов, сопоставление с реестром, плановые задания. Нет входящего HTTP — только событийно-управляемый. Использует ту же схему PostgreSQL, что и `bene-venue-service`.
 
 **Новая инфраструктура, вводимая BENE Intelligence:**
 
@@ -277,13 +277,13 @@ REGISTRY            → данные реестра платформы (наим
                     └────────┬─────────┘     └────────┬─────────┘
                              │                        │ полномочия тарифа
                     ┌────────▼────────────────────────▼─────────┐
-                    │            iqbene-venue-service             │
+                    │            bene-venue-service             │
                     │  площадки · активы · метаданные · поиск · api │
                     └────────┬──────────────┬──────────┬─────────┘
                              │ RabbitMQ:    │ ч/з       │ подписанный URL
                              │ asset.uploa- │           │ выдача + удаление
                     ┌────────▼─────────┐  ┌─▼──────────▼──────┐
-                    │ iqbene-ingestion- │  │   PostgreSQL        │
+                    │ bene-ingestion- │  │   PostgreSQL        │
                     │    worker        │──►│   t_{tenant}        │
                     │ (async sidecar)  │  │   + pgvector        │
                     └────────┬─────────┘  │   + PostGIS         │
@@ -299,49 +299,49 @@ REGISTRY            → данные реестра платформы (наим
                                           └─────────────────────┘
 ```
 
-### iqbene-venue-service
+### bene-venue-service
 
 - **Обязанности:** CRUD площадок, поток загрузки активов (подписанный URL), чтение/запись метаданных, API поиска, применение полномочий тарифа, поиск в реестре площадок
-- **База данных:** владеет схемой BENE в PostgreSQL. Тенантность на уровне схем через `foundation-tenancy` — каждый тенант получает свою схему `t_{tenantKey}`. Нет столбца `tenant_id` ни в одной таблице; маршрутизация по схеме обрабатывается `MyBatisSchemaInterceptor`. Общая с `iqbene-venue-ingestion-worker` — без кросс-сервисных API-вызовов для данных.
+- **База данных:** владеет схемой BENE в PostgreSQL. Тенантность на уровне схем через `foundation-tenancy` — каждый тенант получает свою схему `t_{tenantKey}`. Нет столбца `tenant_id` ни в одной таблице; маршрутизация по схеме обрабатывается `MyBatisSchemaInterceptor`. Общая с `bene-venue-ingestion-worker` — без кросс-сервисных API-вызовов для данных.
 - **Предоставляет:** REST API на `/api/v1/venues`
 - **Публикует:** `venue.created`, `venue.updated`, `asset.uploaded`, `asset.deleted` (RabbitMQ)
 - **Потребляет:** `extraction.completed`, `extraction.failed` (RabbitMQ) — запускает агрегацию метаданных
 
-### iqbene-venue-ingestion-worker
+### bene-venue-ingestion-worker
 
 - **Обязанности:** ETL-конвейер документов (парсинг → чанкинг → извлечение → эмбеддинг), жизненный цикл заданий извлечения, сопоставление с реестром и заполнение пробелов, агрегация метаданных, плановые обслуживающие задания (обновление устаревшей агрегации, отчёты по стоимости)
 - **Природа:** асинхронный сайдкар — нет входящего HTTP, нет REST API, нет записи в service discovery. Только событийно-управляемый.
-- **База данных:** общая схема PostgreSQL с `iqbene-venue-service`. Читает `venue_assets`, пишет `extraction_jobs`, `venue_metadata_events`, `venue_vectors`, `ai_cost_tracking`. Также читает `public.venue_registry` для шага сопоставления с реестром.
+- **База данных:** общая схема PostgreSQL с `bene-venue-service`. Читает `venue_assets`, пишет `extraction_jobs`, `venue_metadata_events`, `venue_vectors`, `ai_cost_tracking`. Также читает `public.venue_registry` для шага сопоставления с реестром.
 - **Потребляет:** `asset.uploaded` (RabbitMQ) — запускает ETL-конвейер
 - **Публикует:** `extraction.started`, `extraction.completed`, `extraction.failed` (RabbitMQ)
 - **Внешние вызовы:** OpenAI API (GPT-4o, text-embedding-3-small), опционально сайдкар Docling (Фаза 2)
-- **Масштабирование:** реплики масштабируются независимо на основе глубины очереди RabbitMQ — без влияния на `iqbene-venue-service`
+- **Масштабирование:** реплики масштабируются независимо на основе глубины очереди RabbitMQ — без влияния на `bene-venue-service`
 
 ### Владение таблицами
 
 Оба сервиса используют одну схему PostgreSQL. Владение определяет, кто может писать в таблицу. Кросс-граничные чтения разрешены; кросс-граничные записи — нет.
 
-| Таблица                 | Владелец                        | Другой сервис может…                                                                |
-| ----------------------- | ------------------------------- | ----------------------------------------------------------------------------------- |
-| `venues`                | `iqbene-venue-service`          | читать (ingestion-worker: только разрешать venue_id)                                |
-| `venue_assets`          | `iqbene-venue-service`          | читать (ingestion-worker: получать актив для обработки)                             |
-| `venue_metadata_events` | `iqbene-venue-service`          | писать через реакцию на событие (`extraction.completed` → venue-service агрегирует) |
-| `extraction_jobs`       | `iqbene-venue-ingestion-worker` | читать (venue-service: показывать статус задания в API)                             |
-| `venue_vectors`         | `iqbene-venue-ingestion-worker` | читать (venue-service: векторные поисковые запросы)                                 |
-| `ai_cost_tracking`      | `iqbene-venue-ingestion-worker` | читать (venue-service: показывать сводку по стоимости в API)                        |
+| Таблица                 | Владелец                      | Другой сервис может…                                                                |
+| ----------------------- | ----------------------------- | ----------------------------------------------------------------------------------- |
+| `venues`                | `bene-venue-service`          | читать (ingestion-worker: только разрешать venue_id)                                |
+| `venue_assets`          | `bene-venue-service`          | читать (ingestion-worker: получать актив для обработки)                             |
+| `venue_metadata_events` | `bene-venue-service`          | писать через реакцию на событие (`extraction.completed` → venue-service агрегирует) |
+| `extraction_jobs`       | `bene-venue-ingestion-worker` | читать (venue-service: показывать статус задания в API)                             |
+| `venue_vectors`         | `bene-venue-ingestion-worker` | читать (venue-service: векторные поисковые запросы)                                 |
+| `ai_cost_tracking`      | `bene-venue-ingestion-worker` | читать (venue-service: показывать сводку по стоимости в API)                        |
 
-Единственное законное кросс-граничное чтение из `iqbene-venue-ingestion-worker` — это `SELECT` по `venue_assets` по `asset_id` (переданному в полезной нагрузке события `asset.uploaded`). Это поиск по внешнему ключу, не бизнес-логика — допустимо и намеренно.
+Единственное законное кросс-граничное чтение из `bene-venue-ingestion-worker` — это `SELECT` по `venue_assets` по `asset_id` (переданному в полезной нагрузке события `asset.uploaded`). Это поиск по внешнему ключу, не бизнес-логика — допустимо и намеренно.
 
 ---
 
-## 4a. Общая библиотека — iqbene-venue-model
+## 4a. Общая библиотека — bene-venue-model
 
-`iqbene-venue-model` — это обычная Java-библиотека (JAR, без Spring Boot, без `@SpringBootApplication`). И `iqbene-venue-service`, и `iqbene-venue-ingestion-worker` объявляют её как compile-зависимость. Это единый источник истины для всего, по чему оба сервиса должны договориться.
+`bene-venue-model` — это обычная Java-библиотека (JAR, без Spring Boot, без `@SpringBootApplication`). И `bene-venue-service`, и `bene-venue-ingestion-worker` объявляют её как compile-зависимость. Это единый источник истины для всего, по чему оба сервиса должны договориться.
 
 **Содержимое:**
 
 ```
-iqbene-venue-model/
+bene-venue-model/
 ├── model/
 │   ├── venue/
 │   │   ├── Venue.java                  Простой POJO (корень агрегата, без JPA-аннотаций)
@@ -393,9 +393,9 @@ iqbene-venue-model/
 **Граф зависимостей:**
 
 ```
-iqbene-venue-model  (библиотека, без среды выполнения)
-      ├── iqbene-venue-service     (Spring Boot, импортирует model)
-      └── iqbene-venue-ingestion-worker  (Spring Boot, импортирует model)
+bene-venue-model  (библиотека, без среды выполнения)
+      ├── bene-venue-service     (Spring Boot, импортирует model)
+      └── bene-venue-ingestion-worker  (Spring Boot, импортирует model)
 ```
 
 ---
@@ -494,7 +494,7 @@ vip/registry/exports/{date}/{snapshot}.jsonl.gz
 Изоляция данных тенантов в S3 зеркалирует подход схема-на-тенанта в PostgreSQL:
 
 - Все объекты тенанта ограничены областью `vip/tenants/{tenantKey}/`. Кросс-тенантное чтение структурно невозможно без знания ключа другого тенанта.
-- Сервисный аккаунт, используемый `iqbene-venue-service` и `iqbene-venue-ingestion-worker`, имеет единственную S3 IAM-политику, разрешающую `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` на полный префикс `vip/*`. Подписанные URL ограничены точным ключом объекта — клиент не может перечислять или получать доступ к любому другому ключу.
+- Сервисный аккаунт, используемый `bene-venue-service` и `bene-venue-ingestion-worker`, имеет единственную S3 IAM-политику, разрешающую `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` на полный префикс `vip/*`. Подписанные URL ограничены точным ключом объекта — клиент не может перечислять или получать доступ к любому другому ключу.
 - Пути реестра (`vip/registry/*`) недоступны через подписанные URL, выданные тенантам. В них пишет только сервисный аккаунт внутреннего планового задания платформы.
 
 ---
@@ -509,7 +509,7 @@ vip/registry/exports/{date}/{snapshot}.jsonl.gz
 | Очистка обработанных импортов         | `vip/registry/imports/processed/`  | Удалить через 30 дней.                                                                                                                                                                                            |
 | Ротация снапшотов реестра             | `vip/registry/exports/`            | Хранить последние 14 ежедневных снапшотов; удалять старые.                                                                                                                                                        |
 
-Теги объектов устанавливаются `iqbene-venue-service` при `POST /assets/confirm` через `PutObjectTagging`:
+Теги объектов устанавливаются `bene-venue-service` при `POST /assets/confirm` через `PutObjectTagging`:
 
 | Ключ тега           | Значения                                        | Устанавливается                            |
 | ------------------- | ----------------------------------------------- | ------------------------------------------ |
@@ -525,9 +525,9 @@ vip/registry/exports/{date}/{snapshot}.jsonl.gz
 
 Когда тенант удаляет актив (`DELETE /assets/{id}`) или когда аккаунт тенанта закрывается:
 
-1. `iqbene-venue-service` удаляет запись `venue_assets` (каскад БД удаляет связанные extraction_jobs и metadata_events).
-2. `iqbene-venue-service` выполняет `s3:DeleteObject` для `venue_assets.s3_key`.
-3. Публикуется событие `asset.deleted` → `iqbene-venue-ingestion-worker` удаляет все строки `venue_vectors`, где `metadata->>'asset_id' = :assetId`.
+1. `bene-venue-service` удаляет запись `venue_assets` (каскад БД удаляет связанные extraction_jobs и metadata_events).
+2. `bene-venue-service` выполняет `s3:DeleteObject` для `venue_assets.s3_key`.
+3. Публикуется событие `asset.deleted` → `bene-venue-ingestion-worker` удаляет все строки `venue_vectors`, где `metadata->>'asset_id' = :assetId`.
 
 При полном удалении тенанта (право на удаление по GDPR):
 
@@ -548,7 +548,7 @@ vip/registry/exports/{date}/{snapshot}.jsonl.gz
 | **Ручной импорт администратором** | Registry Admin API (Фаза 2): `POST /admin/registry/import` → подписанный S3 PUT → задание импорта                                                                  | `admin_import`                     |
 | **Обогащение сигналами тенантов** | После extraction.completed, если данные тенанта имеют поля с высокой уверенностью, отсутствующие в реестре → событие-кандидат (Фаза 3, обратного потока в MVP нет) | — (не в MVP)                       |
 
-**Шаги задания импорта** (выполняется `iqbene-venue-ingestion-worker` по плановому триггеру или по административному событию RabbitMQ):
+**Шаги задания импорта** (выполняется `bene-venue-ingestion-worker` по плановому триггеру или по административному событию RabbitMQ):
 
 1. Перечислить объекты в `vip/registry/imports/{importId}/`.
 2. Разобрать каждый файл (CSV или JSONL). Каждая строка должна содержать минимум: `name`, `address`, `country_code`.
@@ -568,7 +568,7 @@ vip/registry/exports/{date}/{snapshot}.jsonl.gz
 
 ---
 
-## 5. ETL-конвейер (iqbene-venue-ingestion-worker)
+## 5. ETL-конвейер (bene-venue-ingestion-worker)
 
 Построен на **ETL-фреймворке Spring AI**. Три компонуемых стадии:
 
@@ -617,7 +617,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 ## 6. Архитектура поиска
 
-Весь поиск обслуживается `iqbene-venue-service`, делающим запросы напрямую в PostgreSQL. Нет отдельного поискового сервиса.
+Весь поиск обслуживается `bene-venue-service`, делающим запросы напрямую в PostgreSQL. Нет отдельного поискового сервиса.
 
 ### Режимы поиска
 
@@ -639,7 +639,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 ---
 
-## 7. Поверхность API (iqbene-venue-service)
+## 7. Поверхность API (bene-venue-service)
 
 Все эндпоинты следуют платформенным соглашениям на основе фактической реализации в `foundation-cms-service` и `foundation-iam-service`:
 
@@ -790,7 +790,7 @@ ExtractionJobResponse — id, asset_id, status, extractor_type, confidence_score
 
 Обменник: `iqkv.events` (Topic) — тот же обменник, что используют все фундаментальные сервисы.
 
-### Публикуется iqbene-venue-service
+### Публикуется bene-venue-service
 
 | Ключ маршрутизации | Поля полезной нагрузки                                          | Описание                              |
 | ------------------ | --------------------------------------------------------------- | ------------------------------------- |
@@ -799,7 +799,7 @@ ExtractionJobResponse — id, asset_id, status, extractor_type, confidence_score
 | `asset.uploaded`   | asset_id, venue_id, tenant_id, asset_type, s3_key, content_type | Актив подтверждён, готов к извлечению |
 | `asset.deleted`    | asset_id, venue_id, tenant_id                                   | Актив удалён                          |
 
-### Публикуется iqbene-venue-ingestion-worker
+### Публикуется bene-venue-ingestion-worker
 
 | Ключ маршрутизации     | Поля полезной нагрузки                        | Описание              |
 | ---------------------- | --------------------------------------------- | --------------------- |
@@ -807,14 +807,14 @@ ExtractionJobResponse — id, asset_id, status, extractor_type, confidence_score
 | `extraction.completed` | job_id, asset_id, venue_id, tenant_id         | Извлечение удалось    |
 | `extraction.failed`    | job_id, asset_id, venue_id, tenant_id, reason | Все повторы исчерпаны |
 
-### Потребляется iqbene-venue-ingestion-worker
+### Потребляется bene-venue-ingestion-worker
 
 | Ключ маршрутизации | Очередь                                   | Действие                                     |
 | ------------------ | ----------------------------------------- | -------------------------------------------- |
 | `asset.uploaded`   | `iqbene.extraction.priority` (Enterprise) | Запустить ETL-конвейер немедленно            |
 | `asset.uploaded`   | `iqbene.extraction.standard` (Free/Pro)   | Запустить ETL-конвейер (стандартная очередь) |
 
-### Потребляется iqbene-venue-service
+### Потребляется bene-venue-service
 
 | Ключ маршрутизации     | Очередь                       | Действие                                    |
 | ---------------------- | ----------------------------- | ------------------------------------------- |
@@ -851,7 +851,7 @@ ExtractionJobResponse — id, asset_id, status, extractor_type, confidence_score
 
 ## 10. Схема базы данных (Liquibase, схема тенанта)
 
-Миграции живут в `iqbene-venue-model` под `src/main/resources/db/changelog/tenant/` — общая библиотека является единым источником истины для схемы. И `iqbene-venue-service`, и `iqbene-venue-ingestion-worker` включают библиотеку в свой classpath; `iqbene-venue-service` запускает миграции при старте (или выделенный init-контейнер применяет их при предоставлении тенанта через слушатель `TenantProvisionedEvent`, тот же паттерн, что и в IAM).
+Миграции живут в `bene-venue-model` под `src/main/resources/db/changelog/tenant/` — общая библиотека является единым источником истины для схемы. И `bene-venue-service`, и `bene-venue-ingestion-worker` включают библиотеку в свой classpath; `bene-venue-service` запускает миграции при старте (или выделенный init-контейнер применяет их при предоставлении тенанта через слушатель `TenantProvisionedEvent`, тот же паттерн, что и в IAM).
 
 ### Соглашения об именовании и формате
 
@@ -975,14 +975,14 @@ db/changelog/tenant/
 
 **Схема тенанта `t_{tenantKey}` (принадлежит тенанту):**
 
-| Таблица                 | Ключевые столбцы                                                                                                                        | Владелец                        |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| `venues`                | `id` UUID PK, `status` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY                        | `iqbene-venue-service`          |
-| `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536)    | `iqbene-venue-service`          |
-| `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB | `iqbene-venue-ingestion-worker` |
-| `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — только на добавление                                   | `iqbene-venue-service`          |
-| `venue_vectors`         | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — таблица Spring AI PgVectorStore                              | `iqbene-venue-ingestion-worker` |
-| `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                             | `iqbene-venue-ingestion-worker` |
+| Таблица                 | Ключевые столбцы                                                                                                                        | Владелец                      |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| `venues`                | `id` UUID PK, `status` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY                        | `bene-venue-service`          |
+| `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536)    | `bene-venue-service`          |
+| `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB | `bene-venue-ingestion-worker` |
+| `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — только на добавление                                   | `bene-venue-service`          |
+| `venue_vectors`         | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — таблица Spring AI PgVectorStore                              | `bene-venue-ingestion-worker` |
+| `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                             | `bene-venue-ingestion-worker` |
 
 ### Сводка по стратегии индексов
 
@@ -1042,15 +1042,15 @@ src/features/venue-management/
 
 **Добавляемые метрики Prometheus:**
 
-| Метрика                              | Лейблы                            | Примечания                           |
-| ------------------------------------ | --------------------------------- | ------------------------------------ |
-| `iqbene_venues_total`                | tenant_id, status                 | Количество площадок по статусу       |
-| `iqbene_assets_uploaded_total`       | tenant_id, asset_type             | Объём загрузок                       |
-| `iqbene_extractions_total`           | tenant_id, extractor_type, status | Уровни успеха/сбоя                   |
-| `iqbene_extraction_duration_seconds` | extractor_type                    | Гистограмма задержки                 |
-| `iqbene_ai_cost_usd_total`           | tenant_id, model                  | Отслеживание стоимости               |
-| `iqbene_search_requests_total`       | search_mode                       | ключевой / семантический / гибридный |
-| `iqbene_search_latency_seconds`      | search_mode                       | Задержка поиска                      |
+| Метрика                            | Лейблы                            | Примечания                           |
+| ---------------------------------- | --------------------------------- | ------------------------------------ |
+| `bene_venues_total`                | tenant_id, status                 | Количество площадок по статусу       |
+| `bene_assets_uploaded_total`       | tenant_id, asset_type             | Объём загрузок                       |
+| `bene_extractions_total`           | tenant_id, extractor_type, status | Уровни успеха/сбоя                   |
+| `bene_extraction_duration_seconds` | extractor_type                    | Гистограмма задержки                 |
+| `bene_ai_cost_usd_total`           | tenant_id, model                  | Отслеживание стоимости               |
+| `bene_search_requests_total`       | search_mode                       | ключевой / семантический / гибридный |
+| `bene_search_latency_seconds`      | search_mode                       | Задержка поиска                      |
 
 Дашборд Grafana добавлен в `docker/grafana/provisioning/dashboards/VipService.json`.
 
