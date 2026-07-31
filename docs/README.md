@@ -1,4 +1,4 @@
-# What is BENE?
+# What is BENE Venue Intelligence?
 
 _What this is, why it exists, and whether it makes sense as a business._
 
