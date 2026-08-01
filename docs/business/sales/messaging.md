@@ -159,6 +159,7 @@ These questions are phrased to match natural search queries. Used verbatim in th
 | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Can I search venue PDFs without opening them?          | Yes. BENE reads every uploaded document and makes the contents searchable — capacity, catering rules, AV specs, restrictions, contacts — across your entire portfolio.                                                     |
 | How do event agencies track venue specifications?      | Most agencies use a mix of Google Drive folders, Notion pages, Airtable databases, and spreadsheets. BENE replaces that patchwork with a single structured venue library that updates automatically from source documents. |
+| What is venue portfolio management for event planners? | Venue portfolio management means keeping a structured, searchable record of every venue your team has worked with or evaluated — not just discovering new ones. BENE is purpose-built for this: upload the documents a venue has sent you, and BENE extracts and organises the intelligence so your whole team can find any detail in seconds. |
 | What happens to venue knowledge when a planner leaves? | In most agencies, it leaves with them. BENE keeps every extracted venue detail in a shared team library — independent of individuals.                                                                                      |
 | Do I need to enter venue data manually?                | No. Upload a venue PDF, floor plan, or spec sheet and BENE extracts the structured data automatically. Manual entry is available for corrections and additions.                                                            |
 | Is this only for large agencies?                       | No. Solo planners and small teams use BENE to stop carrying venue knowledge in their heads. Larger agencies use it to protect institutional knowledge and onboard new hires faster.                                        |
@@ -173,6 +174,8 @@ These questions are phrased to match natural search queries. Used verbatim in th
 | Stop digging through 50-page venue PDFs. BENE reads them and makes every detail searchable in seconds.                                                          | Approved  | Direct pain-first opener. Good for outreach and ads.      |
 | The venue knowledge your team has built over years is buried in files. BENE gives it a brain.                                                                   | Candidate | Metaphor variant. Test against pain-first opener above.   |
 | Your team has spent years building expertise on hundreds of venues. BENE turns that into a searchable, shared library — so the knowledge stays, whoever leaves. | Approved  | Used in homepage footer CTA. Retention + knowledge angle. |
+| The only venue portfolio management platform built for event planning teams — not for venue operators.                                                          | Candidate | Competitive framing. Strong for SEO and comparison pages. |
+| BENE is venue portfolio management for planners: every venue your team has ever worked with, structured and searchable.                                         | Candidate | Pairs well with competitive positioning against Cvent/VenueScanner. |
 
 ---
 
@@ -193,6 +196,7 @@ AI must appear on the page — but as a _how_, not the headline.
 - "Beneficial" as a recurring word threads through taglines and pillars. It reinforces the acronym without spelling it out.
 - Keep it consistent: `BENE Intelligence`, not `IQ Bene`, `IQBene` in any external copy.
 - "Venue Intelligence Platform" is the product category name used in technical and architectural documents. In sales and marketing copy, prefer "venue knowledge base" or "venue library" — language the ICP uses naturally.
+- "Venue portfolio management" is an approved alias for use in competitive contexts, battlecards, SEO copy, and any sentence that contrasts BENE with venue discovery/marketplace tools. It signals ownership of an existing set of venues rather than search for new ones — which is the precise distinction from Cvent, VenueScanner, and similar platforms. Variants in order of preference: "venue portfolio management" (most precise) → "manage your venue portfolio" (action framing) → "venue portfolio" (noun only, when the action is implied).
 - "AI-powered venue knowledge base for event planning agencies" is the approved phrasing for meta descriptions and structured data, where category language serves SEO without cluttering the visitor experience.
 
 ---

@@ -437,25 +437,136 @@ Recent well-funded entrants in the document intelligence space:
 
 ---
 
-### 1.5 Competitive Gap Summary
+### 1.5 Floor Plan Intelligence & Spatial Data Tools
 
-| Capability                               | Cvent            | Tripleseat      | Momentus        | Facilitron         | Propared         | VenueScanner    | VenueFindAI     | VenueArc        | Spark (GEVME/PCMA)    | Bynder            | Brandfolder         | Unstructured.io | BENE                |
-| ---------------------------------------- | ---------------- | --------------- | --------------- | ------------------ | ---------------- | --------------- | --------------- | --------------- | --------------------- | ----------------- | ------------------- | --------------- | ------------------- |
-| Venue discovery (marketplace)            | ✅ Best-in-class | ⛔              | ⛔              | ✅ (public sector) | ⛔               | ✅ (UK-focused) | ✅ (AI + human) | ⛔              | Partial (DestinAItor) | ⛔                | ⛔                  | ⛔              | Phase 3             |
-| Planner's own venue library              | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ⛔              | ✅                  |
-| Document / asset storage                 | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ✅ (brand assets) | ✅ (brand assets)   | ✅ (infra only) | ✅                  |
-| Document intelligence (PDF, floor plans) | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ✅ (infra only) | ✅                  |
-| AI metadata extraction                   | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ✅ (generated text)   | ✅ (generic)      | ✅ (generic)        | ✅ (generic)    | ✅ (venue-specific) |
-| Event planning workflow / content gen    | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ✅ Best-in-class      | ⛔                | ⛔                  | ⛔              | ⛔                  |
-| Production planning (crew, schedule)     | ⛔               | ⛔              | ⛔              | ⛔                 | ✅ Best-in-class | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ⛔              | ⛔                  |
-| CAD file support (DWG/DXF)               | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ⛔              | ✅ (via Tika)       |
-| Semantic search (vector)                 | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | Partial (NL search) | ⛔              | ✅                  |
-| Team collaboration / shared library      | Partial          | ⛔              | ✅              | ✅ (internal)      | ✅               | ⛔              | ⛔              | ⛔              | Partial               | ✅                | ✅                  | ⛔              | ✅                  |
-| Multi-tenant SaaS                        | ✅               | ✅              | ✅              | ✅                 | ✅               | ✅              | ✅              | ✅              | ✅                    | ✅                | ✅                  | ✅              | ✅                  |
-| Venue-specific schema                    | ⛔               | ✅ (operations) | ✅ (operations) | ✅ (operations)    | ⛔               | ⛔              | ⛔              | ✅ (operations) | ⛔                    | ⛔                | ⛔                  | ⛔              | ✅ (intelligence)   |
-| SMB-friendly pricing                     | ⛔               | Partial         | ⛔              | ✅ (no cost)       | ✅               | ✅ (free)       | ✅ (free)       | Partial         | ✅ (free tier)        | ⛔                | ⛔                  | ✅              | ✅                  |
+A distinct cluster of tools that deal with floor plan geometry, spatial extraction, or indoor location infrastructure. None of them are venue management or event planning platforms, but they are directly adjacent to BENE's document intelligence layer — specifically the CAD/floor plan ingestion pipeline. Understanding where they sit clarifies what BENE needs to build versus what it can leverage or ignore.
 
-**The gap BENE fills:** Nobody provides document intelligence specifically for event planners managing their own venue portfolio. Marketplace/sourcing tools (Cvent, VenueScanner) only know what venues self-report. AI productivity tools (Spark) generate content but have no venue knowledge base. DAM platforms (Bynder, Brandfolder) store files with generic tagging but understand nothing about venue semantics. Operations platforms (Tripleseat, Momentus, VenueArc) serve venue operators, not planners, and contain no document intelligence. Generic document APIs (Unstructured.io) handle extraction but have no venue schema. BENE Intelligence is the missing layer: structured, searchable, planner-owned venue intelligence extracted from the documents planners already have.
+---
+
+#### SeatPlan.io
+
+**What it is:** Free-to-start, browser-based seating chart maker targeting wedding planners, corporate event teams, and hospitality venues. Guest list import via CSV, drag-and-drop table layout, real-time collaboration, and QR code guest self-check-in. Event Manager plan at £25/month. AI floor plan import (upload a photo or PDF, AI generates a layout draft) with CAD/DXF support at the paid tier.
+
+**Strengths:**
+
+- Zero friction entry: no signup required to start designing; full designer accessible before payment
+- AI-assisted floor plan import: upload a venue PDF or photo and the tool generates a seating layout to review — practical head start for planners
+- CAD/DXF import at Event Manager tier — exact-scale layouts from venue-supplied drawings
+- Real-time collaboration: client-facing shared links with planner approval control, no per-viewer cost
+- Guest check-in distribution: QR signs, Apple/Google Wallet passes, door-team check-in link — all generated from the same layout
+- Reusable venue templates: build a room once, clone for every event
+- Covers the full seating workflow end-to-end: import → arrange → export (A3 PDF, Excel seat list, name cards)
+
+**Gaps relevant to BENE Intelligence:**
+
+- Seating chart tool, not a venue intelligence platform — manages guest-to-seat assignment, not venue knowledge
+- No venue knowledge base: no venue profiles, no document ingestion beyond floor plan layout import, no spec sheet extraction
+- AI floor plan import produces a _layout for seating_, not structured venue metadata (capacity, amenities, restrictions)
+- One venue per event — no cross-venue portfolio management or semantic search
+- No multi-source aggregation: uploading three versions of a venue's deck doesn't reconcile data
+- No RFP support, no catering policy extraction, no AV spec parsing
+
+**Verdict:** SeatPlan.io solves the downstream problem — arranging guests in a space the planner has already chosen. BENE solves the upstream problem — knowing and comparing the spaces themselves. The AI floor plan import is the only genuine overlap: both tools ingest floor plan PDFs. But SeatPlan produces a seating layout; BENE extracts structured venue intelligence. Complementary: a planner uses BENE to decide which room to book, then SeatPlan.io to seat the guests.
+
+---
+
+#### FloorScan.ai
+
+**What it is:** AI-powered construction takeoff tool targeting quantity surveyors, site managers, and BIM modelers. Upload a PDF construction plan, crop the area of interest, and the AI detects all architectural elements (walls, doors, windows, rooms, surfaces) with confidence scores. Outputs an annotated PDF plus an Excel report with quantities and surface areas. Native DXF/AutoCAD export. Claims 5 hours saved per project vs. manual measurement. Active user base in France, Morocco, and Portugal; used by contractors including Eiffage and Léon Grosse.
+
+**Strengths:**
+
+- Fast turnaround: full analysis of a construction plan in under 30 seconds
+- Purpose-built computer vision models trained exclusively on architectural drawings — not a generic vision API
+- Interactive validation UI: review and correct each detection before export
+- Native DXF and Excel export — output lands directly in AutoCAD or a quantity spreadsheet
+- Structured output with confidence scores and surface quantities — not just bounding boxes
+- Free tier with 30-day Pro trial, no credit card required
+
+**Gaps relevant to BENE Intelligence:**
+
+- Construction takeoff tool — built for quantity surveyors estimating material volumes, not event planners managing venue portfolios
+- No venue-specific extraction schema (no capacity configurations, catering policies, AV specs, access restrictions)
+- No document intelligence beyond floor plan geometry — cannot parse spec sheets, venue decks, or mixed PDF documents
+- No multi-source aggregation or conflict resolution across documents
+- No team knowledge base, no cross-venue search, no semantic query capability
+- Narrow vertical: construction estimation workflows in France/Europe — not broadly available
+
+**Verdict:** FloorScan.ai is a construction industry tool whose core capability — AI geometry extraction from PDF floor plans — is the same technical problem BENE faces for venue CAD files. It's not a competitor but a technical reference point: the accuracy benchmark (sub-30s analysis, confidence-scored element detection, DXF export) is the quality bar BENE's floor plan parsing pipeline should target. BENE's differentiation is what happens _after_ geometric extraction: mapping room dimensions to event configurations, seating capacities, and a searchable venue intelligence schema.
+
+---
+
+#### FloorPlan API (floorplanapi.com)
+
+**What it is:** Dedicated computer vision API that accepts raster floor plans (PNG, JPG, WebP, rasterized PDF) and returns pixel-aligned geometric output: walls, doors, windows, and measurements. Segmentation models trained exclusively on architectural drawings (not a general vision model). Benchmarked at 85.31% Wall IoU on CubiCasa5k; P95 sync latency under 5 seconds. Free tier: 50 API calls/month. Paid tiers from $29/month (100 calls) to $99/month (500 calls) with enterprise custom pricing.
+
+**What it does and doesn't do:**
+
+- Input: raster images of floor plans (must pre-rasterize PDF pages before submission)
+- Output: pixel-aligned geometry (walls, doors, windows, measurements)
+- Does not: parse spec sheet text, extract venue metadata, handle mixed-content PDFs, provide a venue schema
+
+**Relevance to BENE Intelligence:**
+
+- FloorPlan API is a potential _infrastructure component_ for BENE's floor plan pipeline — the same role Apache Tika plays for text extraction
+- It handles the hardest part of floor plan processing: geometric segmentation from raster images
+- The 85.31% Wall IoU benchmark on CubiCasa5k is a documented quality baseline
+- REST API integration is straightforward — fits into a Spring Boot ETL pipeline as a pre-processing step before venue schema enrichment
+- Per-call pricing ($0.29–$0.50/call at paid tiers) is viable for a venue intelligence platform processing hundreds of floor plans, not millions
+
+**Strategic decision for BENE Intelligence:** FloorPlan API (or an equivalent: CubiCasa, Archilogic, or an in-house Docling-based pipeline) handles geometric extraction from raster floor plans. BENE's proprietary layer is the venue intelligence schema mapped _onto_ that geometry — room identifiers, configuration capacities, sightlines, access points — none of which FloorPlan API provides.
+
+**Verdict:** Not a competitor. A candidate infrastructure vendor for the geometric extraction step of BENE's CAD/floor plan ingestion pipeline.
+
+---
+
+#### Open Location Stack (openlocationstack.com)
+
+**What it is:** Open-source middleware project by FORMATION for indoor location and RTLS (Real-Time Location System) deployments. Built around the omlox open locating standard and OGC IMDF (Indoor Mapping Data Format). Core components: Open Location Hub (cloud-capable hub-of-hubs aggregating data from omlox-compatible on-premise hubs), Open Location Hub CLI, and a browser-based Floor Plan Editor for structured vector indoor maps. MIT licensed. Supported by RTLS hardware vendors including INDUTRAX, Sinfosy, and Synchronic. Participated in omlox Plugfest 2026.
+
+**What it does:**
+
+- Aggregates live location telemetry from multiple RTLS technologies (UWB, BLE, Wi-Fi RTT, RFID, GNSS, QR/barcode) across sites and vendors
+- Manages structured indoor maps (IMDF) as spatial context for live location feeds
+- Provides vendor-agnostic hub federation — one API surface across mixed-vendor deployments
+- Floor Plan Editor: browser-based tool for authoring vector geometry, routing paths, and zones aligned to IMDF
+- Designed for industrial/logistics use cases: asset tracking, workplace visibility, AI-assisted logistics
+
+**Gaps relevant to BENE Intelligence:**
+
+- Live asset tracking / RTLS middleware — designed for real-time position data, not document intelligence
+- No document ingestion, no PDF parsing, no spec sheet extraction
+- IMDF-based floor plan representation is about _live spatial context for tracking_, not venue knowledge for event planners
+- No venue portfolio management, no semantic search, no RFP support
+- Requires physical RTLS hardware deployment — far outside the scope of a venue intelligence platform
+
+**Why it appears here:** The IMDF structured indoor map format is relevant to BENE's long-term architecture. IMDF is the OGC standard for portable venue maps — georeferenced vector geometry with named rooms, levels, and zones. If BENE ever moves beyond document extraction into interactive floor plan rendering (Phase 3+), IMDF is the output format to target. Open Location Stack's Floor Plan Editor demonstrates what a browser-based IMDF authoring tool looks like.
+
+**Verdict:** No competitive overlap. Open Location Stack targets logistics and manufacturing RTLS deployments. BENE targets event planning knowledge management. The IMDF format is worth monitoring as a potential output standard for BENE's structured venue map layer.
+
+---
+
+### 1.6 Competitive Gap Summary
+
+| Capability                               | Cvent            | Tripleseat      | Momentus        | Facilitron         | Propared         | VenueScanner    | VenueFindAI     | VenueArc        | Spark (GEVME/PCMA)    | Bynder            | Brandfolder         | Unstructured.io | SeatPlan.io           | FloorScan.ai          | FloorPlan API         | Open Location Stack   | BENE                |
+| ---------------------------------------- | ---------------- | --------------- | --------------- | ------------------ | ---------------- | --------------- | --------------- | --------------- | --------------------- | ----------------- | ------------------- | --------------- | --------------------- | --------------------- | --------------------- | --------------------- | ------------------- |
+| Venue discovery (marketplace)            | ✅ Best-in-class | ⛔              | ⛔              | ✅ (public sector) | ⛔               | ✅ (UK-focused) | ✅ (AI + human) | ⛔              | Partial (DestinAItor) | ⛔                | ⛔                  | ⛔              | ⛔                    | ⛔                    | ⛔                    | ⛔                    | Phase 3             |
+| Planner's own venue library              | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ⛔              | ⛔                    | ⛔                    | ⛔                    | ⛔                    | ✅                  |
+| Document / asset storage                 | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ✅ (brand assets) | ✅ (brand assets)   | ✅ (infra only) | ⛔                    | ⛔                    | ⛔                    | ⛔                    | ✅                  |
+| Document intelligence (PDF, floor plans) | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ✅ (infra only) | Partial (layout only) | ✅ (construction)     | ✅ (geometry only)    | ⛔                    | ✅                  |
+| AI metadata extraction                   | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ✅ (generated text)   | ✅ (generic)      | ✅ (generic)        | ✅ (generic)    | ✅ (seating layout)   | ✅ (quantities)       | ✅ (geometry)         | ⛔                    | ✅ (venue-specific) |
+| Floor plan geometry extraction           | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ⛔              | ✅ (seating layout)   | ✅ (walls/rooms)      | ✅ Best-in-class      | ✅ (IMDF/vector)      | ✅ (via Tika/API)   |
+| CAD / DXF support                        | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ⛔              | ✅ (import)           | ✅ (export)           | ⛔ (raster only)      | ✅ (IMDF authoring)   | ✅ (via Tika)       |
+| Event planning workflow / content gen    | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ✅ Best-in-class      | ⛔                | ⛔                  | ⛔              | ✅ (seating/check-in) | ⛔                    | ⛔                    | ⛔                    | ⛔                  |
+| Production planning (crew, schedule)     | ⛔               | ⛔              | ⛔              | ⛔                 | ✅ Best-in-class | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ⛔              | ⛔                    | ⛔                    | ⛔                    | ⛔                    | ⛔                  |
+| Semantic search (vector)                 | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | Partial (NL search) | ⛔              | ⛔                    | ⛔                    | ⛔                    | ⛔                    | ✅                  |
+| Real-time location / RTLS                | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                    | ⛔                | ⛔                  | ⛔              | ⛔                    | ⛔                    | ⛔                    | ✅ Best-in-class      | ⛔                  |
+| Team collaboration / shared library      | Partial          | ⛔              | ✅              | ✅ (internal)      | ✅               | ⛔              | ⛔              | ⛔              | Partial               | ✅                | ✅                  | ⛔              | ✅ (event-scoped)     | ⛔                    | ⛔                    | ⛔                    | ✅                  |
+| Multi-tenant SaaS                        | ✅               | ✅              | ✅              | ✅                 | ✅               | ✅              | ✅              | ✅              | ✅                    | ✅                | ✅                  | ✅              | ✅                    | ⛔ (early-stage)      | ✅ (API)              | ⛔ (open source)      | ✅                  |
+| Venue-specific schema                    | ⛔               | ✅ (operations) | ✅ (operations) | ✅ (operations)    | ⛔               | ⛔              | ⛔              | ✅ (operations) | ⛔                    | ⛔                | ⛔                  | ⛔              | ⛔                    | ⛔                    | ⛔                    | ⛔                    | ✅ (intelligence)   |
+| SMB-friendly pricing                     | ⛔               | Partial         | ⛔              | ✅ (no cost)       | ✅               | ✅ (free)       | ✅ (free)       | Partial         | ✅ (free tier)        | ⛔                | ⛔                  | ✅              | ✅ (free tier)        | ✅ (free tier)        | ✅ (free tier)        | ✅ (open source)      | ✅                  |
+
+**The gap BENE fills:** Nobody provides document intelligence specifically for event planners managing their own venue portfolio. Marketplace/sourcing tools (Cvent, VenueScanner) only know what venues self-report. AI productivity tools (Spark) generate content but have no venue knowledge base. DAM platforms (Bynder, Brandfolder) store files with generic tagging but understand nothing about venue semantics. Operations platforms (Tripleseat, Momentus, VenueArc) serve venue operators, not planners, and contain no document intelligence. Generic document APIs (Unstructured.io) handle extraction but have no venue schema. Floor plan and spatial tools (SeatPlan.io, FloorScan.ai, FloorPlan API, Open Location Stack) solve geometry and layout problems for construction or logistics — they are infrastructure building blocks, not planner intelligence platforms. BENE Intelligence is the missing layer: structured, searchable, planner-owned venue intelligence extracted from the documents planners already have.
 
 ---
 

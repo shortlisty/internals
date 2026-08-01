@@ -25,9 +25,9 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "Cvent is great for discovering venues you haven't worked with yet. BENE Intelligence is for the venues you already know and trust — the ones in your email, your shared drive, your colleagues' heads. They solve different problems. Some of our customers use both."
+> "Cvent is great for discovering venues you haven't worked with yet. BENE Intelligence is venue portfolio management for the venues you already know and trust — the ones in your email, your shared drive, your colleagues' heads. They solve different problems. Some of our customers use both."
 
-**Win condition:** The prospect recognises that most of their searches are for venues they already have files on, not venues they are discovering for the first time.
+**Win condition:** The prospect recognises that most of their searches are for venues they already have files on, not venues they are discovering for the first time. The framing that lands fastest: Cvent is discovery; BENE is portfolio management.
 
 ---
 
@@ -39,9 +39,9 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "VenueScanner helps you find venues you don't know yet. BENE helps you get more value from the venues you already know. A planner who has worked in London for five years doesn't need to discover new venues — they need to find the right one from the hundred they already trust. That's the gap we fill."
+> "VenueScanner helps you find venues you don't know yet. BENE is venue portfolio management for the ones you already know. A planner who has worked in London for five years doesn't need to discover new venues — they need to find the right one from the hundred they already trust, pull its specs in seconds, and share that with their team. That's the gap we fill."
 
-**Win condition:** The prospect is a mid-career planner with an existing venue portfolio, not someone just starting out.
+**Win condition:** The prospect is a mid-career planner with an existing venue portfolio, not someone just starting out. The word "portfolio" usually lands well here — it signals professional credibility and the scale of what they're managing.
 
 ---
 
@@ -53,9 +53,9 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "VenueFindAI finds venues for you. BENE organises the ones you've already found. Most experienced planners have a shortlist of trusted venues they return to — BENE makes all the intelligence from those venues searchable and shared with your team."
+> "VenueFindAI finds venues for you. BENE manages the portfolio of venues you've already found. Most experienced planners have a shortlist of trusted venues they return to — BENE makes all the intelligence from that portfolio searchable and shared with your team, so it doesn't live in one person's inbox."
 
-**Win condition:** The prospect values their existing venue relationships over discovery of new ones.
+**Win condition:** The prospect values their existing venue relationships over discovery of new ones. "Portfolio" resonates with planners who think of their venue relationships as a professional asset they've built over years.
 
 ---
 
@@ -91,13 +91,13 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **What they have:** File storage that every planner already uses. Zero friction to adopt. Files are accessible anywhere.
 
-**What they do not have:** Any ability to read those files. A planner cannot type "venues with a freight elevator" into Google Drive and get an answer. They get a list of files to open. The knowledge is stored but not understood.
+**What they do not have:** Any ability to read those files. A planner cannot type "venues with a freight elevator" into Google Drive and get an answer. They get a list of files to open. The knowledge is stored but not understood. And there is no structure — Drive is a file cabinet, not a venue portfolio.
 
 **When a prospect brings them up:**
 
-> "Google Drive is where your files live. BENE Intelligence is what lets you actually use them. You don't have to replace Drive — you upload to BENE the files that matter, and it reads them so you don't have to."
+> "Google Drive is where your files live. BENE is where your venue portfolio lives. You don't have to replace Drive — you upload to BENE the files that matter, and it reads them, structures them into venue profiles, and gives your whole team a searchable portfolio they can actually use."
 
-**Win condition:** The prospect has ever spent more than ten minutes searching through Drive for a specific venue detail. Almost universal.
+**Win condition:** The prospect has ever spent more than ten minutes searching through Drive for a specific venue detail. Almost universal. A secondary trigger: they've lost venue knowledge when someone left and took their Drive folder organisation with them.
 
 ---
 

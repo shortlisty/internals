@@ -57,9 +57,9 @@ Follow-up: "Send me one of your hardest venue decks. We'll run it and show you t
 
 Underlying concern: _Moving files is effort I don't have time for, and I'll lose what I have._
 
-Response: You don't move anything. Your existing storage stays exactly where it is. You upload to BENE the venue files that matter — PDFs, floor plans, spec sheets — and it reads them and adds them to your searchable library. Most teams start with their top 20 or 30 venues and expand from there. We can do that first import for you as part of onboarding.
+Response: You don't move anything. Your existing storage stays exactly where it is. You upload to BENE the venue files that matter — PDFs, floor plans, spec sheets — and it reads them and builds them into a structured venue portfolio your whole team can search. Most teams start with their top 20 or 30 venues and expand from there. We can do that first import for you as part of onboarding. The key difference: Drive stores files; BENE manages a portfolio. You can't ask Drive "which of our venues has kosher catering and a freight entrance" and get an answer in five seconds.
 
-Follow-up: "How many venues do you actively work with? We can have those in your library within a day."
+Follow-up: "How many venues do you actively work with? We can have those in your portfolio within a day."
 
 ---
 
@@ -77,7 +77,7 @@ Follow-up: "Who on your team spends the most time hunting for venue details? Sta
 
 Underlying concern: _The problem isn't bad enough to justify paying for a solution._
 
-Response: The smaller the team, the harder the knowledge concentration problem. A five-person agency where one planner holds all the venue knowledge is more exposed than a twenty-person agency with some redundancy built in. If that person is unavailable when a client calls, the agency looks unprepared. BENE Intelligence is a $99/month insurance policy against that moment.
+Response: The smaller the team, the harder the knowledge concentration problem. A five-person agency where one planner holds all the venue knowledge is more exposed than a twenty-person agency with some redundancy built in. If that person is unavailable when a client calls, the agency looks unprepared. Beyond the personnel risk: small agencies often have a tighter, more curated venue portfolio than large ones — and that portfolio is a real competitive asset. Keeping it in a shared Drive folder with no structure means you're underusing it every day. BENE Intelligence is a $99/month way to turn that portfolio into something your whole team can search and build on.
 
 Follow-up: "Has there ever been a time when a client asked something and nobody could find the answer quickly?"
 
