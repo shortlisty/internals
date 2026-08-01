@@ -75,6 +75,20 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 ---
 
+### Planning Pod
+
+**What they have:** Venue management software covering the full venue sales and operations workflow — bookings, BEOs, floor plan designer, integrated payments, CRM, ticketing. Aimed at SMB venue operators (wedding venues, restaurants with private dining, wineries, country clubs). Claims venues grow bookings 64% on average after switching. Starts around $59/month.
+
+**What they do not have:** Anything for planners. Planning Pod serves venue operators managing their own space — not event planning agencies managing a portfolio of venues they work with. Their floor plan designer lets a venue build reusable layouts for BEOs; it does not parse venue documents uploaded by planners.
+
+**When a prospect brings them up:**
+
+> "Planning Pod is what the venue coordinator on the other side of the table uses. BENE is what you use. They manage the venue's operations; you manage your portfolio of venues. Same relationship, different sides."
+
+**Win condition:** The prospect understands the buyer-side distinction. If they're confusing BENE with venue operations software, use this to clarify what BENE actually is — venue portfolio management for planners, not for operators.
+
+---
+
 ### Momentus Technologies
 
 **What they have:** Enterprise venue and event operations platform. Booking, finance, analytics, safety/risk management. 20+ years of data, 50+ countries.
