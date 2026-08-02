@@ -80,7 +80,7 @@ The long-horizon direction is a two-sided marketplace: event professionals manag
 - Five to 50 person event planning agency
 - Recurring pain: senior managers leave and take their venue knowledge with them
 - Business case: protect institutional knowledge, onboard new hires faster, respond to clients more confidently
-- Willingness to pay: high — $99/month is trivial against the cost of one wasted senior manager hour per week
+- Willingness to pay: high — $49/month is trivial against the cost of one wasted senior manager hour per week
 - Decision speed: fast — no procurement committee, credit card purchase
 
 **Head of events / events director (corporate)**
@@ -88,7 +88,7 @@ The long-horizon direction is a two-sided marketplace: event professionals manag
 - In-house event team at a mid-to-large company (tech, finance, pharma, professional services)
 - Recurring pain: repeating venue research for every event cycle, no shared library across the team
 - Business case: reduce duplicated research, give new team members a running start, standardise venue intelligence across stakeholders
-- Willingness to pay: medium-high — likely needs a budget line, but $99–$500/month is well within discretionary spend
+- Willingness to pay: medium-high — likely needs a budget line, but $49–$500/month is well within discretionary spend
 - Decision speed: medium — may need one level of approval
 
 **Operations manager / executive assistant (SMB)**
@@ -120,7 +120,7 @@ The long-horizon direction is a two-sided marketplace: event professionals manag
 - Buyer and end user are the same person
 - Cares about: not carrying everything in their head, being able to work from their phone, impressing clients with fast answers
 - Aha moment: pulls up venue details on their phone during a client call without putting them on hold
-- Price sensitivity: higher than agencies — $99/month needs to feel clearly worth it
+- Price sensitivity: higher than agencies — $49/month needs to feel clearly worth it
 
 ### ICP matrix
 
@@ -287,7 +287,7 @@ The platform launches US-first to validate the core product. The architecture su
 - Solo use — no team invites
 - Goal: frictionless entry point, convert when the user hits the limit or needs a team feature
 
-### Pro — $99/month (or ~$83/month billed annually)
+### Pro — $49/month (or ~$83/month billed annually)
 
 - 500 venues, 100 assets per venue
 - Full AI extraction across all supported file types

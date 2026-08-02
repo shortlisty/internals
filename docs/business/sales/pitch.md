@@ -69,7 +69,7 @@ If the prospect is a head of events at a corporate: lean on the "stop repeating 
 
 **Goal:** remove friction from the decision.
 
-> "Free up to ten venues — no credit card. Most people understand what the product does the moment they see a PDF turn into a profile. Pro is $99 a month for your whole team, up to 500 venues."
+> "Free up to ten venues — no credit card. Most people understand what the product does the moment they see a PDF turn into a profile. Pro is $49 a month for your whole team, up to 500 venues."
 
 Offer concierge onboarding: "We can import your first 20 venues for you — just send us the files. That gets you past the empty-library problem on day one."
 

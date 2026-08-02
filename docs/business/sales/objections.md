@@ -77,7 +77,7 @@ Follow-up: "Who on your team spends the most time hunting for venue details? Sta
 
 Underlying concern: _The problem isn't bad enough to justify paying for a solution._
 
-Response: The smaller the team, the harder the knowledge concentration problem. A five-person agency where one planner holds all the venue knowledge is more exposed than a twenty-person agency with some redundancy built in. If that person is unavailable when a client calls, the agency looks unprepared. Beyond the personnel risk: small agencies often have a tighter, more curated venue portfolio than large ones — and that portfolio is a real competitive asset. Keeping it in a shared Drive folder with no structure means you're underusing it every day. BENE Intelligence is a $99/month way to turn that portfolio into something your whole team can search and build on.
+Response: The smaller the team, the harder the knowledge concentration problem. A five-person agency where one planner holds all the venue knowledge is more exposed than a twenty-person agency with some redundancy built in. If that person is unavailable when a client calls, the agency looks unprepared. Beyond the personnel risk: small agencies often have a tighter, more curated venue portfolio than large ones — and that portfolio is a real competitive asset. Keeping it in a shared Drive folder with no structure means you're underusing it every day. BENE Intelligence is a $49/month way to turn that portfolio into something your whole team can search and build on.
 
 Follow-up: "Has there ever been a time when a client asked something and nobody could find the answer quickly?"
 
@@ -131,13 +131,13 @@ Follow-up: "What's the specific requirement — data residency, a signed DPA, or
 
 ---
 
-**"$99 a month is too expensive for what this does."**
+**"$49 a month is too expensive for what this does."**
 
 Underlying concern: _I don't believe the time saving is worth the monthly cost._
 
-Response: One saved senior planner hour a month more than pays for it. If the platform saves one hour of venue research per week across a team of three planners, the annual ROI is multiples of the subscription cost. The question is not whether $99 is a lot — it is whether the time saving is real. That is why there is a free tier with ten venues. Prove it to yourself before paying.
+Response: One saved senior planner hour a month more than pays for it. If the platform saves one hour of venue research per week across a team of three planners, the annual ROI is multiples of the subscription cost. The question is not whether $49 is a lot — it is whether the time saving is real. That is why there is a free tier with ten venues. Prove it to yourself before paying.
 
-Follow-up: "What would make $99 feel obviously worth it? Let's make sure you hit that threshold in your first two weeks."
+Follow-up: "What would make $49 feel obviously worth it? Let's make sure you hit that threshold in your first two weeks."
 
 ---
 

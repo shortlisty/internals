@@ -791,7 +791,7 @@ A distinct cluster of tools that deal with floor plan geometry, spatial extracti
 
 #### FloorPlan API (floorplanapi.com)
 
-**What it is:** Dedicated computer vision API that accepts raster floor plans (PNG, JPG, WebP, rasterized PDF) and returns pixel-aligned geometric output: walls, doors, windows, and measurements. Segmentation models trained exclusively on architectural drawings (not a general vision model). Benchmarked at 85.31% Wall IoU on CubiCasa5k; P95 sync latency under 5 seconds. Free tier: 50 API calls/month. Paid tiers from $29/month (100 calls) to $99/month (500 calls) with enterprise custom pricing.
+**What it is:** Dedicated computer vision API that accepts raster floor plans (PNG, JPG, WebP, rasterized PDF) and returns pixel-aligned geometric output: walls, doors, windows, and measurements. Segmentation models trained exclusively on architectural drawings (not a general vision model). Benchmarked at 85.31% Wall IoU on CubiCasa5k; P95 sync latency under 5 seconds. Free tier: 50 API calls/month. Paid tiers from $29/month (100 calls) to $49/month (500 calls) with enterprise custom pricing.
 
 **What it does and doesn't do:**
 

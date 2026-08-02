@@ -69,7 +69,7 @@ If something is wrong, fix it with one click.
 
 **Free to start** - up to 10 venues, no credit card. Most people understand the product the moment they see a 40-page PDF turn into a structured profile in 30 seconds.
 
-**$99 a month for professional teams** - up to 500 venues, all file types, unlimited team members. One saved client conversation pays for months of the subscription.
+**$49 a month for professional teams** - up to 500 venues, all file types, unlimited team members. One saved client conversation pays for months of the subscription.
 
 **Custom pricing for larger agencies** - unlimited everything, white-label, API, priority support.
 
