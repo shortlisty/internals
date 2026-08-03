@@ -2,7 +2,7 @@
 
 _What this is, why it exists, and whether it makes sense as a business._
 
-**Docs:** [What is BENE?](README.md) · [Market Structure](business/market.md) · [Digital Sales Room](business/Digital_Sales_Room_for_Events/README.md) · [Architecture](platform/architecture.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
+**Docs:** [What is BENE?](README.md) · [Market Structure](business/market.md) · [Digital Sales Room](business/Digital_Sales_Room_for_Events/README.md) · [Competitive Landscape](business/Digital_Sales_Room_for_Events/comparison.md) · [Architecture](platform/architecture.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
 
 ---
 
@@ -73,4 +73,4 @@ BENE turns venue files into a pitch and a pitch into an approved spec — so eve
 
 ---
 
-**Docs:** [What is BENE?](README.md) · [Market Structure](business/market.md) · [Digital Sales Room](business/Digital_Sales_Room_for_Events/README.md) · [Architecture](platform/architecture.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
+**Docs:** [What is BENE?](README.md) · [Market Structure](business/market.md) · [Digital Sales Room](business/Digital_Sales_Room_for_Events/README.md) · [Competitive Landscape](business/Digital_Sales_Room_for_Events/comparison.md) · [Architecture](platform/architecture.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)

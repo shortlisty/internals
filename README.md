@@ -25,7 +25,17 @@ See [docs/README.md](docs/README.md) for the full plain-language overview.
 | [What is BENE?](docs/README.md) | Anyone | Problem, solution, how it works, pricing |
 | [Market Structure](docs/business/market.md) | Anyone | Event chain, tool segmentation, the vacant slot |
 | [Vision](docs/roadmap/vision.md) | Founders, team | Product direction, strategic bets, north star metric |
-| [Digital Sales Room](docs/business/Digital_Sales_Room_for_Events/README.md) | Founders, team | DSR concept — current primary direction |
+
+### Digital Sales Room for Events
+
+| Document | Audience | What it covers |
+| --- | --- | --- |
+| [Overview](docs/business/Digital_Sales_Room_for_Events/README.md) | Founders, team | DSR concept, relationship to catalog layer |
+| [Product Structure](docs/business/Digital_Sales_Room_for_Events/product.md) | Founders, team | Two-layer architecture, capability pillars, UX concept |
+| [Business Proposal](docs/business/Digital_Sales_Room_for_Events/proposal.md) | Founders, team | ICP, feature phases, pricing, GTM, risks |
+| [Pitch Mechanics](docs/business/Digital_Sales_Room_for_Events/pitch-mechanics.md) | Founders, team | Micro-site structure, collaboration layer, approval snapshot |
+| [Cold Start Strategy](docs/business/Digital_Sales_Room_for_Events/cold-start.md) | Founders, team | Seed catalog, concierge onboarding, city-by-city expansion |
+| [Competitive Landscape](docs/business/Digital_Sales_Room_for_Events/comparison.md) | Founders, team | DSR vs. proposal tools, venue discovery, agency CRM, DIY stack |
 
 ### Personal Venue Catalog (segment reference)
 
@@ -47,7 +57,6 @@ See [docs/README.md](docs/README.md) for the full plain-language overview.
 | [Architecture Reference](docs/platform/architecture.md) | Engineers, architects | Domain model, services, schema, API, event contracts |
 | [Intelligence Layer](docs/platform/intelligence.md) | Engineers, architects | ETL pipeline, extraction, AI layer, technology decisions |
 
-Russian translations: [`docs/ru/`](docs/ru/)
 
 ---
 
