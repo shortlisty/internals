@@ -1,5 +1,8 @@
 # Objections
 
+> [!NOTE]
+> Personal Venue Catalog segment reference. Not the primary direction — see [Digital Sales Room](../../../Digital_Sales_Room_for_Events/README.md).
+
 > **Audience:** Founders, team.
 > **Purpose:** Common objections heard in sales conversations and how to handle them. Each entry has the underlying concern, the response, and the follow-up that moves the conversation forward.
 

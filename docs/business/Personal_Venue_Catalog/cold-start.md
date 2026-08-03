@@ -1,5 +1,8 @@
 # Cold start strategy
 
+> [!NOTE]
+> This document was written for the **Personal Venue Catalog** segment — an internal knowledge-base tool for event agencies. It is a reference example for that positioning, not the primary product direction. The current product focus is the [Digital Sales Room for Events](../../Digital_Sales_Room_for_Events/README.md).
+
 > **Audience:** Founders, team.
 > **Purpose:** How to seed the venue library before the first paying customer — collecting real venue data during development to solve the empty-library problem, test the ETL pipeline on real documents, and build demo content that is credible.
 

@@ -1,5 +1,8 @@
 # Messaging
 
+> [!NOTE]
+> Personal Venue Catalog segment reference. Not the primary direction — see [Digital Sales Room](../../../Digital_Sales_Room_for_Events/README.md).
+
 > **Audience:** Founders, team.
 > **Purpose:** Candidate and approved copy for taglines, hero sections, value pillars, and naming. A working bank — not a final brief. Everything here has a status. Only `Approved` copy goes on a landing page, pitch deck, or external communication.
 

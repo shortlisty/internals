@@ -1,5 +1,8 @@
 ﻿# Venue Intelligence Platform — Competitive Landscape
 
+> [!NOTE]
+> This document was written for the **Personal Venue Catalog** segment — an internal knowledge-base tool for event agencies. It is a reference example for that positioning, not the primary product direction. The current product focus is the [Digital Sales Room for Events](../../Digital_Sales_Room_for_Events/README.md).
+
 > Strategic reference for the competitive positioning of BENE.
 
 **Docs:** [What is BENE?](../../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Intelligence Layer](../../platform/intelligence.md) · [Architecture](../../platform/architecture.md)

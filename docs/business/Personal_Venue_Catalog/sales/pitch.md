@@ -1,5 +1,8 @@
 # Pitch
 
+> [!NOTE]
+> Personal Venue Catalog segment reference. Not the primary direction — see [Digital Sales Room](../../../Digital_Sales_Room_for_Events/README.md).
+
 > **Audience:** Founders, team.
 > **Purpose:** Narrative arc for an intro call or live demo. One flow that can be shortened or extended depending on the conversation.
 

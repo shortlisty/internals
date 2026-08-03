@@ -7,106 +7,120 @@
 
 ## One sentence
 
-BENE Intelligence is the knowledge base for event professionals — turning the venue files, floor plans, and spec sheets a team has collected over years into a structured, searchable library so anyone can find any detail in seconds and organise better events, faster.
+BENE is the collaborative workspace where event agencies turn their venue knowledge into a signed-off proposal — so a client brief becomes a confirmed venue spec in hours, not days.
 
 ---
 
 ## Where we are now
 
-The platform is designed and ready to build. The architecture is settled, the domain model is defined, and the core extraction pipeline is chosen. No code has shipped yet. The first milestone targets the smallest version of the product that delivers the aha moment: upload a PDF, watch it become a structured venue profile, run a search that returns it.
+The product concept has evolved. The original design — a private venue catalog with AI extraction and semantic search — remains the correct data layer. The position has sharpened: the primary output is not an internal search engine, but a client-facing interactive pitch board that ends with a mutually approved specification.
 
-Product structure in business terms: [product.md](../business/Personal_Venue_Catalog/product.md).
+Architecture and domain model are settled and documented. No code has shipped yet. New product documents are being written under [Digital Sales Room for Events](../business/Digital_Sales_Room_for_Events/).
 
 ---
 
 ## Who this is for
 
-BENE Intelligence is built for event managers and event agencies — the professionals whose job is to find, evaluate, and brief venues on behalf of clients. They manage weddings, corporate events, conferences, workshops, and private parties. They visit dozens of venues a year and receive hundreds of documents: PDFs, floor plans, spec sheets, photo packs, branded decks.
+Event agencies and independent event managers — the professionals whose job is to find the right venue, present it to a client, and get sign-off before the event date locks in. They manage weddings, corporate events, conferences, team-building sessions, and private parties in the 50–1000 guest range.
 
-The end client — the person commissioning the event — is not a user of the tool. They are the recipient of better, faster answers from the manager who uses it.
+Two roles matter on every project:
 
-The tenant app is built for the event professional's daily workflow: utilitarian, fast, information-dense. See [product.md](../business/Personal_Venue_Catalog/product.md) for the full UI concept.
+**The agency (planner side)** — builds and maintains the venue library, assembles a shortlist for a client brief, generates the pitch board, answers questions, and drives toward approval.
+
+**The client (buyer side)** — reviews the shortlist, asks questions, indicates preferences, and gives the final sign-off. They do not need an account or any training. They open a link.
 
 ---
 
 ## The problem we are solving
 
-Event professionals carry most of their venue knowledge in their heads, in personal inboxes, and in scattered folder structures. The knowledge exists — it just cannot be found when it needs to be. A client calls with a specific brief, and the answer is buried in a 40-page PDF that someone emailed three years ago.
+An agency receives a client brief. The planner knows the right venues are somewhere in their files — a PDF from two years ago, a floor plan on someone's laptop, a WhatsApp exchange with the venue coordinator. Finding and assembling that into something presentable takes hours. The client gets a static PDF. Feedback arrives scattered across email and WhatsApp. Nobody has a clear record of what was agreed.
 
-The cost is not only time. It is client confidence, missed opportunities, and institutional knowledge that walks out when a senior planner leaves. New hires take months to get up to speed. The same venues get researched from scratch for every new event.
+The cost is not just time. It is lost deals when a competitor responds faster, margin erosion when the planner sends the wrong price, and post-event disputes when the agreed spec is nowhere to be found.
 
 ---
 
 ## What success looks like
 
-### For an event manager
-
-The manager no longer digs through folders or asks colleagues where the venue file is. They type a natural-language query — "kosher catering, 150 guests, freight elevator, downtown" — and get a sourced answer in under ten seconds. They upload a document during a site visit and it is in the team's shared library by the time they get back to the office. They organise the same class of event faster with every iteration because the knowledge compounds.
-
 ### For an agency
 
-Nothing is lost when a manager leaves. New hires can answer client questions independently within their first week. The team has one shared, authoritative source for every venue they have ever worked with — enriched from every document they have ever received from that venue. Client proposals are faster to build and more accurate because the underlying data is structured and current.
+A client brief arrives. The planner opens BENE, filters the venue library in under a minute, picks three options, and sends the client a link. The client opens an interactive board, browses floor plans and photos, adjusts the configuration, and clicks Approve. The planner receives a notification. Both sides have a timestamped, immutable record of exactly what was agreed. The whole cycle takes hours, not days.
+
+### For a client
+
+No inbox back-and-forth. No PDF attachments. One link, open on any device. The venues are laid out clearly. The spec is adjustable in real time. Approving takes one click. The result feels like working with a premium agency — not because the planner is more experienced, but because the tool makes their work visible and trustworthy.
 
 ### For the platform
 
-BENE becomes the intelligence layer that sits beneath every stage of the event planning workflow. Venues are no longer a pile of files — they are structured, versioned, queryable knowledge assets. The platform earns trust by being accurate, sourced, and transparent about what it knows and what it is uncertain about.
+BENE becomes the layer that closes the gap between "we know which venues work for this client" and "the client has confirmed and we can proceed." The venue catalog feeds the pitch. The pitch generates the approval. The approval locks the spec. Each step is tracked, sourced, and auditable.
 
 ---
 
 ## Product structure
 
-The product is a single tenant app. The full description is in [product.md](../business/Personal_Venue_Catalog/product.md). The summary:
+BENE has two interlocking layers.
 
-- **Tenant app** — the working environment for event managers. ETL ingestion, PIM (structured venue data), DAM (floor plans, photos, media), search, team collaboration. One app, one user type, built for daily professional use.
-- **ETL and self-ingestion** — how data gets in: AI extraction from uploaded documents, bulk import, manual entry.
-- **PIM** — the structured knowledge store: venue schema, confidence scores, conflict resolution, provenance.
-- **DAM** — media and spatial assets attached to venues and rooms, not just stored as files.
-- **Search** — natural-language and structured retrieval across the entire library. The primary interaction.
+**Layer 1 — Personal Venue Catalog** (data layer)
+The agency's private library of venues, structured and searchable. Documents come in from Drive, Notion, email, and direct uploads. AI extracts metadata — capacity, catering policy, AV specs, restrictions, contacts — and maps it against a flexible schema. The planner verifies key fields with one click. The catalog is the foundation: without accurate venue data, the pitch has nothing to draw from.
+
+Full design: [Personal Venue Catalog](../business/Personal_Venue_Catalog/product.md).
+
+**Layer 2 — Digital Sales Room** (output layer)
+The client-facing pitch board. The planner selects venues from the catalog, the system assembles an interactive web page — photos, floor plans, metadata, a configurable spec — and shares a private link. The client browses, comments, and approves. When they click Approve, the system freezes a snapshot: an immutable record of every field, file, and decision, timestamped and attributed. That snapshot is the Single Source of Truth for the event.
+
+Full design: [Digital Sales Room for Events](../business/Digital_Sales_Room_for_Events/).
+
+```
+Personal Venue Catalog  →  data layer  (ingestion, ETL, metadata, search)
+Digital Sales Room      →  output layer (pitch board, client portal, snapshot)
+```
 
 ---
 
 ## Strategic bets
 
-These are the assumptions the product depends on. If any of them turn out to be wrong, the roadmap must change.
+**The pitch board is the buying trigger, not the catalog.**
+Agencies will pay for a tool that directly accelerates client sign-off and makes their proposals look premium. They will not pay for a better file organiser. The catalog is a prerequisite, but the value event — the moment that justifies the subscription — is when the client opens the board and approves in the same session.
 
-**Extraction quality is good enough to trust.**
-The core value proposition only holds if event managers trust the extracted data. Real-world venue documents vary enormously — text-based, scanned, design-heavy, multi-column. We need a benchmark on 50 real venue documents before making accuracy claims to customers. Confidence scores and one-click manual overrides are not a fallback — they are first-class features that exist precisely because extraction will sometimes be wrong.
+**Speed of response is a competitive differentiator for agencies.**
+An agency that can respond to a brief with a polished, interactive shortlist in under an hour wins deals that a slower competitor loses. BENE's value is measured in hours saved and deals won, not in database entries.
 
-**Search is the primary workflow, not filing.**
-The product is not a better folder structure. It is an answer engine. If managers use it primarily to store and browse files rather than to search and get answers, the semantic search investment was wrong and the UX needs to change. Weekly active searches — not venues uploaded — is the metric that proves the product is working.
+**The approval snapshot prevents post-event disputes.**
+Agencies and clients regularly disagree after the fact about what was agreed. An immutable, timestamped record of the approved spec — with source citations for every field — eliminates that dispute. This is a legal and financial protection story, not just a UX convenience. It is the reason agencies at higher price points will pay $150–300/month without hesitation.
 
-**Team knowledge retention is the buying trigger.**
-Individual managers may find the product useful, but the buying decision happens when an agency owner recognises that institutional knowledge is at risk. The shared library is the moat. A solo user switching tools is low friction; a team of fifteen who have built their venue library together is not.
+**Extraction quality needs to be verified before accuracy promises are made.**
+The catalog's value depends on extracted data being trustworthy. Real venue documents vary enormously in format and quality. Before any accuracy claims reach customers, 50 real venue documents must be processed and measured. Human-in-the-loop verification is a first-class feature, not a workaround.
 
-**The gap is unoccupied.**
-No existing tool combines planner-owned document ingestion, AI extraction with a venue-specific schema, multi-source conflict resolution, and semantic search. This assessment is documented in [competitive landscape](../business/Personal_Venue_Catalog/comparison.md). If a direct competitor emerges, the roadmap must be re-evaluated against their actual capabilities, not their marketing.
+**The client side cannot require onboarding.**
+The client opens a link. That is the entire onboarding. If the experience requires an account, an app download, or any explanation — it will fail. The pitch board must be self-evident on first open, on any device.
 
 ---
 
 ## Out of scope now
 
-The following are deliberate exclusions from the initial product. They may be revisited as the platform matures.
-
-- **Venue discovery and marketplace.** We are not building a public venue database. We help managers work with venues they already know. Discovery is a Phase 3 direction.
-- **Booking and operations.** Contracts, invoicing, calendar management, and RFP sending are venue operator problems. BENE serves event professionals, not operators.
-- **CRM and contact management.** BENE extracts venue contacts from documents and stores them as structured data on the venue profile. It does not replace a CRM or manage deal pipelines.
-- **Event planning workflow tools.** Content generation, agenda drafting, and speaker management are out of scope. BENE provides the venue intelligence that makes those workflows accurate — it does not own the workflows themselves.
-- **Video walkthroughs.** Keyframe extraction and vision-based walkthrough analysis are deferred to Phase 2. The Phase 1 pipeline handles PDFs, images, DOCX, and CAD files.
+- **Booking and payments.** Contracts, invoicing, deposit collection, and calendar holds are venue operator problems. BENE ends at sign-off on the spec, not at the financial transaction.
+- **Venue discovery and marketplace.** BENE works with venues the agency already knows. Finding new venues is a separate workflow — and a Phase 3 direction at earliest.
+- **CRM and deal pipeline.** BENE is not a sales CRM. It does not manage leads, stages, or follow-up sequences.
+- **Event execution tools.** Timelines, crew management, run-of-show, and on-site logistics are out of scope. BENE covers the venue selection and sign-off phase only.
+- **CAD and video processing in Phase 1.** Floor plans and photos are handled. DWG/DXF parsing and video walkthrough extraction are Phase 2.
 
 ---
 
 ## North star metric
 
-**Weekly active searches per team.**
+**Pitch boards approved per team per month.**
 
-A team that searches weekly is using BENE as a knowledge tool, not a filing tool. This metric proves that the intelligence layer is trusted and embedded in daily work. Venue uploads and extraction jobs are inputs. Searches are the outcome.
+An approved board means the product completed its job: the agency got sign-off, the client has a confirmed spec, and BENE was the instrument that made it happen. Venues ingested and searches run are inputs. Approvals are the outcome.
 
 ---
 
 ## Long horizon
 
-The tenant app is the foundation. Once the venue knowledge base is proven — accurate, trusted, embedded in daily agency workflows — the long-horizon direction is a two-sided marketplace: event managers manage their portfolio, venues compete to be visible to managers actively searching. That is years away. Nothing in the near-term roadmap is designed to serve venues. A client-facing storefront is part of that same long horizon, not a near-term feature. Everything now is designed to serve the managers who work with them.
+Once the pitch-to-approval loop is proven and trusted, the platform can grow in two directions.
+
+**Upward:** deeper collaboration features — inline comments, version history, multi-stakeholder voting on the client side, integration with calendar and booking tools to bridge the gap between approval and execution.
+
+**Outward:** a two-sided layer where venues pay to maintain a verified public profile that agencies can pull into pitches directly, without manual ingestion. That turns BENE into a marketplace — but only after the agency-side workflow is embedded and trusted. The venue side is years away. Nothing in near-term planning is designed to serve venues.
 
 ---
 
-**Docs:** [What is BENE?](../README.md) · [Product Structure](../business/Personal_Venue_Catalog/product.md) · [Business Proposal](../business/Personal_Venue_Catalog/proposal.md) · [Competitive Landscape](../business/Personal_Venue_Catalog/comparison.md) · [Architecture](../platform/architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Personal Venue Catalog](../business/Personal_Venue_Catalog/product.md) · [Digital Sales Room](../business/Digital_Sales_Room_for_Events/README.md) · [Market Structure](../business/market.md) · [Architecture](../platform/architecture.md)

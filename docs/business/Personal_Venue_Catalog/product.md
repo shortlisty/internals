@@ -1,5 +1,8 @@
 # Product structure
 
+> [!NOTE]
+> This document was written for the **Personal Venue Catalog** segment — an internal knowledge-base tool for event agencies. It is a reference example for that positioning, not the primary product direction. The current product focus is the [Digital Sales Room for Events](../../Digital_Sales_Room_for_Events/README.md).
+
 > **Audience:** Founders, team.
 > **Purpose:** Explain what BENE Intelligence is made of in business terms — the tenant app, the four capability pillars, the UI concept, and the positioning logic. Read this before the architecture reference.
 
