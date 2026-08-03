@@ -1,7 +1,7 @@
 # Digital Sales Room for Events
 
 > **Status:** In progress — new concept documents land here.
-> **Context:** See [pivot rationale](../../chats/) for the reasoning behind the shift from Personal Venue Catalog to Digital Sales Room.
+> **Context:** See [rationale](../../chats/) for the reasoning behind the shift from Personal Venue Catalog to Digital Sales Room.
 
 ---
 
@@ -13,13 +13,13 @@ The DSR concept in one sentence: an interactive client collaboration workspace w
 
 ---
 
-## Documents (planned)
+## Documents
 
 - `product.md` — product structure and capability pillars for the DSR concept
 - `proposal.md` — business case, ICP, pricing ($150–300/mo), monetisation
-- `pitch-mechanics.md` — how the Pitch Board / Dashboard output works (agency ↔ client collaboration, snapshot on approval)
-- `cold-start.md` — seed data and regional launch strategy (Naples / other tier-2 city approach)
-- `comparison.md` — competitive landscape update: DSR category vs. Qwilr, Dock.us, Trumpet, Pandadoc
+- `pitch-mechanics.md` — how the Pitch Board / Dashboard output works (agency ↔ client collaboration, snapshot on approval) _(planned)_
+- `cold-start.md` — seed data and regional launch strategy (Naples / other tier-2 city approach) _(planned)_
+- `comparison.md` — competitive landscape update: DSR category vs. Qwilr, Dock.us, Trumpet, Pandadoc _(planned)_
 
 ---
 
