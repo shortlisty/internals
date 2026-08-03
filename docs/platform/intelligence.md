@@ -31,13 +31,13 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 **DocumentTransformers (Transform):**
 
-| Transformer                    | What it does                                                                      |
-| ------------------------------ | --------------------------------------------------------------------------------- |
-| `TokenTextSplitter`            | Splits large documents into chunks respecting token limits                        |
-| `ContentFormatTransformer`     | Normalizes text format                                                            |
-| `SummaryMetadataEnricher`      | Generates document summary using LLM, stored as metadata                          |
-| `KeywordMetadataEnricher`      | Extracts keywords using LLM, stored as metadata                                   |
-| `VenueMetadataEnricher` | **Venue-domain-specific** (`bene-venue-model`): extracts capacity, amenities, contacts via structured GPT-4o call against the venue canonical field set. The only non-generic component in the pipeline — everything else is reusable across verticals. |
+| Transformer                | What it does                                                                                                                                                                                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TokenTextSplitter`        | Splits large documents into chunks respecting token limits                                                                                                                                                                                              |
+| `ContentFormatTransformer` | Normalizes text format                                                                                                                                                                                                                                  |
+| `SummaryMetadataEnricher`  | Generates document summary using LLM, stored as metadata                                                                                                                                                                                                |
+| `KeywordMetadataEnricher`  | Extracts keywords using LLM, stored as metadata                                                                                                                                                                                                         |
+| `VenueMetadataEnricher`    | **Venue-domain-specific** (`bene-venue-model`): extracts capacity, amenities, contacts via structured GPT-4o call against the venue canonical field set. The only non-generic component in the pipeline — everything else is reusable across verticals. |
 
 **DocumentWriters (Load):**
 
@@ -620,18 +620,18 @@ pgvector with IVFFlat index:
 
 ## 5. Technology Decisions Summary
 
-| Layer                   | Choice                                           | Rationale                                                                 |
-| ----------------------- | ------------------------------------------------ | ------------------------------------------------------------------------- |
-| **Document parsing**    | Apache Tika (via Spring AI `TikaDocumentReader`) | 1000+ formats, DWG support, fault-tolerant Pipes, built into Spring AI    |
-| **PDF layout analysis** | IBM Docling (self-hosted, open source)           | State-of-the-art table/layout extraction, MIT license, no per-page cost   |
-| **AI framework**        | Spring AI 1.0                                    | Java-native, provider-agnostic, ETL pipeline built-in, Micrometer metrics |
-| **LLM extraction**      | OpenAI GPT-4o                                    | Best structured output, multimodal (vision for images/floor plans)        |
-| **Embeddings**          | OpenAI text-embedding-3-small                    | 1536 dims, $0.02/1M tokens, excellent quality/cost ratio                  |
-| **Vector store**        | pgvector (PostgreSQL extension)                  | No extra service, transactional, tenant-isolated, production-ready        |
-| **Full-text search**    | PostgreSQL tsvector                              | Unified with relational data, no extra service                            |
-| **Geo search**          | PostGIS (PostgreSQL extension)                   | Mature, no extra service                                                  |
-| **Async processing**    | RabbitMQ (existing foundation)                   | Already in platform, priority queues, DLQ                                 |
-| **File storage**        | S3 / MinIO (existing foundation)                 | Already in IAM service, same pattern                                      |
+| Layer                   | Choice                                                                                                                                                                                                                                     | Rationale                                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| **Document parsing**    | Apache Tika (via Spring AI `TikaDocumentReader`)                                                                                                                                                                                           | 1000+ formats, DWG support, fault-tolerant Pipes, built into Spring AI                                |
+| **PDF layout analysis** | IBM Docling (self-hosted, open source)                                                                                                                                                                                                     | State-of-the-art table/layout extraction, MIT license, no per-page cost                               |
+| **AI framework**        | Spring AI 1.0                                                                                                                                                                                                                              | Java-native, provider-agnostic, ETL pipeline built-in, Micrometer metrics                             |
+| **LLM extraction**      | OpenAI GPT-4o                                                                                                                                                                                                                              | Best structured output, multimodal (vision for images/floor plans)                                    |
+| **Embeddings**          | OpenAI text-embedding-3-small                                                                                                                                                                                                              | 1536 dims, $0.02/1M tokens, excellent quality/cost ratio                                              |
+| **Vector store**        | pgvector (PostgreSQL extension)                                                                                                                                                                                                            | No extra service, transactional, tenant-isolated, production-ready                                    |
+| **Full-text search**    | PostgreSQL tsvector                                                                                                                                                                                                                        | Unified with relational data, no extra service                                                        |
+| **Geo search**          | PostGIS (PostgreSQL extension)                                                                                                                                                                                                             | Mature, no extra service                                                                              |
+| **Async processing**    | RabbitMQ (existing foundation)                                                                                                                                                                                                             | Already in platform, priority queues, DLQ                                                             |
+| **File storage**        | S3 / MinIO (existing foundation)                                                                                                                                                                                                           | Already in IAM service, same pattern                                                                  |
 | **Vertical isolation**  | Strategy pattern — `MetadataExtractionStrategy`, `MetadataAggregationStrategy`, `MetadataMigrator`, `CuratedListMatchStrategy`, `SearchBranchExecutor` interfaces in `bene-data-intelligence`; venue implementations in `bene-venue-model` | Pivot to new domain = new domain library + `@Bean` wiring. Zero changes to generic consumers. See §3. |
 
 **Principle:** Use proven infrastructure that already exists in the IQ Key Value foundation. Introduce the minimum number of new services. The only truly new infrastructure is pgvector (a PostgreSQL extension, not a new service) and optionally a self-hosted Docling container for advanced PDF parsing.

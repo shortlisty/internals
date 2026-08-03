@@ -56,6 +56,7 @@ The opener writes itself: "I've already built a catalog of the top venues in Nap
 ### Venue selection criteria
 
 A good seed venue is:
+
 - Independently operated or a small regional group — not a chain hotel with centralised PR
 - Publicly marketed with a website, photos, and downloadable specs or PDF decks
 - Actively hosting events — reviews on Google Maps, visible social presence
@@ -108,6 +109,7 @@ The first 5–10 agencies should not self-serve. They should receive concierge o
 **The offer:** "Sign up, share your Drive folder with me, and I will import your first 20 venues for free before your first call."
 
 What this means in practice:
+
 - Agency shares their Drive folder containing venue PDFs, floor plans, and decks
 - Founder runs the import pipeline manually, reviews the output, corrects obvious errors
 - By the time the first onboarding call happens, the agency already has a populated catalog

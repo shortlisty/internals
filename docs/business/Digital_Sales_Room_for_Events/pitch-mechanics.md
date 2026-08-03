@@ -39,11 +39,13 @@ Ties the board to a specific brief so the client immediately understands what th
 Each selected venue gets a card. Cards are the core of the board — rich, visual, and scannable.
 
 **Visual layer:**
+
 - Full-width photo carousel (photos from the catalog DAM)
 - Floor plan preview — tap/click to expand
 - 360° or video embed if available
 
 **Info layer — tied to the event brief:**
+
 - Capacity in the relevant configuration for this event (not all configurations — just the ones that match the brief)
 - Catering policy relevant to this brief (e.g. "Kosher available: yes")
 - Key specs the brief flagged — AV, accessibility, load-in access, parking
@@ -100,6 +102,7 @@ Markers are per-venue, stored with the board, and included in the snapshot on ap
 ### Activity feed
 
 Lightweight timeline visible to the agency (not the client):
+
 - Client opened the board
 - Client spent 4 minutes on venue 2
 - Client shortlisted venues 1 and 3
@@ -130,14 +133,14 @@ The snapshot is an operational record — what was agreed, when, by whom, source
 
 ## Tiers and white-labelling
 
-| Feature | Pro ($150/mo) | Business ($300/mo) | Enterprise |
-| --- | --- | --- | --- |
-| BENE subdomain | ✅ | ✅ | — |
-| Custom domain | — | ✅ | ✅ |
-| Agency logo + colours | ✅ | ✅ | ✅ |
-| "Powered by BENE" footer | visible | visible | removed |
-| Password-protected board | — | ✅ | ✅ |
-| Custom email sender | — | ✅ | ✅ |
+| Feature                  | Pro ($150/mo) | Business ($300/mo) | Enterprise |
+| ------------------------ | ------------- | ------------------ | ---------- |
+| BENE subdomain           | ✅            | ✅                 | —          |
+| Custom domain            | —             | ✅                 | ✅         |
+| Agency logo + colours    | ✅            | ✅                 | ✅         |
+| "Powered by BENE" footer | visible       | visible            | removed    |
+| Password-protected board | —             | ✅                 | ✅         |
+| Custom email sender      | —             | ✅                 | ✅         |
 
 From the client's perspective, Pro already looks like an agency-branded microsite. The "Powered by BENE" footer is small — comparable to "Sent via Mailchimp" on a newsletter. Business removes it for agencies where white-label matters.
 

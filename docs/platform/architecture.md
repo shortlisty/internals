@@ -983,14 +983,14 @@ bene-data-intelligence/
 
 **What does NOT go here — common mistakes to avoid at code review:**
 
-| Tempting addition | Why it does not belong |
-| --- | --- |
-| `VenueMetadata` or any domain POJO | Venue-specific — lives in `bene-venue-model` |
-| `CURRENT_SCHEMA_VERSION = 1` constant | Domain-version-specific — lives in domain library |
-| `MetadataMigrationV0ToV1` | Venue field renames — domain migration, not generic |
-| `VenueRegistryEntry` | Curated list structure is generic, but field shape is venue-specific — domain library |
-| `capacity`, `catering`, `av_tech` field names | Canonical field set — domain library |
-| Extraction prompt templates | Domain config — externalised per vertical, not in any library |
+| Tempting addition                             | Why it does not belong                                                                |
+| --------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `VenueMetadata` or any domain POJO            | Venue-specific — lives in `bene-venue-model`                                          |
+| `CURRENT_SCHEMA_VERSION = 1` constant         | Domain-version-specific — lives in domain library                                     |
+| `MetadataMigrationV0ToV1`                     | Venue field renames — domain migration, not generic                                   |
+| `VenueRegistryEntry`                          | Curated list structure is generic, but field shape is venue-specific — domain library |
+| `capacity`, `catering`, `av_tech` field names | Canonical field set — domain library                                                  |
+| Extraction prompt templates                   | Domain config — externalised per vertical, not in any library                         |
 
 **Dependency graph:**
 
@@ -1558,7 +1558,7 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 | `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536)                                | `bene-venue-service`                                                            |
 | `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB                             | `bene-venue-ingestion-worker`                                                   |
 | `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                                                        | `bene-venue-service`                                                            |
-| `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in `bene-data-intelligence` changelog (§4c).       | `bene-venue-ingestion-worker`                                                   |
+| `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in `bene-data-intelligence` changelog (§4c).      | `bene-venue-ingestion-worker`                                                   |
 | `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                                                         | `bene-venue-ingestion-worker`                                                   |
 
 ### Index strategy summary
@@ -1673,18 +1673,18 @@ Grafana dashboard added to `docker/grafana/provisioning/dashboards/VipService.js
 
 ## 14. Technology Decisions (summary)
 
-| Concern             | Decision                                       | Rationale                                                                     |
-| ------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------- |
-| Document parsing    | Apache Tika via Spring AI `TikaDocumentReader` | 1000+ formats, DWG support, fault-tolerant Tika Pipes, zero extra infra       |
-| PDF layout / tables | IBM Docling (Phase 2, self-hosted)             | State-of-the-art table reconstruction, MIT license, zero per-page cost        |
-| AI framework        | Spring AI 1.0                                  | Java-native, provider-agnostic, ETL pipeline built-in, Micrometer integration |
-| LLM (extraction)    | OpenAI GPT-4o                                  | Best structured output + multimodal (vision for images/floor plans)           |
-| Embeddings          | OpenAI text-embedding-3-small                  | 1536 dims, $0.02/1M tokens, good quality/cost ratio                           |
-| Vector store        | pgvector (PostgreSQL extension)                | No new service, transactional, tenant-isolated via schema                     |
-| Full-text search    | PostgreSQL tsvector                            | Unified with relational data, no new service                                  |
-| Geo search          | PostGIS (PostgreSQL extension)                 | No new service                                                                |
-| Async processing    | RabbitMQ (existing foundation)                 | Priority queues, DLQ, already in platform                                     |
-| File storage        | S3 / MinIO (existing foundation)               | Presigned URL pattern already proven in IAM                                   |
+| Concern              | Decision                                                                 | Rationale                                                                                                                                                                                                                                                                                                                  |
+| -------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Document parsing     | Apache Tika via Spring AI `TikaDocumentReader`                           | 1000+ formats, DWG support, fault-tolerant Tika Pipes, zero extra infra                                                                                                                                                                                                                                                    |
+| PDF layout / tables  | IBM Docling (Phase 2, self-hosted)                                       | State-of-the-art table reconstruction, MIT license, zero per-page cost                                                                                                                                                                                                                                                     |
+| AI framework         | Spring AI 1.0                                                            | Java-native, provider-agnostic, ETL pipeline built-in, Micrometer integration                                                                                                                                                                                                                                              |
+| LLM (extraction)     | OpenAI GPT-4o                                                            | Best structured output + multimodal (vision for images/floor plans)                                                                                                                                                                                                                                                        |
+| Embeddings           | OpenAI text-embedding-3-small                                            | 1536 dims, $0.02/1M tokens, good quality/cost ratio                                                                                                                                                                                                                                                                        |
+| Vector store         | pgvector (PostgreSQL extension)                                          | No new service, transactional, tenant-isolated via schema                                                                                                                                                                                                                                                                  |
+| Full-text search     | PostgreSQL tsvector                                                      | Unified with relational data, no new service                                                                                                                                                                                                                                                                               |
+| Geo search           | PostGIS (PostgreSQL extension)                                           | No new service                                                                                                                                                                                                                                                                                                             |
+| Async processing     | RabbitMQ (existing foundation)                                           | Priority queues, DLQ, already in platform                                                                                                                                                                                                                                                                                  |
+| File storage         | S3 / MinIO (existing foundation)                                         | Presigned URL pattern already proven in IAM                                                                                                                                                                                                                                                                                |
 | Shared library split | `bene-data-intelligence` (generic) + `bene-venue-model` (venue-specific) | Enables pivot to other verticals without refactoring infrastructure contracts. Generic extraction pipeline, event POJOs, metadata versioning mechanism, and provenance model live in `bene-data-intelligence` and are reused unchanged. Venue canonical field set and migrations live in `bene-venue-model`. See §4a, §4c. |
 
 Full rationale and competitor analysis: see `../business/comparison.md`.

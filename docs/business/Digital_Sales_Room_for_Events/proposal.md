@@ -67,13 +67,13 @@ EA, HR, or events leads at mid-to-large companies running quarterly offsites, an
 
 ### ICP matrix
 
-| Segment | Size | Buyer | ACV target | Priority |
-| --- | --- | --- | --- | --- |
-| Small event agency | 5–20 | Owner / MD | $1,800/yr | **Tier 1** |
-| Mid event agency | 20–50 | Director / MD | $2,400–4,800/yr | **Tier 1** |
-| Corporate events team | 50–500 | Head of Events / EA | $3,600–6,000/yr | Tier 2 |
-| Solo event manager | 1 | Self | $1,800/yr | Tier 3 (volume) |
-| Large agency / AMC | 50+ | VP Events / COO | $6,000+/yr | Tier 2 |
+| Segment               | Size   | Buyer               | ACV target      | Priority        |
+| --------------------- | ------ | ------------------- | --------------- | --------------- |
+| Small event agency    | 5–20   | Owner / MD          | $1,800/yr       | **Tier 1**      |
+| Mid event agency      | 20–50  | Director / MD       | $2,400–4,800/yr | **Tier 1**      |
+| Corporate events team | 50–500 | Head of Events / EA | $3,600–6,000/yr | Tier 2          |
+| Solo event manager    | 1      | Self                | $1,800/yr       | Tier 3 (volume) |
+| Large agency / AMC    | 50+    | VP Events / COO     | $6,000+/yr      | Tier 2          |
 
 **MVP focus:** small to mid agencies (5–50). Fastest decision cycle, clearest pain, highest word-of-mouth density in tight professional communities.
 
@@ -96,6 +96,7 @@ EA, HR, or events leads at mid-to-large companies running quarterly offsites, an
 ### Phase 1 — MVP
 
 **Venue catalog**
+
 - Ingest via Drive/Notion connect, email forward, or direct upload
 - AI extraction: capacity, catering policy, AV specs, restrictions, contacts, pricing
 - Human verification: split-screen confirm/correct flow, confidence scores, source citations
@@ -103,6 +104,7 @@ EA, HR, or events leads at mid-to-large companies running quarterly offsites, an
 - Platform curated registry for major markets (gap-fill at lowest priority)
 
 **Pitch board**
+
 - Generate from selected catalog venues in one click
 - Private shareable link — no client login required
 - Interactive venue cards: photo gallery, floor plan, key metadata, configurable spec
@@ -112,11 +114,13 @@ EA, HR, or events leads at mid-to-large companies running quarterly offsites, an
 - Basic branding: agency name and logo on the pitch page
 
 **Collaboration**
+
 - Invite agency team members with role-based access
 - Client-side: inline questions on any venue or spec item
 - Agency response visible to client in the same board
 
 **Infrastructure**
+
 - Storage retention: catalog sources 30 days, pitch assets through event date + 30 days
 - Mobile-responsive on both sides
 

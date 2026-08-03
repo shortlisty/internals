@@ -8,13 +8,30 @@
 
 ## [Unreleased]
 
+---
+
+## 2026-08-03
+
 ### Added
 
-- `docs/business/cold-start.md` — cold start strategy: why seed data is a development requirement, tier-2 US city focus (Austin, Nashville, Miami), venue selection criteria, six venue categories, free and open data sources (venue websites, Google Places API, OSM, social media), per-venue collection process, accuracy tracking spreadsheet, and exit criteria checklist.
+- `docs/business/Digital_Sales_Room_for_Events/README.md` — concept overview and document index for the DSR positioning; explains the two-layer architecture (Personal Venue Catalog as data layer, Digital Sales Room as output layer).
+- `docs/business/Digital_Sales_Room_for_Events/product.md` — product structure for the DSR concept: two-layer architecture, five capability pillars (ingestion, catalog, search, pitch board, approval/snapshot), UX concept for agency and client sides, positioning against discovery platforms and generic proposal tools.
+- `docs/business/Digital_Sales_Room_for_Events/proposal.md` — business case: ICP matrix with updated pricing ($150–300/mo), feature phases, unit economics, GTM playbook (concierge onboarding + viral loop via pitch board), risks, and open questions.
+- `docs/business/Digital_Sales_Room_for_Events/pitch-mechanics.md` — pitch board mechanics: micro-site structure, event context header, venue cards filtered by brief, collaboration layer (contextual comments, markers, activity feed), approval → immutable snapshot, white-label tiers.
+- `docs/business/Digital_Sales_Room_for_Events/cold-start.md` — cold start strategy for DSR: two cold-start problems (empty catalog + no demo story), city-focused launch rationale, why focused geography eases outreach, seed catalog build process, concierge onboarding model, validation milestones before self-serve.
+- `docs/business/Digital_Sales_Room_for_Events/comparison.md` — competitive landscape for DSR: five category sections (DSR/proposal tools, venue discovery, agency CRM/ops, venue management, DIY stack), per-category tables, unified capability matrix, durable edge analysis.
 
 ### Changed
 
-- `README.md` — added Cold Start Strategy row to navigation table.
+- `docs/roadmap/vision.md` — fully rewritten to reflect DSR positioning: updated one-sentence, two-role audience (agency + client), two-layer product structure, new strategic bets (pitch board as buying trigger, approval snapshot for dispute prevention, client onboarding = open a link), north star metric changed from "weekly active searches" to "pitch boards approved per team per month".
+- `docs/README.md` — fully rewritten: problem framing expanded to include scattered feedback and missing agreed spec, two-layer structure section added, pricing updated to $150/$300, nav bar updated with Competitive Landscape link.
+- `README.md` — DSR section expanded from one row to a full six-row table; blank line formatting fixed.
+- `AGENTS.md` — §2 repository structure tree updated to reflect `Digital_Sales_Room_for_Events/` and `Personal_Venue_Catalog/` subdirectories; file naming rule updated with explicit PascalCase exception for concept containers; §4.8 and §4.9 rewritten to reference new file paths and DSR document conventions.
+
+### Restructured
+
+- `docs/business/` — original flat business documents (`product.md`, `proposal.md`, `comparison.md`, `cold-start.md`, `sales/`) moved into `docs/business/Personal_Venue_Catalog/`. File `market.md` remains at `docs/business/market.md` — still relevant across both positioning layers. All internal links updated.
+- All files in `docs/business/Personal_Venue_Catalog/` marked with `[!NOTE]` callout identifying them as segment reference documents for the catalog data-layer positioning, not the primary product direction.
 
 ---
 
@@ -70,4 +87,3 @@
 - `docs/business/comparison.md` — competitive landscape analysis: Cvent, Tripleseat, Momentus, VenueScanner, VenueFindAI, VenueArc, Spark (GEVME/PCMA), Bynder, Brandfolder, Unstructured.io, Docling, Apache Tika. Includes gap summary matrix.
 - `docs/platform/architecture.md` — architecture reference: platform context, domain model (Venue, VenueAsset, ExtractionJob, MetadataEvent), metadata aggregation engine, service architecture (bene-venue-service, bene-venue-ingestion-worker, bene-venue-model), ETL pipeline, search architecture, API surface, event contracts, plan entitlement mapping, database schema, UI integration, observability, security, technology decisions, and open decisions.
 - `docs/platform/intelligence.md` — intelligence layer reference: Spring AI ETL pipeline, asset-type processing matrix, chunking strategy, Apache Tika rationale, Docling integration, venue-specific extraction schema, confidence-sourced metadata model, multi-source aggregation design, scalability architecture, and technology decisions summary.
-- `docs/ru/` — Russian translation directory (mirrors `docs/` structure).

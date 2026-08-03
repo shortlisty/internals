@@ -22,6 +22,7 @@ The agency's private library of venues. Documents come in from any source — Dr
 This layer is the foundation. Without reliable venue data, the pitch has nothing to draw from.
 
 Key capabilities:
+
 - Zero-friction ingestion from Drive, Notion, email (forward to ingest address), direct upload
 - AI extraction with per-field confidence scores and source citations
 - One-click human verification — split-screen: source document left, extracted fields right
@@ -36,6 +37,7 @@ The client-facing pitch board. The planner selects venues from the catalog, the 
 On approval, the system locks an **immutable snapshot**: a timestamped record of every field, file reference, and decision, attributed to its source. That snapshot is the Single Source of Truth for the event — the record both sides can point to if anything is disputed later.
 
 Key capabilities:
+
 - One-click pitch board generation from selected catalog venues
 - Private shareable link — no client account required
 - Interactive spec: configuration toggles, notes, preference indicators

@@ -9,6 +9,7 @@
 BENE is a collaborative workspace for event agencies. It turns venue files into a structured library and that library into an interactive client pitch — ending with a timestamped, approved specification.
 
 Two layers:
+
 - **Personal Venue Catalog** — private venue library with AI extraction and search
 - **Digital Sales Room** — interactive pitch board for client sign-off
 
@@ -20,21 +21,21 @@ See [docs/README.md](docs/README.md) for the full plain-language overview.
 
 ### Product & Business
 
-| Document | Audience | What it covers |
-| --- | --- | --- |
-| [What is BENE?](docs/README.md) | Anyone | Problem, solution, how it works, pricing |
-| [Market Structure](docs/business/market.md) | Anyone | Event chain, tool segmentation, the vacant slot |
-| [Vision](docs/roadmap/vision.md) | Founders, team | Product direction, strategic bets, north star metric |
+| Document                                    | Audience       | What it covers                                       |
+| ------------------------------------------- | -------------- | ---------------------------------------------------- |
+| [What is BENE?](docs/README.md)             | Anyone         | Problem, solution, how it works, pricing             |
+| [Market Structure](docs/business/market.md) | Anyone         | Event chain, tool segmentation, the vacant slot      |
+| [Vision](docs/roadmap/vision.md)            | Founders, team | Product direction, strategic bets, north star metric |
 
 ### Digital Sales Room for Events
 
-| Document | Audience | What it covers |
-| --- | --- | --- |
-| [Overview](docs/business/Digital_Sales_Room_for_Events/README.md) | Founders, team | DSR concept, relationship to catalog layer |
-| [Product Structure](docs/business/Digital_Sales_Room_for_Events/product.md) | Founders, team | Two-layer architecture, capability pillars, UX concept |
-| [Business Proposal](docs/business/Digital_Sales_Room_for_Events/proposal.md) | Founders, team | ICP, feature phases, pricing, GTM, risks |
-| [Pitch Mechanics](docs/business/Digital_Sales_Room_for_Events/pitch-mechanics.md) | Founders, team | Micro-site structure, collaboration layer, approval snapshot |
-| [Cold Start Strategy](docs/business/Digital_Sales_Room_for_Events/cold-start.md) | Founders, team | Seed catalog, concierge onboarding, city-by-city expansion |
+| Document                                                                           | Audience       | What it covers                                                 |
+| ---------------------------------------------------------------------------------- | -------------- | -------------------------------------------------------------- |
+| [Overview](docs/business/Digital_Sales_Room_for_Events/README.md)                  | Founders, team | DSR concept, relationship to catalog layer                     |
+| [Product Structure](docs/business/Digital_Sales_Room_for_Events/product.md)        | Founders, team | Two-layer architecture, capability pillars, UX concept         |
+| [Business Proposal](docs/business/Digital_Sales_Room_for_Events/proposal.md)       | Founders, team | ICP, feature phases, pricing, GTM, risks                       |
+| [Pitch Mechanics](docs/business/Digital_Sales_Room_for_Events/pitch-mechanics.md)  | Founders, team | Micro-site structure, collaboration layer, approval snapshot   |
+| [Cold Start Strategy](docs/business/Digital_Sales_Room_for_Events/cold-start.md)   | Founders, team | Seed catalog, concierge onboarding, city-by-city expansion     |
 | [Competitive Landscape](docs/business/Digital_Sales_Room_for_Events/comparison.md) | Founders, team | DSR vs. proposal tools, venue discovery, agency CRM, DIY stack |
 
 ### Personal Venue Catalog (segment reference)
@@ -42,21 +43,20 @@ See [docs/README.md](docs/README.md) for the full plain-language overview.
 > [!NOTE]
 > These documents describe the catalog subsystem and its original standalone positioning. They remain valid as the data-layer reference but are not the primary product direction.
 
-| Document | What it covers |
-| --- | --- |
-| [Product Structure](docs/business/Personal_Venue_Catalog/product.md) | Tenant app, capability pillars, UI concept |
-| [Business Proposal](docs/business/Personal_Venue_Catalog/proposal.md) | ICP, monetisation, GTM, risks |
-| [Competitive Landscape](docs/business/Personal_Venue_Catalog/comparison.md) | Competitor analysis and gap matrix |
-| [Cold Start Strategy](docs/business/Personal_Venue_Catalog/cold-start.md) | Seeding the library before launch |
-| [Sales materials](docs/business/Personal_Venue_Catalog/sales/) | Pitch, battlecards, objections, messaging |
+| Document                                                                    | What it covers                             |
+| --------------------------------------------------------------------------- | ------------------------------------------ |
+| [Product Structure](docs/business/Personal_Venue_Catalog/product.md)        | Tenant app, capability pillars, UI concept |
+| [Business Proposal](docs/business/Personal_Venue_Catalog/proposal.md)       | ICP, monetisation, GTM, risks              |
+| [Competitive Landscape](docs/business/Personal_Venue_Catalog/comparison.md) | Competitor analysis and gap matrix         |
+| [Cold Start Strategy](docs/business/Personal_Venue_Catalog/cold-start.md)   | Seeding the library before launch          |
+| [Sales materials](docs/business/Personal_Venue_Catalog/sales/)              | Pitch, battlecards, objections, messaging  |
 
 ### Platform
 
-| Document | Audience | What it covers |
-| --- | --- | --- |
-| [Architecture Reference](docs/platform/architecture.md) | Engineers, architects | Domain model, services, schema, API, event contracts |
-| [Intelligence Layer](docs/platform/intelligence.md) | Engineers, architects | ETL pipeline, extraction, AI layer, technology decisions |
-
+| Document                                                | Audience              | What it covers                                           |
+| ------------------------------------------------------- | --------------------- | -------------------------------------------------------- |
+| [Architecture Reference](docs/platform/architecture.md) | Engineers, architects | Domain model, services, schema, API, event contracts     |
+| [Intelligence Layer](docs/platform/intelligence.md)     | Engineers, architects | ETL pipeline, extraction, AI layer, technology decisions |
 
 ---
 
