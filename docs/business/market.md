@@ -1,7 +1,7 @@
 # Market structure
 
 > **Audience:** Anyone.
-> **Purpose:** Explain how the event industry software market is structured — the roles, the tools, who builds for whom, and where the gap is. A mental model document, not a competitive analysis. For detailed per-tool breakdowns see [comparison.md](comparison.md).
+> **Purpose:** Explain how the event industry software market is structured — the roles, the tools, who builds for whom, and where the gap is. A mental model document, not a competitive analysis. For detailed per-tool breakdowns see [comparison.md](Personal_Venue_Catalog/comparison.md).
 
 ---
 
@@ -114,10 +114,10 @@ It sits downstream of discovery (you already know the venues) and upstream of pr
 
 The business model follows the gap: charge the planner, not the venue. The event manager is the paying customer. The knowledge base is the product.
 
-For the detailed per-tool competitive analysis: [comparison.md](comparison.md).
-For the product structure: [product.md](product.md).
-For the business case: [proposal.md](proposal.md).
+For the detailed per-tool competitive analysis: [comparison.md](Personal_Venue_Catalog/comparison.md).
+For the product structure: [product.md](Personal_Venue_Catalog/product.md).
+For the business case: [proposal.md](Personal_Venue_Catalog/proposal.md).
 
 ---
 
-**Docs:** [What is BENE?](../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is BENE?](../README.md) · [Product Structure](Personal_Venue_Catalog/product.md) · [Business Proposal](Personal_Venue_Catalog/proposal.md) · [Competitive Landscape](Personal_Venue_Catalog/comparison.md) · [Vision](../roadmap/vision.md)

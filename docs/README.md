@@ -2,7 +2,7 @@
 
 _What this is, why it exists, and whether it makes sense as a business._
 
-**Docs:** [What is BENE?](README.md) · [Market Structure](business/market.md) · [Product Structure](business/product.md) · [Business Proposal](business/proposal.md) · [Competitive Landscape](business/comparison.md) · [Architecture](platform/architecture.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
+**Docs:** [What is BENE?](README.md) · [Market Structure](business/market.md) · [Product Structure](business/Personal_Venue_Catalog/product.md) · [Business Proposal](business/Personal_Venue_Catalog/proposal.md) · [Competitive Landscape](business/Personal_Venue_Catalog/comparison.md) · [Architecture](platform/architecture.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
 
 ---
 
@@ -115,4 +115,4 @@ _Want to see it in action? A 2-minute demo shows more than any document can._
 
 ---
 
-**Docs:** [What is BENE?](README.md) · [Market Structure](business/market.md) · [Product Structure](business/product.md) · [Business Proposal](business/proposal.md) · [Competitive Landscape](business/comparison.md) · [Architecture](platform/architecture.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
+**Docs:** [What is BENE?](README.md) · [Market Structure](business/market.md) · [Product Structure](business/Personal_Venue_Catalog/product.md) · [Business Proposal](business/Personal_Venue_Catalog/proposal.md) · [Competitive Landscape](business/Personal_Venue_Catalog/comparison.md) · [Architecture](platform/architecture.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)

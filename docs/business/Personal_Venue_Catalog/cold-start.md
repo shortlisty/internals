@@ -17,7 +17,7 @@ The solution is to collect the seed data ourselves during development. This is n
 2. **Demo content** — a live demo with real, recognisable venues in a specific city is orders of magnitude more convincing than placeholder data.
 3. **Free-tier seed library** — new users on the free tier start with a non-empty library. Their first interaction is a search that returns results, not an empty state.
 
-This is also the 50-document benchmark called out in [vision.md](../roadmap/vision.md) under strategic bets. Collecting seed data and running the accuracy benchmark are the same activity.
+This is also the 50-document benchmark called out in [vision.md](../../roadmap/vision.md) under strategic bets. Collecting seed data and running the accuracy benchmark are the same activity.
 
 ---
 
@@ -187,4 +187,4 @@ When these criteria are met, the product is ready for the first customer convers
 
 ---
 
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](proposal.md) · [Market Structure](market.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is BENE?](../../README.md) · [Business Proposal](proposal.md) · [Market Structure](../market.md) · [Vision](../../roadmap/vision.md)

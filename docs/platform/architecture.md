@@ -3,7 +3,7 @@
 > **Audience:** Engineers, architects.
 > **Purpose:** Single source of truth for all technical decisions before development starts.
 
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Architecture](architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Personal_Venue_Catalog/proposal.md) · [Competitive Landscape](../business/Personal_Venue_Catalog/comparison.md) · [Architecture](architecture.md)
 
 ---
 
@@ -130,7 +130,7 @@ BENE Intelligence is a new product service built **on top of the IQ Key Value fo
 
 **Not tenant-owned. Lives in `public` schema. Read-only to tenants.**
 
-The venue registry is a platform-level reference dataset — a growing catalogue of known venues, seeded during development (see [cold-start.md](../business/cold-start.md)) and enriched over time. It is not a source of truth; it is a starting point. Tenant data always wins over registry data.
+The venue registry is a platform-level reference dataset — a growing catalogue of known venues, seeded during development (see [cold-start.md](../business/Personal_Venue_Catalog/cold-start.md)) and enriched over time. It is not a source of truth; it is a starting point. Tenant data always wins over registry data.
 
 **`VenueRegistryEntry`**
 
@@ -2087,4 +2087,4 @@ One `@RestControllerAdvice` per service. Every handler uses the same `problem(ty
 
 ---
 
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Architecture](architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Personal_Venue_Catalog/proposal.md) · [Competitive Landscape](../business/Personal_Venue_Catalog/comparison.md) · [Architecture](architecture.md)

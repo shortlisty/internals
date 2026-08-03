@@ -38,7 +38,7 @@ How venue data gets into the system. Event managers import from external sources
 
 This is the entry point. Without good ingestion, the library stays empty and the product has no value.
 
-Corresponds to epic: [E2 — Document intelligence](../roadmap/epics/E2-document-intelligence.md).
+Corresponds to epic: [E2 — Document intelligence](../../roadmap/epics/E2-document-intelligence.md).
 
 ### PIM — Product Information Management
 
@@ -48,7 +48,7 @@ The structured knowledge store. All textual and structured information about a v
 
 This is the core of the platform. Search, sharing, and every downstream workflow depend on the quality of data here.
 
-Corresponds to epics: [E1 — Venue profiles](../roadmap/epics/E1-venue-profiles.md), [E6 — Data quality](../roadmap/epics/E6-data-quality.md).
+Corresponds to epics: [E1 — Venue profiles](../../roadmap/epics/E1-venue-profiles.md), [E6 — Data quality](../../roadmap/epics/E6-data-quality.md).
 
 ### DAM — Digital Asset Management
 
@@ -56,7 +56,7 @@ The media store. Floor plans, photos, video walkthroughs, 3D tours, CAD files, b
 
 DAM in BENE Intelligence is not generic asset storage. Assets are attached to venues and to specific rooms or spaces within a venue. A floor plan is not just a file — it is a spatial asset linked to a room with known dimensions. That linkage is what makes the asset searchable and useful, not just stored.
 
-Corresponds to epics: [E1 — Venue profiles](../roadmap/epics/E1-venue-profiles.md) (asset sub-model), [E2 — Document intelligence](../roadmap/epics/E2-document-intelligence.md) (floor plan processing).
+Corresponds to epics: [E1 — Venue profiles](../../roadmap/epics/E1-venue-profiles.md) (asset sub-model), [E2 — Document intelligence](../../roadmap/epics/E2-document-intelligence.md) (floor plan processing).
 
 ### Search
 
@@ -64,7 +64,7 @@ The retrieval layer across the entire PIM and DAM. Natural-language queries, key
 
 Search is the north star interaction. A manager should be able to describe a client brief in plain language and get a ranked, sourced shortlist without opening a single file.
 
-Corresponds to epic: [E3 — Search](../roadmap/epics/E3-search.md).
+Corresponds to epic: [E3 — Search](../../roadmap/epics/E3-search.md).
 
 ---
 
@@ -78,4 +78,4 @@ BENE combines ETL, PIM, DAM, and search in a single tenant app focused specifica
 
 ---
 
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../platform/architecture.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is BENE?](../../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../../platform/architecture.md) · [Vision](../../roadmap/vision.md)

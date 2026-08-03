@@ -2,7 +2,7 @@
 
 > Strategic reference for the competitive positioning of BENE.
 
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Intelligence Layer](../platform/intelligence.md) · [Architecture](../platform/architecture.md)
+**Docs:** [What is BENE?](../../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Intelligence Layer](../../platform/intelligence.md) · [Architecture](../../platform/architecture.md)
 
 ---
 
@@ -865,7 +865,7 @@ A distinct cluster of tools that deal with floor plan geometry, spatial extracti
 
 The document intelligence infrastructure, ETL pipeline architecture, venue-specific extraction schema, multi-source aggregation, scalability, and technology decisions are covered in the dedicated reference:
 
-→ **[Intelligence Layer & ETL Pipeline](../platform/intelligence.md)**
+→ **[Intelligence Layer & ETL Pipeline](../../platform/intelligence.md)**
 
 ---
 
@@ -875,4 +875,4 @@ The document intelligence infrastructure, ETL pipeline architecture, venue-speci
 
 ---
 
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Intelligence Layer](../platform/intelligence.md) · [Architecture](../platform/architecture.md)
+**Docs:** [What is BENE?](../../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Intelligence Layer](../../platform/intelligence.md) · [Architecture](../../platform/architecture.md)

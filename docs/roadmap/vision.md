@@ -15,7 +15,7 @@ BENE Intelligence is the knowledge base for event professionals — turning the 
 
 The platform is designed and ready to build. The architecture is settled, the domain model is defined, and the core extraction pipeline is chosen. No code has shipped yet. The first milestone targets the smallest version of the product that delivers the aha moment: upload a PDF, watch it become a structured venue profile, run a search that returns it.
 
-Product structure in business terms: [product.md](../business/product.md).
+Product structure in business terms: [product.md](../business/Personal_Venue_Catalog/product.md).
 
 ---
 
@@ -25,7 +25,7 @@ BENE Intelligence is built for event managers and event agencies — the profess
 
 The end client — the person commissioning the event — is not a user of the tool. They are the recipient of better, faster answers from the manager who uses it.
 
-The tenant app is built for the event professional's daily workflow: utilitarian, fast, information-dense. See [product.md](../business/product.md) for the full UI concept.
+The tenant app is built for the event professional's daily workflow: utilitarian, fast, information-dense. See [product.md](../business/Personal_Venue_Catalog/product.md) for the full UI concept.
 
 ---
 
@@ -55,7 +55,7 @@ BENE becomes the intelligence layer that sits beneath every stage of the event p
 
 ## Product structure
 
-The product is a single tenant app. The full description is in [product.md](../business/product.md). The summary:
+The product is a single tenant app. The full description is in [product.md](../business/Personal_Venue_Catalog/product.md). The summary:
 
 - **Tenant app** — the working environment for event managers. ETL ingestion, PIM (structured venue data), DAM (floor plans, photos, media), search, team collaboration. One app, one user type, built for daily professional use.
 - **ETL and self-ingestion** — how data gets in: AI extraction from uploaded documents, bulk import, manual entry.
@@ -79,7 +79,7 @@ The product is not a better folder structure. It is an answer engine. If manager
 Individual managers may find the product useful, but the buying decision happens when an agency owner recognises that institutional knowledge is at risk. The shared library is the moat. A solo user switching tools is low friction; a team of fifteen who have built their venue library together is not.
 
 **The gap is unoccupied.**
-No existing tool combines planner-owned document ingestion, AI extraction with a venue-specific schema, multi-source conflict resolution, and semantic search. This assessment is documented in [competitive landscape](../business/comparison.md). If a direct competitor emerges, the roadmap must be re-evaluated against their actual capabilities, not their marketing.
+No existing tool combines planner-owned document ingestion, AI extraction with a venue-specific schema, multi-source conflict resolution, and semantic search. This assessment is documented in [competitive landscape](../business/Personal_Venue_Catalog/comparison.md). If a direct competitor emerges, the roadmap must be re-evaluated against their actual capabilities, not their marketing.
 
 ---
 
@@ -109,4 +109,4 @@ The tenant app is the foundation. Once the venue knowledge base is proven — ac
 
 ---
 
-**Docs:** [What is BENE?](../README.md) · [Product Structure](../business/product.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Architecture](../platform/architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Product Structure](../business/Personal_Venue_Catalog/product.md) · [Business Proposal](../business/Personal_Venue_Catalog/proposal.md) · [Competitive Landscape](../business/Personal_Venue_Catalog/comparison.md) · [Architecture](../platform/architecture.md)

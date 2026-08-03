@@ -3,7 +3,7 @@
 > Technical reference for the document intelligence, ETL pipeline, and the proprietary
 > intelligence layer of BENE.
 
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Personal_Venue_Catalog/proposal.md) · [Competitive Landscape](../business/Personal_Venue_Catalog/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)
 
 ---
 
@@ -655,4 +655,4 @@ pgvector with IVFFlat index:
 
 ---
 
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/proposal.md) · [Competitive Landscape](../business/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Personal_Venue_Catalog/proposal.md) · [Competitive Landscape](../business/Personal_Venue_Catalog/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)

@@ -237,7 +237,7 @@ The long-horizon direction is a two-sided marketplace: event professionals manag
 
 **Long horizon — marketplace and client-facing features**
 
-Venues claiming profiles, planner-to-venue discovery across the full BENE network, venue subscriptions for enhanced visibility, and client-facing shareable views are long-horizon directions. They are not part of Phase 1, 2, or 3 planning. See [vision.md](../roadmap/vision.md) for the long-horizon framing.
+Venues claiming profiles, planner-to-venue discovery across the full BENE network, venue subscriptions for enhanced visibility, and client-facing shareable views are long-horizon directions. They are not part of Phase 1, 2, or 3 planning. See [vision.md](../../roadmap/vision.md) for the long-horizon framing.
 
 ---
 
@@ -399,4 +399,4 @@ Personal and direct. No paid acquisition yet.
 
 ---
 
-**Docs:** [What is BENE?](../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../platform/architecture.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is BENE?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../../platform/architecture.md) · [Vision](../../roadmap/vision.md)
