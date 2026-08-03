@@ -311,7 +311,7 @@ REGISTRY            → данные реестра платформы (наим
 
 - **Обязанности:** ETL-конвейер документов (парсинг → чанкинг → извлечение → эмбеддинг), жизненный цикл заданий извлечения, сопоставление с реестром и заполнение пробелов, агрегация метаданных, плановые обслуживающие задания (обновление устаревшей агрегации, отчёты по стоимости)
 - **Природа:** асинхронный сайдкар — нет входящего HTTP, нет REST API, нет записи в service discovery. Только событийно-управляемый.
-- **База данных:** общая схема PostgreSQL с `bene-venue-service`. Читает `venue_assets`, пишет `extraction_jobs`, `venue_metadata_events`, `venue_vectors`, `ai_cost_tracking`. Также читает `public.venue_registry` для шага сопоставления с реестром.
+- **База данных:** общая схема PostgreSQL с `bene-venue-service`. Читает `venue_assets`, пишет `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Также читает `public.venue_registry` для шага сопоставления с реестром.
 - **Потребляет:** `asset.uploaded` (RabbitMQ) — запускает ETL-конвейер
 - **Публикует:** `extraction.started`, `extraction.completed`, `extraction.failed` (RabbitMQ)
 - **Внешние вызовы:** OpenAI API (GPT-4o, text-embedding-3-small), опционально сайдкар Docling (Фаза 2)
@@ -327,7 +327,7 @@ REGISTRY            → данные реестра платформы (наим
 | `venue_assets`          | `bene-venue-service`          | читать (ingestion-worker: получать актив для обработки)                             |
 | `venue_metadata_events` | `bene-venue-service`          | писать через реакцию на событие (`extraction.completed` → venue-service агрегирует) |
 | `extraction_jobs`       | `bene-venue-ingestion-worker` | читать (venue-service: показывать статус задания в API)                             |
-| `venue_vectors`         | `bene-venue-ingestion-worker` | читать (venue-service: векторные поисковые запросы)                                 |
+| `item_vectors`          | `bene-venue-ingestion-worker` | читать (venue-service: векторные поисковые запросы)                                 |
 | `ai_cost_tracking`      | `bene-venue-ingestion-worker` | читать (venue-service: показывать сводку по стоимости в API)                        |
 
 Единственное законное кросс-граничное чтение из `bene-venue-ingestion-worker` — это `SELECT` по `venue_assets` по `asset_id` (переданному в полезной нагрузке события `asset.uploaded`). Это поиск по внешнему ключу, не бизнес-логика — допустимо и намеренно.
@@ -527,13 +527,13 @@ vip/registry/exports/{date}/{snapshot}.jsonl.gz
 
 1. `bene-venue-service` удаляет запись `venue_assets` (каскад БД удаляет связанные extraction_jobs и metadata_events).
 2. `bene-venue-service` выполняет `s3:DeleteObject` для `venue_assets.s3_key`.
-3. Публикуется событие `asset.deleted` → `bene-venue-ingestion-worker` удаляет все строки `venue_vectors`, где `metadata->>'asset_id' = :assetId`.
+3. Публикуется событие `asset.deleted` → `bene-venue-ingestion-worker` удаляет все строки `item_vectors`, где `metadata->>'asset_id' = :assetId`.
 
 При полном удалении тенанта (право на удаление по GDPR):
 
 1. `DELETE FROM t_{tenantKey}.venues` каскадно удаляет все строки активов.
 2. Отдельное событие `tenant.deleted` запускает фоновую очистку S3: `s3:DeleteObjects` для всех ключей по маске `vip/tenants/{tenantKey}/*` (батчами по 1000 объектов в соответствии с лимитами S3 API).
-3. Очистка pgvector удаляет все строки `venue_vectors` для схемы тенанта (сброс схемы обрабатывает это неявно при удалении схемы).
+3. Очистка pgvector удаляет все строки `item_vectors` для схемы тенанта (сброс схемы обрабатывает это неявно при удалении схемы).
 
 ---
 
@@ -599,7 +599,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 ### Стадия 3 — Загрузка
 
 1. **Эмбеддинг** — `EmbeddingModel` (`text-embedding-3-small`, 1536 измерений).
-2. **Сохранение** — `TenantAwarePgVectorStore` пишет чанки + эмбеддинги в таблицу `venue_vectors` в схеме тенанта.
+2. **Сохранение** — `TenantAwarePgVectorStore` пишет чанки + эмбеддинги в таблицу `item_vectors` в схеме тенанта.
 3. **Сопоставление с реестром** — `VenueRegistryMatcher` запрашивает `public.venue_registry` по схожести имени + PostGIS-близости. При совпадении выше порога уверенности, поля метаданных реестра копируются в запись тенанта для незаполненных полей. Источник помечается как `REGISTRY` в `metadata_sources`. Копирование, не связывание — запись тенанта с этого момента независима.
 4. **Агрегация** — публикует событие `extraction.completed` → `MetadataAggregationConsumer` обновляет `venues.metadata`.
 

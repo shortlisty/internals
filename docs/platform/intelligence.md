@@ -37,7 +37,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 | `ContentFormatTransformer`     | Normalizes text format                                                            |
 | `SummaryMetadataEnricher`      | Generates document summary using LLM, stored as metadata                          |
 | `KeywordMetadataEnricher`      | Extracts keywords using LLM, stored as metadata                                   |
-| Custom `VenueMetadataEnricher` | **BENE-specific:** extracts capacity, amenities, contacts via structured LLM call |
+| `VenueMetadataEnricher` | **Venue-domain-specific** (`bene-venue-model`): extracts capacity, amenities, contacts via structured GPT-4o call against the venue canonical field set. The only non-generic component in the pipeline — everything else is reusable across verticals. |
 
 **DocumentWriters (Load):**
 
@@ -55,83 +55,92 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
                           │ presigned URL download
                           ▼
                ┌─────────────────────┐
-               │  DocumentReader     │  Spring AI / Apache Tika
-               │  (per asset type)   │  + IBM Docling (PDF tables)
+               │  DocumentReader     │  Spring AI / Apache Tika          [generic — bene-data-intelligence]
+               │  (per asset type)   │  + IBM Docling (PDF tables, Ph.2)
                └──────────┬──────────┘
                           │  List<Document>
                           │  (raw text chunks + page metadata)
                           ▼
                ┌─────────────────────┐
-               │  DocumentSplitter   │  TokenTextSplitter
+               │  DocumentSplitter   │  TokenTextSplitter                [generic — bene-data-intelligence]
                │                     │  (512 tokens, 50 overlap)
                └──────────┬──────────┘
                           │  List<Document> (chunks)
                           ▼
                ┌─────────────────────┐
-               │  VenueMetadata      │  GPT-4o structured output
+               │  VenueMetadata      │  GPT-4o structured output         [venue-specific — bene-venue-model]
                │  Enricher           │  → capacity, amenities, contacts
                └──────────┬──────────┘
                           │  List<Document> + venue metadata
                           ▼
                ┌─────────────────────┐
-               │  EmbeddingModel     │  text-embedding-3-small
+               │  EmbeddingModel     │  text-embedding-3-small           [generic — bene-data-intelligence]
                │                     │  (1536 dimensions per chunk)
                └──────────┬──────────┘
                           │  List<Document> + float[] embeddings
                           ▼
                ┌─────────────────────┐
-               │  TenantAware        │  PostgreSQL + pgvector
-               │  PgVectorStore      │  per-tenant schema
+               │  TenantAware        │  PostgreSQL + pgvector            [generic — bene-data-intelligence]
+               │  PgVectorStore      │  → item_vectors (per-tenant schema)
                └──────────┬──────────┘
                           │
                           ▼
                ┌─────────────────────┐
-               │  MetadataAggregator │  Event-sourced consolidation
+               │  MetadataAggregator │  Event-sourced consolidation      [venue-specific — bene-venue-model]
                │                     │  (conflict resolution)
                └─────────────────────┘
 ```
 
-**Java implementation sketch:**
+**Java implementation sketch** — the orchestrator is generic; venue-specific behaviour is injected via strategies (see §3 Extension Model):
 
 ```java
+// bene-venue-ingestion-worker — Spring wiring only, no domain logic here
 @Service
 @RequiredArgsConstructor
-public class VenueAssetProcessingPipeline {
+public class AssetExtractionOrchestrator<M> {
 
+  // ── generic contracts from bene-data-intelligence ──────────────────────
   private final TikaDocumentReader.Factory tikaFactory;
   private final TokenTextSplitter splitter;
-  private final VenueMetadataEnricher enricher;   // custom Spring AI DocumentTransformer
   private final EmbeddingModel embeddingModel;
-  private final VectorStore vectorStore;
-  private final MetadataAggregationService aggregationService;
+  private final VectorStore vectorStore;              // writes to item_vectors
 
-  public void process(VenueAsset asset, byte[] content) {
-    // 1. Extract — Tika handles PDF, DOCX, XLSX, images via OCR, DWG
-    var reader = tikaFactory.create(new ByteArrayResource(content), asset.getContentType());
-    var rawDocs = reader.get();
+  // ── domain strategies injected from bene-venue-model ───────────────────
+  private final MetadataExtractionStrategy<M> extractionStrategy;   // VenueMetadataExtractionStrategy
+  private final MetadataAggregationStrategy<M> aggregationStrategy; // VenueMetadataAggregationStrategy
+  private final MetadataMigrator migrator;                           // VenueMetadataMigrator
+  private final CuratedListMatchStrategy matchStrategy;              // VenueRegistryMatchStrategy
 
-    // 2. Enrich raw docs with source metadata
+  public void process(ItemAsset asset, byte[] content) {
+    // 1. Parse — Tika handles PDF, DOCX, XLSX, images via OCR, DWG
+    var rawDocs = tikaFactory
+        .create(new ByteArrayResource(content), asset.getContentType())
+        .get();
+
+    // 2. Tag with source context
     var taggedDocs = rawDocs.stream()
-      .map(doc -> doc.mutate()
-        .metadata("venue_id", asset.getVenueId())
-        .metadata("asset_id", asset.getId())
-        .metadata("asset_type", asset.getType())
-        .metadata("tenant_id", TenantContext.getCurrentTenantId())
-        .build())
-      .toList();
+        .map(doc -> doc.mutate()
+            .metadata("item_id",   asset.getItemId().toString())
+            .metadata("asset_id",  asset.getId().toString())
+            .metadata("asset_type", asset.getType().name())
+            .metadata("tenant_id", TenantContext.getCurrentTenant())
+            .build())
+        .toList();
 
     // 3. Split into semantic chunks
     var chunks = splitter.apply(taggedDocs);
 
-    // 4. Enrich with venue-specific metadata (LLM structured call)
-    var enrichedChunks = enricher.apply(chunks);
+    // 4. Domain-specific: extract structured metadata (strategy supplies prompt + output type)
+    var result = extractionStrategy.extract(chunks, ExtractionContext.of(asset));
 
-    // 5. Embed + write to pgvector
-    vectorStore.add(enrichedChunks);
+    // 5. Embed + write to item_vectors
+    vectorStore.add(chunks);
 
-    // 6. Aggregate extracted metadata into venue profile
-    var extractedMetadata = enricher.getLastExtractionResult();
-    aggregationService.applyExtractionEvent(asset, extractedMetadata);
+    // 6. Domain-specific: aggregate into item profile via strategy + migrator
+    aggregationStrategy.applyExtractionResult(asset.getItemId(), result, migrator);
+
+    // 7. Domain-specific: gap-fill from curated list
+    matchStrategy.matchAndCopy(asset.getItemId(), result);
   }
 }
 ```
@@ -263,7 +272,9 @@ Everything above (Tika, Docling, Spring AI ETL) is infrastructure. BENE's propri
 
 ### 2.1 Venue-Specific Extraction Schema
 
-Generic document intelligence tools extract generic fields. BENE extracts fields that matter for event professionals:
+Generic document intelligence tools extract generic fields. BENE extracts fields that matter for event professionals.
+
+This schema is the **venue canonical field set** — defined as `VenueMetadata` in `bene-venue-model` (see §2 of [Architecture](architecture.md)). It is the venue-domain's answer to the question "what does a structured document look like for this vertical?". The extraction prompt sent to GPT-4o is derived directly from this schema. If the platform pivots to a different vertical (medical, agro), the domain library is swapped — the extraction pipeline, embedding, and search infrastructure remain identical.
 
 ```json
 {
@@ -344,21 +355,233 @@ No existing venue tool surfaces this level of data provenance. Users see not jus
 
 ### 2.3 Multi-Source Aggregation (The Hard Problem Nobody Solves)
 
-Venues send the same venue in multiple formats — a marketing deck, a floor plan PDF, a technical spec sheet, a photo set. Each source may have conflicting or complementary data.
+Documents arrive for the same item in multiple formats — a marketing deck, a floor plan PDF, a technical spec sheet, a photo set. Each source may have conflicting or complementary data.
 
-BENE's aggregation engine:
+The aggregation engine (`MetadataAggregationConsumer` in `bene-data-intelligence`) is generic — it does not know about venues or capacity fields. It operates on `JsonNode` + `metadata_sources` provenance entries and delegates conflict decisions to the domain's `MetadataAggregationStrategy`:
 
-1. Collects all extraction events per venue (event log)
-2. Applies priority rules: `manual_override > verified > high_confidence_AI > low_confidence_AI`
-3. For arrays (amenities, restrictions): set-union with confidence weighting
-4. Surfaces conflicts in the UI: "AI found two different capacity values — which is correct?"
-5. Allows one-click resolution
+1. Collects all extraction events per item (event log)
+2. Delegates priority resolution to `MetadataAggregationStrategy.aggregate()` — venue impl applies: `manual_override > verified > high_confidence_AI > low_confidence_AI`
+3. For array fields: set-union with confidence weighting (strategy-defined)
+4. `ConflictReport` surfaced in the UI: "AI found two different capacity values — which is correct?"
+5. One-click resolution writes a `MANUAL_OVERRIDE` event, re-triggers aggregation
 
-This is a genuine product moat. No other platform in the event space does this.
+This is a genuine product moat. No other platform in the event space does this. And the engine itself is reusable across verticals — only the priority rules and field semantics change per domain.
 
 ---
 
-## 3. Scalability Architecture
+## 3. Extension Model — Generic Core, Domain Strategies
+
+The platform separates **infrastructure contracts** (reusable across any document-intelligence vertical) from **domain strategies** (venue-specific, swapped per vertical). This is the mechanism that makes a pivot — from venues to medical records, agro assets, legal documents, or any other domain — a library swap rather than a rewrite.
+
+### 3.1 Contracts defined in `bene-data-intelligence`
+
+```java
+// ── Extraction ────────────────────────────────────────────────────────────
+
+/**
+ * Extracts structured domain metadata from a set of document chunks.
+ * Implement once per vertical. Supplies the LLM prompt and output type.
+ *
+ * @param <M> the domain metadata type (e.g. VenueMetadata, CaseMetadata)
+ */
+public interface MetadataExtractionStrategy<M> {
+    /**
+     * Run structured extraction against the given chunks.
+     * @param chunks   tokenised, tagged document chunks from the splitter
+     * @param context  asset-level context (item id, asset type, tenant)
+     * @return extracted domain metadata with per-field confidence scores
+     */
+    M extract(List<Document> chunks, ExtractionContext context);
+
+    /** The concrete metadata class this strategy produces. Used for type-safe deserialization. */
+    Class<M> getMetadataType();
+}
+
+// ── Aggregation ───────────────────────────────────────────────────────────
+
+/**
+ * Merges a new extraction result into the current consolidated metadata.
+ * Defines conflict-resolution priority rules for the domain.
+ *
+ * @param <M> the domain metadata type
+ */
+public interface MetadataAggregationStrategy<M> {
+    /**
+     * Merge incoming extraction into current state.
+     * Called inside a single DB transaction by MetadataAggregationConsumer.
+     */
+    M aggregate(M current, M incoming, AggregationContext context);
+
+    /**
+     * Identify fields where current and incoming values disagree above threshold.
+     * Returned report is persisted and surfaced in the UI for human resolution.
+     */
+    ConflictReport detectConflicts(M current, M incoming);
+}
+
+// ── Schema migration ──────────────────────────────────────────────────────
+
+/**
+ * Migrates a raw JSONB metadata document from any historical version to current.
+ * Implement once per domain. Register in the domain library; runner is generic.
+ */
+public interface MetadataMigrator {
+    /** Upgrade raw node to current schema version. Safe to call on every read. */
+    JsonNode migrateToCurrent(JsonNode raw);
+
+    /** Upgrade + stamp _schema_version = CURRENT. Call before every DB write. */
+    JsonNode ensureCurrent(JsonNode node);
+
+    int getCurrentVersion();
+}
+
+// ── Curated list matching ─────────────────────────────────────────────────
+
+/**
+ * Finds candidates in the platform curated list and copies gap-fill fields
+ * into the tenant item record. Implements the trigram + proximity algorithm;
+ * the source table and field-copy rules are domain-specific.
+ */
+public interface CuratedListMatchStrategy {
+    /**
+     * Query the domain's curated list for candidate matches.
+     * @param name      normalised item name
+     * @param location  geo point (may be null — triggers name-only path)
+     * @param limit     max candidates to return
+     */
+    List<MatchCandidate> findCandidates(String name, GeoPoint location, int limit);
+
+    /**
+     * Copy fields from the matched curated entry into the tenant item metadata.
+     * Only copies leaf fields that are null/empty on the tenant side.
+     * Sets metadata_sources[field].source = REGISTRY.
+     */
+    CopyResult copyFields(JsonNode tenantMetadata, JsonNode curatedMetadata, double confidence);
+}
+
+// ── Search ────────────────────────────────────────────────────────────────
+
+/**
+ * Executes one branch of a parallel search query (tenant items or curated list).
+ * Two implementations are wired per vertical; results are merged by RRF.
+ *
+ * @param <R> the result summary type (e.g. VenueSummaryView)
+ */
+public interface SearchBranchExecutor<R> {
+    List<ScoredResult<R>> execute(SearchQuery query);
+
+    /** Branch label used in metrics (bene_search_latency_seconds{branch=...}). */
+    String branchName();
+}
+```
+
+### 3.2 Generic consumers in `bene-data-intelligence`
+
+These classes contain no domain knowledge. They are final implementations wired with domain strategies via Spring DI:
+
+```java
+// Orchestrates the full ETL pipeline for one asset.
+// domain strategies are injected — see §3.3 for venue wiring.
+@Service
+public final class AssetExtractionOrchestrator<M> { ... }
+
+// Listens on RabbitMQ, runs SELECT → debounce → aggregate → UPDATE per venue.
+// Concurrency=1 / prefetchCount=1 per slot queue (see architecture.md §3).
+@RabbitListener
+public final class MetadataAggregationConsumer<M> {
+    private final MetadataAggregationStrategy<M> strategy;
+    private final MetadataMigrator migrator;
+    // SELECT venues.metadata → strategy.aggregate() → migrator.ensureCurrent() → UPDATE
+}
+
+// Parallel search orchestrator. Runs branchA + branchB via CompletableFuture,
+// merges with Reciprocal Rank Fusion, appends origin="TENANT"|"REGISTRY".
+@Service
+public final class SearchOrchestrator<R> {
+    private final SearchBranchExecutor<R> tenantBranch;
+    private final SearchBranchExecutor<R> curatedBranch;
+}
+```
+
+### 3.3 Venue implementations in `bene-venue-model`
+
+```java
+// Extraction: GPT-4o structured call against venue canonical field set (§2.1)
+@Component
+public class VenueMetadataExtractionStrategy
+        implements MetadataExtractionStrategy<VenueMetadata> { ... }
+
+// Aggregation: MANUAL_OVERRIDE > VERIFIED_EXTRACTION > HIGH_CONFIDENCE_AI > ... > REGISTRY
+@Component
+public class VenueMetadataAggregationStrategy
+        implements MetadataAggregationStrategy<VenueMetadata> { ... }
+
+// Migration chain: VenueMetadataMigrationV0ToV1, V1ToV2, …
+@Component
+public class VenueMetadataMigrator implements MetadataMigrator { ... }
+
+// Curated list: trigram GIN on venue_registry_aliases + PostGIS ST_DWithin 200m
+@Component
+public class VenueRegistryMatchStrategy implements CuratedListMatchStrategy { ... }
+
+// Search branch A: tenant venues, full 5-mode hybrid (keyword + semantic + structured + geo + RRF)
+@Component
+public class TenantVenueSearchBranch implements SearchBranchExecutor<VenueSummaryView> { ... }
+
+// Search branch B: public.venue_registry, 3-mode MVP (keyword + structured + geo)
+@Component
+public class RegistrySearchBranch implements SearchBranchExecutor<VenueSummaryView> { ... }
+```
+
+### 3.4 Dependency and flow
+
+```
+bene-data-intelligence
+  ├── interfaces:  MetadataExtractionStrategy<M>
+  │                MetadataAggregationStrategy<M>
+  │                MetadataMigrator
+  │                CuratedListMatchStrategy
+  │                SearchBranchExecutor<R>
+  │
+  └── consumers:   AssetExtractionOrchestrator<M>   ← wires all 4 strategies
+                   MetadataAggregationConsumer<M>   ← wires strategy + migrator
+                   SearchOrchestrator<R>            ← wires 2 branch executors
+                          │
+                          ▼ (compile dependency)
+        bene-venue-model
+          ├── VenueMetadataExtractionStrategy   implements MetadataExtractionStrategy<VenueMetadata>
+          ├── VenueMetadataAggregationStrategy  implements MetadataAggregationStrategy<VenueMetadata>
+          ├── VenueMetadataMigrator             implements MetadataMigrator
+          ├── VenueRegistryMatchStrategy        implements CuratedListMatchStrategy
+          ├── TenantVenueSearchBranch           implements SearchBranchExecutor<VenueSummaryView>
+          └── RegistrySearchBranch             implements SearchBranchExecutor<VenueSummaryView>
+                          │
+                          ▼ (compile dependency)
+        bene-venue-service / bene-venue-ingestion-worker
+          └── @Bean registrations wire venue strategies into generic consumers
+
+
+  ── pivot example ──────────────────────────────────────────────────────────
+
+        bene-data-intelligence          (unchanged)
+                 │
+                 ▼
+        bene-med-model
+          ├── MedCaseExtractionStrategy   implements MetadataExtractionStrategy<CaseMetadata>
+          ├── MedCaseAggregationStrategy  implements MetadataAggregationStrategy<CaseMetadata>
+          ├── MedCaseMigrator             implements MetadataMigrator
+          ├── DrugCompendiumMatchStrategy implements CuratedListMatchStrategy
+          └── …
+                 │
+                 ▼
+        bene-med-service / bene-med-ingestion-worker
+```
+
+**Rule:** if a class in `bene-venue-ingestion-worker` or `bene-venue-service` contains the word `venue` in its business logic (not just in a tag string), ask whether it belongs in `bene-venue-model` instead. The worker and service should contain Spring wiring, `@Bean` registrations, and `@RabbitListener` configuration — not domain decisions.
+
+---
+
+## 4. Scalability Architecture
 
 ### Event-Driven, Horizontally Scalable
 
@@ -395,7 +618,7 @@ pgvector with IVFFlat index:
 
 ---
 
-## 4. Technology Decisions Summary
+## 5. Technology Decisions Summary
 
 | Layer                   | Choice                                           | Rationale                                                                 |
 | ----------------------- | ------------------------------------------------ | ------------------------------------------------------------------------- |
@@ -409,14 +632,15 @@ pgvector with IVFFlat index:
 | **Geo search**          | PostGIS (PostgreSQL extension)                   | Mature, no extra service                                                  |
 | **Async processing**    | RabbitMQ (existing foundation)                   | Already in platform, priority queues, DLQ                                 |
 | **File storage**        | S3 / MinIO (existing foundation)                 | Already in IAM service, same pattern                                      |
+| **Vertical isolation**  | Strategy pattern — `MetadataExtractionStrategy`, `MetadataAggregationStrategy`, `MetadataMigrator`, `CuratedListMatchStrategy`, `SearchBranchExecutor` interfaces in `bene-data-intelligence`; venue implementations in `bene-venue-model` | Pivot to new domain = new domain library + `@Bean` wiring. Zero changes to generic consumers. See §3. |
 
 **Principle:** Use proven infrastructure that already exists in the IQ Key Value foundation. Introduce the minimum number of new services. The only truly new infrastructure is pgvector (a PostgreSQL extension, not a new service) and optionally a self-hosted Docling container for advanced PDF parsing.
 
 ---
 
-## 5. Open Questions for Implementation
+## 6. Open Questions for Implementation
 
-- **Docling vs. pure Tika:** Start with Tika for MVP speed. Add Docling for Phase 2 when floor plan fidelity matters.
+- [x] **Docling vs. pure Tika:** ~~Start with Tika for MVP speed. Add Docling for Phase 2 when floor plan fidelity matters.~~ **Decided:** Tika-only for Phase 1 (MVP). Docling sidecar added in Phase 2 for floor plan and table fidelity. See §15 of [Architecture](architecture.md).
 - **OCR strategy:** Tika bundles Tesseract for basic OCR. GPT-4o vision handles complex cases. Threshold: if Tika OCR confidence < 0.7, escalate to GPT-4o vision.
 - **CAD files:** Tika extracts metadata from DWG/DXF (dimensions, layers). For Phase 1, expose raw metadata. Phase 2: convert to PNG via LibreCAD/ODA, then GPT-4o vision for layout understanding.
 - **Video walkthroughs:** Out of scope for Phase 1. Phase 2: extract keyframes (ffmpeg), run GPT-4o vision on representative frames.
