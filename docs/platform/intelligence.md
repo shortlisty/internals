@@ -1,9 +1,9 @@
-# Venue Intelligence Platform — Intelligence Layer & ETL Pipeline
+# BENE — Intelligence Layer & ETL Pipeline
 
-> Technical reference for the document intelligence, ETL pipeline, and the proprietary
-> intelligence layer of BENE.
+> Technical reference for the document intelligence, ETL pipeline, and the
+> proprietary intelligence layer of BENE.
 
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Personal_Venue_Catalog/proposal.md) · [Competitive Landscape](../business/Personal_Venue_Catalog/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md) · [Vision](../roadmap/vision.md)
 
 ---
 
@@ -561,7 +561,7 @@ bene-data-intelligence
           └── @Bean registrations wire venue strategies into generic consumers
 
 
-  ── pivot example ──────────────────────────────────────────────────────────
+  ── vertical extension example ──────────────────────────────────────────────
 
         bene-data-intelligence          (unchanged)
                  │
@@ -655,4 +655,4 @@ pgvector with IVFFlat index:
 
 ---
 
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Personal_Venue_Catalog/proposal.md) · [Competitive Landscape](../business/Personal_Venue_Catalog/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)

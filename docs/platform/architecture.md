@@ -1,9 +1,9 @@
-# Venue Intelligence Platform (BENE) — Architecture Reference
+# BENE — Architecture Reference
 
 > **Audience:** Engineers, architects.
 > **Purpose:** Single source of truth for all technical decisions before development starts.
 
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Personal_Venue_Catalog/proposal.md) · [Competitive Landscape](../business/Personal_Venue_Catalog/comparison.md) · [Architecture](architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Architecture](architecture.md) · [Vision](../roadmap/vision.md)
 
 ---
 
@@ -22,7 +22,7 @@ BENE Intelligence is a new product service built **on top of the IQ Key Value fo
 
 **New services introduced by BENE Intelligence:**
 
-- `bene-data-intelligence` — platform-level shared library (JAR). Domain-agnostic extraction pipeline contracts, metadata versioning mechanism, provenance model, event POJOs, and Liquibase migrations for infrastructure tables (`extraction_jobs`, `item_vectors`, `item_metadata_events`, `ai_cost_tracking`). No Spring beans, no business logic, no venue-specific fields. The pivot-stable layer — reusable across verticals (venue, medical, agro, etc.). Imported by both services and by `bene-venue-model`.
+- `bene-data-intelligence` — platform-level shared library (JAR). Domain-agnostic extraction pipeline contracts, metadata versioning mechanism, provenance model, event POJOs, and Liquibase migrations for infrastructure tables (`extraction_jobs`, `item_vectors`, `item_metadata_events`, `ai_cost_tracking`). No Spring beans, no business logic, no venue-specific fields. The domain-agnostic layer — reusable across verticals (venue, medical, agro, etc.). Imported by both services and by `bene-venue-model`.
 - `bene-venue-model` — venue-domain shared library (JAR). Venue-specific domain model (`Venue`, `VenueMetadata`, `VenueRegistryEntry`), canonical field set, venue metadata migrations, and Liquibase migrations for venue tables (`venues`, `venue_assets`, `venue_registry`). Depends on `bene-data-intelligence`. Imported by both services.
 - `bene-venue-service` — core domain: venues, assets, metadata, search, plan enforcement, venue registry lookup. Synchronous request/response only.
 - `bene-venue-ingestion-worker` — async sidecar: document ETL pipeline, extraction orchestration, embedding generation, registry matching, scheduled jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `bene-venue-service`.
@@ -925,7 +925,7 @@ Before any production tenant has access, run a mandatory calibration pass to de-
 
 ## 4c. Shared Library — bene-data-intelligence
 
-`bene-data-intelligence` is a plain Java library (JAR, no Spring Boot, no `@SpringBootApplication`). It is the **domain-agnostic, pivot-stable layer** of the BENE platform — containing everything that would be reused verbatim if the platform were applied to a different vertical (medical records, agro assets, legal documents, etc.). Neither venue-specific fields nor venue-specific migration logic belong here.
+`bene-data-intelligence` is a plain Java library (JAR, no Spring Boot, no `@SpringBootApplication`). It is the **domain-agnostic, vertical-independent layer** of the BENE platform — containing everything that would be reused verbatim if the platform were applied to a different vertical (medical records, agro assets, legal documents, etc.). Neither venue-specific fields nor venue-specific migration logic belong here.
 
 Both `bene-venue-model` and (transitively) `bene-venue-service` and `bene-venue-ingestion-worker` declare it as a compile dependency.
 
@@ -1687,7 +1687,7 @@ Grafana dashboard added to `docker/grafana/provisioning/dashboards/VipService.js
 | File storage         | S3 / MinIO (existing foundation)                                         | Presigned URL pattern already proven in IAM                                                                                                                                                                                                                                                                                |
 | Shared library split | `bene-data-intelligence` (generic) + `bene-venue-model` (venue-specific) | Enables pivot to other verticals without refactoring infrastructure contracts. Generic extraction pipeline, event POJOs, metadata versioning mechanism, and provenance model live in `bene-data-intelligence` and are reused unchanged. Venue canonical field set and migrations live in `bene-venue-model`. See §4a, §4c. |
 
-Full rationale and competitor analysis: see `../business/comparison.md`.
+Full rationale and competitor analysis: see `../business/Digital_Sales_Room_for_Events/comparison.md`.
 
 ---
 
@@ -2087,4 +2087,4 @@ One `@RestControllerAdvice` per service. Every handler uses the same `problem(ty
 
 ---
 
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Personal_Venue_Catalog/proposal.md) · [Competitive Landscape](../business/Personal_Venue_Catalog/comparison.md) · [Architecture](architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Architecture](architecture.md)
