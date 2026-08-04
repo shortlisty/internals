@@ -70,9 +70,9 @@ Read [AGENTS.md](AGENTS.md) before adding or editing any document. It defines re
 
 BENE is built on top of the IQ Key Value open-source foundation. New services introduced:
 
-- **`bene-venue-service`** — venue profiles, assets, metadata, search, plan enforcement
-- **`bene-venue-ingestion-worker`** — async sidecar: document ETL, AI extraction, embeddings
-- **`bene-venue-model`** — shared library: domain entities, event contracts, Liquibase migrations
+- **`iqbene-venue-service`** — venue profiles, assets, metadata, search, plan enforcement
+- **`iqbene-venue-ingestion-worker`** — async sidecar: document ETL, AI extraction, embeddings
+- **`iqbene-venue-model`** — shared library: domain entities, event contracts, Liquibase migrations
 
 **Stage:** pre-launch MVP — design complete, implementation not yet started.
 

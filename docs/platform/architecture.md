@@ -22,10 +22,10 @@ BENE Intelligence is a new product service built **on top of the IQ Key Value fo
 
 **New services introduced by BENE Intelligence:**
 
-- `bene-data-intelligence` — platform-level shared library (JAR). Domain-agnostic extraction pipeline contracts, metadata versioning mechanism, provenance model, event POJOs, and Liquibase migrations for infrastructure tables (`extraction_jobs`, `item_vectors`, `item_metadata_events`, `ai_cost_tracking`). No Spring beans, no business logic, no venue-specific fields. The domain-agnostic layer — reusable across verticals (venue, medical, agro, etc.). Imported by both services and by `bene-venue-model`.
-- `bene-venue-model` — venue-domain shared library (JAR). Venue-specific domain model (`Venue`, `VenueMetadata`, `VenueRegistryEntry`), canonical field set, venue metadata migrations, and Liquibase migrations for venue tables (`venues`, `venue_assets`, `venue_registry`). Depends on `bene-data-intelligence`. Imported by both services.
-- `bene-venue-service` — core domain: venues, assets, metadata, search, plan enforcement, venue registry lookup. Synchronous request/response only.
-- `bene-venue-ingestion-worker` — async sidecar: document ETL pipeline, extraction orchestration, embedding generation, registry matching, scheduled jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `bene-venue-service`.
+- `iqbene-data-intelligence` — platform-level shared library (JAR). Domain-agnostic extraction pipeline contracts, metadata versioning mechanism, provenance model, event POJOs, and Liquibase migrations for infrastructure tables (`extraction_jobs`, `item_vectors`, `item_metadata_events`, `ai_cost_tracking`). No Spring beans, no business logic, no venue-specific fields. The domain-agnostic layer — reusable across verticals (venue, medical, agro, etc.). Imported by both services and by `iqbene-venue-model`.
+- `iqbene-venue-model` — venue-domain shared library (JAR). Venue-specific domain model (`Venue`, `VenueMetadata`, `VenueRegistryEntry`), canonical field set, venue metadata migrations, and Liquibase migrations for venue tables (`venues`, `venue_assets`, `venue_registry`). Depends on `iqbene-data-intelligence`. Imported by both services.
+- `iqbene-venue-service` — core domain: venues, assets, metadata, search, plan enforcement, venue registry lookup. Synchronous request/response only.
+- `iqbene-venue-ingestion-worker` — async sidecar: document ETL pipeline, extraction orchestration, embedding generation, registry matching, scheduled jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `iqbene-venue-service`.
 
 **New infrastructure introduced by BENE Intelligence:**
 
@@ -264,13 +264,13 @@ Every `venues.metadata` JSONB document must carry an integer key `_schema_versio
 | Initial version     | `1` (matches the first canonical field set shipped in MVP)                                                                                                                                        |
 | Absent key fallback | `0` (triggers full migration chain from v0)                                                                                                                                                       |
 | Bump condition      | Any backwards-incompatible change to canonical fields, or any addition of a required nested field                                                                                                 |
-| Bump ownership      | `bene-venue-model` library — only the shared model may define `CURRENT_SCHEMA_VERSION`                                                                                                            |
+| Bump ownership      | `iqbene-venue-model` library — only the shared model may define `CURRENT_SCHEMA_VERSION`                                                                                                          |
 | Write enforcement   | Every write path (aggregation, manual override, bulk import, registry copy) runs the migrator and sets `_schema_version = CURRENT_SCHEMA_VERSION` before persisting                               |
 | Read enforcement    | `VenueMetadataMigrator.migrateToCurrent(JsonNode)` is called on **every read** from `venues.metadata` (via MyBatis ResultMap handler or wrapper mapper) — deserialization never sees stale shapes |
 
 ### Migration pipeline — `VenueMetadataMigrator`
 
-The migrator lives in `bene-venue-model` (shared library, zero Spring deps — pure Java). Both services use the **same** migrator instance, so read and write paths agree on schema shape with no drift.
+The migrator lives in `iqbene-venue-model` (shared library, zero Spring deps — pure Java). Both services use the **same** migrator instance, so read and write paths agree on schema shape with no drift.
 
 ```
                  ┌──────────────────────────────────┐
@@ -308,7 +308,7 @@ The migrator lives in `bene-venue-model` (shared library, zero Spring deps — p
 Each `N → N+1` step is a single-responsibility class implementing `MetadataMigration` interface. Migrations are registered in an ordered list inside `VenueMetadataMigrator` — the order is the source of truth.
 
 ```java
-// bene-venue-model: no Spring, no framework deps
+// iqbene-venue-model: no Spring, no framework deps
 public interface MetadataMigration {
     int fromVersion();
     int toVersion();
@@ -518,7 +518,7 @@ Outcome: one SQL `UPDATE` instead of three. The redundant work is eliminated bef
                     └────────┬─────────┘     └────────┬─────────┘
                              │                        │ plan entitlements
                     ┌────────▼────────────────────────▼─────────┐
-                    │            bene-venue-service             │
+                    │            iqbene-venue-service             │
                     │  venues · assets · metadata · search · api │
                     └────────┬──────────────┬──────────┬─────────┘
                              │ RabbitMQ:    │ r/w       │ presigned URL
@@ -540,51 +540,51 @@ Outcome: one SQL `UPDATE` instead of three. The redundant work is eliminated bef
                                           └─────────────────────┘
 ```
 
-### bene-venue-service
+### iqbene-venue-service
 
 - **Responsibilities:** venue CRUD, asset upload flow (presigned URL), metadata read/write, search API, plan entitlement enforcement
-- **Database:** owns the BENE PostgreSQL schema. Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`. Shared with `bene-venue-ingestion-worker` — no cross-service API calls for data.
+- **Database:** owns the BENE PostgreSQL schema. Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`. Shared with `iqbene-venue-ingestion-worker` — no cross-service API calls for data.
 - **Exposes:** REST API at `/api/v1/venues`
 - **Publishes:** `venue.created`, `venue.updated`, `asset.uploaded`, `asset.deleted` (RabbitMQ)
 - **Consumes:** `extraction.completed`, `extraction.failed` (RabbitMQ) — triggers metadata aggregation
 
-### bene-venue-ingestion-worker
+### iqbene-venue-ingestion-worker
 
 - **Responsibilities:** document ETL pipeline (parse → chunk → extract → embed), extraction job lifecycle, registry matching and gap-fill, metadata aggregation, scheduled maintenance jobs (stale re-aggregation, cost reporting)
 - **Nature:** async sidecar — no inbound HTTP, no REST API, no service discovery entry. Event-driven only.
-- **Database:** shared PostgreSQL schema with `bene-venue-service`. Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.venue_registry` for the registry match step.
+- **Database:** shared PostgreSQL schema with `iqbene-venue-service`. Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.venue_registry` for the registry match step.
 - **Consumes:** `asset.uploaded` (RabbitMQ) — triggers ETL pipeline
 - **Publishes:** `extraction.started`, `extraction.completed`, `extraction.failed` (RabbitMQ)
 - **External calls:** OpenAI API (GPT-4o, text-embedding-3-small), optionally Docling sidecar (Phase 2)
-- **Scaling:** replicas scaled independently based on RabbitMQ queue depth — no impact on `bene-venue-service`
+- **Scaling:** replicas scaled independently based on RabbitMQ queue depth — no impact on `iqbene-venue-service`
 
 ### Table Ownership
 
 Both services share one PostgreSQL schema. Ownership defines who may write to a table. Cross-boundary reads are permitted; cross-boundary writes are not.
 
-| Table                   | Owner                         | The other service may…                                                       |
-| ----------------------- | ----------------------------- | ---------------------------------------------------------------------------- |
-| `venues`                | `bene-venue-service`          | read (ingestion-worker: resolve venue_id only)                               |
-| `venue_assets`          | `bene-venue-service`          | read (ingestion-worker: fetch asset for processing)                          |
-| `venue_metadata_events` | `bene-venue-service`          | write via event reaction (`extraction.completed` → venue-service aggregates) |
-| `extraction_jobs`       | `bene-venue-ingestion-worker` | read (venue-service: expose job status to API)                               |
-| `item_vectors`          | `bene-venue-ingestion-worker` | read (venue-service: vector search queries)                                  |
-| `ai_cost_tracking`      | `bene-venue-ingestion-worker` | read (venue-service: expose cost summary to API)                             |
+| Table                   | Owner                           | The other service may…                                                       |
+| ----------------------- | ------------------------------- | ---------------------------------------------------------------------------- |
+| `venues`                | `iqbene-venue-service`          | read (ingestion-worker: resolve venue_id only)                               |
+| `venue_assets`          | `iqbene-venue-service`          | read (ingestion-worker: fetch asset for processing)                          |
+| `venue_metadata_events` | `iqbene-venue-service`          | write via event reaction (`extraction.completed` → venue-service aggregates) |
+| `extraction_jobs`       | `iqbene-venue-ingestion-worker` | read (venue-service: expose job status to API)                               |
+| `item_vectors`          | `iqbene-venue-ingestion-worker` | read (venue-service: vector search queries)                                  |
+| `ai_cost_tracking`      | `iqbene-venue-ingestion-worker` | read (venue-service: expose cost summary to API)                             |
 
-The single legitimate cross-boundary read from `bene-venue-ingestion-worker` is a `SELECT` on `venue_assets` by `asset_id` (delivered in the `asset.uploaded` event payload). This is a foreign key lookup, not business logic — acceptable and intentional.
+The single legitimate cross-boundary read from `iqbene-venue-ingestion-worker` is a `SELECT` on `venue_assets` by `asset_id` (delivered in the `asset.uploaded` event payload). This is a foreign key lookup, not business logic — acceptable and intentional.
 
 ---
 
-## 4a. Shared Library — bene-venue-model
+## 4a. Shared Library — iqbene-venue-model
 
-`bene-venue-model` is a plain Java library (JAR, no Spring Boot, no `@SpringBootApplication`). It is the **venue-domain layer** — containing only venue-specific entities, field definitions, metadata migrations, and schema changelogs. Generic extraction infrastructure lives in `bene-data-intelligence` (§4c), which this library imports as a compile dependency.
+`iqbene-venue-model` is a plain Java library (JAR, no Spring Boot, no `@SpringBootApplication`). It is the **venue-domain layer** — containing only venue-specific entities, field definitions, metadata migrations, and schema changelogs. Generic extraction infrastructure lives in `iqbene-data-intelligence` (§4c), which this library imports as a compile dependency.
 
-Both `bene-venue-service` and `bene-venue-ingestion-worker` declare `bene-venue-model` as a compile dependency and receive `bene-data-intelligence` transitively.
+Both `iqbene-venue-service` and `iqbene-venue-ingestion-worker` declare `iqbene-venue-model` as a compile dependency and receive `iqbene-data-intelligence` transitively.
 
 **Contents:**
 
 ```
-bene-venue-model/
+iqbene-venue-model/
 ├── venue/
 │   ├── Venue.java                       Plain POJO — aggregate root, no JPA annotations
 │   ├── VenueStatus.java                 enum: DRAFT, ACTIVE, ARCHIVED
@@ -595,13 +595,13 @@ bene-venue-model/
 │   ├── VenueCapacity.java               Capacity configurations value object
 │   ├── VenueMetadataSchemaVersion.java  Single source of truth: CURRENT_SCHEMA_VERSION = 1
 │   │                                    Extends MetadataSchemaVersion contract from
-│   │                                    bene-data-intelligence. Incrementing this constant
+│   │                                    iqbene-data-intelligence. Incrementing this constant
 │   │                                    is the only action required to declare a schema bump.
-│   ├── VenueMetadataMigrator.java       Extends MetadataMigrator (bene-data-intelligence):
+│   ├── VenueMetadataMigrator.java       Extends MetadataMigrator (iqbene-data-intelligence):
 │   │                                    supplies the ordered venue migration list and
 │   │                                    CURRENT_SCHEMA_VERSION. Exposes migrateToCurrent()
 │   │                                    and ensureCurrent() for venue JSONB documents.
-│   ├── VenueMetadataTypeHandler.java    Extends MetadataTypeHandler (bene-data-intelligence):
+│   ├── VenueMetadataTypeHandler.java    Extends MetadataTypeHandler (iqbene-data-intelligence):
 │   │                                    wires VenueMetadataMigrator into MyBatis result maps.
 │   └── migrations/                      Append-only ordered list of venue N→N+1 migrations
 │       ├── VenueMetadataMigrationV0ToV1.java   bootstraps legacy pre-versioned docs → v1
@@ -613,15 +613,15 @@ bene-venue-model/
     └── changelog/
         ├── system/                      System (public) schema — venue registry tables
         │   ├── master.xml
-        │   └── 20250101000000-create-venue-registry.xml
+        │   └── 20260801000000-create-venue-registry.xml
         └── tenant/                      Tenant schema — venue domain tables only
-            ├── master.xml               includes bene-data-intelligence/intelligence/master.xml
+            ├── master.xml               includes iqbene-data-intelligence/intelligence/master.xml
             │                            first, then venue-specific changesets below
-            ├── 20250101000001-create-venues.xml
-            └── 20250101000002-create-venue-assets.xml
+            ├── 20260801000001-create-venues.xml
+            └── 20260801000002-create-venue-assets.xml
 ```
 
-> Infrastructure table changelogs (`extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`) live in `bene-data-intelligence/db/changelog/intelligence/` and are included via the `tenant/master.xml` reference above. They must not be duplicated here.
+> Infrastructure table changelogs (`extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`) live in `iqbene-data-intelligence/db/changelog/intelligence/` and are included via the `tenant/master.xml` reference above. They must not be duplicated here.
 
 **Rules:**
 
@@ -631,18 +631,18 @@ bene-venue-model/
 - `VenueMetadataSchemaVersion.CURRENT_SCHEMA_VERSION` is the **only** place the venue schema version number is hardcoded. No service may define its own copy. Incrementing this constant and adding the corresponding `VenueMetadataMigrationV{N}ToV{N+1}` class in the same commit is the complete procedure for a schema bump.
 - `VenueMetadataMigrator` has no Spring dependency. Both services share the same classpath-identical instance via this compile dependency — one service can never lag behind on schema version.
 - Migration classes under `metadata/migrations/` are added, never removed or reordered.
-- Event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, etc.) come from `bene-data-intelligence`. Do not redefine or shadow them here.
+- Event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, etc.) come from `iqbene-data-intelligence`. Do not redefine or shadow them here.
 
 **Dependency graph:**
 
 ```
-bene-data-intelligence   (platform library — generic contracts)
+iqbene-data-intelligence   (platform library — generic contracts)
       │
       ▼
-bene-venue-model         (venue-domain library — venue-specific model + migrations)
+iqbene-venue-model         (venue-domain library — venue-specific model + migrations)
       │
-      ├── bene-venue-service          (Spring Boot)
-      └── bene-venue-ingestion-worker (Spring Boot)
+      ├── iqbene-venue-service          (Spring Boot)
+      └── iqbene-venue-ingestion-worker (Spring Boot)
 ```
 
 ---
@@ -741,7 +741,7 @@ Registry import files are processed by a scheduled admin job (no inbound HTTP fo
 Tenant data isolation in S3 mirrors the schema-per-tenant approach in PostgreSQL:
 
 - All tenant objects are scoped under `vip/tenants/{tenantKey}/`. Cross-tenant read is structurally impossible without knowing the other tenant's key.
-- The service account used by `bene-venue-service` and `bene-venue-ingestion-worker` holds a single S3 IAM policy that allows `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on the full `vip/*` prefix. Presigned URLs are scoped to the exact object key — the client cannot enumerate or access any other key.
+- The service account used by `iqbene-venue-service` and `iqbene-venue-ingestion-worker` holds a single S3 IAM policy that allows `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on the full `vip/*` prefix. Presigned URLs are scoped to the exact object key — the client cannot enumerate or access any other key.
 - Registry paths (`vip/registry/*`) are not accessible via tenant-issued presigned URLs. They are written only by the platform's internal job service account.
 
 ---
@@ -756,7 +756,7 @@ S3 lifecycle rules are configured on the bucket (not in application code). Two r
 | Registry import cleanup    | `vip/registry/imports/processed/`  | Delete after 30 days.                                                                                                                                                                   |
 | Registry snapshot rotation | `vip/registry/exports/`            | Keep last 14 daily snapshots; delete older.                                                                                                                                             |
 
-Object tags are set by `bene-venue-service` at `POST /assets/confirm` using `PutObjectTagging`. Tags used:
+Object tags are set by `iqbene-venue-service` at `POST /assets/confirm` using `PutObjectTagging`. Tags used:
 
 | Tag key             | Values                                          | Set by                          |
 | ------------------- | ----------------------------------------------- | ------------------------------- |
@@ -772,9 +772,9 @@ Tags enable cost allocation reports per tenant and per asset type in AWS Cost Ex
 
 When a tenant deletes an asset (`DELETE /assets/{id}`) or when a tenant account is terminated:
 
-1. `bene-venue-service` deletes the `venue_assets` row (DB cascade drops extraction jobs, metadata events referencing the asset).
-2. `bene-venue-service` issues `s3:DeleteObject` for `venue_assets.s3_key`.
-3. A `asset.deleted` event is published → `bene-venue-ingestion-worker` deletes all `item_vectors` rows where `metadata->>'asset_id' = :assetId`.
+1. `iqbene-venue-service` deletes the `venue_assets` row (DB cascade drops extraction jobs, metadata events referencing the asset).
+2. `iqbene-venue-service` issues `s3:DeleteObject` for `venue_assets.s3_key`.
+3. A `asset.deleted` event is published → `iqbene-venue-ingestion-worker` deletes all `item_vectors` rows where `metadata->>'asset_id' = :assetId`.
 
 For full tenant deletion (GDPR right to erasure):
 
@@ -792,9 +792,9 @@ Registry population in MVP uses **three human-in-the-loop channels**. No automat
 
 | Channel                                                    | Mechanism                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Source in `venue_registry.source` |
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------- |
-| **1. Pre-provisioned seed migrations (MVP cold-start)**    | Hardcoded rows in Liquibase XML changesets under `bene-venue-model/src/main/resources/db/changelog/system/`. Curated shortlist of 50–200 high-signal venues (top convention centres, major hotel chains in target launch cities). Runs on first startup against `public` schema via `TenantLiquibaseRunner`. Zero code, zero S3, zero admin interaction.                                                                                                                                                           | `platform_seed`                   |
+| **1. Pre-provisioned seed migrations (MVP cold-start)**    | Hardcoded rows in Liquibase XML changesets under `iqbene-venue-model/src/main/resources/db/changelog/system/`. Curated shortlist of 50–200 high-signal venues (top convention centres, major hotel chains in target launch cities). Runs on first startup against `public` schema via `TenantLiquibaseRunner`. Zero code, zero S3, zero admin interaction.                                                                                                                                                         | `platform_seed`                   |
 | **2. Platform admin manual entry (MVP)**                   | Registry Admin API (§17: Phase 2 design signal — pull forward for MVP, single-entity CRUD only, no bulk): `POST /api/v1/admin/registry/entries`, `PATCH /api/v1/admin/registry/entries/{id}`, `POST /api/v1/admin/registry/entries/{id}/aliases`. Authority `PLATFORM_ADMIN` only. Admin provides every field manually; deduplication check runs server-side as a pre-write validation and returns a list of candidate duplicates for human review (admin clicks "Confirm insert" or "Merge with existing #1234"). | `admin_import`                    |
-| **3. Scraper scripts (Cvent et al.) + human review (MVP)** | Standalone scripts outside the service (cron, admin laptop, or optional scheduled container) produce CSV/JSONL output files, upload to S3 `vip/registry/imports/{importId}/` with manifest. `VenueRegistryImportOrchestrator` in `bene-venue-ingestion-worker` runs only when triggered by an admin RabbitMQ event (`admin.registry.import.dry-run`) → produces a CSV audit report → uploads to `vip/registry/imports/reports/{importId}_review.csv`. Admin reviews the report (each row: action `INSERT`          | `MERGE #id`                       | `SKIP` with name_sim + geo_distance + duplicate candidates list), edits the Action column, re-uploads reviewed CSV. Admin then fires `admin.registry.import.apply` → worker applies the reviewed actions exactly, never making its own merge/insert decision. | `web_scrape` |
+| **3. Scraper scripts (Cvent et al.) + human review (MVP)** | Standalone scripts outside the service (cron, admin laptop, or optional scheduled container) produce CSV/JSONL output files, upload to S3 `vip/registry/imports/{importId}/` with manifest. `VenueRegistryImportOrchestrator` in `iqbene-venue-ingestion-worker` runs only when triggered by an admin RabbitMQ event (`admin.registry.import.dry-run`) → produces a CSV audit report → uploads to `vip/registry/imports/reports/{importId}_review.csv`. Admin reviews the report (each row: action `INSERT`        | `MERGE #id`                       | `SKIP` with name_sim + geo_distance + duplicate candidates list), edits the Action column, re-uploads reviewed CSV. Admin then fires `admin.registry.import.apply` → worker applies the reviewed actions exactly, never making its own merge/insert decision. | `web_scrape` |
 | **Tenant-signal enrichment**                               | After `extraction.completed`, if tenant data has high-confidence fields not in registry → candidate event (Phase 3, no reverse flow in MVP)                                                                                                                                                                                                                                                                                                                                                                        | — (not in MVP)                    |
 
 ### Alias normalisation (shared by all population channels + extraction matcher)
@@ -923,16 +923,16 @@ Before any production tenant has access, run a mandatory calibration pass to de-
 
 ---
 
-## 4c. Shared Library — bene-data-intelligence
+## 4c. Shared Library — iqbene-data-intelligence
 
-`bene-data-intelligence` is a plain Java library (JAR, no Spring Boot, no `@SpringBootApplication`). It is the **domain-agnostic, vertical-independent layer** of the BENE platform — containing everything that would be reused verbatim if the platform were applied to a different vertical (medical records, agro assets, legal documents, etc.). Neither venue-specific fields nor venue-specific migration logic belong here.
+`iqbene-data-intelligence` is a plain Java library (JAR, no Spring Boot, no `@SpringBootApplication`). It is the **domain-agnostic, vertical-independent layer** of the BENE platform — containing everything that would be reused verbatim if the platform were applied to a different vertical (medical records, agro assets, legal documents, etc.). Neither venue-specific fields nor venue-specific migration logic belong here.
 
-Both `bene-venue-model` and (transitively) `bene-venue-service` and `bene-venue-ingestion-worker` declare it as a compile dependency.
+Both `iqbene-venue-model` and (transitively) `iqbene-venue-service` and `iqbene-venue-ingestion-worker` declare it as a compile dependency.
 
 **Contents:**
 
 ```
-bene-data-intelligence/
+iqbene-data-intelligence/
 ├── extraction/
 │   ├── ExtractionJob.java          Plain POJO — AI processing job record
 │   ├── ExtractionStatus.java       enum: QUEUED, PROCESSING, COMPLETED, FAILED
@@ -944,7 +944,7 @@ bene-data-intelligence/
 │   ├── MetadataSource.java         Provenance per field — generic structure, field names are strings
 │   ├── MetadataEventType.java      enum: ASSET_EXTRACTED, MANUAL_OVERRIDE, BULK_IMPORT, REGISTRY
 │   ├── MetadataSchemaVersion.java  Versioning contract only: CURRENT_SCHEMA_VERSION constant lives
-│   │                               in the domain library (bene-venue-model), not here. This class
+│   │                               in the domain library (iqbene-venue-model), not here. This class
 │   │                               defines the interface contract — what _schema_version means,
 │   │                               absent-key fallback (→ 0), and the rules for migration authors.
 │   ├── MetadataMigration.java      Interface: fromVersion(), toVersion(), apply(JsonNode, ObjectMapper)
@@ -964,28 +964,28 @@ bene-data-intelligence/
     └── changelog/
         └── intelligence/           Infrastructure table migrations — domain-agnostic
             ├── master.xml
-            ├── 20250101000003-create-extraction-jobs.xml
-            ├── 20250101000004-create-item-metadata-events.xml
-            ├── 20250101000005-create-item-vectors.xml
-            └── 20250101000006-create-ai-cost-tracking.xml
+            ├── 20260801000003-create-extraction-jobs.xml
+            ├── 20260801000004-create-item-metadata-events.xml
+            ├── 20260801000005-create-item-vectors.xml
+            └── 20260801000006-create-ai-cost-tracking.xml
 ```
 
 **Rules:**
 
 - No `@Service`, `@Repository`, `@Component`, or any Spring bean annotation.
-- No domain-specific field names. `MetadataSource` stores field names as plain `String` keys — the canonical field set is defined in the domain library (`bene-venue-model`), never here.
+- No domain-specific field names. `MetadataSource` stores field names as plain `String` keys — the canonical field set is defined in the domain library (`iqbene-venue-model`), never here.
 - No venue, medical, agro, or any other vertical concept. If a class name contains a vertical noun, it does not belong here.
 - `MetadataMigrator` (the chain runner) is here. Concrete `MetadataMigrationV{N}ToV{N+1}` classes are in the domain library. This separation means the runner is reused unchanged across verticals; only the migration list differs.
 - `MetadataTypeHandler` is an abstract base class. Domain libraries extend it once, passing their concrete migrator and target POJO class. Neither service instantiates the base directly.
 - Event POJOs use `item_id` as the generic field name. Domain services map their aggregate root ID (`venue_id`, `case_id`, etc.) to `item_id` when publishing and back when consuming. This is a one-line alias — acceptable coupling.
-- Infrastructure Liquibase changelogs live here so that the `extraction_jobs`, `item_vectors`, `item_metadata_events`, and `ai_cost_tracking` tables are created identically regardless of which vertical is being deployed. Domain changelogs (`venues`, `venue_assets`, `venue_registry`) remain in `bene-venue-model`.
+- Infrastructure Liquibase changelogs live here so that the `extraction_jobs`, `item_vectors`, `item_metadata_events`, and `ai_cost_tracking` tables are created identically regardless of which vertical is being deployed. Domain changelogs (`venues`, `venue_assets`, `venue_registry`) remain in `iqbene-venue-model`.
 - No JPA annotations. Plain POJOs only.
 
 **What does NOT go here — common mistakes to avoid at code review:**
 
 | Tempting addition                             | Why it does not belong                                                                |
 | --------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `VenueMetadata` or any domain POJO            | Venue-specific — lives in `bene-venue-model`                                          |
+| `VenueMetadata` or any domain POJO            | Venue-specific — lives in `iqbene-venue-model`                                        |
 | `CURRENT_SCHEMA_VERSION = 1` constant         | Domain-version-specific — lives in domain library                                     |
 | `MetadataMigrationV0ToV1`                     | Venue field renames — domain migration, not generic                                   |
 | `VenueRegistryEntry`                          | Curated list structure is generic, but field shape is venue-specific — domain library |
@@ -995,18 +995,18 @@ bene-data-intelligence/
 **Dependency graph:**
 
 ```
-bene-data-intelligence   (platform library, no runtime, no vertical deps)
+iqbene-data-intelligence   (platform library, no runtime, no vertical deps)
       │
       ▼
-bene-venue-model         (venue-domain library, imports bene-data-intelligence)
+iqbene-venue-model         (venue-domain library, imports iqbene-data-intelligence)
       │
-      ├── bene-venue-service          (Spring Boot)
-      └── bene-venue-ingestion-worker (Spring Boot)
+      ├── iqbene-venue-service          (Spring Boot)
+      └── iqbene-venue-ingestion-worker (Spring Boot)
 
 
 Future vertical example:
 
-bene-data-intelligence
+iqbene-data-intelligence
       │
       ▼
 bene-med-model           (medical-domain library)
@@ -1015,11 +1015,11 @@ bene-med-model           (medical-domain library)
       └── bene-med-ingestion-worker
 ```
 
-The infrastructure (ETL pipeline, aggregation, search orchestration, registry matching) is reused via Spring Boot starters or copy-with-adaptation from the venue implementation. `bene-data-intelligence` provides the contracts those components depend on.
+The infrastructure (ETL pipeline, aggregation, search orchestration, registry matching) is reused via Spring Boot starters or copy-with-adaptation from the venue implementation. `iqbene-data-intelligence` provides the contracts those components depend on.
 
 ---
 
-## 5. ETL Pipeline (bene-venue-ingestion-worker)
+## 5. ETL Pipeline (iqbene-venue-ingestion-worker)
 
 Built on **Spring AI's ETL framework**. Three composable stages:
 
@@ -1028,7 +1028,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
   (parse)            (chunk + enrich)        (embed + store)
 ```
 
-The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`, `AssetType`, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`) — are defined in `bene-data-intelligence` (§4c). The venue-specific enricher (`VenueMetadataEnricher`) and its output type (`VenueMetadata`) come from `bene-venue-model` (§4a).
+The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`, `AssetType`, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`) — are defined in `iqbene-data-intelligence` (§4c). The venue-specific enricher (`VenueMetadataEnricher`) and its output type (`VenueMetadata`) come from `iqbene-venue-model` (§4a).
 
 ### Stage 1 — Parse (per asset type)
 
@@ -1047,14 +1047,14 @@ The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`,
 
 1. **Chunk** — `TokenTextSplitter` (512 tokens, 50-token overlap). Spec-sheet tables use 256-token chunks to preserve row precision.
 2. **Tag** — attach `venue_id`, `asset_id`, `asset_type`, `tenant_id` as Document metadata.
-3. **Extract** — `VenueMetadataEnricher` (custom `DocumentTransformer`, venue-specific, from `bene-venue-model`): calls GPT-4o with structured output schema matching the venue canonical field set (§2), returns `VenueMetadata` POJO with confidence scores per field. The enricher is the **only venue-specific component** in the pipeline — all surrounding plumbing is generic.
+3. **Extract** — `VenueMetadataEnricher` (custom `DocumentTransformer`, venue-specific, from `iqbene-venue-model`): calls GPT-4o with structured output schema matching the venue canonical field set (§2), returns `VenueMetadata` POJO with confidence scores per field. The enricher is the **only venue-specific component** in the pipeline — all surrounding plumbing is generic.
 
 ### Stage 3 — Load
 
-1. **Embed** — `EmbeddingModel` (`text-embedding-3-small`, 1536 dims). Generic — from `bene-data-intelligence`.
-2. **Store** — `TenantAwarePgVectorStore` writes chunks + embeddings to `item_vectors` table in the tenant's schema. Table defined in `bene-data-intelligence` changelog (§4c).
+1. **Embed** — `EmbeddingModel` (`text-embedding-3-small`, 1536 dims). Generic — from `iqbene-data-intelligence`.
+2. **Store** — `TenantAwarePgVectorStore` writes chunks + embeddings to `item_vectors` table in the tenant's schema. Table defined in `iqbene-data-intelligence` changelog (§4c).
 3. **Registry match** — `VenueRegistryMatcher` runs the full gap-fill algorithm documented above (trigram name similarity via `pg_trgm` GIN index on `venue_registry_aliases`, PostGIS `ST_DWithin` 200m radius, combined confidence formula, thresholds 0.75 with geo / 0.90 name-only, ambiguity delta guard ≥ 0.08). Registry is secondary only. No LLM calls, no embedding similarity. Full algorithm, thresholds, and field-copy semantics in the "Extraction-time gap-fill" subsection above.
-4. **Aggregate** — publishes `ExtractionCompletedEvent` (from `bene-data-intelligence`) → `MetadataAggregationConsumer` in `bene-venue-service` updates `venues.metadata` via `VenueMetadataMigrator.ensureCurrent()` (from `bene-venue-model`).
+4. **Aggregate** — publishes `ExtractionCompletedEvent` (from `iqbene-data-intelligence`) → `MetadataAggregationConsumer` in `iqbene-venue-service` updates `venues.metadata` via `VenueMetadataMigrator.ensureCurrent()` (from `iqbene-venue-model`).
 
 ### Processing SLA
 
@@ -1064,13 +1064,13 @@ The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`,
 | Images / floor plans | < 60s          |
 | CAD files            | < 2 min        |
 
-Retry on failure: 3 attempts with exponential backoff. After 3 failures → `ExtractionFailedEvent` (from `bene-data-intelligence`) → user notification.
+Retry on failure: 3 attempts with exponential backoff. After 3 failures → `ExtractionFailedEvent` (from `iqbene-data-intelligence`) → user notification.
 
 ---
 
 ## 6. Search Architecture
 
-All search is served by `bene-venue-service` querying PostgreSQL directly. No separate search service.
+All search is served by `iqbene-venue-service` querying PostgreSQL directly. No separate search service.
 
 ### Search Modes
 
@@ -1161,7 +1161,7 @@ All search is served by `bene-venue-service` querying PostgreSQL directly. No se
 
 ---
 
-## 7. API Surface (bene-venue-service)
+## 7. API Surface (iqbene-venue-service)
 
 All endpoints follow platform conventions based on the actual implementation in `foundation-cms-service` and `foundation-iam-service`:
 
@@ -1342,7 +1342,7 @@ For quota limits (`PlanMemberQuotaException` equivalent for venues/assets): stat
 
 Exchange: `iqkv.events` (Topic) — same exchange used by all foundation services.
 
-### Published by bene-venue-service
+### Published by iqbene-venue-service
 
 | Routing key      | Payload fields                                                  | Description                           |
 | ---------------- | --------------------------------------------------------------- | ------------------------------------- |
@@ -1351,7 +1351,7 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 | `asset.uploaded` | asset_id, venue_id, tenant_id, asset_type, s3_key, content_type | Asset confirmed, ready for extraction |
 | `asset.deleted`  | asset_id, venue_id, tenant_id                                   | Asset removed                         |
 
-### Published by bene-venue-ingestion-worker
+### Published by iqbene-venue-ingestion-worker
 
 | Routing key            | Payload fields                                | Description           |
 | ---------------------- | --------------------------------------------- | --------------------- |
@@ -1361,14 +1361,14 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 
 For the scalable topology (§3, variant A2), the publisher appends a hash-slot suffix to the `extraction.completed` routing key: `extraction.completed.{slot}` where `slot = Math.abs(venueId.hashCode() % SLOT_COUNT)`. Same `venue_id` always produces the same slot.
 
-### Consumed by bene-venue-ingestion-worker
+### Consumed by iqbene-venue-ingestion-worker
 
 | Routing key      | Queue                                     | Action                                |
 | ---------------- | ----------------------------------------- | ------------------------------------- |
 | `asset.uploaded` | `iqbene.extraction.priority` (Enterprise) | Trigger ETL pipeline immediately      |
 | `asset.uploaded` | `iqbene.extraction.standard` (Free/Pro)   | Trigger ETL pipeline (standard queue) |
 
-### Consumed by bene-venue-service
+### Consumed by iqbene-venue-service
 
 | Routing key            | Queue (MVP A1)                               | Queue (Scalable A2)                                                                                                         | Action                                |
 | ---------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
@@ -1377,7 +1377,7 @@ For the scalable topology (§3, variant A2), the publisher appends a hash-slot s
 
 ### Metadata aggregation queue — consumer configuration
 
-The `MetadataAggregationConsumer` listener container in `bene-venue-service` must be configured to serialise processing per queue so that per-venue events never execute concurrently:
+The `MetadataAggregationConsumer` listener container in `iqbene-venue-service` must be configured to serialise processing per queue so that per-venue events never execute concurrently:
 
 | Configuration    | Value (A1)                                          | Value (A2)  | Notes                                                                                      |
 | ---------------- | --------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------ |
@@ -1418,7 +1418,7 @@ Enforcement via `PlanFeatureGuard` (same pattern as IAM service's existing imple
 
 ## 10. Database Schema (Liquibase, tenant schema)
 
-Migrations live in `bene-venue-model` under `src/main/resources/db/changelog/tenant/` — the shared library is the single source of truth for schema. Both `bene-venue-service` and `bene-venue-ingestion-worker` include the library on their classpath; `bene-venue-service` runs the migrations on startup (or a dedicated init container applies them on tenant provisioning via `TenantProvisionedEvent` listener, same pattern as IAM).
+Migrations live in `iqbene-venue-model` under `src/main/resources/db/changelog/tenant/` — the shared library is the single source of truth for schema. Both `iqbene-venue-service` and `iqbene-venue-ingestion-worker` include the library on their classpath; `iqbene-venue-service` runs the migrations on startup (or a dedicated init container applies them on tenant provisioning via `TenantProvisionedEvent` listener, same pattern as IAM).
 
 ### Naming and format conventions
 
@@ -1436,16 +1436,16 @@ Follows the platform coding guidelines (§12):
 ```
 db/changelog/system/
 ├── master.xml
-└── 20250101000000-create-venue-registry.xml   ← public schema, platform-owned
+└── 20260801000000-create-venue-registry.xml   ← public schema, platform-owned
 
 db/changelog/tenant/
 ├── master.xml
-├── 20250101000001-create-venues.xml
-├── 20250101000002-create-venue-assets.xml
-├── 20250101000003-create-extraction-jobs.xml
-├── 20250101000004-create-metadata-events.xml
-├── 20250101000005-create-venue-vectors.xml
-└── 20250101000006-create-ai-cost-tracking.xml
+├── 20260801000001-create-venues.xml
+├── 20260801000002-create-venue-assets.xml
+├── 20260801000003-create-extraction-jobs.xml
+├── 20260801000004-create-metadata-events.xml
+├── 20260801000005-create-venue-vectors.xml
+└── 20260801000006-create-ai-cost-tracking.xml
 ```
 
 The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml` first (to the `public` schema), then `tenant/master.xml` to each `t_{tenantKey}` schema. The `venue_registry` and `venue_registry_aliases` tables are created in `public` once, not per-tenant.
@@ -1460,7 +1460,7 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.33.xsd">
 
-  <changeSet id="20250101000001-create-venues" author="iqkv">
+  <changeSet id="20260801000001-create-venues" author="iqkv">
 
     <!-- Extensions applied once per tenant schema -->
     <sql>CREATE EXTENSION IF NOT EXISTS vector;</sql>
@@ -1552,14 +1552,14 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 
 **Tenant schema `t_{tenantKey}` (tenant-owned):**
 
-| Table                   | Key columns                                                                                                                                                         | Owner                                                                           |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `venues`                | `id` UUID PK, `status` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY, `registry_entry_id` UUID (nullable, app-level FK) | `bene-venue-service`. `metadata._schema_version` mandatory, default 1 on insert |
-| `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536)                                | `bene-venue-service`                                                            |
-| `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB                             | `bene-venue-ingestion-worker`                                                   |
-| `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                                                        | `bene-venue-service`                                                            |
-| `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in `bene-data-intelligence` changelog (§4c).      | `bene-venue-ingestion-worker`                                                   |
-| `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                                                         | `bene-venue-ingestion-worker`                                                   |
+| Table                   | Key columns                                                                                                                                                         | Owner                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `venues`                | `id` UUID PK, `status` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY, `registry_entry_id` UUID (nullable, app-level FK) | `iqbene-venue-service`. `metadata._schema_version` mandatory, default 1 on insert |
+| `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536)                                | `iqbene-venue-service`                                                            |
+| `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB                             | `iqbene-venue-ingestion-worker`                                                   |
+| `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                                                        | `iqbene-venue-service`                                                            |
+| `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in `iqbene-data-intelligence` changelog (§4c).    | `iqbene-venue-ingestion-worker`                                                   |
+| `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                                                         | `iqbene-venue-ingestion-worker`                                                   |
 
 ### Index strategy summary
 
@@ -1596,7 +1596,7 @@ PostgreSQL schema-per-tenant tenancy model means `public.venue_registry` lives i
 
 3. **No cross-schema DDL-level FK constraints.** PostgreSQL does not support FKs across schemas owned by different role-level isolation; the `venues.registry_entry_id → venue_registry.id` reference is application-enforced only. Sweeper for orphaned `registry_entry_id` values after `registry.admin.entry.deleted` events is deferred to Phase 2.
 
-4. **Role-level hardening (optional pre-production):** The connection pool `bene-venue-service` runs as is `t_{tenantKey}` owner only; grant `SELECT` on `public.venue_registry` / aliases to the app role explicitly. `INSERT / UPDATE / DELETE` on `public` tables to this role is revoked; only the `registry_admin` connection pool / PLATFORM_ADMIN user holds write grants on public registry tables.
+4. **Role-level hardening (optional pre-production):** The connection pool `iqbene-venue-service` runs as is `t_{tenantKey}` owner only; grant `SELECT` on `public.venue_registry` / aliases to the app role explicitly. `INSERT / UPDATE / DELETE` on `public` tables to this role is revoked; only the `registry_admin` connection pool / PLATFORM_ADMIN user holds write grants on public registry tables.
 
 ---
 
@@ -1673,19 +1673,19 @@ Grafana dashboard added to `docker/grafana/provisioning/dashboards/VipService.js
 
 ## 14. Technology Decisions (summary)
 
-| Concern              | Decision                                                                 | Rationale                                                                                                                                                                                                                                                                                                                  |
-| -------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Document parsing     | Apache Tika via Spring AI `TikaDocumentReader`                           | 1000+ formats, DWG support, fault-tolerant Tika Pipes, zero extra infra                                                                                                                                                                                                                                                    |
-| PDF layout / tables  | IBM Docling (Phase 2, self-hosted)                                       | State-of-the-art table reconstruction, MIT license, zero per-page cost                                                                                                                                                                                                                                                     |
-| AI framework         | Spring AI 1.0                                                            | Java-native, provider-agnostic, ETL pipeline built-in, Micrometer integration                                                                                                                                                                                                                                              |
-| LLM (extraction)     | OpenAI GPT-4o                                                            | Best structured output + multimodal (vision for images/floor plans)                                                                                                                                                                                                                                                        |
-| Embeddings           | OpenAI text-embedding-3-small                                            | 1536 dims, $0.02/1M tokens, good quality/cost ratio                                                                                                                                                                                                                                                                        |
-| Vector store         | pgvector (PostgreSQL extension)                                          | No new service, transactional, tenant-isolated via schema                                                                                                                                                                                                                                                                  |
-| Full-text search     | PostgreSQL tsvector                                                      | Unified with relational data, no new service                                                                                                                                                                                                                                                                               |
-| Geo search           | PostGIS (PostgreSQL extension)                                           | No new service                                                                                                                                                                                                                                                                                                             |
-| Async processing     | RabbitMQ (existing foundation)                                           | Priority queues, DLQ, already in platform                                                                                                                                                                                                                                                                                  |
-| File storage         | S3 / MinIO (existing foundation)                                         | Presigned URL pattern already proven in IAM                                                                                                                                                                                                                                                                                |
-| Shared library split | `bene-data-intelligence` (generic) + `bene-venue-model` (venue-specific) | Enables pivot to other verticals without refactoring infrastructure contracts. Generic extraction pipeline, event POJOs, metadata versioning mechanism, and provenance model live in `bene-data-intelligence` and are reused unchanged. Venue canonical field set and migrations live in `bene-venue-model`. See §4a, §4c. |
+| Concern              | Decision                                                                     | Rationale                                                                                                                                                                                                                                                                                                                      |
+| -------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Document parsing     | Apache Tika via Spring AI `TikaDocumentReader`                               | 1000+ formats, DWG support, fault-tolerant Tika Pipes, zero extra infra                                                                                                                                                                                                                                                        |
+| PDF layout / tables  | IBM Docling (Phase 2, self-hosted)                                           | State-of-the-art table reconstruction, MIT license, zero per-page cost                                                                                                                                                                                                                                                         |
+| AI framework         | Spring AI 1.0                                                                | Java-native, provider-agnostic, ETL pipeline built-in, Micrometer integration                                                                                                                                                                                                                                                  |
+| LLM (extraction)     | OpenAI GPT-4o                                                                | Best structured output + multimodal (vision for images/floor plans)                                                                                                                                                                                                                                                            |
+| Embeddings           | OpenAI text-embedding-3-small                                                | 1536 dims, $0.02/1M tokens, good quality/cost ratio                                                                                                                                                                                                                                                                            |
+| Vector store         | pgvector (PostgreSQL extension)                                              | No new service, transactional, tenant-isolated via schema                                                                                                                                                                                                                                                                      |
+| Full-text search     | PostgreSQL tsvector                                                          | Unified with relational data, no new service                                                                                                                                                                                                                                                                                   |
+| Geo search           | PostGIS (PostgreSQL extension)                                               | No new service                                                                                                                                                                                                                                                                                                                 |
+| Async processing     | RabbitMQ (existing foundation)                                               | Priority queues, DLQ, already in platform                                                                                                                                                                                                                                                                                      |
+| File storage         | S3 / MinIO (existing foundation)                                             | Presigned URL pattern already proven in IAM                                                                                                                                                                                                                                                                                    |
+| Shared library split | `iqbene-data-intelligence` (generic) + `iqbene-venue-model` (venue-specific) | Enables pivot to other verticals without refactoring infrastructure contracts. Generic extraction pipeline, event POJOs, metadata versioning mechanism, and provenance model live in `iqbene-data-intelligence` and are reused unchanged. Venue canonical field set and migrations live in `iqbene-venue-model`. See §4a, §4c. |
 
 Full rationale and competitor analysis: see `../business/Digital_Sales_Room_for_Events/comparison.md`.
 
@@ -1693,16 +1693,16 @@ Full rationale and competitor analysis: see `../business/Digital_Sales_Room_for_
 
 ## 15. Open Decisions (resolve before Sprint 1)
 
-- [x] **One service or two?** ~~`bene-venue-service` + `bene-ai-service` vs. a single `bene-venue-service` with an internal AI module.~~ **Decided:** Two deployments — `bene-venue-service` (synchronous API, data-tied) and `bene-venue-ingestion-worker` (async sidecar, shared schema, no inbound HTTP). Services are tied to data; ingestion is a processing concern, not a peer service.
-- [x] **Naming convention.** Service names reflect domain/purpose, not implementation technology. `bene-venue-ingestion-worker` describes what it does (ingest and process assets), not how (AI/ML).
+- [x] **One service or two?** ~~`iqbene-venue-service` + `bene-ai-service` vs. a single `iqbene-venue-service` with an internal AI module.~~ **Decided:** Two deployments — `iqbene-venue-service` (synchronous API, data-tied) and `iqbene-venue-ingestion-worker` (async sidecar, shared schema, no inbound HTTP). Services are tied to data; ingestion is a processing concern, not a peer service.
+- [x] **Naming convention.** Service names reflect domain/purpose, not implementation technology. `iqbene-venue-ingestion-worker` describes what it does (ingest and process assets), not how (AI/ML).
 - [x] **Platform venue registry.** A `public.venue_registry` table seeds new tenant venues with known data at extraction time. Copy-on-match, not link — tenant record is independent after copy. Source tagged `REGISTRY` in `metadata_sources`, lowest priority in conflict resolution. No reverse flow from tenant to registry in MVP.
-- [x] **Metadata schema versioning and JSONB drift.** Every `venues.metadata` and `venue_registry.metadata` JSONB document carries a top-level integer `_schema_version` (initial: 1; absent = 0 "legacy"). `bene-data-intelligence` (§4c) contains the `MetadataMigration` interface and `MetadataMigrator` chain runner. `bene-venue-model` (§4a) contains the venue-specific migration classes (`VenueMetadataMigrationV0ToV1`, `VenueMetadataMigrationV1ToV2`, …), `VenueMetadataMigrator` (extends `MetadataMigrator`), and `VenueMetadataSchemaVersion.CURRENT_SCHEMA_VERSION`. Every read upgrades the shape in memory via `VenueMetadataTypeHandler` (extends `MetadataTypeHandler` from `bene-data-intelligence`); every write stamps the document to `CURRENT_SCHEMA_VERSION` before persist. No offline backfill job, incremental online convergence. Same migrator classpath-identical in both services, zero drift. Full design in §2a.
+- [x] **Metadata schema versioning and JSONB drift.** Every `venues.metadata` and `venue_registry.metadata` JSONB document carries a top-level integer `_schema_version` (initial: 1; absent = 0 "legacy"). `iqbene-data-intelligence` (§4c) contains the `MetadataMigration` interface and `MetadataMigrator` chain runner. `iqbene-venue-model` (§4a) contains the venue-specific migration classes (`VenueMetadataMigrationV0ToV1`, `VenueMetadataMigrationV1ToV2`, …), `VenueMetadataMigrator` (extends `MetadataMigrator`), and `VenueMetadataSchemaVersion.CURRENT_SCHEMA_VERSION`. Every read upgrades the shape in memory via `VenueMetadataTypeHandler` (extends `MetadataTypeHandler` from `iqbene-data-intelligence`); every write stamps the document to `CURRENT_SCHEMA_VERSION` before persist. No offline backfill job, incremental online convergence. Same migrator classpath-identical in both services, zero drift. Full design in §2a.
 - [x] **Metadata aggregation race condition prevention.** How to prevent Lost Update when N extraction jobs for the same venue publish `extraction.completed` concurrently? **Rejected:** optimistic locking with retry-loop (complex retry code, hard to test livelock scenarios, conflicts hit the database first). **Rejected:** distributed locks (Redis or advisory locks — new dependency, deadlock surface, operational complexity). **Rejected:** `SELECT … FOR UPDATE` row locks (serialises at the DB, works but requires explicit transaction scripting and still contends on hot venues). **Decided:** RabbitMQ FIFO routing per `venue_id` using hash-partitioned queues (§3). Eliminates the race at the messaging layer before the consumer runs. Zero new dependencies, no retry code. Variant A1 (single queue, concurrency=1, prefetch=1) for MVP; variant A2 (16 hash-slot queues) when throughput requires. Consumer wraps the SELECT+merge+UPDATE in a single DB transaction + MANUAL ack only after COMMIT. Composes naturally with the existing 5 s debounce window — three rapid events become one aggregation. Full design in §3 "Concurrency Control and Race Condition Prevention" and §8 queue configuration.
 - [x] **Cross-source search architecture (tenant venues + public registry across schema boundary).** **Decided (Approach 2):** two parallel SQL branches → app-level merge, no PostgreSQL cross-schema JOIN/UNION in a single statement. Search bar on the tenant's venues page returns the union by default. **Rejected:** schema-level registry materialised copy per tenant (N×row duplication, scraper admin updates become fan-out consistency nightmare). **Rejected:** single SQL `UNION ALL` between `public.venue_registry` and `t_tenant.venues` in one MyBatis statement — couples planner statistics on two heterogenous tables, risks leaking admin-only registry columns if the SELECT whitelist is widened later, breaks the "swap schema-per-tenant ↔ row-level tenancy" future-proof invariant (would have to rewrite all UNION queries). **Rejected for MVP:** dedicated OpenSearch/Elasticsearch unified index. New operational service, over-engineering at MVP scale (< 500 registry rows, < 1000 tenant venues per tenant). Promote to OpenSearch only if registry breaches 100 K rows _or_ registry semantic search switches on (§17 Phase 2 signal). **Flow:** `VenueSearchOrchestrator` issues branch A (tenant mapper `VenueMapper`, implicit search_path, full 5-mode hybrid incl. semantic pgvector cosine) and branch B (`RegistryEntryQueryMapper`, **explicitly schema-qualified `FROM public.venue_registry … LEFT JOIN public.venue_registry_aliases`**, MVP 3-mode keyword + structured + geo only — no semantic on registry in MVP) via `CompletableFuture.supplyAsync` independent threads. App-level: dedup (if `venues.registry_entry_id == registryEntry.id` — registry result already imported → drop the REGISTRY origin, keep TENANT origin only) → reciprocal rank fusion A:B weight 0.5:0.5 (equal weight, re-tune post-launch if bias is observed) → slice page 20 → append `origin="TENANT"|"REGISTRY"` on each summary record. **Failure isolation:** branch B timeout/exception → return branch A only with HTTP `Warning: 299 - "Registry search unavailable"` header + Micrometer `bene_search_failures_total{branch="registry"}`. **New API surface (§7):** `GET /api/v1/venues/?scope=TENANT_ONLY|REGISTRY_ONLY|BOTH` (default `BOTH`); new DTO fields `VenueResponse.registry_entry_id` (nullable UUID, app-level FK populated on `from-registry` import or unambiguous extraction-time MATCH) and `VenueSummaryView.origin` enum; `GET /api/v1/registry/entries/{id}` (MEMBER auth, safe projection, never admin-only fields); `POST /api/v1/venues/from-registry/{registryEntryId}` (copy-on-import, REGISTRY lowest-priority source tagged, idempotent — re-import returns existing). **Cross-schema access rules (§10):** only three MyBatis mappers are ever allowed to emit `public.`-qualified SQL — `RegistryEntryQueryMapper` (read search), `VenueRegistryMatcherMapper` (read gap-fill), `RegistryAdminMapper` (admin writes). All other mappers use unqualified names via search_path. Single-statement JOIN/UNION across schemas is forbidden. **Metrics (§12):** `bene_search_requests_total{search_mode, scope}`, `bene_search_latency_seconds{search_mode, branch=tenant|registry|orchestrator_total}`, `bene_venue_import_from_registry_total{tenant_id, status=created|duplicate|error}`. **Semantic search on registry entries:** NOT in MVP. Registry entry description embeddings (generation during scraper/admin apply + cosine branch in the orchestrator) is explicitly deferred to Phase 2 decision — see §17. Full design diagram and edge cases: see §6 "Cross-source Search (tenant venues + public registry)".
 - [ ] **Docling in Phase 1?** Start with pure Tika (simpler). Add Docling sidecar in Phase 2 when floor plan / table fidelity is needed. **Lean: Tika-only for Phase 1.**
-- [x] **Registry match threshold and algorithm.** Fuzzy name + PostGIS proximity, **no embeddings/LLM in the match path.** Registry is explicitly secondary — FP rate must stay ≤ 1 %, even at cost of elevated FN. Shared `normalize()` function strips leading articles, lowercases, strips non-alnum, collapses whitespace — applied identically to both sides of every comparison. **Cold-start population paths:** (1) hardcoded Liquibase XML seed rows (50–200 high-signal venues) in `bene-venue-model/src/main/resources/db/changelog/system/` → source `platform_seed`; (2) Platform Admin single-entity CRUD API (no bulk MVP) with pre-write dedup candidate list → admin confirms Merge/Insert manually → source `admin_import`; (3) standalone scraper scripts (Cvent etc.) → S3 `vip/registry/imports/{id}/` → admin-triggered `admin.registry.import.dry-run` RabbitMQ event → `VenueRegistryImportOrchestrator` produces a review CSV with `name_sim` + `geo_distance` + per-row action recommendation (MERGE/REVIEW/INSERT thresholds: 0.90+150m → MERGE rec, 0.75/300m → REVIEW rec, else INSERT rec) → admin edits Action column, re-uploads, fires `admin.registry.import.apply` → worker applies verbatim with no independent decisions → source `web_scrape`. **Tenant extraction-time gap-fill:** combined confidence = geo available ? `0.60·name_trigram_sim + 0.40·(geo_within_200m ? 1 : 0)` : `1.00·name_trigram_sim`. MATCH threshold = combined ≥ 0.75 (with geo) OR ≥ 0.90 (name-only) AND top-2 candidate delta ≥ 0.08 (not ambiguous). Below thresholds → silent no-op; REGISTRY is lowest conflict-resolution priority so tenant extraction/user input always overrides the copy. **Before Sprint 1 dry-run calibration on 50 real PDFs:** ground-truth each fixture, run `VenueRegistryMatcher` in no-write mode, build confusion matrix, accept only if FP ≤ 1 %, else incrementally raise thresholds. Full design: see "Registry population strategy (cold start for MVP)" section above. Micrometer metrics `bene_registry_match_total{stage,outcome}` + `bene_registry_match_confidence_seconds{stage}` histogram added to §12.
-- [x] **Chunking table placement and naming.** Schema: inside each tenant schema `t_{tenantKey}` (same schema as venues / venue_assets, NOT public, NOT a separate cross-tenant vector schema). **Rejected:** shared cross-tenant `vector_store` in `public`. Rejection rationale: a shared table requires a `tenant_id` column plus an extra sweep job on `tenant.deleted`, loses the `DROP SCHEMA … CASCADE` implicit-vector-cleanup path we already rely on for GDPR erasure, opens a cross-tenant leak bug surface any time a WHERE clause forgets to filter by `tenant_id`, forces the venue+vectors write path across two resources that are no longer atomically transactional, and would produce one giant shared IVFFlat index whose REINDEX blocks every tenant on the cluster simultaneously. **Decided:** one `item_vectors` table per tenant schema (defined in `bene-data-intelligence` changelog, §4c), routed by the same `MyBatisSchemaInterceptor`. **Table name:** `item_vectors` — generic name from `bene-data-intelligence`; the venue prefix is applied at the service layer via `TenantAwarePgVectorStore`. **Rejected:** Spring AI's default name `vector_store` because it is not self-documenting. Columns: `id UUID PK`, `content TEXT` (raw chunk), `metadata JSONB` (Spring AI tags: `venue_id`, `asset_id`, `asset_type`, `token_count`, `chunk_index`), `embedding VECTOR(1536)`. Initial vector index: IVFFlat (cosine-distance), cheaper than HNSW at MVP volumes. `idx_vectors_asset` btree expression index on `(metadata->>'asset_id')` for fast `asset.deleted` sweep. See §17 Phase 2 design signal for the 1 M-row IVFFlat→HNSW evaluation trigger.
-- [x] **Shared library split: `bene-data-intelligence` + `bene-venue-model`.** **Problem:** all extraction pipeline contracts, event POJOs, metadata versioning mechanism, provenance model, and infrastructure Liquibase changelogs were co-located with venue-specific domain classes in a single `bene-venue-model` library. This made the infrastructure layer impossible to reuse in a future vertical (medical, agro, legal) without carrying venue field names as a transitive dependency. **Decided:** split into two compile-time JARs. `bene-data-intelligence` — domain-agnostic platform library: `ExtractionJob`, `ExtractionStatus`, `ExtractorType`, `AssetType`, `MetadataMigration` interface, `MetadataMigrator` runner, `MetadataTypeHandler` abstract base, `MetadataSource` (provenance), `MetadataEventType`, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`), and infrastructure Liquibase changelogs (`extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`). Contains no venue-specific field names. `bene-venue-model` — venue-domain library: `Venue`, `VenueStatus`, `VenueAsset`, `VenueMetadata` (canonical field set), `VenueCapacity`, `VenueMetadataMigrator` (extends `MetadataMigrator`), `VenueMetadataTypeHandler` (extends `MetadataTypeHandler`), `VenueMetadataSchemaVersion.CURRENT_SCHEMA_VERSION`, concrete migration classes, `VenueRegistryEntry`, `VenueRegistryAlias`, and venue/registry Liquibase changelogs. Depends on `bene-data-intelligence`. **Pivot cost:** a new vertical creates a new `bene-{domain}-model` that imports `bene-data-intelligence` and adds its own domain model + migrations. Zero changes to `bene-data-intelligence`. Full design: §4a and §4c.
+- [x] **Registry match threshold and algorithm.** Fuzzy name + PostGIS proximity, **no embeddings/LLM in the match path.** Registry is explicitly secondary — FP rate must stay ≤ 1 %, even at cost of elevated FN. Shared `normalize()` function strips leading articles, lowercases, strips non-alnum, collapses whitespace — applied identically to both sides of every comparison. **Cold-start population paths:** (1) hardcoded Liquibase XML seed rows (50–200 high-signal venues) in `iqbene-venue-model/src/main/resources/db/changelog/system/` → source `platform_seed`; (2) Platform Admin single-entity CRUD API (no bulk MVP) with pre-write dedup candidate list → admin confirms Merge/Insert manually → source `admin_import`; (3) standalone scraper scripts (Cvent etc.) → S3 `vip/registry/imports/{id}/` → admin-triggered `admin.registry.import.dry-run` RabbitMQ event → `VenueRegistryImportOrchestrator` produces a review CSV with `name_sim` + `geo_distance` + per-row action recommendation (MERGE/REVIEW/INSERT thresholds: 0.90+150m → MERGE rec, 0.75/300m → REVIEW rec, else INSERT rec) → admin edits Action column, re-uploads, fires `admin.registry.import.apply` → worker applies verbatim with no independent decisions → source `web_scrape`. **Tenant extraction-time gap-fill:** combined confidence = geo available ? `0.60·name_trigram_sim + 0.40·(geo_within_200m ? 1 : 0)` : `1.00·name_trigram_sim`. MATCH threshold = combined ≥ 0.75 (with geo) OR ≥ 0.90 (name-only) AND top-2 candidate delta ≥ 0.08 (not ambiguous). Below thresholds → silent no-op; REGISTRY is lowest conflict-resolution priority so tenant extraction/user input always overrides the copy. **Before Sprint 1 dry-run calibration on 50 real PDFs:** ground-truth each fixture, run `VenueRegistryMatcher` in no-write mode, build confusion matrix, accept only if FP ≤ 1 %, else incrementally raise thresholds. Full design: see "Registry population strategy (cold start for MVP)" section above. Micrometer metrics `bene_registry_match_total{stage,outcome}` + `bene_registry_match_confidence_seconds{stage}` histogram added to §12.
+- [x] **Chunking table placement and naming.** Schema: inside each tenant schema `t_{tenantKey}` (same schema as venues / venue_assets, NOT public, NOT a separate cross-tenant vector schema). **Rejected:** shared cross-tenant `vector_store` in `public`. Rejection rationale: a shared table requires a `tenant_id` column plus an extra sweep job on `tenant.deleted`, loses the `DROP SCHEMA … CASCADE` implicit-vector-cleanup path we already rely on for GDPR erasure, opens a cross-tenant leak bug surface any time a WHERE clause forgets to filter by `tenant_id`, forces the venue+vectors write path across two resources that are no longer atomically transactional, and would produce one giant shared IVFFlat index whose REINDEX blocks every tenant on the cluster simultaneously. **Decided:** one `item_vectors` table per tenant schema (defined in `iqbene-data-intelligence` changelog, §4c), routed by the same `MyBatisSchemaInterceptor`. **Table name:** `item_vectors` — generic name from `iqbene-data-intelligence`; the venue prefix is applied at the service layer via `TenantAwarePgVectorStore`. **Rejected:** Spring AI's default name `vector_store` because it is not self-documenting. Columns: `id UUID PK`, `content TEXT` (raw chunk), `metadata JSONB` (Spring AI tags: `venue_id`, `asset_id`, `asset_type`, `token_count`, `chunk_index`), `embedding VECTOR(1536)`. Initial vector index: IVFFlat (cosine-distance), cheaper than HNSW at MVP volumes. `idx_vectors_asset` btree expression index on `(metadata->>'asset_id')` for fast `asset.deleted` sweep. See §17 Phase 2 design signal for the 1 M-row IVFFlat→HNSW evaluation trigger.
+- [x] **Shared library split: `iqbene-data-intelligence` + `iqbene-venue-model`.** **Problem:** all extraction pipeline contracts, event POJOs, metadata versioning mechanism, provenance model, and infrastructure Liquibase changelogs were co-located with venue-specific domain classes in a single `iqbene-venue-model` library. This made the infrastructure layer impossible to reuse in a future vertical (medical, agro, legal) without carrying venue field names as a transitive dependency. **Decided:** split into two compile-time JARs. `iqbene-data-intelligence` — domain-agnostic platform library: `ExtractionJob`, `ExtractionStatus`, `ExtractorType`, `AssetType`, `MetadataMigration` interface, `MetadataMigrator` runner, `MetadataTypeHandler` abstract base, `MetadataSource` (provenance), `MetadataEventType`, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`), and infrastructure Liquibase changelogs (`extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`). Contains no venue-specific field names. `iqbene-venue-model` — venue-domain library: `Venue`, `VenueStatus`, `VenueAsset`, `VenueMetadata` (canonical field set), `VenueCapacity`, `VenueMetadataMigrator` (extends `MetadataMigrator`), `VenueMetadataTypeHandler` (extends `MetadataTypeHandler`), `VenueMetadataSchemaVersion.CURRENT_SCHEMA_VERSION`, concrete migration classes, `VenueRegistryEntry`, `VenueRegistryAlias`, and venue/registry Liquibase changelogs. Depends on `iqbene-data-intelligence`. **Pivot cost:** a new vertical creates a new `bene-{domain}-model` that imports `iqbene-data-intelligence` and adds its own domain model + migrations. Zero changes to `iqbene-data-intelligence`. Full design: §4a and §4c.
 - [ ] **Cost tracking granularity:** per-asset or per-tenant-per-month? Both are in schema; decide which is surfaced in UI.
 - [ ] **Old migration class retirement policy.** After how many consecutive months of zero hits on the `schema_version < N` Prometheus counter do we delete the oldest migration classes from the chain? Define the guardrail before the first schema bump so we do not accumulate deprecated code indefinitely.
 
@@ -2045,10 +2045,10 @@ One `@RestControllerAdvice` per service. Every handler uses the same `problem(ty
 
 - [ ] **Docling in Phase 1?** No — Tika-only for MVP. Add Docling sidecar in Phase 2 for floor plan / table fidelity.
 - [ ] **MVP scope cut** — Phase 1 is: venue profiles, asset upload, basic extraction (PDF only), keyword + semantic search, team collaboration. Everything else is Phase 2+.
-- [ ] **Implement `VenueMetadataMigrator` v0 + v1 chain** in `bene-venue-model` before any service code reads or writes `venues.metadata`. Wire `VenueMetadataTypeHandler` into the `VenueResultMap`. Add a 1-line counter Micrometer call inside `migrateToCurrent()` so version distribution metrics work from day zero. Add JUnit tests for `MetadataMigrationV0ToV1` with 5+ fixture JSON shapes (empty `{}`, `{}` without `_schema_version`, full v1 shape, partial v1 shape, registry-copy shape) to cover legacy-bootstrapping edge cases.
-- [ ] **Implement metadata aggregation FIFO routing (A1 for MVP)** in `bene-venue-service` `MetadataAggregationConsumer`: configure `@RabbitListener` on `iqbene.metadata.aggregation` with `concurrency=1`, `prefetchCount=1`, `acknowledgeMode=MANUAL`. Wrap the full SELECT → debounce check → merge via VenueMetadataMigrator → UPDATE → venue_metadata_events consume cycle in a single `@Transactional` DB transaction. Ack the RabbitMQ message only after the transaction commits; nack with requeue (up to 3x) on transient exceptions, then DLQ. Add an integration test that publishes three `extraction.completed` events for the same `venue_id` in quick succession, consumes the queue, and asserts that the final `venues.metadata` contains merged fields from all three sources AND that exactly one SQL `UPDATE` was executed (debounce + FIFO coalescing). When queue depth metrics show sustained backlog > 1 s, promote from A1 to A2 (16 hash-slot queues + publisher-side slot computation); consumer handler code is unchanged.
-- [ ] **Implement VenueRegistryMatcher + dry-run threshold calibration.** Code: `VenueRegistryMatcher` class in `bene-venue-ingestion-worker` (pure PostgreSQL pg_trgm + PostGIS, shared `normalize()` 6-step function (strip articles, lowercase, strip non-alnum, collapse whitespace, trim both sides of every comparison), fetch top-5 trigram candidates via GIN index, PostGIS ST_DWithin 200m radius, combined confidence formula with 0.60·name + 0.40·geo (or pure name when geo missing), MATCH thresholds 0.75 with geo / 0.90 name-only, ambiguity guard delta ≥ 0.08, field copy only for leaf keys that are null on tenant side + REGISTRY source tag in metadata_sources, set metadata_aggregated_at = NOW() after copy. Populate `venues.registry_entry_id` on unambiguous MATCH so cross-source search dedup works. Micrometer counters matched/ambiguous/no_match counter + confidence histogram. Unit tests: 10+ synthetic pairs (exact, fuzzy, geo cross-city mismatch, no geo strict, ambiguous 2-cand delta=0.05 ambiguous guard). Dry-run calibration: 50 real PDFs with ground truth, build confusion matrix, acceptance FP-rate ≤ 1 %, adjust thresholds and document final numbers → release. Admin single-entity CRUD MVP: `POST/PATCH /api/v1/admin/registry/entries` + dedup candidate endpoint returning review list. Scraper dry-run review CSV + `VenueRegistryImportOrchestrator` RabbitMQ events `admin.registry.import.dry-run` → report → `admin.registry.import.apply` verbatim apply (never autonomous decisions on the worker's side).
-- [ ] **Implement cross-source search path (?scope + RRF merge + registry detail + from-registry import).** Code in `bene-venue-service`: (1) new `scope` enum param wired on `GET /api/v1/venues/`; (2) `VenueSearchOrchestrator` with `CompletableFuture` parallel branch A (tenant mapper `VenueMapper` full 5 modes) + branch B (`RegistryEntryQueryMapper` explicitly qualified `public.venue_registry … LEFT JOIN public.venue_registry_aliases`, 3 MVP modes keyword+structured+geo only, fixed column whitelist). Branch timeout 2 s on registry. (3) App-level merge: dedup by `registry_entry_id` → drop REGISTRY origin if already imported → Reciprocal Rank Fusion equal weights 0.5:0.5 → top-50 each → slice page by page/size → append `origin: "TENANT" | "REGISTRY"` per record. (4) Failure isolation: branch B exception/timeout → return A only + `Warning` header + Micrometer `bene_search_failures_total{branch="registry"}`. (5) DTOs: add `registry_entry_id` nullable UUID to `VenueResponse`, add `origin` to `VenueSummaryView`. (6) `GET /api/v1/registry/entries/{id}` (MEMBER authority, fixed column safe projection — never confidence, private notes, or source audit fields). (7) `POST /api/v1/venues/from-registry/{registryEntryId}` (MEMBER): idempotent (if venue with `registry_entry_id` exists → return existing), else INSERT copying registry fields into metadata with `REGISTRY` lowest-priority `metadata_sources` source tag + set `registry_entry_id` + `metadata_aggregated_at = NOW()`. (8) Unit tests: 8 scenarios (BOTH scopes equal weight dedup imported, BOTH scopes dedup not imported, REGISTRY_ONLY scope returns only registry origin, TENANT_ONLY scope never queries RegistryEntryQueryMapper, RRF interleaving order, Warning header on branch B timeout, 3-seconds branch B timeout degrades gracefully, from-registry POST idempotent on second call). (9) Enforce cross-schema rule at code review: no other MyBatis mapper emits `public.` SQL except RegistryEntryQueryMapper / VenueRegistryMatcherMapper / RegistryAdminMapper; cross-schema JOIN/UNION in one statement forbidden (§10).
+- [ ] **Implement `VenueMetadataMigrator` v0 + v1 chain** in `iqbene-venue-model` before any service code reads or writes `venues.metadata`. Wire `VenueMetadataTypeHandler` into the `VenueResultMap`. Add a 1-line counter Micrometer call inside `migrateToCurrent()` so version distribution metrics work from day zero. Add JUnit tests for `MetadataMigrationV0ToV1` with 5+ fixture JSON shapes (empty `{}`, `{}` without `_schema_version`, full v1 shape, partial v1 shape, registry-copy shape) to cover legacy-bootstrapping edge cases.
+- [ ] **Implement metadata aggregation FIFO routing (A1 for MVP)** in `iqbene-venue-service` `MetadataAggregationConsumer`: configure `@RabbitListener` on `iqbene.metadata.aggregation` with `concurrency=1`, `prefetchCount=1`, `acknowledgeMode=MANUAL`. Wrap the full SELECT → debounce check → merge via VenueMetadataMigrator → UPDATE → venue_metadata_events consume cycle in a single `@Transactional` DB transaction. Ack the RabbitMQ message only after the transaction commits; nack with requeue (up to 3x) on transient exceptions, then DLQ. Add an integration test that publishes three `extraction.completed` events for the same `venue_id` in quick succession, consumes the queue, and asserts that the final `venues.metadata` contains merged fields from all three sources AND that exactly one SQL `UPDATE` was executed (debounce + FIFO coalescing). When queue depth metrics show sustained backlog > 1 s, promote from A1 to A2 (16 hash-slot queues + publisher-side slot computation); consumer handler code is unchanged.
+- [ ] **Implement VenueRegistryMatcher + dry-run threshold calibration.** Code: `VenueRegistryMatcher` class in `iqbene-venue-ingestion-worker` (pure PostgreSQL pg_trgm + PostGIS, shared `normalize()` 6-step function (strip articles, lowercase, strip non-alnum, collapse whitespace, trim both sides of every comparison), fetch top-5 trigram candidates via GIN index, PostGIS ST_DWithin 200m radius, combined confidence formula with 0.60·name + 0.40·geo (or pure name when geo missing), MATCH thresholds 0.75 with geo / 0.90 name-only, ambiguity guard delta ≥ 0.08, field copy only for leaf keys that are null on tenant side + REGISTRY source tag in metadata_sources, set metadata_aggregated_at = NOW() after copy. Populate `venues.registry_entry_id` on unambiguous MATCH so cross-source search dedup works. Micrometer counters matched/ambiguous/no_match counter + confidence histogram. Unit tests: 10+ synthetic pairs (exact, fuzzy, geo cross-city mismatch, no geo strict, ambiguous 2-cand delta=0.05 ambiguous guard). Dry-run calibration: 50 real PDFs with ground truth, build confusion matrix, acceptance FP-rate ≤ 1 %, adjust thresholds and document final numbers → release. Admin single-entity CRUD MVP: `POST/PATCH /api/v1/admin/registry/entries` + dedup candidate endpoint returning review list. Scraper dry-run review CSV + `VenueRegistryImportOrchestrator` RabbitMQ events `admin.registry.import.dry-run` → report → `admin.registry.import.apply` verbatim apply (never autonomous decisions on the worker's side).
+- [ ] **Implement cross-source search path (?scope + RRF merge + registry detail + from-registry import).** Code in `iqbene-venue-service`: (1) new `scope` enum param wired on `GET /api/v1/venues/`; (2) `VenueSearchOrchestrator` with `CompletableFuture` parallel branch A (tenant mapper `VenueMapper` full 5 modes) + branch B (`RegistryEntryQueryMapper` explicitly qualified `public.venue_registry … LEFT JOIN public.venue_registry_aliases`, 3 MVP modes keyword+structured+geo only, fixed column whitelist). Branch timeout 2 s on registry. (3) App-level merge: dedup by `registry_entry_id` → drop REGISTRY origin if already imported → Reciprocal Rank Fusion equal weights 0.5:0.5 → top-50 each → slice page by page/size → append `origin: "TENANT" | "REGISTRY"` per record. (4) Failure isolation: branch B exception/timeout → return A only + `Warning` header + Micrometer `bene_search_failures_total{branch="registry"}`. (5) DTOs: add `registry_entry_id` nullable UUID to `VenueResponse`, add `origin` to `VenueSummaryView`. (6) `GET /api/v1/registry/entries/{id}` (MEMBER authority, fixed column safe projection — never confidence, private notes, or source audit fields). (7) `POST /api/v1/venues/from-registry/{registryEntryId}` (MEMBER): idempotent (if venue with `registry_entry_id` exists → return existing), else INSERT copying registry fields into metadata with `REGISTRY` lowest-priority `metadata_sources` source tag + set `registry_entry_id` + `metadata_aggregated_at = NOW()`. (8) Unit tests: 8 scenarios (BOTH scopes equal weight dedup imported, BOTH scopes dedup not imported, REGISTRY_ONLY scope returns only registry origin, TENANT_ONLY scope never queries RegistryEntryQueryMapper, RRF interleaving order, Warning header on branch B timeout, 3-seconds branch B timeout degrades gracefully, from-registry POST idempotent on second call). (9) Enforce cross-schema rule at code review: no other MyBatis mapper emits `public.` SQL except RegistryEntryQueryMapper / VenueRegistryMatcherMapper / RegistryAdminMapper; cross-schema JOIN/UNION in one statement forbidden (§10).
 
 ### Phase 2 Design (post-MVP signal)
 
