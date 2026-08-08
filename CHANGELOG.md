@@ -8,6 +8,20 @@
 
 ## [Unreleased]
 
+### Added
+
+- `AGENTS.md` §4.10 — new "Roadmap index README files" document type covering `docs/roadmap/{epics,milestones,decisions}/README.md` as canonical planning indexes; defines shared rules (index-first convention, backlog candidates size caps, pre-implementation snapshot note) plus per-README rules for column sets, grouping (epics by product layer, milestones by layer-first progression), and cross-reference integrity.
+- `AGENTS.md` §4.11 — new "Feature checklist" document type covering `docs/roadmap/feature-checklist.md` as the mid-level planning document between epics and milestones; defines P0–P3 version-bound priority tiers, 0.5–3 day granularity per checkbox, anti-drift mandatory metadata format (Epic · Milestone · Priority per line), grouping by tier then product layer, user-visible language rule, and checkbox-only tracking (no dates, no assignees, no percentages).
+- `docs/roadmap/feature-checklist.md` — new mid-level prioritised product feature checklist with 54 feature checkboxes across 4 tiers (P0=Highly prioritized, P1=Well prioritized, P2=Mid priority, P3=Post-v1.0 candidates). Each line carries its Epic, Milestone, and Priority tag for cross-reference integrity with epics and milestones READMEs. P0 scope locked to v0.1 MVP demoability (account creation, venue CRUD, document upload, profile view); P1 covers v0.2–v1.0 end-to-end commercial loop (ETL, search, extraction, plans, team, shortlist, export, approval snapshot).
+
+### Changed
+
+- `AGENTS.md` §2 repository structure tree — added `docs/roadmap/feature-checklist.md` entry between `vision.md` and `epics/`, per the AGENTS.md rule that new files must be added to the structure tree before being created on disk.
+- `AGENTS.md` §4.4 Epics — expanded from 5 bullet rules to a complete standard: added user-outcome unit-of-value criterion, 9-section anatomy checklist with explicit ordering, forward-only status transitions with concrete entry conditions per status, index-first file creation rule, and bidirectional epic↔milestone cross-reference rule.
+- `AGENTS.md` §4.5 Milestones — expanded from 5 bullet rules to a complete standard: added shipped-increment unit-of-value criterion, one-sentence `## Goal` rule (multi-sentence = split it), 8-section anatomy checklist with explicit ordering, forward-only status transitions with concrete entry conditions per status (including the `In progress`-only date-writing window), strengthened no-planned-dates rule, index-first file creation rule, and bidirectional milestone↔epic cross-reference rule.
+- `docs/roadmap/epics/README.md` — full restructure from a flat file list to the pre-implementation standardisation index: added epic lifecycle, product-layer grouping convention (A: Foundation, B: PVC data layer, C: DSR output layer, D: Post-v1.0), 9-section epic anatomy checklist, grouped index tables with 6 columns including explicit dependencies and target-milestone cross-references, 6-step "Creating a new epic" procedure (index first, document second), and a 5-row backlog candidates table with size cap.
+- `docs/roadmap/milestones/README.md` — full restructure from a flat file list to the pre-implementation standardisation index: added milestone lifecycle, layer-first progression convention (Foundation → PVC → DSR → v1.0 → Post-v1.0) with version numbering ranges, 8-section milestone anatomy checklist (including the one-sentence goal rule), staged index tables with 7 columns including a goal-sentence column that mirrors the milestone file's `## Goal`, 6-step "Creating a new milestone" procedure (index first, document second), and a 5-row backlog candidates table with size cap.
+
 ---
 
 ## 2026-08-08

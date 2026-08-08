@@ -51,6 +51,7 @@ system-design-documentation/
     │   └── intelligence.md            ← ETL pipeline, extraction, AI layer
     ├── roadmap/
     │   ├── vision.md                  ← Product direction and strategic bets (not a changelog)
+    │   ├── feature-checklist.md       ← Mid-level prioritized product feature checklist (P0–P3)
     │   ├── epics/
     │   │   ├── README.md
     │   │   └── E{N}-{slug}.md
@@ -123,17 +124,31 @@ Do not invent new audience tags. If a document genuinely serves two separate aud
 ### 4.4 Epics (`docs/roadmap/epics/`)
 
 - One epic = one user-facing capability cluster. Not a task, not a sprint, not a service.
-- Must contain: summary, user stories, in/out of scope, milestone references, open questions, status.
+- The unit of value is the user outcome. If a set of capabilities cannot be summarised as "As a [role], I can now [outcome]", it is not one epic — split it.
+- **Anatomy (required sections, in order):** 1) Title + audience blockquote, 2) Summary (2–3 sentences), 3) User stories (minimum 3), 4) In scope, 5) Out of scope, 6) Milestone references (links), 7) Open questions (checkboxes, resolved `- [x]` inline), 8) Status, 9) Navigation footer.
 - User stories follow the format: `As a [role], I want [action] so that [outcome].`
-- Status field is one of: `Not started` | `In progress` | `Done`. Nothing else.
+- **Status field is one of:** `Not started` | `In progress` | `Done`. Nothing else. Status transitions are forward-only.
+  - `Not started`: Epic file exists with complete anatomy; dependencies mapped to earlier epics; target milestone assigned and milestone file links back.
+  - `In progress`: At least one user story has a corresponding PR; the containing milestone is `In progress`.
+  - `Done`: All user stories `- [x]` ticked; containing milestone reached `Completed` with all feature checkboxes ticked; no unresolved open `-[ ]` questions remain.
+- **Index-first rule:** Before creating a new `E{N}-{slug}.md` file, add its row to the index table in [epics/README.md](docs/roadmap/epics/README.md), commit that index update, then create the file. Never create an epic file first and add it to the index later.
+- **Cross-reference rule:** Every epic referenced by a milestone file must, in its own `Milestone references` section, link back to that milestone file. Bidirectional links are mandatory — a one-way link is a drift bug.
 - Do not describe implementation details here. Implementation lives in architecture.md.
 
 ### 4.5 Milestones (`docs/roadmap/milestones/`)
 
 - One milestone = one shippable increment with a clear goal sentence.
-- Must contain: goal, epics/features included (with links), feature checklist, acceptance criteria, deferred items, status.
+- The unit of value is the shipped increment. If a set of features cannot be demonstrated end-to-end to a real user in one session, it does not belong in one milestone — split it.
+- **Goal sentence rule:** The `## Goal` section must contain exactly one sentence. If you need two or more sentences, the milestone scope is wrong — either scope it down or split it.
+- **Anatomy (required sections, in order):** 1) Title + audience blockquote, 2) Goal (one sentence), 3) Epics included (links), 4) Feature checklist (`- [ ]`), 5) Acceptance criteria (measurable, minimum 3), 6) Deferred items, 7) Status, 8) Navigation footer.
 - Checkboxes `- [ ]` / `- [x]` are the only tracking mechanism. No external issue links.
-- Status field is one of: `Planned` | `In progress` | `Completed`. Nothing else.
+- **Status field is one of:** `Planned` | `In progress` | `Completed`. Nothing else. Status transitions are forward-only.
+  - `Planned`: Milestone file exists with complete anatomy; all referenced epics have index rows at `Not started` minimum; no dates written.
+  - `In progress`: At least one included epic is `In progress`; at least one feature checkbox has work active; **if a date is needed, write it only when transitioning here.**
+  - `Completed`: All acceptance criteria met; all feature checkboxes `- [x]`; all deferred items have been explicitly moved to the next milestone's `Deferred items` section or to a new milestone; a dated one-paragraph summary has been added to CHANGELOG.md.
+- **No planned dates rule:** Never write a date in a milestone file while status is `Planned`. Write one only on the `Planned → In progress` transition. A `Completed` milestone carries the date of completion.
+- **Index-first rule:** Before creating a new `v{X}.{Y}-{slug}.md` file, add its row to the index table in [milestones/README.md](docs/roadmap/milestones/README.md), commit that index update, then create the file. Never create a milestone file first and add it to the index later.
+- **Cross-reference rule:** Every milestone that references epics must be, in return, listed in each referenced epic's `Milestone references` section. Bidirectional links are mandatory.
 - When a milestone reaches `Completed`, add a one-paragraph summary of what shipped to CHANGELOG.md.
 
 ### 4.6 Decisions (`docs/roadmap/decisions/`)
@@ -170,6 +185,71 @@ Do not invent new audience tags. If a document genuinely serves two separate aud
 - The capability matrix is a Markdown table with BENE in the first column and competitor groups as subsequent columns.
 - A "BENE's durable edge" section explains why key capabilities cannot be quickly replicated.
 - The `Personal_Venue_Catalog/comparison.md` is a segment reference document with a `[!NOTE]` callout. New competitive analysis belongs in the DSR comparison file.
+
+### 4.10 Roadmap index README files (`docs/roadmap/{epics,milestones,decisions}/README.md`)
+
+These READMEs are the **canonical indexes** for their document collections. They carry stronger rules than a typical README because they are the entry point for all roadmap planning — they must be updated _before_ the documents they index are created.
+
+**Shared rules for all three roadmap READMEs:**
+
+- Audience is always `Product, engineering`. Audience blockquote is required (per §3).
+- Every real document (`E{N}-*.md`, `v{X}.{Y}-*.md`, `D{N}-*.md`) must have a row in its corresponding README index. Documents without index rows do not exist for planning purposes.
+- **Index-first rule (§4.4/§4.5/§4.6):** Update the index README's table(s), save, and commit **before** creating the `E{N}`, `v{X}.{Y}`, or `D{N}` file it describes. Never create the leaf document first and add it to the index later.
+- **Backlog candidates section (required for epics/milestones, optional for decisions):**
+  - Format: a Markdown table with columns for the concept name, its target placement (group / version / etc.), why it matters, and what blocks it.
+  - Purpose: capture concrete but unrefined ideas so they are not lost. Do not let the section become a dumping ground for half-thoughts.
+  - Size caps: epics README max 10 rows; milestones README max 8 rows; decisions README no cap because ADR candidates are naturally bounded.
+  - Review cadence: on every milestone transition to `Completed`, review the candidates table. Promote one or two to real documents or delete them with a one-line entry in CHANGELOG.md explaining why.
+- **Pre-implementation snapshot note:** While no real `E{N}` or `v{X}.{Y}` files have been written yet, the index READMEs must carry a note explicitly stating the tables are the standardisation snapshot and should be validated as correct before the first leaf document is created. This note is removed when the first leaf document is created (it no longer applies).
+
+**Epics README (`docs/roadmap/epics/README.md`) additional rules:**
+
+- Epics are grouped by product layer matching the two-layer architecture defined in vision.md:
+  - **Group A — Platform Foundation:** infrastructure only. No direct end-user value.
+  - **Group B — Personal Venue Catalog (Data Layer):** agency's private library (Layer 1).
+  - **Group C — Digital Sales Room (Output Layer):** client-facing pitch boards + approval (Layer 2, the buying trigger).
+  - **Group D — Post-v1.0 Enhancements:** scaling and deeper capabilities. Not part of v1.0 scope.
+- Index table columns, in order: `ID | File | Title | Target milestone(s) | Dependencies | Status`.
+- Within each group, epics appear in intended implementation order (dependencies first). Dependencies across groups are listed explicitly in the `Dependencies` column.
+- `Creating a new epic` section (required): step-by-step procedure mirroring the rules in §4.4.
+
+**Milestones README (`docs/roadmap/milestones/README.md`) additional rules:**
+
+- Milestones are staged by version range, enforcing the layer-first progression: Foundation → PVC (data layer) → DSR (output layer) → v1.0 → Post-v1.0.
+- Index table columns, in order: `Version | File | Title | Goal sentence | Included epic groups | Included epics | Status`.
+- The `Goal sentence` column must contain exactly one sentence — the same one-sentence content as the milestone file's `## Goal` section. If the file's goal sentence changes, update the index row in the same commit.
+- `Creating a new milestone` section (required): step-by-step procedure mirroring the rules in §4.5.
+
+**Decisions README (`docs/roadmap/decisions/README.md`) additional rules:**
+
+- Index table columns, in order: `ID | File | Title | Domain | Status | Superseded by`.
+- `Superseded by` column is populated only when a decision reaches `Superseded` status; it links to the replacing `D{N}` file. An `Accepted` decision that is later superseded is never deleted from the index — it stays, its status changes, and the new decision appears as a new row above it (newest first in the index table, while `D{N}` numbers always increment).
+- `Creating a new decision` section (recommended): short procedure referencing §4.6, including when to write a decision (at least two genuinely distinct options considered; the choice has consequences beyond one sprint).
+
+### 4.11 Feature checklist (`docs/roadmap/feature-checklist.md`)
+
+The feature checklist is the **mid-level planning document** that sits between epics (large user capability clusters, narrative) and milestones (versioned shippable increments). It flattens the epics×milestones matrix into a single prioritised checkbox list so that anyone — founder, PM, engineer — can scan "what do we build next, what's the priority, what does it ship in" in under 60 seconds.
+
+**Why this document exists:** Epics are too big for day-to-day planning (an epic can span 3 milestones). Milestones are version containers and their checkboxes live inside each `v{X}.{Y}` file. The feature checklist is the only place where priority ranking cuts across epics and milestones — you can see every P0 feature regardless of which epic or milestone it belongs to.
+
+**Rules:**
+
+- Audience is `Product, engineering`.
+- **Priority tiers (exactly these 4, version-bound):**
+  - **P0 — Highly prioritized.** Cannot ship v0.1 MVP without these. Implementation begins day one.
+  - **P1 — Well prioritized.** Cannot ship v1.0 commercial launch without these. Implementation begins after P0 is `Done`, or in parallel when an engineer is blocked on P0.
+  - **P2 — Mid priority.** Nice to have for v1.0; can cut to v1.1 if scope pressure demands. Implementation begins only when all P0 + P1 above it are `Done`.
+  - **P3 — Post-v1.0 candidates.** Committed idea, not committed to v1.0 timeline. Promoted to P2 only when v1.0 reaches `In progress` and a P2 is cut.
+- **One feature = one checkbox line.** If a feature takes more than about 3 engineer-days, split it into more granular checkboxes. If it takes less than 0.5 days, consider merging it with another.
+- **Anti-drift rule (hard):** Every single `- [ ]` feature checkbox line MUST include all of the following metadata at the end of the line, in this exact format:
+  ```
+  · Epic: [E{N}-slug](relative-link) · Milestone: [v{X}.{Y}-slug](relative-link) · Priority: P{N}
+  ```
+  A feature line without all three links/tags is not committed scope and must be either completed or removed. The checklist is a flattened VIEW over epics + milestones — never a third independent source of truth. If the scope or priority of a feature changes, update the epic/milestone file AND this document in the same commit.
+- **Grouping:** Features are grouped by priority tier first (P0 at top, P3 at bottom). Within a tier, group by the product layer from §4.10 (Group A / B / C / D) so related features stay together. No alphabetical ordering.
+- **Feature descriptions write in user-visible terms, not implementation terms.** "Event planner can upload a PDF floor plan" (good), not "Implement Tika PDF parser with spatial OCR" (implementation — that belongs in architecture.md).
+- **No dates, no assignees, no percentages.** Checkboxes only. No `40%` markers. Tick `- [x]` only when the feature is fully demoable end-to-end to a real user in its target milestone environment. An engineer's "works on my machine" does not qualify.
+- **No additional sections beyond:** 1) Title + audience, 2) What this document is, 3) Priority tier definitions, 4) How to read each feature line (legend for the metadata format), 5) P0 block, 6) P1 block, 7) P2 block, 8) P3 block, 9) Navigation footer. No other sections.
 
 ---
 
