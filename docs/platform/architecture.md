@@ -3,8 +3,6 @@
 > **Audience:** Engineers, architects.
 > **Purpose:** Single source of truth for all technical decisions before development starts.
 
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Architecture](architecture.md) · [Vision](../roadmap/vision.md)
-
 ---
 
 ## 1. Platform Context
@@ -2087,4 +2085,4 @@ One `@RestControllerAdvice` per service. Every handler uses the same `problem(ty
 
 ---
 
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Architecture](architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md) · [Vision](../roadmap/vision.md)

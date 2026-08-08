@@ -1,9 +1,7 @@
 # BENE — Intelligence Layer & ETL Pipeline
 
-> Technical reference for the document intelligence, ETL pipeline, and the
-> proprietary intelligence layer of BENE.
-
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md) · [Vision](../roadmap/vision.md)
+> **Audience:** Engineers, architects.
+> **Purpose:** Technical reference for the document intelligence ETL pipeline, the proprietary venue-specific extraction schema, the multi-source aggregation model, and the vertical-agnostic extension strategy.
 
 ---
 
@@ -649,10 +647,4 @@ pgvector with IVFFlat index:
 
 ---
 
-**Document type:** Technical intelligence reference
-**Stage:** Pre-build design
-**Audience:** Engineering, founding team
-
----
-
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md)
+**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md) · [Vision](../roadmap/vision.md)

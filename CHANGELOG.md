@@ -10,6 +10,19 @@
 
 ---
 
+## 2026-08-08
+
+### Changed
+
+- Standardised audience blockquotes across 4 docs per AGENTS.md §3: added `> **Audience:** X.` / `> **Purpose:** Y.` format to docs/README.md, docs/business/Digital_Sales_Room_for_Events/README.md, docs/platform/intelligence.md, and docs/business/Personal_Venue_Catalog/comparison.md.
+- Normalised navigation footers per AGENTS.md §5: removed redundant top-of-file `**Docs:**` nav blocks from docs/platform/architecture.md, docs/platform/intelligence.md, and docs/business/Personal_Venue_Catalog/comparison.md so the footer nav appears exactly once as the last element.
+- Removed duplicate metadata pre-footer block (Document type / Stage / Audience lines) from docs/platform/intelligence.md — that information now lives in the standard audience blockquote.
+- Updated docs/business/market.md cross-references and footer nav to point to Digital_Sales_Room_for_Events docs as the primary product positioning, replacing Personal_Venue_Catalog links that preceded the DSR direction shift.
+- Resolved 17 broken index links in roadmap READMEs: docs/roadmap/epics/README.md (E1–E9), docs/roadmap/milestones/README.md (v0.1–v1.0), docs/roadmap/decisions/README.md (D1–D3) now list the planned files as plain text rather than linking to files that have not yet been written.
+- Expanded docs/platform/architecture.md Docs footer nav to include Intelligence Layer and Vision links, matching the other platform docs.
+
+---
+
 ## 2026-08-03
 
 ### Added

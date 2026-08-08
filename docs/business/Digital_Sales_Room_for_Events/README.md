@@ -1,7 +1,7 @@
 # Digital Sales Room for Events
 
-> **Status:** In progress — new concept documents land here.
-> **Context:** See [rationale](../../chats/) for the reasoning behind the shift from Personal Venue Catalog to Digital Sales Room.
+> **Audience:** Founders, team.
+> **Purpose:** Concept overview and document index for the Digital Sales Room (DSR) positioning. Explains the relationship between the catalog data layer and the pitch board output layer, and where to find each document.
 
 ---
 

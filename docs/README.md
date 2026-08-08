@@ -1,8 +1,7 @@
 # What is BENE?
 
-_What this is, why it exists, and whether it makes sense as a business._
-
-**Docs:** [What is BENE?](README.md) · [Market Structure](business/market.md) · [Digital Sales Room](business/Digital_Sales_Room_for_Events/README.md) · [Competitive Landscape](business/Digital_Sales_Room_for_Events/comparison.md) · [Architecture](platform/architecture.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
+> **Audience:** Anyone.
+> **Purpose:** Plain-language product overview — what BENE is, the problem it solves, and how it makes money. No technical background assumed.
 
 ---
 
