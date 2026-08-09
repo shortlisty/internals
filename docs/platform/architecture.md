@@ -362,12 +362,12 @@ Reading `venues.metadata` from the database must never return a raw JSONB value 
 
 ```xml
 <!-- MyBatis mapper: venues result map -->
-<resultMap id="VenueResultMap" type="com.iqkv.stashroom.model.venue.Venue">
+<resultMap id="VenueResultMap" type="co.stashroom.model.venue.Venue">
   <id     property="id"        column="id"/>
   <result property="name"      column="name"/>
   <!-- …other columns… -->
   <result property="metadata"  column="metadata"
-          typeHandler="com.iqkv.stashroom.model.metadata.VenueMetadataTypeHandler"/>
+          typeHandler="co.stashroom.model.metadata.VenueMetadataTypeHandler"/>
 </resultMap>
 ```
 
