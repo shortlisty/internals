@@ -7,7 +7,7 @@
 
 ## Context
 
-BENE uses semantic search over venue descriptions and extracted document chunks. Each embedding is 1536 dimensions (OpenAI text-embedding-3-small). At MVP scale, the expected vector volume is per-tenant: 100–1,000 venues × 10–50 chunks each = 1,000–50,000 vectors per tenant. At mid-term scale (Post-MVP, 12–18 months), a large tenant may reach 500K vectors. The question is where to store and query them.
+StashRoom uses semantic search over venue descriptions and extracted document chunks. Each embedding is 1536 dimensions (OpenAI text-embedding-3-small). At MVP scale, the expected vector volume is per-tenant: 100–1,000 venues × 10–50 chunks each = 1,000–50,000 vectors per tenant. At mid-term scale (Post-MVP, 12–18 months), a large tenant may reach 500K vectors. The question is where to store and query them.
 
 ---
 
@@ -26,7 +26,7 @@ Stand up a purpose-built vector database. Vectors live outside PostgreSQL. Tenan
 
 **Cons:**
 
-- One entirely new infrastructure dependency with its own connection pooling, auth model, backup/restore, and incident-response playbooks. The IQ Key Value foundation has no existing vector DB contracts.
+- One entirely new infrastructure dependency with its own connection pooling, auth model, backup/restore, and incident-response playbooks. The iQ Key Value foundation has no existing vector DB contracts.
 - **Cross-system joins destroy transactional consistency.** When a `venue_metadata_events` row is written to PostgreSQL and a vector is written to the vector DB, the two writes are not part of the same transaction. One can succeed and the other fail, yielding search results that do not match the source of truth. A compensating reconciliation/sync job must be written, tested, and monitored permanently.
 - Per-tenant isolation is structurally harder. Schema-per-tenant PostgreSQL gives hard structural isolation (one tenant cannot read another's rows via any misconfigured query). A vector DB namespace or partition key relies on query-time filter logic — a single missing `tenant_id = ?` predicate leaks cross-tenant embeddings.
 - Metadata filtering (capacity >= 200, amenities contains WiFi, ST_DWithin geo radius) must either:
@@ -41,7 +41,7 @@ Vectors are stored in `item_vectors` table inside each tenant's schema (`t_{tena
 
 **Pros:**
 
-- **Zero new infrastructure dependencies.** pgvector is a PostgreSQL `CREATE EXTENSION` — one command on the existing database instance. No new hosts, no new network paths, no new auth or TLS configuration. The IQ Key Value foundation already runs PostgreSQL.
+- **Zero new infrastructure dependencies.** pgvector is a PostgreSQL `CREATE EXTENSION` — one command on the existing database instance. No new hosts, no new network paths, no new auth or TLS configuration. The iQ Key Value foundation already runs PostgreSQL.
 - **Transactional atomicity with the source of truth.** Writing `extraction_jobs`, `venue_metadata_events`, and vectors all happen in one PostgreSQL transaction. There is no cross-system eventual-consistency gap, no sync/reconciliation job, and no failure mode where search has embeddings without metadata or vice versa.
 - **Hard structural tenant isolation.** Vectors live inside each tenant's schema, behind the same `search_path` interceptor and schema grants that protect `venues` and `venue_assets`. There is no tenant-filter predicate that could be accidentally omitted.
 - **Unified query surface.** Keyword (tsvector), structured (JSONB GIN), semantic (pgvector cosine), and geo (PostGIS GIST) predicates all run inside one PostgreSQL query plan. The query planner optimizes predicate order; the application performs the RRF merge in-process over already-filtered result sets.
@@ -69,7 +69,7 @@ Vectors live in per-tenant `item_vectors` tables via the pgvector extension. Ind
 - **Transactional consistency is non-negotiable for a knowledge base.** A search result that points to a venue whose metadata has been deleted or whose extraction job has rolled back is a correctness bug that erodes user trust. Achieving this correctly with an external vector DB is a distributed-systems problem (two-phase commit or saga with compensation) that adds months of engineering work for zero product benefit at MVP scale. pgvector gives transactional atomicity by default.
 - **Schema-per-tenant structural isolation is an existing platform invariant.** The foundation architecture uses schema-per-tenant, not tenant_id column filtering, because it eliminates an entire class of misconfiguration leakage bugs. pgvector tables live inside the tenant schema; there is nothing to audit. A dedicated vector DB would be the first cross-system component that relies on predicate-level tenant isolation — a security review risk and an ongoing operational audit burden.
 - **PostgreSQL already provides three of the five search modes.** Keyword (tsvector GIN), structured (JSONB GIN), and geo (PostGIS GIST) all run in PostgreSQL today. The cost of splitting only the semantic vector component into a second system is a permanent cross-system RRF merge that must handle partial failure of one branch, schema evolution in two systems, and observability aggregation in two query engines. Keeping all five search modes in PostgreSQL removes this complexity at zero incremental cost.
-- **Scale inflection point is well beyond product-market-fit thresholds.** BENE's unit economics target 100 paying agencies at $150/month for sustainability. 100 tenants × 1,000 venues × 20 chunks = 2M vectors total across the entire platform. pgvector IVFFlat on a single reasonably-sized PostgreSQL instance handles this volume with sub-10ms latency. The dedicated-vector-store scale horizon is at least 50–100× that.
+- **Scale inflection point is well beyond product-market-fit thresholds.** StashRoom's unit economics target 100 paying agencies at $150/month for sustainability. 100 tenants × 1,000 venues × 20 chunks = 2M vectors total across the entire platform. pgvector IVFFlat on a single reasonably-sized PostgreSQL instance handles this volume with sub-10ms latency. The dedicated-vector-store scale horizon is at least 50–100× that.
 
 ---
 

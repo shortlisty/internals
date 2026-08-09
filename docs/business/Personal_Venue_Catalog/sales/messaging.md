@@ -18,14 +18,6 @@ Status values: `Candidate` | `Approved` | `Retired`
 
 ## Product name and acronym
 
-### B.E.N.E. expansion
-
-| Expansion                                          | Status    | Notes                                       |
-| -------------------------------------------------- | --------- | ------------------------------------------- |
-| **B**eneficial **E**vent **N**avigation **E**ngine | Candidate | Subtle acronym nod. Fits the AI angle well. |
-
----
-
 ## Taglines
 
 ### Primary tagline
@@ -60,7 +52,7 @@ Venue knowledge base · For event planning teams
 Every venue your team knows.
 Finally searchable.
 
-Drop in a PDF, floor plan, or spec sheet. BENE reads it and turns it into a
+Drop in a PDF, floor plan, or spec sheet. StashRoom reads it and turns it into a
 structured venue profile your whole team can search in seconds — not 45 minutes.
 
 No spreadsheets. No manual entry. No lost knowledge when someone leaves.
@@ -75,7 +67,7 @@ No spreadsheets. No manual entry. No lost knowledge when someone leaves.
 **Status:** `Retired`
 
 ```
-BENE
+StashRoom
 
 Venue Intelligence · For event planning teams
 
@@ -86,7 +78,7 @@ lives in scattered PDFs, inboxes, floor plans, spec sheets, and people's heads.
 When a client asks for a venue matching specific capacity, catering policy, or AV
 specs, the answer takes 45 minutes to dig up.
 
-BENE Intelligence extracts and structures every venue detail automatically —
+StashRoom Intelligence extracts and structures every venue detail automatically —
 room capacities, catering restrictions, AV equipment, logistics, contacts.
 Your whole team searches any venue detail in seconds.
 ```
@@ -103,11 +95,11 @@ Short cross-reference copy for the "replaces your current tools" section. SEO si
 
 **Status:** `Approved`
 
-| Tool                   | Copy                                                                                                         |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Google Drive & Dropbox | Your files stay where they are. BENE reads them and makes every detail searchable — without moving anything. |
-| Notion & Airtable      | No more manual entry that goes stale. Upload a venue deck and BENE fills the record automatically.           |
-| Spreadsheets           | Every planner has one. Nobody trusts it. Replace it with a shared venue library that updates itself.         |
+| Tool                   | Copy                                                                                                              |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Google Drive & Dropbox | Your files stay where they are. StashRoom reads them and makes every detail searchable — without moving anything. |
+| Notion & Airtable      | No more manual entry that goes stale. Upload a venue deck and StashRoom fills the record automatically.           |
+| Spreadsheets           | Every planner has one. Nobody trusts it. Replace it with a shared venue library that updates itself.              |
 
 **Section label:** Works where your team already works
 
@@ -119,12 +111,12 @@ Short cross-reference copy for the "replaces your current tools" section. SEO si
 
 **Status:** `Approved`
 
-| Pillar                 | Headline                            | Description                                                                                                                  |
-| ---------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Knowledge preservation | Venue knowledge that stays          | When a planner leaves, their venue expertise stays in the team library — not in their inbox or personal folders.             |
-| Instant retrieval      | Find any venue detail in seconds    | Search your entire portfolio in plain language. "200 capacity, kosher catering, downtown" returns the right venue instantly. |
-| Effortless ingestion   | Upload once. BENE does the rest.    | Drop a PDF, floor plan, or spec sheet. Capacity, catering, AV specs, restrictions, and contacts — extracted automatically.   |
-| Team-wide access       | Everyone on your team can search it | New hires get up to speed on the full portfolio from day one. No tribal knowledge ramp-up.                                   |
+| Pillar                 | Headline                              | Description                                                                                                                  |
+| ---------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Knowledge preservation | Venue knowledge that stays            | When a planner leaves, their venue expertise stays in the team library — not in their inbox or personal folders.             |
+| Instant retrieval      | Find any venue detail in seconds      | Search your entire portfolio in plain language. "200 capacity, kosher catering, downtown" returns the right venue instantly. |
+| Effortless ingestion   | Upload once. StashRoom does the rest. | Drop a PDF, floor plan, or spec sheet. Capacity, catering, AV specs, restrictions, and contacts — extracted automatically.   |
+| Team-wide access       | Everyone on your team can search it   | New hires get up to speed on the full portfolio from day one. No tribal knowledge ramp-up.                                   |
 
 ### Set A — Technical framing (previous)
 
@@ -148,7 +140,7 @@ Short cross-reference copy for the "replaces your current tools" section. SEO si
 2. **Upload your files** — PDFs, floor plans, photos, spec sheets, anything venues have sent you
 3. **Search everything** — your whole team can find any venue detail instantly
 
-_If BENE gets something wrong, fix it with one click._
+_If StashRoom gets something wrong, fix it with one click._
 
 ---
 
@@ -158,27 +150,27 @@ _If BENE gets something wrong, fix it with one click._
 
 These questions are phrased to match natural search queries. Used verbatim in the homepage FAQ section.
 
-| Question                                               | Answer                                                                                                                                                                                                                                                                                                                                         |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Can I search venue PDFs without opening them?          | Yes. BENE reads every uploaded document and makes the contents searchable — capacity, catering rules, AV specs, restrictions, contacts — across your entire portfolio.                                                                                                                                                                         |
-| How do event agencies track venue specifications?      | Most agencies use a mix of Google Drive folders, Notion pages, Airtable databases, and spreadsheets. BENE replaces that patchwork with a single structured venue library that updates automatically from source documents.                                                                                                                     |
-| What is venue portfolio management for event planners? | Venue portfolio management means keeping a structured, searchable record of every venue your team has worked with or evaluated — not just discovering new ones. BENE is purpose-built for this: upload the documents a venue has sent you, and BENE extracts and organises the intelligence so your whole team can find any detail in seconds. |
-| What happens to venue knowledge when a planner leaves? | In most agencies, it leaves with them. BENE keeps every extracted venue detail in a shared team library — independent of individuals.                                                                                                                                                                                                          |
-| Do I need to enter venue data manually?                | No. Upload a venue PDF, floor plan, or spec sheet and BENE extracts the structured data automatically. Manual entry is available for corrections and additions.                                                                                                                                                                                |
-| Is this only for large agencies?                       | No. Solo planners and small teams use BENE to stop carrying venue knowledge in their heads. Larger agencies use it to protect institutional knowledge and onboard new hires faster.                                                                                                                                                            |
+| Question                                               | Answer                                                                                                                                                                                                                                                                                                                                                   |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Can I search venue PDFs without opening them?          | Yes. StashRoom reads every uploaded document and makes the contents searchable — capacity, catering rules, AV specs, restrictions, contacts — across your entire portfolio.                                                                                                                                                                              |
+| How do event agencies track venue specifications?      | Most agencies use a mix of Google Drive folders, Notion pages, Airtable databases, and spreadsheets. StashRoom replaces that patchwork with a single structured venue library that updates automatically from source documents.                                                                                                                          |
+| What is venue portfolio management for event planners? | Venue portfolio management means keeping a structured, searchable record of every venue your team has worked with or evaluated — not just discovering new ones. StashRoom is purpose-built for this: upload the documents a venue has sent you, and StashRoom extracts and organises the intelligence so your whole team can find any detail in seconds. |
+| What happens to venue knowledge when a planner leaves? | In most agencies, it leaves with them. StashRoom keeps every extracted venue detail in a shared team library — independent of individuals.                                                                                                                                                                                                               |
+| Do I need to enter venue data manually?                | No. Upload a venue PDF, floor plan, or spec sheet and StashRoom extracts the structured data automatically. Manual entry is available for corrections and additions.                                                                                                                                                                                     |
+| Is this only for large agencies?                       | No. Solo planners and small teams use StashRoom to stop carrying venue knowledge in their heads. Larger agencies use it to protect institutional knowledge and onboard new hires faster.                                                                                                                                                                 |
 
 ---
 
 ## Positioning statements
 
-| Copy                                                                                                                                                            | Status    | Notes                                                               |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------------- |
-| BENE turns the pile of venue files your team has collected over the years into a searchable, shared knowledge base.                                             | Approved  | Canonical. Used in docs/README.md and footer CTA.                   |
-| Stop digging through 50-page venue PDFs. BENE reads them and makes every detail searchable in seconds.                                                          | Approved  | Direct pain-first opener. Good for outreach and ads.                |
-| The venue knowledge your team has built over years is buried in files. BENE gives it a brain.                                                                   | Candidate | Metaphor variant. Test against pain-first opener above.             |
-| Your team has spent years building expertise on hundreds of venues. BENE turns that into a searchable, shared library — so the knowledge stays, whoever leaves. | Approved  | Used in homepage footer CTA. Retention + knowledge angle.           |
-| The only venue portfolio management platform built for event planning teams — not for venue operators.                                                          | Candidate | Competitive framing. Strong for SEO and comparison pages.           |
-| BENE is venue portfolio management for planners: every venue your team has ever worked with, structured and searchable.                                         | Candidate | Pairs well with competitive positioning against Cvent/VenueScanner. |
+| Copy                                                                                                                                                                 | Status    | Notes                                                               |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------------- |
+| StashRoom turns the pile of venue files your team has collected over the years into a searchable, shared knowledge base.                                             | Approved  | Canonical. Used in docs/README.md and footer CTA.                   |
+| Stop digging through 50-page venue PDFs. StashRoom reads them and makes every detail searchable in seconds.                                                          | Approved  | Direct pain-first opener. Good for outreach and ads.                |
+| The venue knowledge your team has built over years is buried in files. StashRoom gives it a brain.                                                                   | Candidate | Metaphor variant. Test against pain-first opener above.             |
+| Your team has spent years building expertise on hundreds of venues. StashRoom turns that into a searchable, shared library — so the knowledge stays, whoever leaves. | Approved  | Used in homepage footer CTA. Retention + knowledge angle.           |
+| The only venue portfolio management platform built for event planning teams — not for venue operators.                                                               | Candidate | Competitive framing. Strong for SEO and comparison pages.           |
+| StashRoom is venue portfolio management for planners: every venue your team has ever worked with, structured and searchable.                                         | Candidate | Pairs well with competitive positioning against Cvent/VenueScanner. |
 
 ---
 
@@ -195,13 +187,11 @@ AI must appear on the page — but as a _how_, not the headline.
 
 ## Naming and branding notes
 
-- The B.E.N.E. acronym expansion is a secondary layer — it should never need explaining. The name works without it.
 - "Beneficial" as a recurring word threads through taglines and pillars. It reinforces the acronym without spelling it out.
-- Keep it consistent: `BENE Intelligence`, not `IQ Bene`, `IQBene` in any external copy.
 - "Venue Intelligence Platform" is the product category name used in technical and architectural documents. In sales and marketing copy, prefer "venue knowledge base" or "venue library" — language the ICP uses naturally.
-- "Venue portfolio management" is an approved alias for use in competitive contexts, battlecards, SEO copy, and any sentence that contrasts BENE with venue discovery/marketplace tools. It signals ownership of an existing set of venues rather than search for new ones — which is the precise distinction from Cvent, VenueScanner, and similar platforms. Variants in order of preference: "venue portfolio management" (most precise) → "manage your venue portfolio" (action framing) → "venue portfolio" (noun only, when the action is implied).
+- "Venue portfolio management" is an approved alias for use in competitive contexts, battlecards, SEO copy, and any sentence that contrasts StashRoom with venue discovery/marketplace tools. It signals ownership of an existing set of venues rather than search for new ones — which is the precise distinction from Cvent, VenueScanner, and similar platforms. Variants in order of preference: "venue portfolio management" (most precise) → "manage your venue portfolio" (action framing) → "venue portfolio" (noun only, when the action is implied).
 - "AI-powered venue knowledge base for event planning agencies" is the approved phrasing for meta descriptions and structured data, where category language serves SEO without cluttering the visitor experience.
 
 ---
 
-**Docs:** [What is BENE?](../../README.md) · [Business Proposal](../proposal.md) · [Pitch](pitch.md) · [Battlecards](battlecards.md) · [Objections](objections.md)
+**Docs:** [What is StashRoom?](../../README.md) · [Business Proposal](../proposal.md) · [Pitch](pitch.md) · [Battlecards](battlecards.md) · [Objections](objections.md)

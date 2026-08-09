@@ -109,8 +109,8 @@
 
 ### Added
 
-- `docs/README.md` — plain-language product overview. Audience: anyone. Covers the problem, what BENE does, who it is for, how it works, monetization model, and one-sentence summary.
+- `docs/README.md` — plain-language product overview. Audience: anyone. Covers the problem, what StashRoom does, who it is for, how it works, monetization model, and one-sentence summary.
 - `docs/business/proposal.md` — full business proposal: ICP matrix, feature phases (Phase 1–3), monetization tiers, go-to-market strategy, international expansion plan, key risks, and open questions.
 - `docs/business/comparison.md` — competitive landscape analysis: Cvent, Tripleseat, Momentus, VenueScanner, VenueFindAI, VenueArc, Spark (GEVME/PCMA), Bynder, Brandfolder, Unstructured.io, Docling, Apache Tika. Includes gap summary matrix.
-- `docs/platform/architecture.md` — architecture reference: platform context, domain model (Venue, VenueAsset, ExtractionJob, MetadataEvent), metadata aggregation engine, service architecture (iqbene-venue-service, iqbene-venue-ingestion-worker, iqbene-venue-model), ETL pipeline, search architecture, API surface, event contracts, plan entitlement mapping, database schema, UI integration, observability, security, technology decisions, and open decisions.
+- `docs/platform/architecture.md` — architecture reference: platform context, domain model (Venue, VenueAsset, ExtractionJob, MetadataEvent), metadata aggregation engine, service architecture (stashroom-venue-service, stashroom-venue-ingestion-worker, stashroom-venue-model), ETL pipeline, search architecture, API surface, event contracts, plan entitlement mapping, database schema, UI integration, observability, security, technology decisions, and open decisions.
 - `docs/platform/intelligence.md` — intelligence layer reference: Spring AI ETL pipeline, asset-type processing matrix, chunking strategy, Apache Tika rationale, Docling integration, venue-specific extraction schema, confidence-sourced metadata model, multi-source aggregation design, scalability architecture, and technology decisions summary.

@@ -56,7 +56,7 @@ Active corporate event market, international flavour, strong hospitality sector.
 ### What to avoid
 
 - Tier-1 cities (NYC, LA, Chicago, Las Vegas) — save for the demo pitch deck, not the seed library
-- Stadium, arena, and convention centre venues — too large, operator-side tools already cover them, not BENE's ICP
+- Stadium, arena, and convention centre venues — too large, operator-side tools already cover them, not StashRoom's ICP
 - Chain hotel ballrooms (Marriott, Hilton, Hyatt branded) — their venue data is centralised and controlled, not publicly accessible per-property
 - Venues with no web presence or no downloadable spec materials — they are not useful for ETL testing
 
@@ -71,7 +71,7 @@ A good seed venue is:
 - SMB-operated: independently owned or a small regional group (not a national chain)
 - Publicly marketed: has a website with event/venue information, ideally a downloadable spec sheet or floor plan
 - Actively hosting events: listed on Google Maps as an event venue, has reviews, has photos
-- Capacity range: 30–300 guests — the core BENE ICP brief range
+- Capacity range: 30–300 guests — the core StashRoom ICP brief range
 - Data richness: multiple document types available (PDF deck, photos, floor plan, or at minimum a detailed website)
 
 ### Categories
@@ -158,7 +158,7 @@ Public venue pages include photos, reviews, and sometimes structured attributes 
 2. Confirm it meets the selection criteria
 3. Download all publicly available documents from the venue's website (PDF decks, floor plans, menus)
 4. Save photo URLs or download photos from the venue's website and Google Maps
-5. Create a venue card in BENE with name, address, and source URL
+5. Create a venue card in StashRoom with name, address, and source URL
 6. Upload all documents — this is a live ETL pipeline test run
 7. Review extraction output, note failures, log confidence scores per field
 8. Fix extraction errors manually — this populates the override history and tests the correction UX
@@ -190,4 +190,4 @@ When these criteria are met, the product is ready for the first customer convers
 
 ---
 
-**Docs:** [What is BENE?](../../README.md) · [Business Proposal](proposal.md) · [Market Structure](../market.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is StashRoom?](../../README.md) · [Business Proposal](proposal.md) · [Market Structure](../market.md) · [Vision](../../roadmap/vision.md)

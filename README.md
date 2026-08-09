@@ -1,12 +1,12 @@
-# BENE — System Design Documentation
+# StashRoom — System Design Documentation
 
-> Pre-build design documentation for the BENE platform — built on the IQ Key Value open-source foundation.
+> Pre-build design documentation for the StashRoom platform — built on the iQ Key Value open-source foundation.
 
 ---
 
-## What is BENE
+## What is StashRoom
 
-BENE is a collaborative workspace for event agencies. It turns venue files into a structured library and that library into an interactive client pitch — ending with a timestamped, approved specification.
+StashRoom is a collaborative workspace for event agencies. It turns venue files into a structured library and that library into an interactive client pitch — ending with a timestamped, approved specification.
 
 Two layers:
 
@@ -23,7 +23,7 @@ See [docs/README.md](docs/README.md) for the full plain-language overview.
 
 | Document                                    | Audience       | What it covers                                       |
 | ------------------------------------------- | -------------- | ---------------------------------------------------- |
-| [What is BENE?](docs/README.md)             | Anyone         | Problem, solution, how it works, pricing             |
+| [What is StashRoom?](docs/README.md)        | Anyone         | Problem, solution, how it works, pricing             |
 | [Market Structure](docs/business/market.md) | Anyone         | Event chain, tool segmentation, the vacant slot      |
 | [Vision](docs/roadmap/vision.md)            | Founders, team | Product direction, strategic bets, north star metric |
 
@@ -68,11 +68,12 @@ Read [AGENTS.md](AGENTS.md) before adding or editing any document. It defines re
 
 ## Platform context
 
-BENE is built on top of the IQ Key Value open-source foundation. New services introduced:
+StashRoom is built on top of the iQ Key Value open-source foundation. New services introduced:
 
-- **`iqbene-venue-service`** — venue profiles, assets, metadata, search, plan enforcement
-- **`iqbene-venue-ingestion-worker`** — async sidecar: document ETL, AI extraction, embeddings
-- **`iqbene-venue-model`** — shared library: domain entities, event contracts, Liquibase migrations
+- **`stashroom-data-intelligence`** — domain-agnostic shared library (ETL contracts, provenance, vectors, cost tracking).
+- **`stashroom-venue-service`** — venue profiles, assets, metadata, search, plan enforcement
+- **`stashroom-venue-ingestion-worker`** — async sidecar: document ETL, AI extraction, embeddings
+- **`stashroom-venue-model`** — shared library: domain entities, event contracts, Liquibase migrations
 
 **Stage:** pre-launch MVP — design complete, implementation not yet started.
 
@@ -80,8 +81,8 @@ BENE is built on top of the IQ Key Value open-source foundation. New services in
 
 ## License
 
-Copyright © 2026 IQ Key Value. All rights reserved.
+Copyright © 2026 iQ Key Value. All rights reserved.
 
-This software and its documentation are proprietary and confidential. The source code is made available to authorized licensees only. You may not use, copy, modify, distribute, or sublicense this software except as expressly permitted under a written agreement with IQ Key Value.
+This software and its documentation are proprietary and confidential. The source code is made available to authorized licensees only. You may not use, copy, modify, distribute, or sublicense this software except as expressly permitted under a written agreement with iQ Key Value.
 
-The underlying IQ Key Value platform is built on open-source components, each governed by their respective licenses.
+The underlying iQ Key Value platform is built on open-source components, each governed by their respective licenses.

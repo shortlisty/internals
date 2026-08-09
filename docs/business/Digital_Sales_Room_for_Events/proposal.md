@@ -25,9 +25,9 @@ The downstream cost is real: lost deals to faster competitors, margin erosion fr
 
 ## The solution
 
-BENE closes the brief-to-approval loop in two steps.
+StashRoom closes the brief-to-approval loop in two steps.
 
-**Step 1 — Build the library.** The agency connects their existing files (Drive, Notion, email) and uploads venue documents. BENE extracts the structured data — capacity, catering policy, AV specs, restrictions, contacts — and builds a searchable venue catalog. A human verification step keeps the data trustworthy.
+**Step 1 — Build the library.** The agency connects their existing files (Drive, Notion, email) and uploads venue documents. StashRoom extracts the structured data — capacity, catering policy, AV specs, restrictions, contacts — and builds a searchable venue catalog. A human verification step keeps the data trustworthy.
 
 **Step 2 — Generate and close the pitch.** For a client brief, the planner selects venues from the catalog and generates an interactive pitch board — a private web page the client opens on any device. The client browses, asks questions, adjusts the spec, and approves. On approval, the system locks a timestamped snapshot: an immutable record of everything agreed, with source citations.
 
@@ -59,7 +59,7 @@ EA, HR, or events leads at mid-to-large companies running quarterly offsites, an
 
 ### End users
 
-**Senior event manager** — uses BENE on every brief. Searches the catalog, generates the pitch, monitors client interaction. The tool replaces their inbox and their spreadsheet.
+**Senior event manager** — uses StashRoom on every brief. Searches the catalog, generates the pitch, monitors client interaction. The tool replaces their inbox and their spreadsheet.
 
 **Junior coordinator** — relies on the shared catalog to answer client questions independently without asking senior colleagues. Retention driver: the catalog becomes how they learn the portfolio.
 
@@ -210,7 +210,7 @@ Direct and concierge. No paid acquisition.
 
 ### Viral loop
 
-Every pitch board sent to a client is a passive product demo. The "Powered by BENE" footer on the free tier reaches event buyers who then ask their own agencies "what is this tool you used?" One paying agency can introduce the product to ten potential clients per month.
+Every pitch board sent to a client is a passive product demo. The "Powered by StashRoom" footer on the free tier reaches event buyers who then ask their own agencies "what is this tool you used?" One paying agency can introduce the product to ten potential clients per month.
 
 ---
 
@@ -243,4 +243,4 @@ Agencies will rely on the approval snapshot to resolve disputes. Mitigation: be 
 
 ---
 
-**Docs:** [What is BENE?](../../README.md) · [Product Structure](product.md) · [Market Structure](../market.md) · [Architecture](../../platform/architecture.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is StashRoom?](../../README.md) · [Product Structure](product.md) · [Market Structure](../market.md) · [Architecture](../../platform/architecture.md) · [Vision](../../roadmap/vision.md)

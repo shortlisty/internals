@@ -71,7 +71,7 @@ Before step 1, acquire a distributed red lock `bene:agg:venue:<venueId>` with TT
 
 **Cons:**
 
-- **New infrastructure dependency.** Redis is not in the IQ Key Value foundation stack today. Adding it for one lock pattern expands monitoring, backup, failover, and dependency surface permanently.
+- **New infrastructure dependency.** Redis is not in the iQ Key Value foundation stack today. Adding it for one lock pattern expands monitoring, backup, failover, and dependency surface permanently.
 - **Correctness of red locks under network partition is famously non-trivial.** The Martin Kleppmann vs. antirez debate aside, engineering teams that infrequently debug distributed-lock issues regularly introduce bugs: TTL shorter than the transaction, no lock fencing token, no renewal heartbeat — each yields silent lost writes when the lock expires mid-operation.
 - **Same no-op waste as Option B.** Under rapid debounced events, 8 of 10 consumers acquire and release the lock only to no-op. Thread pool churn is identical to pessimistic DB locking.
 
@@ -79,9 +79,9 @@ Before step 1, acquire a distributed red lock `bene:agg:venue:<venueId>` with TT
 
 Serialize per-venue work before the message ever reaches the consumer. Two variants share the same conceptual model; variant A1 is MVP.
 
-**Variant A1 (MVP):** One queue, one serialising consumer thread for all aggregation events. `@RabbitListener(concurrency = "1", prefetchCount = "1")` on `iqbene.metadata.aggregation`. Exactly one thread processes all aggregation events sequentially across all tenants and all venues.
+**Variant A1 (MVP):** One queue, one serialising consumer thread for all aggregation events. `@RabbitListener(concurrency = "1", prefetchCount = "1")` on `stashroom.metadata.aggregation`. Exactly one thread processes all aggregation events sequentially across all tenants and all venues.
 
-**Variant A2 (immediately available):** N hash-partitioned queues with per-queue single-threaded consumption. Publisher computes `slot = Math.abs(venueId.hashCode() % SLOT_COUNT)`; routes to `iqbene.metadata.aggregation.{slot}`; 16 consumer threads each bind to one slot queue with `prefetchCount = 1`. Same venue always maps to same slot = strict FIFO per venue. Different venues always process in parallel.
+**Variant A2 (immediately available):** N hash-partitioned queues with per-queue single-threaded consumption. Publisher computes `slot = Math.abs(venueId.hashCode() % SLOT_COUNT)`; routes to `stashroom.metadata.aggregation.{slot}`; 16 consumer threads each bind to one slot queue with `prefetchCount = 1`. Same venue always maps to same slot = strict FIFO per venue. Different venues always process in parallel.
 
 **Pros:**
 
@@ -102,7 +102,7 @@ Serialize per-venue work before the message ever reaches the consumer. Two varia
 
 **Option D, RabbitMQ FIFO routing per venue_id.**
 
-Start with Variant A1 (MVP): one queue `iqbene.metadata.aggregation`, single serialising consumer `concurrency = 1, prefetchCount = 1`. Variant A2 (hash-partitioned slots) is documented as the immediate horizontal-scale upgrade path with identical consumer code. The publisher does not change for A1; slot routing is added only when the A1→A2 migration is executed.
+Start with Variant A1 (MVP): one queue `stashroom.metadata.aggregation`, single serialising consumer `concurrency = 1, prefetchCount = 1`. Variant A2 (hash-partitioned slots) is documented as the immediate horizontal-scale upgrade path with identical consumer code. The publisher does not change for A1; slot routing is added only when the A1→A2 migration is executed.
 
 The listener container uses `MANUAL` ack mode and encloses the entire aggregation read-modify-write in a single DB transaction. RabbitMQ ack is only issued after DB COMMIT.
 

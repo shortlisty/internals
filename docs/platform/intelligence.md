@@ -1,4 +1,4 @@
-# BENE — Intelligence Layer & ETL Pipeline
+# StashRoom — Intelligence Layer & ETL Pipeline
 
 > **Audience:** Engineers, architects.
 > **Purpose:** Technical reference for the document intelligence ETL pipeline, the proprietary venue-specific extraction schema, the multi-source aggregation model, and the vertical-agnostic extension strategy.
@@ -18,24 +18,24 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 **DocumentReaders (Extract) — available out of the box:**
 
-| Reader                       | Handles                                         | Notes                                                    |
-| ---------------------------- | ----------------------------------------------- | -------------------------------------------------------- |
-| `TikaDocumentReader`         | PDF, DOCX, XLSX, PPTX, HTML, XML, 1000+ formats | Apache Tika under the hood. **Primary reader for BENE.** |
-| `PagePdfDocumentReader`      | PDFs, page-by-page                              | Preserves page boundaries, useful for floor plans        |
-| `ParagraphPdfDocumentReader` | PDFs, paragraph-level                           | Better semantic chunking for venue decks                 |
-| `MarkdownDocumentReader`     | Markdown files                                  | Useful for structured venue specs                        |
-| `JsonMetadataReader`         | JSON with metadata                              | Useful for structured imports                            |
-| `JsoupDocumentReader`        | HTML pages                                      | Web scraping venue information                           |
+| Reader                       | Handles                                         | Notes                                                         |
+| ---------------------------- | ----------------------------------------------- | ------------------------------------------------------------- |
+| `TikaDocumentReader`         | PDF, DOCX, XLSX, PPTX, HTML, XML, 1000+ formats | Apache Tika under the hood. **Primary reader for StashRoom.** |
+| `PagePdfDocumentReader`      | PDFs, page-by-page                              | Preserves page boundaries, useful for floor plans             |
+| `ParagraphPdfDocumentReader` | PDFs, paragraph-level                           | Better semantic chunking for venue decks                      |
+| `MarkdownDocumentReader`     | Markdown files                                  | Useful for structured venue specs                             |
+| `JsonMetadataReader`         | JSON with metadata                              | Useful for structured imports                                 |
+| `JsoupDocumentReader`        | HTML pages                                      | Web scraping venue information                                |
 
 **DocumentTransformers (Transform):**
 
-| Transformer                | What it does                                                                                                                                                                                                                                              |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `TokenTextSplitter`        | Splits large documents into chunks respecting token limits                                                                                                                                                                                                |
-| `ContentFormatTransformer` | Normalizes text format                                                                                                                                                                                                                                    |
-| `SummaryMetadataEnricher`  | Generates document summary using LLM, stored as metadata                                                                                                                                                                                                  |
-| `KeywordMetadataEnricher`  | Extracts keywords using LLM, stored as metadata                                                                                                                                                                                                           |
-| `VenueMetadataEnricher`    | **Venue-domain-specific** (`iqbene-venue-model`): extracts capacity, amenities, contacts via structured GPT-4o call against the venue canonical field set. The only non-generic component in the pipeline — everything else is reusable across verticals. |
+| Transformer                | What it does                                                                                                                                                                                                                                                 |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `TokenTextSplitter`        | Splits large documents into chunks respecting token limits                                                                                                                                                                                                   |
+| `ContentFormatTransformer` | Normalizes text format                                                                                                                                                                                                                                       |
+| `SummaryMetadataEnricher`  | Generates document summary using LLM, stored as metadata                                                                                                                                                                                                     |
+| `KeywordMetadataEnricher`  | Extracts keywords using LLM, stored as metadata                                                                                                                                                                                                              |
+| `VenueMetadataEnricher`    | **Venue-domain-specific** (`stashroom-venue-model`): extracts capacity, amenities, contacts via structured GPT-4o call against the venue canonical field set. The only non-generic component in the pipeline — everything else is reusable across verticals. |
 
 **DocumentWriters (Load):**
 
@@ -45,7 +45,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 | `SimpleVectorStore`  | In-memory (testing/dev)                           |
 | `FileDocumentWriter` | Write to files (useful for debugging pipeline)    |
 
-### 1.2 BENE's Document Processing Pipeline
+### 1.2 StashRoom's Document Processing Pipeline
 
 ```
                      S3 Asset Storage
@@ -53,38 +53,38 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
                           │ presigned URL download
                           ▼
                ┌─────────────────────┐
-               │  DocumentReader     │  Spring AI / Apache Tika          [generic — iqbene-data-intelligence]
+               │  DocumentReader     │  Spring AI / Apache Tika          [generic — stashroom-data-intelligence]
                │  (per asset type)   │  + IBM Docling (PDF tables, Ph.2)
                └──────────┬──────────┘
                           │  List<Document>
                           │  (raw text chunks + page metadata)
                           ▼
                ┌─────────────────────┐
-               │  DocumentSplitter   │  TokenTextSplitter                [generic — iqbene-data-intelligence]
+               │  DocumentSplitter   │  TokenTextSplitter                [generic — stashroom-data-intelligence]
                │                     │  (512 tokens, 50 overlap)
                └──────────┬──────────┘
                           │  List<Document> (chunks)
                           ▼
                ┌─────────────────────┐
-               │  VenueMetadata      │  GPT-4o structured output         [venue-specific — iqbene-venue-model]
+               │  VenueMetadata      │  GPT-4o structured output         [venue-specific — stashroom-venue-model]
                │  Enricher           │  → capacity, amenities, contacts
                └──────────┬──────────┘
                           │  List<Document> + venue metadata
                           ▼
                ┌─────────────────────┐
-               │  EmbeddingModel     │  text-embedding-3-small           [generic — iqbene-data-intelligence]
+               │  EmbeddingModel     │  text-embedding-3-small           [generic — stashroom-data-intelligence]
                │                     │  (1536 dimensions per chunk)
                └──────────┬──────────┘
                           │  List<Document> + float[] embeddings
                           ▼
                ┌─────────────────────┐
-               │  TenantAware        │  PostgreSQL + pgvector            [generic — iqbene-data-intelligence]
+               │  TenantAware        │  PostgreSQL + pgvector            [generic — stashroom-data-intelligence]
                │  PgVectorStore      │  → item_vectors (per-tenant schema)
                └──────────┬──────────┘
                           │
                           ▼
                ┌─────────────────────┐
-               │  MetadataAggregator │  Event-sourced consolidation      [venue-specific — iqbene-venue-model]
+               │  MetadataAggregator │  Event-sourced consolidation      [venue-specific — stashroom-venue-model]
                │                     │  (conflict resolution)
                └─────────────────────┘
 ```
@@ -92,18 +92,18 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 **Java implementation sketch** — the orchestrator is generic; venue-specific behaviour is injected via strategies (see §3 Extension Model):
 
 ```java
-// iqbene-venue-ingestion-worker — Spring wiring only, no domain logic here
+// stashroom-venue-ingestion-worker — Spring wiring only, no domain logic here
 @Service
 @RequiredArgsConstructor
 public class AssetExtractionOrchestrator<M> {
 
-  // ── generic contracts from iqbene-data-intelligence ──────────────────────
+  // ── generic contracts from stashroom-data-intelligence ──────────────────────
   private final TikaDocumentReader.Factory tikaFactory;
   private final TokenTextSplitter splitter;
   private final EmbeddingModel embeddingModel;
   private final VectorStore vectorStore;              // writes to item_vectors
 
-  // ── domain strategies injected from iqbene-venue-model ───────────────────
+  // ── domain strategies injected from stashroom-venue-model ───────────────────
   private final MetadataExtractionStrategy<M> extractionStrategy;   // VenueMetadataExtractionStrategy
   private final MetadataAggregationStrategy<M> aggregationStrategy; // VenueMetadataAggregationStrategy
   private final MetadataMigrator migrator;                           // VenueMetadataMigrator
@@ -159,7 +159,7 @@ public class AssetExtractionOrchestrator<M> {
 
 ### 1.4 Chunking Strategy
 
-Document chunking significantly impacts retrieval quality. BENE uses a hybrid strategy:
+Document chunking significantly impacts retrieval quality. StashRoom uses a hybrid strategy:
 
 **For venue decks (PDFs):**
 
@@ -264,15 +264,15 @@ docling-service:
 
 ---
 
-## 2. The Intelligence Layer BENE Owns
+## 2. The Intelligence Layer StashRoom Owns
 
-Everything above (Tika, Docling, Spring AI ETL) is infrastructure. BENE's proprietary intelligence sits on top:
+Everything above (Tika, Docling, Spring AI ETL) is infrastructure. StashRoom's proprietary intelligence sits on top:
 
 ### 2.1 Venue-Specific Extraction Schema
 
-Generic document intelligence tools extract generic fields. BENE extracts fields that matter for event professionals.
+Generic document intelligence tools extract generic fields. StashRoom extracts fields that matter for event professionals.
 
-This schema is the **venue canonical field set** — defined as `VenueMetadata` in `iqbene-venue-model` (see §2 of [Architecture](architecture.md)). It is the venue-domain's answer to the question "what does a structured document look like for this vertical?". The extraction prompt sent to GPT-4o is derived directly from this schema. If the platform pivots to a different vertical (medical, agro), the domain library is swapped — the extraction pipeline, embedding, and search infrastructure remain identical.
+This schema is the **venue canonical field set** — defined as `VenueMetadata` in `stashroom-venue-model` (see §2 of [Architecture](architecture.md)). It is the venue-domain's answer to the question "what does a structured document look like for this vertical?". The extraction prompt sent to GPT-4o is derived directly from this schema. If the platform pivots to a different vertical (medical, agro), the domain library is swapped — the extraction pipeline, embedding, and search infrastructure remain identical.
 
 ```json
 {
@@ -329,7 +329,7 @@ This schema is the **venue canonical field set** — defined as `VenueMetadata` 
 }
 ```
 
-This schema is what makes BENE a _venue intelligence platform_, not just a document storage system. Every competitor either has operational data (bookings, invoicing) or generic extraction. No one has this schema purpose-built for event planners.
+This schema is what makes StashRoom a _venue intelligence platform_, not just a document storage system. Every competitor either has operational data (bookings, invoicing) or generic extraction. No one has this schema purpose-built for event planners.
 
 ### 2.2 Confidence-Sourced Metadata Model
 
@@ -355,7 +355,7 @@ No existing venue tool surfaces this level of data provenance. Users see not jus
 
 Documents arrive for the same item in multiple formats — a marketing deck, a floor plan PDF, a technical spec sheet, a photo set. Each source may have conflicting or complementary data.
 
-The aggregation engine (`MetadataAggregationConsumer` in `iqbene-data-intelligence`) is generic — it does not know about venues or capacity fields. It operates on `JsonNode` + `metadata_sources` provenance entries and delegates conflict decisions to the domain's `MetadataAggregationStrategy`:
+The aggregation engine (`MetadataAggregationConsumer` in `stashroom-data-intelligence`) is generic — it does not know about venues or capacity fields. It operates on `JsonNode` + `metadata_sources` provenance entries and delegates conflict decisions to the domain's `MetadataAggregationStrategy`:
 
 1. Collects all extraction events per item (event log)
 2. Delegates priority resolution to `MetadataAggregationStrategy.aggregate()` — venue impl applies: `manual_override > verified > high_confidence_AI > low_confidence_AI`
@@ -371,7 +371,7 @@ This is a genuine product moat. No other platform in the event space does this. 
 
 The platform separates **infrastructure contracts** (reusable across any document-intelligence vertical) from **domain strategies** (venue-specific, swapped per vertical). This is the mechanism that makes a pivot — from venues to medical records, agro assets, legal documents, or any other domain — a library swap rather than a rewrite.
 
-### 3.1 Contracts defined in `iqbene-data-intelligence`
+### 3.1 Contracts defined in `stashroom-data-intelligence`
 
 ```java
 // ── Extraction ────────────────────────────────────────────────────────────
@@ -473,7 +473,7 @@ public interface SearchBranchExecutor<R> {
 }
 ```
 
-### 3.2 Generic consumers in `iqbene-data-intelligence`
+### 3.2 Generic consumers in `stashroom-data-intelligence`
 
 These classes contain no domain knowledge. They are final implementations wired with domain strategies via Spring DI:
 
@@ -501,7 +501,7 @@ public final class SearchOrchestrator<R> {
 }
 ```
 
-### 3.3 Venue implementations in `iqbene-venue-model`
+### 3.3 Venue implementations in `stashroom-venue-model`
 
 ```java
 // Extraction: GPT-4o structured call against venue canonical field set (§2.1)
@@ -534,7 +534,7 @@ public class RegistrySearchBranch implements SearchBranchExecutor<VenueSummaryVi
 ### 3.4 Dependency and flow
 
 ```
-iqbene-data-intelligence
+stashroom-data-intelligence
   ├── interfaces:  MetadataExtractionStrategy<M>
   │                MetadataAggregationStrategy<M>
   │                MetadataMigrator
@@ -546,7 +546,7 @@ iqbene-data-intelligence
                    SearchOrchestrator<R>            ← wires 2 branch executors
                           │
                           ▼ (compile dependency)
-        iqbene-venue-model
+        stashroom-venue-model
           ├── VenueMetadataExtractionStrategy   implements MetadataExtractionStrategy<VenueMetadata>
           ├── VenueMetadataAggregationStrategy  implements MetadataAggregationStrategy<VenueMetadata>
           ├── VenueMetadataMigrator             implements MetadataMigrator
@@ -555,13 +555,13 @@ iqbene-data-intelligence
           └── RegistrySearchBranch             implements SearchBranchExecutor<VenueSummaryView>
                           │
                           ▼ (compile dependency)
-        iqbene-venue-service / iqbene-venue-ingestion-worker
+        stashroom-venue-service / stashroom-venue-ingestion-worker
           └── @Bean registrations wire venue strategies into generic consumers
 
 
   ── vertical extension example ──────────────────────────────────────────────
 
-        iqbene-data-intelligence          (unchanged)
+        stashroom-data-intelligence          (unchanged)
                  │
                  ▼
         bene-med-model
@@ -575,7 +575,7 @@ iqbene-data-intelligence
         bene-med-service / bene-med-ingestion-worker
 ```
 
-**Rule:** if a class in `iqbene-venue-ingestion-worker` or `iqbene-venue-service` contains the word `venue` in its business logic (not just in a tag string), ask whether it belongs in `iqbene-venue-model` instead. The worker and service should contain Spring wiring, `@Bean` registrations, and `@RabbitListener` configuration — not domain decisions.
+**Rule:** if a class in `stashroom-venue-ingestion-worker` or `stashroom-venue-service` contains the word `venue` in its business logic (not just in a tag string), ask whether it belongs in `stashroom-venue-model` instead. The worker and service should contain Spring wiring, `@Bean` registrations, and `@RabbitListener` configuration — not domain decisions.
 
 ---
 
@@ -604,7 +604,7 @@ Upload → S3 → AssetUploadedEvent → RabbitMQ → N consumers → Processing
 | 1M venues        | ~$1,000 | Auto-scaled, still manageable          |
 | 100M venues      | ~$100K  | Optimize with cheaper models + caching |
 
-At the $0.001/venue cost of GPT-4o extraction + embedding generation, BENE can process 1 million venues for approximately $1,000 in AI costs. This is not a cost problem.
+At the $0.001/venue cost of GPT-4o extraction + embedding generation, StashRoom can process 1 million venues for approximately $1,000 in AI costs. This is not a cost problem.
 
 ### Vector Search Scaling
 
@@ -618,21 +618,21 @@ pgvector with IVFFlat index:
 
 ## 5. Technology Decisions Summary
 
-| Layer                   | Choice                                                                                                                                                                                                                                         | Rationale                                                                                             |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| **Document parsing**    | Apache Tika (via Spring AI `TikaDocumentReader`)                                                                                                                                                                                               | 1000+ formats, DWG support, fault-tolerant Pipes, built into Spring AI                                |
-| **PDF layout analysis** | IBM Docling (self-hosted, open source)                                                                                                                                                                                                         | State-of-the-art table/layout extraction, MIT license, no per-page cost                               |
-| **AI framework**        | Spring AI 1.0                                                                                                                                                                                                                                  | Java-native, provider-agnostic, ETL pipeline built-in, Micrometer metrics                             |
-| **LLM extraction**      | OpenAI GPT-4o                                                                                                                                                                                                                                  | Best structured output, multimodal (vision for images/floor plans)                                    |
-| **Embeddings**          | OpenAI text-embedding-3-small                                                                                                                                                                                                                  | 1536 dims, $0.02/1M tokens, excellent quality/cost ratio                                              |
-| **Vector store**        | pgvector (PostgreSQL extension)                                                                                                                                                                                                                | No extra service, transactional, tenant-isolated, production-ready                                    |
-| **Full-text search**    | PostgreSQL tsvector                                                                                                                                                                                                                            | Unified with relational data, no extra service                                                        |
-| **Geo search**          | PostGIS (PostgreSQL extension)                                                                                                                                                                                                                 | Mature, no extra service                                                                              |
-| **Async processing**    | RabbitMQ (existing foundation)                                                                                                                                                                                                                 | Already in platform, priority queues, DLQ                                                             |
-| **File storage**        | S3 / MinIO (existing foundation)                                                                                                                                                                                                               | Already in IAM service, same pattern                                                                  |
-| **Vertical isolation**  | Strategy pattern — `MetadataExtractionStrategy`, `MetadataAggregationStrategy`, `MetadataMigrator`, `CuratedListMatchStrategy`, `SearchBranchExecutor` interfaces in `iqbene-data-intelligence`; venue implementations in `iqbene-venue-model` | Pivot to new domain = new domain library + `@Bean` wiring. Zero changes to generic consumers. See §3. |
+| Layer                   | Choice                                                                                                                                                                                                                                               | Rationale                                                                                             |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| **Document parsing**    | Apache Tika (via Spring AI `TikaDocumentReader`)                                                                                                                                                                                                     | 1000+ formats, DWG support, fault-tolerant Pipes, built into Spring AI                                |
+| **PDF layout analysis** | IBM Docling (self-hosted, open source)                                                                                                                                                                                                               | State-of-the-art table/layout extraction, MIT license, no per-page cost                               |
+| **AI framework**        | Spring AI 1.0                                                                                                                                                                                                                                        | Java-native, provider-agnostic, ETL pipeline built-in, Micrometer metrics                             |
+| **LLM extraction**      | OpenAI GPT-4o                                                                                                                                                                                                                                        | Best structured output, multimodal (vision for images/floor plans)                                    |
+| **Embeddings**          | OpenAI text-embedding-3-small                                                                                                                                                                                                                        | 1536 dims, $0.02/1M tokens, excellent quality/cost ratio                                              |
+| **Vector store**        | pgvector (PostgreSQL extension)                                                                                                                                                                                                                      | No extra service, transactional, tenant-isolated, production-ready                                    |
+| **Full-text search**    | PostgreSQL tsvector                                                                                                                                                                                                                                  | Unified with relational data, no extra service                                                        |
+| **Geo search**          | PostGIS (PostgreSQL extension)                                                                                                                                                                                                                       | Mature, no extra service                                                                              |
+| **Async processing**    | RabbitMQ (existing foundation)                                                                                                                                                                                                                       | Already in platform, priority queues, DLQ                                                             |
+| **File storage**        | S3 / MinIO (existing foundation)                                                                                                                                                                                                                     | Already in IAM service, same pattern                                                                  |
+| **Vertical isolation**  | Strategy pattern — `MetadataExtractionStrategy`, `MetadataAggregationStrategy`, `MetadataMigrator`, `CuratedListMatchStrategy`, `SearchBranchExecutor` interfaces in `stashroom-data-intelligence`; venue implementations in `stashroom-venue-model` | Pivot to new domain = new domain library + `@Bean` wiring. Zero changes to generic consumers. See §3. |
 
-**Principle:** Use proven infrastructure that already exists in the IQ Key Value foundation. Introduce the minimum number of new services. The only truly new infrastructure is pgvector (a PostgreSQL extension, not a new service) and optionally a self-hosted Docling container for advanced PDF parsing.
+**Principle:** Use proven infrastructure that already exists in the iQ Key Value foundation. Introduce the minimum number of new services. The only truly new infrastructure is pgvector (a PostgreSQL extension, not a new service) and optionally a self-hosted Docling container for advanced PDF parsing.
 
 ---
 
@@ -647,4 +647,4 @@ pgvector with IVFFlat index:
 
 ---
 
-**Docs:** [What is BENE?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is StashRoom?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md) · [Vision](../roadmap/vision.md)
