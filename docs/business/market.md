@@ -106,9 +106,9 @@ The slot is vacant not because nobody noticed it, but because every incumbent's 
 
 ---
 
-## Where oiqb sits
+## Where OiQb sits
 
-oiqb Intelligence is the tool for the vacant slot: the event manager's venue knowledge base.
+OiQb Intelligence is the tool for the vacant slot: the event manager's venue knowledge base.
 
 It sits downstream of discovery (you already know the venues) and upstream of production (you are still in the briefing and selection phase). It serves one role — the event manager and the agency they work in — and does one thing: turns the venue documents they already have into a structured, searchable, shared library.
 
