@@ -120,4 +120,52 @@ For the business case: [Digital_Sales_Room_for_Events/proposal.md](Digital_Sales
 
 ---
 
+## Market References
+
+```
+
+├── 1. Venue Catalog / Discovery
+│   ├── Peerspace
+│   ├── Tagvenue
+│   ├── Giggster
+│   ├── VenueFindAI
+│   ├── VenuClaw (AI Venue Finder)
+│   ├── Naboo (AI event procurement)
+│   ├── BoomPop
+│   ├── VenueScanner
+│   ├── Lime Venue Portfolio
+│   ├── The Vendry
+│   └── Spalba / Revel Street (regional)
+│
+├── 2. PIM (Product Information Management)
+│   ├── Akeneo (PIM + DAM demo)
+│   ├── Cvent Supplier Network (venue data structure)
+│   ├── Ventur3 (RFP + structured venue data)
+│   ├── Planner Hero
+│   └── Facilitron (facility data model)
+│
+├── 3. DAM (Digital Asset Management)
+│   ├── CELUM — Best DAM systems 2026
+│   ├── Pixx.io
+│   ├── Pics.io
+│   ├── Akeneo DAM Extension
+│   └── Siemens DAM references
+│
+├── 4. Pitch Presentation / Sales Room
+│   ├── Envelope (AI event planning platform)
+│   ├── SPOVIX (AI event & venue management)
+│   ├── Tripleseat (venue marketplace + sales tools)
+│   ├── HoneyBook (client-facing proposals)
+│   ├── Dubsado (proposals + CRM)
+│   └── PlanningPod
+│
+└── Adjacent / Context
+    ├── Open-source: EasyVenue, eventseats, venue
+    ├── Lists: Capterra Venue Management, PlanningPod comparison
+    └── Reddit: r/EventPlanners, r/techtheatre (venue software)
+```
+
+---
+
+
 **Docs:** [What is StashRoom?](../README.md) · [Product Structure](Digital_Sales_Room_for_Events/product.md) · [Business Proposal](Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](Digital_Sales_Room_for_Events/comparison.md) · [Vision](../roadmap/vision.md)
