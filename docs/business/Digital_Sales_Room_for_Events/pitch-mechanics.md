@@ -133,14 +133,14 @@ The snapshot is an operational record — what was agreed, when, by whom, source
 
 ## Tiers and white-labelling
 
-| Feature                       | Pro ($150/mo) | Business ($300/mo) | Enterprise |
-| ----------------------------- | ------------- | ------------------ | ---------- |
+| Feature                  | Pro ($150/mo) | Business ($300/mo) | Enterprise |
+| ------------------------ | ------------- | ------------------ | ---------- |
 | OiQb subdomain           | ✅            | ✅                 | —          |
-| Custom domain                 | —             | ✅                 | ✅         |
-| Agency logo + colours         | ✅            | ✅                 | ✅         |
+| Custom domain            | —             | ✅                 | ✅         |
+| Agency logo + colours    | ✅            | ✅                 | ✅         |
 | "Powered by OiQb" footer | visible       | visible            | removed    |
-| Password-protected board      | —             | ✅                 | ✅         |
-| Custom email sender           | —             | ✅                 | ✅         |
+| Password-protected board | —             | ✅                 | ✅         |
+| Custom email sender      | —             | ✅                 | ✅         |
 
 From the client's perspective, Pro already looks like an agency-branded microsite. The "Powered by OiQb" footer is small — comparable to "Sent via Mailchimp" on a newsletter. Business removes it for agencies where white-label matters.
 

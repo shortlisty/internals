@@ -17,7 +17,7 @@ Every tool either helps agencies **find** venues they don't know yet, or helps v
 
 The closest overlap on the output side. These tools produce beautiful client-facing web pages or interactive documents. They have no understanding of venues, no extraction layer, no structured catalog feeding the output.
 
-| Tool                 | What it does                                       | Gap vs. OiQb                                                  |
+| Tool                 | What it does                                       | Gap vs. OiQb                                                       |
 | -------------------- | -------------------------------------------------- | ------------------------------------------------------------------ |
 | **Qwilr**            | Interactive web-based proposals, e-sign, analytics | No venue knowledge layer; planner manually enters all content      |
 | **Dock.us**          | Client portal with embedded content, tasks, links  | General-purpose; no venue schema, no extraction, no event context  |
@@ -34,7 +34,7 @@ The closest overlap on the output side. These tools produce beautiful client-fac
 
 These tools help planners find venues they haven't worked with yet. They operate on publicly submitted venue data, not on the agency's own documents. The moment a planner already knows which venues they trust, these platforms have little left to offer.
 
-| Tool             | What it does                                          | Gap vs. OiQb                                                   |
+| Tool             | What it does                                          | Gap vs. OiQb                                                        |
 | ---------------- | ----------------------------------------------------- | ------------------------------------------------------------------- |
 | **Cvent**        | Largest venue marketplace, RFP automation, enterprise | Discovery only; no planner-owned knowledge base; enterprise pricing |
 | **VenueScanner** | UK marketplace, free for planners, AI ranking         | Discovery only; no document intelligence; no client pitch output    |
@@ -51,7 +51,7 @@ These tools help planners find venues they haven't worked with yet. They operate
 
 These tools manage the agency's client relationships and project workflows. Some generate proposals or contracts, but they are business-management tools — not venue intelligence tools.
 
-| Tool             | What it does                                                              | Gap vs. OiQb                                               |
+| Tool             | What it does                                                              | Gap vs. OiQb                                                    |
 | ---------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | **HoneyBook**    | Proposals, contracts, invoicing, payments for creative/event solopreneurs | No venue library or extraction; proposals are manual templates  |
 | **Dubsado**      | CRM, forms, contracts, workflows                                          | Same as HoneyBook; no venue concept                             |
@@ -66,7 +66,7 @@ These tools manage the agency's client relationships and project workflows. Some
 
 Built for venue operators — helping them run their own space, manage bookings, and generate revenue. No relevance to the planner workflow.
 
-| Tool                      | What it does                             | Gap vs. OiQb                                |
+| Tool                      | What it does                             | Gap vs. OiQb                                     |
 | ------------------------- | ---------------------------------------- | ------------------------------------------------ |
 | **Perfect Venue**         | Lightweight venue ops, bookings, BEO     | Venue-side; no planner portfolio concept         |
 | **Event Temple**          | Venue CRM, bookings, contracts           | Same as Perfect Venue                            |
@@ -94,7 +94,7 @@ The most common "competitor" is not a product — it is the patchwork of general
 
 ## Capability matrix
 
-| Capability                                   |     OiQb     | Qwilr / Dock.us | Cvent / VenueScanner | HoneyBook / Dubsado |     DIY stack      |
+| Capability                                   |       OiQb        | Qwilr / Dock.us | Cvent / VenueScanner | HoneyBook / Dubsado |     DIY stack      |
 | -------------------------------------------- | :---------------: | :-------------: | :------------------: | :-----------------: | :----------------: |
 | Planner-owned venue knowledge base           |        ✅         |       ⛔        |          ⛔          |         ⛔          |  Partial (manual)  |
 | AI extraction from agency's own docs         |        ✅         |       ⛔        |          ⛔          |         ⛔          |         ⛔         |

@@ -167,5 +167,4 @@ For the business case: [Digital_Sales_Room_for_Events/proposal.md](Digital_Sales
 
 ---
 
-
 **Docs:** [What is oiqb?](../README.md) · [Product Structure](Digital_Sales_Room_for_Events/product.md) · [Business Proposal](Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](Digital_Sales_Room_for_Events/comparison.md) · [Vision](../roadmap/vision.md)

@@ -23,7 +23,7 @@ See [docs/README.md](docs/README.md) for the full plain-language overview.
 
 | Document                                    | Audience       | What it covers                                       |
 | ------------------------------------------- | -------------- | ---------------------------------------------------- |
-| [What is OiQb?](docs/README.md)        | Anyone         | Problem, solution, how it works, pricing             |
+| [What is OiQb?](docs/README.md)             | Anyone         | Problem, solution, how it works, pricing             |
 | [Market Structure](docs/business/market.md) | Anyone         | Event chain, tool segmentation, the vacant slot      |
 | [Vision](docs/roadmap/vision.md)            | Founders, team | Product direction, strategic bets, north star metric |
 
