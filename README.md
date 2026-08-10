@@ -1,12 +1,12 @@
-# StashRoom — System Design Documentation
+# OiQb — System Design Documentation
 
-> Pre-build design documentation for the StashRoom platform — built on the iQ Key Value open-source foundation.
+> Pre-build design documentation for the OiQb platform — built on the iQ Key Value open-source foundation.
 
 ---
 
-## What is StashRoom
+## What is OiQb
 
-StashRoom is a collaborative workspace for event agencies. It turns venue files into a structured library and that library into an interactive client pitch — ending with a timestamped, approved specification.
+OiQb is a collaborative workspace for event agencies. It turns venue files into a structured library and that library into an interactive client pitch — ending with a timestamped, approved specification.
 
 Two layers:
 
@@ -23,7 +23,7 @@ See [docs/README.md](docs/README.md) for the full plain-language overview.
 
 | Document                                    | Audience       | What it covers                                       |
 | ------------------------------------------- | -------------- | ---------------------------------------------------- |
-| [What is StashRoom?](docs/README.md)        | Anyone         | Problem, solution, how it works, pricing             |
+| [What is OiQb?](docs/README.md)        | Anyone         | Problem, solution, how it works, pricing             |
 | [Market Structure](docs/business/market.md) | Anyone         | Event chain, tool segmentation, the vacant slot      |
 | [Vision](docs/roadmap/vision.md)            | Founders, team | Product direction, strategic bets, north star metric |
 
@@ -68,12 +68,12 @@ Read [AGENTS.md](AGENTS.md) before adding or editing any document. It defines re
 
 ## Platform context
 
-StashRoom is built on top of the iQ Key Value open-source foundation. New services introduced:
+OiQb is built on top of the iQ Key Value open-source foundation. New services introduced:
 
-- **`stashroom-data-intelligence`** — domain-agnostic shared library (ETL contracts, provenance, vectors, cost tracking).
-- **`stashroom-venue-service`** — venue profiles, assets, metadata, search, plan enforcement
-- **`stashroom-venue-ingestion-worker`** — async sidecar: document ETL, AI extraction, embeddings
-- **`stashroom-venue-model`** — shared library: domain entities, event contracts, Liquibase migrations
+- **`oiqb-data-intelligence`** — domain-agnostic shared library (ETL contracts, provenance, vectors, cost tracking).
+- **`oiqb-venue-service`** — venue profiles, assets, metadata, search, plan enforcement
+- **`oiqb-venue-ingestion-worker`** — async sidecar: document ETL, AI extraction, embeddings
+- **`oiqb-venue-model`** — shared library: domain entities, event contracts, Liquibase migrations
 
 **Stage:** pre-launch MVP — design complete, implementation not yet started.
 

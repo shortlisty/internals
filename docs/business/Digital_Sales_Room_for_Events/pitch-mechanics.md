@@ -10,13 +10,13 @@
 The pitch board is a **generated micro-site** — a standalone web page with a unique private URL, produced on demand from the agency's venue catalog and event brief. It lives at a URL like:
 
 ```
-stashroom.to/p/{slug}          — free / Pro tier (StashRoom subdomain)
+pitch.oiqb.com/p/{slug}             — free / Pro tier
 pitch.youragency.com/p/{slug}     — Business / Enterprise tier (custom domain)
 ```
 
 No login required to view. No app to install. The client opens a link.
 
-From the client's perspective it looks and feels like a bespoke agency microsite — agency logo, agency colours, agency name in the header. The only StashRoom reference is a small footer note: _"Powered by StashRoom"_ (free/Pro) or removed entirely (Enterprise white-label).
+From the client's perspective it looks and feels like a bespoke agency microsite — agency logo, agency colours, agency name in the header. The only OiQb reference is a small footer note: _"Powered by OiQb"_ (free/Pro) or removed entirely (Enterprise white-label).
 
 ---
 
@@ -135,14 +135,14 @@ The snapshot is an operational record — what was agreed, when, by whom, source
 
 | Feature                       | Pro ($150/mo) | Business ($300/mo) | Enterprise |
 | ----------------------------- | ------------- | ------------------ | ---------- |
-| StashRoom subdomain           | ✅            | ✅                 | —          |
+| OiQb subdomain           | ✅            | ✅                 | —          |
 | Custom domain                 | —             | ✅                 | ✅         |
 | Agency logo + colours         | ✅            | ✅                 | ✅         |
-| "Powered by StashRoom" footer | visible       | visible            | removed    |
+| "Powered by OiQb" footer | visible       | visible            | removed    |
 | Password-protected board      | —             | ✅                 | ✅         |
 | Custom email sender           | —             | ✅                 | ✅         |
 
-From the client's perspective, Pro already looks like an agency-branded microsite. The "Powered by StashRoom" footer is small — comparable to "Sent via Mailchimp" on a newsletter. Business removes it for agencies where white-label matters.
+From the client's perspective, Pro already looks like an agency-branded microsite. The "Powered by OiQb" footer is small — comparable to "Sent via Mailchimp" on a newsletter. Business removes it for agencies where white-label matters.
 
 ---
 
@@ -154,4 +154,4 @@ From the client's perspective, Pro already looks like an agency-branded microsit
 
 ---
 
-**Docs:** [What is StashRoom?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is OiQb?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Vision](../../roadmap/vision.md)

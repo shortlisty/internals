@@ -7,7 +7,7 @@
 
 ## Context
 
-StashRoom uses semantic search over venue descriptions and extracted document chunks. Each embedding is 1536 dimensions (OpenAI text-embedding-3-small). At MVP scale, the expected vector volume is per-tenant: 100–1,000 venues × 10–50 chunks each = 1,000–50,000 vectors per tenant. At mid-term scale (Post-MVP, 12–18 months), a large tenant may reach 500K vectors. The question is where to store and query them.
+OiQb uses semantic search over venue descriptions and extracted document chunks. Each embedding is 1536 dimensions (OpenAI text-embedding-3-small). At MVP scale, the expected vector volume is per-tenant: 100–1,000 venues × 10–50 chunks each = 1,000–50,000 vectors per tenant. At mid-term scale (Post-MVP, 12–18 months), a large tenant may reach 500K vectors. The question is where to store and query them.
 
 ---
 
@@ -69,7 +69,7 @@ Vectors live in per-tenant `item_vectors` tables via the pgvector extension. Ind
 - **Transactional consistency is non-negotiable for a knowledge base.** A search result that points to a venue whose metadata has been deleted or whose extraction job has rolled back is a correctness bug that erodes user trust. Achieving this correctly with an external vector DB is a distributed-systems problem (two-phase commit or saga with compensation) that adds months of engineering work for zero product benefit at MVP scale. pgvector gives transactional atomicity by default.
 - **Schema-per-tenant structural isolation is an existing platform invariant.** The foundation architecture uses schema-per-tenant, not tenant_id column filtering, because it eliminates an entire class of misconfiguration leakage bugs. pgvector tables live inside the tenant schema; there is nothing to audit. A dedicated vector DB would be the first cross-system component that relies on predicate-level tenant isolation — a security review risk and an ongoing operational audit burden.
 - **PostgreSQL already provides three of the five search modes.** Keyword (tsvector GIN), structured (JSONB GIN), and geo (PostGIS GIST) all run in PostgreSQL today. The cost of splitting only the semantic vector component into a second system is a permanent cross-system RRF merge that must handle partial failure of one branch, schema evolution in two systems, and observability aggregation in two query engines. Keeping all five search modes in PostgreSQL removes this complexity at zero incremental cost.
-- **Scale inflection point is well beyond product-market-fit thresholds.** StashRoom's unit economics target 100 paying agencies at $150/month for sustainability. 100 tenants × 1,000 venues × 20 chunks = 2M vectors total across the entire platform. pgvector IVFFlat on a single reasonably-sized PostgreSQL instance handles this volume with sub-10ms latency. The dedicated-vector-store scale horizon is at least 50–100× that.
+- **Scale inflection point is well beyond product-market-fit thresholds.** OiQb's unit economics target 100 paying agencies at $150/month for sustainability. 100 tenants × 1,000 venues × 20 chunks = 2M vectors total across the entire platform. pgvector IVFFlat on a single reasonably-sized PostgreSQL instance handles this volume with sub-10ms latency. The dedicated-vector-store scale horizon is at least 50–100× that.
 
 ---
 
