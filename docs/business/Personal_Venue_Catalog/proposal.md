@@ -4,7 +4,7 @@
 > This document was written for the **Personal Venue Catalog** segment — an internal knowledge-base tool for event agencies. It is a reference example for that positioning, not the primary product direction. The current product focus is the [Digital Sales Room for Events](../../Digital_Sales_Room_for_Events/README.md).
 
 > **Audience:** Founders, team.
-> **Purpose:** Full business case for OiQb Intelligence — ICP, feature phases, monetization, go-to-market, risks, and open questions. US market first, platform-native for global expansion.
+> **Purpose:** Full business case for VenueMi Intelligence — ICP, feature phases, monetization, go-to-market, risks, and open questions. US market first, platform-native for global expansion.
 
 ---
 
@@ -32,7 +32,7 @@ This happens multiple times a week at every agency. The cost is not just time �
 
 **Upload once. AI organises everything. Search finds any venue in seconds.**
 
-OiQb turns fragmented venue documentation into a structured, searchable intelligence layer.
+VenueMi turns fragmented venue documentation into a structured, searchable intelligence layer.
 
 Drop in a venue deck, a floor plan, a photo set, a spec sheet — the platform reads all of it automatically and extracts what matters: capacity in every room configuration, amenities, catering policy, AV specs, restrictions, contacts, pricing indicators. Every venue becomes a rich, queryable profile instead of a pile of files.
 
@@ -106,7 +106,7 @@ The long-horizon direction is a two-sided marketplace: event professionals manag
 
 **Event manager / account manager (agency)**
 
-- Uses OiQb on every client brief — searches first, uploads new venues after site visits
+- Uses VenueMi on every client brief — searches first, uploads new venues after site visits
 - Cares about: search speed, accurate extraction, mobile upload during site visits
 - Aha moment: types a client requirement and gets the right venue back in under ten seconds
 - Churn risk: if search results are inaccurate or extraction misses key fields, they stop trusting it and go back to email
@@ -149,7 +149,7 @@ The long-horizon direction is a two-sided marketplace: event professionals manag
 
 **Confidence.** Every data point is sourced. The system shows which document it came from, what page, and how confident it is. Event professionals can verify anything with one click.
 
-**Conflict resolution.** When two documents give different capacity numbers, OiQb surfaces the conflict and lets the manager resolve it once — rather than discovering the discrepancy mid-proposal.
+**Conflict resolution.** When two documents give different capacity numbers, VenueMi surfaces the conflict and lets the manager resolve it once — rather than discovering the discrepancy mid-proposal.
 
 ---
 
@@ -240,7 +240,7 @@ The long-horizon direction is a two-sided marketplace: event professionals manag
 
 **Long horizon — marketplace and client-facing features**
 
-Venues claiming profiles, planner-to-venue discovery across the full OiQb network, venue subscriptions for enhanced visibility, and client-facing shareable views are long-horizon directions. They are not part of Phase 1, 2, or 3 planning. See [vision.md](../../roadmap/vision.md) for the long-horizon framing.
+Venues claiming profiles, planner-to-venue discovery across the full VenueMi network, venue subscriptions for enhanced visibility, and client-facing shareable views are long-horizon directions. They are not part of Phase 1, 2, or 3 planning. See [vision.md](../../roadmap/vision.md) for the long-horizon framing.
 
 ---
 
@@ -322,22 +322,22 @@ The platform launches US-first to validate the core product. The architecture su
 
 The detailed competitive landscape analysis is in [comparison.md](comparison.md). Summary:
 
-**vs. Dropbox / Google Drive** — they store files. OiQb understands them. A manager can ask a question and get an answer, not a list of files to open.
+**vs. Dropbox / Google Drive** — they store files. VenueMi understands them. A manager can ask a question and get an answer, not a list of files to open.
 
-**vs. Airtable / Notion** — flexible general-purpose tools that require manual data entry. Every field someone types in is a field that goes out of date. OiQb extracts from source documents automatically.
+**vs. Airtable / Notion** — flexible general-purpose tools that require manual data entry. Every field someone types in is a field that goes out of date. VenueMi extracts from source documents automatically.
 
-**vs. Cvent / VenueScanner / VenueFindAI** — marketplace and discovery tools that know what venues self-submit publicly. OiQb works with documents the manager already has, extracted into a private team-owned knowledge base. Complementary, not competing.
+**vs. Cvent / VenueScanner / VenueFindAI** — marketplace and discovery tools that know what venues self-submit publicly. VenueMi works with documents the manager already has, extracted into a private team-owned knowledge base. Complementary, not competing.
 
 **vs. Bynder / Brandfolder** — store and tag files for brand teams. No venue-specific schema, no structured extraction, no understanding of capacity or catering policy.
 
-**vs. Spark (GEVME/PCMA)** — helps event professionals write faster. Does not help them know their venues better. OiQb provides the venue intelligence that makes Spark's output accurate and specific.
+**vs. Spark (GEVME/PCMA)** — helps event professionals write faster. Does not help them know their venues better. VenueMi provides the venue intelligence that makes Spark's output accurate and specific.
 
-**The gap OiQb fills:** nobody provides document intelligence specifically for event professionals managing their own venue portfolio. The slot is unoccupied.
+**The gap VenueMi fills:** nobody provides document intelligence specifically for event professionals managing their own venue portfolio. The slot is unoccupied.
 
-**OiQb's durable edge:**
+**VenueMi's durable edge:**
 
 - Venue-specific extraction schema — the exact fields event professionals use (capacity configurations, catering policy, curfew, rigging points, load-in access)
-- Multi-source aggregation with conflict resolution — when five documents disagree, OiQb surfaces it and resolves it rather than silently picking one value
+- Multi-source aggregation with conflict resolution — when five documents disagree, VenueMi surfaces it and resolves it rather than silently picking one value
 - Full provenance — every data point traces back to a source document and page
 - Global-ready from day one — architecture, not afterthought
 
@@ -359,7 +359,7 @@ Personal and direct. No paid acquisition yet.
 
 - Product Hunt launch
 - Industry press: BizBash, Skift Meetings, EventMB
-- Content marketing: "The state of venue research in 2026" — a short survey and report that surfaces the pain quantitatively, positions OiQb as the authority, and generates inbound leads
+- Content marketing: "The state of venue research in 2026" — a short survey and report that surfaces the pain quantitatively, positions VenueMi as the authority, and generates inbound leads
 - Demo video (two to three minutes): live AI extraction from a real venue PDF, no narration needed
 - PCMA and MPI partnership / sponsorship
 
@@ -402,4 +402,4 @@ Personal and direct. No paid acquisition yet.
 
 ---
 
-**Docs:** [What is OiQb?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../../platform/architecture.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is VenueMi?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../../platform/architecture.md) · [Vision](../../roadmap/vision.md)

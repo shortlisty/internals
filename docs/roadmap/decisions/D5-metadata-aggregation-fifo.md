@@ -79,9 +79,9 @@ Before step 1, acquire a distributed red lock `bene:agg:venue:<venueId>` with TT
 
 Serialize per-venue work before the message ever reaches the consumer. Two variants share the same conceptual model; variant A1 is MVP.
 
-**Variant A1 (MVP):** One queue, one serialising consumer thread for all aggregation events. `@RabbitListener(concurrency = "1", prefetchCount = "1")` on `oiqb.metadata.aggregation`. Exactly one thread processes all aggregation events sequentially across all tenants and all venues.
+**Variant A1 (MVP):** One queue, one serialising consumer thread for all aggregation events. `@RabbitListener(concurrency = "1", prefetchCount = "1")` on `venuemi.metadata.aggregation`. Exactly one thread processes all aggregation events sequentially across all tenants and all venues.
 
-**Variant A2 (immediately available):** N hash-partitioned queues with per-queue single-threaded consumption. Publisher computes `slot = Math.abs(venueId.hashCode() % SLOT_COUNT)`; routes to `oiqb.metadata.aggregation.{slot}`; 16 consumer threads each bind to one slot queue with `prefetchCount = 1`. Same venue always maps to same slot = strict FIFO per venue. Different venues always process in parallel.
+**Variant A2 (immediately available):** N hash-partitioned queues with per-queue single-threaded consumption. Publisher computes `slot = Math.abs(venueId.hashCode() % SLOT_COUNT)`; routes to `venuemi.metadata.aggregation.{slot}`; 16 consumer threads each bind to one slot queue with `prefetchCount = 1`. Same venue always maps to same slot = strict FIFO per venue. Different venues always process in parallel.
 
 **Pros:**
 
@@ -102,7 +102,7 @@ Serialize per-venue work before the message ever reaches the consumer. Two varia
 
 **Option D, RabbitMQ FIFO routing per venue_id.**
 
-Start with Variant A1 (MVP): one queue `oiqb.metadata.aggregation`, single serialising consumer `concurrency = 1, prefetchCount = 1`. Variant A2 (hash-partitioned slots) is documented as the immediate horizontal-scale upgrade path with identical consumer code. The publisher does not change for A1; slot routing is added only when the A1→A2 migration is executed.
+Start with Variant A1 (MVP): one queue `venuemi.metadata.aggregation`, single serialising consumer `concurrency = 1, prefetchCount = 1`. Variant A2 (hash-partitioned slots) is documented as the immediate horizontal-scale upgrade path with identical consumer code. The publisher does not change for A1; slot routing is added only when the A1→A2 migration is executed.
 
 The listener container uses `MANUAL` ack mode and encloses the entire aggregation read-modify-write in a single DB transaction. RabbitMQ ack is only issued after DB COMMIT.
 

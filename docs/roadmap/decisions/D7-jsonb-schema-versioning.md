@@ -107,7 +107,7 @@ Rules:
 **Option C: Online incremental convergence with `_schema_version` + chained migrator on every read and write.**
 
 - `_schema_version` integer key at the top level of every `venues.metadata` JSONB document. Absent → v0.
-- `VenueMetadataMigrator` singleton in `oiqb-venue-model` (shared library, zero Spring deps).
+- `VenueMetadataMigrator` singleton in `mi-venue-model` (shared library, zero Spring deps).
 - `VenueMetadataTypeHandler` (extends platform generic `MetadataTypeHandler`) runs `migrateToCurrent()` on every SELECT via MyBatis ResultMap.
 - Every write path (aggregation consumer, PATCH metadata handler, bulk import, registry gap-fill, `CreateVenueRequest` default builder) calls `ensureCurrent()` before INSERT/UPDATE.
 - Migration classes are pure-Java, unit-tested with 3-line fixtures, append-only list, never reordered or deleted.
@@ -116,10 +116,10 @@ Rules:
 
 ## Rationale
 
-- **Zero broken reads on deploy is a hard product requirement.** Event-planner agencies rely on OiQb for their venue pitch data. A deploy that silently shows "capacity not set" on 30% of venues until a batch job completes, or that returns 500s on type-coercion failures, would cause users to permanently distrust the product's data reliability guarantee. Option C provides perfect correctness on every deploy with zero coordination — that alone is decisive.
+- **Zero broken reads on deploy is a hard product requirement.** Event-planner agencies rely on VenueMi for their venue pitch data. A deploy that silently shows "capacity not set" on 30% of venues until a batch job completes, or that returns 500s on type-coercion failures, would cause users to permanently distrust the product's data reliability guarantee. Option C provides perfect correctness on every deploy with zero coordination — that alone is decisive.
 - **Schema bumps happen far more frequently than intuition suggests.** The canonical field set started with ~15 leaf fields. After 12 months of real agency usage, it has been expanded to ~40 leaf fields across 6 nested objects, with two renames and one type widening. Without Option C, every one of those 12 changes would have required an admin batch backfill job with runbook, maintenance window, customer communication, and user-visible outage risk. With Option C, all 12 shipped in regular releases with zero operational overhead.
 - **JSONB pure-function migrations are orders of magnitude simpler than SQL schema migrations.** A Liquibase `ALTER TABLE` migration on a live 100K-row table requires `CREATE INDEX CONCURRENTLY`, transaction-scope planning, replication-lag monitoring, and rollback procedures. A `MetadataMigrationV1ToV2` Java class is 20 lines of Jackson `ObjectNode` manipulation with a 3-line unit test. The engineering effort for each schema evolution drops from 1–3 days to 30 minutes. This qualitatively changes the team's willingness to correct bad field-shape decisions early rather than accumulating cruft.
-- **The migrator is the same singleton on read and write, so drift is impossible.** Because `VenueMetadataMigrator` lives in `oiqb-venue-model` and is imported by both `oiqb-venue-service` (reads/writes) and `oiqb-venue-ingestion-worker` (writes), both services use bit-identical migration chain logic. There is no path where a writer stamps V5 via a different migration sequence than a reader's in-memory V5 output produces. Classpath-identical migrator instance guarantees writer→reader agreement regardless of which service touches the row.
+- **The migrator is the same singleton on read and write, so drift is impossible.** Because `VenueMetadataMigrator` lives in `mi-venue-model` and is imported by both `mi-venue-service` (reads/writes) and `mi-venue-ingestion-worker` (writes), both services use bit-identical migration chain logic. There is no path where a writer stamps V5 via a different migration sequence than a reader's in-memory V5 output produces. Classpath-identical migrator instance guarantees writer→reader agreement regardless of which service touches the row.
 
 ---
 

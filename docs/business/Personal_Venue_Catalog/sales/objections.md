@@ -26,7 +26,7 @@ Never rebut directly. Acknowledge, reframe, then advance.
 
 Underlying concern: _I will trust my client's event to data the AI got wrong and look unpredished._
 
-Response: Accuracy varies by document quality — clean text-based PDFs extract at high confidence; scanned or design-heavy decks extract with lower confidence on some fields. OiQb shows you a confidence score on every field and cites the exact page it came from. You can verify anything with one click and override it permanently. We are not asking you to trust the AI blindly — we are showing you exactly what it knows and how sure it is.
+Response: Accuracy varies by document quality — clean text-based PDFs extract at high confidence; scanned or design-heavy decks extract with lower confidence on some fields. VenueMi shows you a confidence score on every field and cites the exact page it came from. You can verify anything with one click and override it permanently. We are not asking you to trust the AI blindly — we are showing you exactly what it knows and how sure it is.
 
 Follow-up: "Would it help to run one of your actual venue decks right now so you can see what the confidence scores look like on a real document?"
 
@@ -36,7 +36,7 @@ Follow-up: "Would it help to run one of your actual venue decks right now so you
 
 Underlying concern: _Errors will silently propagate and I won't catch them._
 
-Response: The system surfaces uncertainty rather than hiding it. Low-confidence fields are flagged visually. When two documents about the same venue give different values, OiQb shows the conflict and asks you to resolve it — it does not silently pick one. Every override you make is stored as a permanent correction and applied going forward.
+Response: The system surfaces uncertainty rather than hiding it. Low-confidence fields are flagged visually. When two documents about the same venue give different values, VenueMi shows the conflict and asks you to resolve it — it does not silently pick one. Every override you make is stored as a permanent correction and applied going forward.
 
 Follow-up: "The confidence model means the system tells you where to look, not where to trust blindly. Want to see a conflict resolution example?"
 
@@ -60,7 +60,7 @@ Follow-up: "Send me one of your hardest venue decks. We'll run it and show you t
 
 Underlying concern: _Moving files is effort I don't have time for, and I'll lose what I have._
 
-Response: You don't move anything. Your existing storage stays exactly where it is. You upload to OiQb the venue files that matter — PDFs, floor plans, spec sheets — and it reads them and builds them into a structured venue portfolio your whole team can search. Most teams start with their top 20 or 30 venues and expand from there. We can do that first import for you as part of onboarding. The key difference: Drive stores files; OiQb manages a portfolio. You can't ask Drive "which of our venues has kosher catering and a freight entrance" and get an answer in five seconds.
+Response: You don't move anything. Your existing storage stays exactly where it is. You upload to VenueMi the venue files that matter — PDFs, floor plans, spec sheets — and it reads them and builds them into a structured venue portfolio your whole team can search. Most teams start with their top 20 or 30 venues and expand from there. We can do that first import for you as part of onboarding. The key difference: Drive stores files; VenueMi manages a portfolio. You can't ask Drive "which of our venues has kosher catering and a freight entrance" and get an answer in five seconds.
 
 Follow-up: "How many venues do you actively work with? We can have those in your portfolio within a day."
 
@@ -70,7 +70,7 @@ Follow-up: "How many venues do you actively work with? We can have those in your
 
 Underlying concern: _I've bought software before that nobody used._
 
-Response: The adoption question is real and worth taking seriously. OiQb's answer is the search result. The moment a junior planner answers a client question from the library without asking a senior colleague, they use it again. The value is immediate and individual — it does not require the whole team to adopt it simultaneously for the first person to get value.
+Response: The adoption question is real and worth taking seriously. VenueMi's answer is the search result. The moment a junior planner answers a client question from the library without asking a senior colleague, they use it again. The value is immediate and individual — it does not require the whole team to adopt it simultaneously for the first person to get value.
 
 Follow-up: "Who on your team spends the most time hunting for venue details? Start with them. If they find it useful in a week, the rest of the team follows."
 
@@ -80,7 +80,7 @@ Follow-up: "Who on your team spends the most time hunting for venue details? Sta
 
 Underlying concern: _The problem isn't bad enough to justify paying for a solution._
 
-Response: The smaller the team, the harder the knowledge concentration problem. A five-person agency where one planner holds all the venue knowledge is more exposed than a twenty-person agency with some redundancy built in. If that person is unavailable when a client calls, the agency looks unprepared. Beyond the personnel risk: small agencies often have a tighter, more curated venue portfolio than large ones — and that portfolio is a real competitive asset. Keeping it in a shared Drive folder with no structure means you're underusing it every day. OiQb Intelligence is a $49/month way to turn that portfolio into something your whole team can search and build on.
+Response: The smaller the team, the harder the knowledge concentration problem. A five-person agency where one planner holds all the venue knowledge is more exposed than a twenty-person agency with some redundancy built in. If that person is unavailable when a client calls, the agency looks unprepared. Beyond the personnel risk: small agencies often have a tighter, more curated venue portfolio than large ones — and that portfolio is a real competitive asset. Keeping it in a shared Drive folder with no structure means you're underusing it every day. VenueMi Intelligence is a $49/month way to turn that portfolio into something your whole team can search and build on.
 
 Follow-up: "Has there ever been a time when a client asked something and nobody could find the answer quickly?"
 
@@ -106,7 +106,7 @@ Underlying concern: _My clients trust me with confidential information. If it le
 
 Response: Venue data is isolated per account — no other customer can see your library. Documents are encrypted in transit and at rest. Access is role-based: you control exactly who on your team can see what. For enterprise customers, we offer Azure OpenAI processing which keeps documents within a defined data region rather than passing them through the standard OpenAI API.
 
-Follow-up: "What's your current policy for storing venue PDFs? Most teams have them in Google Drive or email, which have far weaker isolation guarantees than OiQb."
+Follow-up: "What's your current policy for storing venue PDFs? Most teams have them in Google Drive or email, which have far weaker isolation guarantees than VenueMi."
 
 ---
 
@@ -186,4 +186,4 @@ Follow-up: "What would make you confident this is a long-term tool worth embeddi
 
 ---
 
-**Docs:** [What is OiQb?](../../README.md) · [Business Proposal](../proposal.md) · [Competitive Landscape](../comparison.md) · [Pitch](pitch.md) · [Battlecards](battlecards.md)
+**Docs:** [What is VenueMi?](../../README.md) · [Business Proposal](../proposal.md) · [Competitive Landscape](../comparison.md) · [Pitch](pitch.md) · [Battlecards](battlecards.md)

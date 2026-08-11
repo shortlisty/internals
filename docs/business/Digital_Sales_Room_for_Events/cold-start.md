@@ -77,7 +77,7 @@ A good seed venue is:
 
 1. Find the venue (Maps search, local event guides, wedding directories)
 2. Download all publicly available documents
-3. Create a venue record in OiQb — name, address, source URL
+3. Create a venue record in VenueMi — name, address, source URL
 4. Upload the documents — this is a live extraction pipeline test
 5. Review the AI output, correct key fields manually
 6. Mark as verified — ready to appear in pitch boards
@@ -127,7 +127,7 @@ Before removing the concierge requirement and opening to self-serve signups:
 
 - [ ] Seed catalog: 30+ venues verified in the launch city
 - [ ] Extraction benchmark: 50 real venue documents processed, field-level accuracy documented
-- [ ] Live pitches: at least 3 agencies have sent a OiQb pitch board to a real client
+- [ ] Live pitches: at least 3 agencies have sent a VenueMi pitch board to a real client
 - [ ] First approval: at least 1 client has approved via the board (not just viewed it)
 - [ ] Onboarding time: average time from signup to first pitch board under 30 minutes
 - [ ] Feedback loop: at least 10 structured agency interviews captured
@@ -149,4 +149,4 @@ Each city adds a self-contained growth pocket. Cross-city word-of-mouth is rare 
 
 ---
 
-**Docs:** [What is OiQb?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is VenueMi?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Vision](../../roadmap/vision.md)

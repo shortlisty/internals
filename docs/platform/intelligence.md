@@ -1,4 +1,4 @@
-# OiQb — Intelligence Layer & ETL Pipeline
+# VenueMi — Intelligence Layer & ETL Pipeline
 
 > **Audience:** Engineers, architects.
 > **Purpose:** Technical reference for the document intelligence ETL pipeline, the proprietary venue-specific extraction schema, the multi-source aggregation model, and the vertical-agnostic extension strategy.
@@ -20,7 +20,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 | Reader                       | Handles                                         | Notes                                                    |
 | ---------------------------- | ----------------------------------------------- | -------------------------------------------------------- |
-| `TikaDocumentReader`         | PDF, DOCX, XLSX, PPTX, HTML, XML, 1000+ formats | Apache Tika under the hood. **Primary reader for OiQb.** |
+| `TikaDocumentReader`         | PDF, DOCX, XLSX, PPTX, HTML, XML, 1000+ formats | Apache Tika under the hood. **Primary reader for VenueMi.** |
 | `PagePdfDocumentReader`      | PDFs, page-by-page                              | Preserves page boundaries, useful for floor plans        |
 | `ParagraphPdfDocumentReader` | PDFs, paragraph-level                           | Better semantic chunking for venue decks                 |
 | `MarkdownDocumentReader`     | Markdown files                                  | Useful for structured venue specs                        |
@@ -35,7 +35,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 | `ContentFormatTransformer` | Normalizes text format                                                                                                                                                                                                                                  |
 | `SummaryMetadataEnricher`  | Generates document summary using LLM, stored as metadata                                                                                                                                                                                                |
 | `KeywordMetadataEnricher`  | Extracts keywords using LLM, stored as metadata                                                                                                                                                                                                         |
-| `VenueMetadataEnricher`    | **Venue-domain-specific** (`oiqb-venue-model`): extracts capacity, amenities, contacts via structured GPT-4o call against the venue canonical field set. The only non-generic component in the pipeline — everything else is reusable across verticals. |
+| `VenueMetadataEnricher`    | **Venue-domain-specific** (`mi-venue-model`): extracts capacity, amenities, contacts via structured GPT-4o call against the venue canonical field set. The only non-generic component in the pipeline — everything else is reusable across verticals. |
 
 **DocumentWriters (Load):**
 
@@ -45,7 +45,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 | `SimpleVectorStore`  | In-memory (testing/dev)                           |
 | `FileDocumentWriter` | Write to files (useful for debugging pipeline)    |
 
-### 1.2 OiQb's Document Processing Pipeline
+### 1.2 VenueMi's Document Processing Pipeline
 
 ```
                      S3 Asset Storage
@@ -53,38 +53,38 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
                           │ presigned URL download
                           ▼
                ┌─────────────────────┐
-               │  DocumentReader     │  Spring AI / Apache Tika          [generic — oiqb-data-intelligence]
+               │  DocumentReader     │  Spring AI / Apache Tika          [generic — mi-data-intelligence]
                │  (per asset type)   │  + IBM Docling (PDF tables, Ph.2)
                └──────────┬──────────┘
                           │  List<Document>
                           │  (raw text chunks + page metadata)
                           ▼
                ┌─────────────────────┐
-               │  DocumentSplitter   │  TokenTextSplitter                [generic — oiqb-data-intelligence]
+               │  DocumentSplitter   │  TokenTextSplitter                [generic — mi-data-intelligence]
                │                     │  (512 tokens, 50 overlap)
                └──────────┬──────────┘
                           │  List<Document> (chunks)
                           ▼
                ┌─────────────────────┐
-               │  VenueMetadata      │  GPT-4o structured output         [venue-specific — oiqb-venue-model]
+               │  VenueMetadata      │  GPT-4o structured output         [venue-specific — mi-venue-model]
                │  Enricher           │  → capacity, amenities, contacts
                └──────────┬──────────┘
                           │  List<Document> + venue metadata
                           ▼
                ┌─────────────────────┐
-               │  EmbeddingModel     │  text-embedding-3-small           [generic — oiqb-data-intelligence]
+               │  EmbeddingModel     │  text-embedding-3-small           [generic — mi-data-intelligence]
                │                     │  (1536 dimensions per chunk)
                └──────────┬──────────┘
                           │  List<Document> + float[] embeddings
                           ▼
                ┌─────────────────────┐
-               │  TenantAware        │  PostgreSQL + pgvector            [generic — oiqb-data-intelligence]
+               │  TenantAware        │  PostgreSQL + pgvector            [generic — mi-data-intelligence]
                │  PgVectorStore      │  → item_vectors (per-tenant schema)
                └──────────┬──────────┘
                           │
                           ▼
                ┌─────────────────────┐
-               │  MetadataAggregator │  Event-sourced consolidation      [venue-specific — oiqb-venue-model]
+               │  MetadataAggregator │  Event-sourced consolidation      [venue-specific — mi-venue-model]
                │                     │  (conflict resolution)
                └─────────────────────┘
 ```
@@ -92,18 +92,18 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 **Java implementation sketch** — the orchestrator is generic; venue-specific behaviour is injected via strategies (see §3 Extension Model):
 
 ```java
-// oiqb-venue-ingestion-worker — Spring wiring only, no domain logic here
+// mi-venue-ingestion-worker — Spring wiring only, no domain logic here
 @Service
 @RequiredArgsConstructor
 public class AssetExtractionOrchestrator<M> {
 
-  // ── generic contracts from oiqb-data-intelligence ──────────────────────
+  // ── generic contracts from mi-data-intelligence ──────────────────────
   private final TikaDocumentReader.Factory tikaFactory;
   private final TokenTextSplitter splitter;
   private final EmbeddingModel embeddingModel;
   private final VectorStore vectorStore;              // writes to item_vectors
 
-  // ── domain strategies injected from oiqb-venue-model ───────────────────
+  // ── domain strategies injected from mi-venue-model ───────────────────
   private final MetadataExtractionStrategy<M> extractionStrategy;   // VenueMetadataExtractionStrategy
   private final MetadataAggregationStrategy<M> aggregationStrategy; // VenueMetadataAggregationStrategy
   private final MetadataMigrator migrator;                           // VenueMetadataMigrator
@@ -159,7 +159,7 @@ public class AssetExtractionOrchestrator<M> {
 
 ### 1.4 Chunking Strategy
 
-Document chunking significantly impacts retrieval quality. OiQb uses a hybrid strategy:
+Document chunking significantly impacts retrieval quality. VenueMi uses a hybrid strategy:
 
 **For venue decks (PDFs):**
 
@@ -264,15 +264,15 @@ docling-service:
 
 ---
 
-## 2. The Intelligence Layer OiQb Owns
+## 2. The Intelligence Layer VenueMi Owns
 
-Everything above (Tika, Docling, Spring AI ETL) is infrastructure. OiQb's proprietary intelligence sits on top:
+Everything above (Tika, Docling, Spring AI ETL) is infrastructure. VenueMi's proprietary intelligence sits on top:
 
 ### 2.1 Venue-Specific Extraction Schema
 
-Generic document intelligence tools extract generic fields. OiQb extracts fields that matter for event professionals.
+Generic document intelligence tools extract generic fields. VenueMi extracts fields that matter for event professionals.
 
-This schema is the **venue canonical field set** — defined as `VenueMetadata` in `oiqb-venue-model` (see §2 of [Architecture](architecture.md)). It is the venue-domain's answer to the question "what does a structured document look like for this vertical?". The extraction prompt sent to GPT-4o is derived directly from this schema. If the platform pivots to a different vertical (medical, agro), the domain library is swapped — the extraction pipeline, embedding, and search infrastructure remain identical.
+This schema is the **venue canonical field set** — defined as `VenueMetadata` in `mi-venue-model` (see §2 of [Architecture](architecture.md)). It is the venue-domain's answer to the question "what does a structured document look like for this vertical?". The extraction prompt sent to GPT-4o is derived directly from this schema. If the platform pivots to a different vertical (medical, agro), the domain library is swapped — the extraction pipeline, embedding, and search infrastructure remain identical.
 
 ```json
 {
@@ -329,7 +329,7 @@ This schema is the **venue canonical field set** — defined as `VenueMetadata` 
 }
 ```
 
-This schema is what makes OiQb a _venue intelligence platform_, not just a document storage system. Every competitor either has operational data (bookings, invoicing) or generic extraction. No one has this schema purpose-built for event planners.
+This schema is what makes VenueMi a _venue intelligence platform_, not just a document storage system. Every competitor either has operational data (bookings, invoicing) or generic extraction. No one has this schema purpose-built for event planners.
 
 ### 2.2 Confidence-Sourced Metadata Model
 
@@ -355,7 +355,7 @@ No existing venue tool surfaces this level of data provenance. Users see not jus
 
 Documents arrive for the same item in multiple formats — a marketing deck, a floor plan PDF, a technical spec sheet, a photo set. Each source may have conflicting or complementary data.
 
-The aggregation engine (`MetadataAggregationConsumer` in `oiqb-data-intelligence`) is generic — it does not know about venues or capacity fields. It operates on `JsonNode` + `metadata_sources` provenance entries and delegates conflict decisions to the domain's `MetadataAggregationStrategy`:
+The aggregation engine (`MetadataAggregationConsumer` in `mi-data-intelligence`) is generic — it does not know about venues or capacity fields. It operates on `JsonNode` + `metadata_sources` provenance entries and delegates conflict decisions to the domain's `MetadataAggregationStrategy`:
 
 1. Collects all extraction events per item (event log)
 2. Delegates priority resolution to `MetadataAggregationStrategy.aggregate()` — venue impl applies: `manual_override > verified > high_confidence_AI > low_confidence_AI`
@@ -371,7 +371,7 @@ This is a genuine product moat. No other platform in the event space does this. 
 
 The platform separates **infrastructure contracts** (reusable across any document-intelligence vertical) from **domain strategies** (venue-specific, swapped per vertical). This is the mechanism that makes a pivot — from venues to medical records, agro assets, legal documents, or any other domain — a library swap rather than a rewrite.
 
-### 3.1 Contracts defined in `oiqb-data-intelligence`
+### 3.1 Contracts defined in `mi-data-intelligence`
 
 ```java
 // ── Extraction ────────────────────────────────────────────────────────────
@@ -473,7 +473,7 @@ public interface SearchBranchExecutor<R> {
 }
 ```
 
-### 3.2 Generic consumers in `oiqb-data-intelligence`
+### 3.2 Generic consumers in `mi-data-intelligence`
 
 These classes contain no domain knowledge. They are final implementations wired with domain strategies via Spring DI:
 
@@ -501,7 +501,7 @@ public final class SearchOrchestrator<R> {
 }
 ```
 
-### 3.3 Venue implementations in `oiqb-venue-model`
+### 3.3 Venue implementations in `mi-venue-model`
 
 ```java
 // Extraction: GPT-4o structured call against venue canonical field set (§2.1)
@@ -534,7 +534,7 @@ public class RegistrySearchBranch implements SearchBranchExecutor<VenueSummaryVi
 ### 3.4 Dependency and flow
 
 ```
-oiqb-data-intelligence
+mi-data-intelligence
   ├── interfaces:  MetadataExtractionStrategy<M>
   │                MetadataAggregationStrategy<M>
   │                MetadataMigrator
@@ -546,7 +546,7 @@ oiqb-data-intelligence
                    SearchOrchestrator<R>            ← wires 2 branch executors
                           │
                           ▼ (compile dependency)
-        oiqb-venue-model
+        mi-venue-model
           ├── VenueMetadataExtractionStrategy   implements MetadataExtractionStrategy<VenueMetadata>
           ├── VenueMetadataAggregationStrategy  implements MetadataAggregationStrategy<VenueMetadata>
           ├── VenueMetadataMigrator             implements MetadataMigrator
@@ -555,13 +555,13 @@ oiqb-data-intelligence
           └── RegistrySearchBranch             implements SearchBranchExecutor<VenueSummaryView>
                           │
                           ▼ (compile dependency)
-        oiqb-venue-service / oiqb-venue-ingestion-worker
+        mi-venue-service / mi-venue-ingestion-worker
           └── @Bean registrations wire venue strategies into generic consumers
 
 
   ── vertical extension example ──────────────────────────────────────────────
 
-        oiqb-data-intelligence          (unchanged)
+        mi-data-intelligence          (unchanged)
                  │
                  ▼
         bene-med-model
@@ -575,7 +575,7 @@ oiqb-data-intelligence
         bene-med-service / bene-med-ingestion-worker
 ```
 
-**Rule:** if a class in `oiqb-venue-ingestion-worker` or `oiqb-venue-service` contains the word `venue` in its business logic (not just in a tag string), ask whether it belongs in `oiqb-venue-model` instead. The worker and service should contain Spring wiring, `@Bean` registrations, and `@RabbitListener` configuration — not domain decisions.
+**Rule:** if a class in `mi-venue-ingestion-worker` or `mi-venue-service` contains the word `venue` in its business logic (not just in a tag string), ask whether it belongs in `mi-venue-model` instead. The worker and service should contain Spring wiring, `@Bean` registrations, and `@RabbitListener` configuration — not domain decisions.
 
 ---
 
@@ -604,7 +604,7 @@ Upload → S3 → AssetUploadedEvent → RabbitMQ → N consumers → Processing
 | 1M venues        | ~$1,000 | Auto-scaled, still manageable          |
 | 100M venues      | ~$100K  | Optimize with cheaper models + caching |
 
-At the $0.001/venue cost of GPT-4o extraction + embedding generation, OiQb can process 1 million venues for approximately $1,000 in AI costs. This is not a cost problem.
+At the $0.001/venue cost of GPT-4o extraction + embedding generation, VenueMi can process 1 million venues for approximately $1,000 in AI costs. This is not a cost problem.
 
 ### Vector Search Scaling
 
@@ -630,7 +630,7 @@ pgvector with IVFFlat index:
 | **Geo search**          | PostGIS (PostgreSQL extension)                                                                                                                                                                                                             | Mature, no extra service                                                                              |
 | **Async processing**    | RabbitMQ (existing foundation)                                                                                                                                                                                                             | Already in platform, priority queues, DLQ                                                             |
 | **File storage**        | S3 / MinIO (existing foundation)                                                                                                                                                                                                           | Already in IAM service, same pattern                                                                  |
-| **Vertical isolation**  | Strategy pattern — `MetadataExtractionStrategy`, `MetadataAggregationStrategy`, `MetadataMigrator`, `CuratedListMatchStrategy`, `SearchBranchExecutor` interfaces in `oiqb-data-intelligence`; venue implementations in `oiqb-venue-model` | Pivot to new domain = new domain library + `@Bean` wiring. Zero changes to generic consumers. See §3. |
+| **Vertical isolation**  | Strategy pattern — `MetadataExtractionStrategy`, `MetadataAggregationStrategy`, `MetadataMigrator`, `CuratedListMatchStrategy`, `SearchBranchExecutor` interfaces in `mi-data-intelligence`; venue implementations in `mi-venue-model` | Pivot to new domain = new domain library + `@Bean` wiring. Zero changes to generic consumers. See §3. |
 
 **Principle:** Use proven infrastructure that already exists in the iQ Key Value foundation. Introduce the minimum number of new services. The only truly new infrastructure is pgvector (a PostgreSQL extension, not a new service) and optionally a self-hosted Docling container for advanced PDF parsing.
 
@@ -647,4 +647,4 @@ pgvector with IVFFlat index:
 
 ---
 
-**Docs:** [What is OiQb?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is VenueMi?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md) · [Vision](../roadmap/vision.md)

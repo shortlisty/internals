@@ -1,13 +1,13 @@
 # Vision
 
 > **Audience:** Founders, team.
-> **Purpose:** Describe where OiQb Intelligence is going and why — not what has been built. For completed work, see [CHANGELOG.md](../../CHANGELOG.md) and the milestone files.
+> **Purpose:** Describe where VenueMi Intelligence is going and why — not what has been built. For completed work, see [CHANGELOG.md](../../CHANGELOG.md) and the milestone files.
 
 ---
 
 ## One sentence
 
-OiQb is the collaborative workspace where event agencies turn their venue knowledge into a signed-off proposal — so a client brief becomes a confirmed venue spec in hours, not days.
+VenueMi is the collaborative workspace where event agencies turn their venue knowledge into a signed-off proposal — so a client brief becomes a confirmed venue spec in hours, not days.
 
 ---
 
@@ -43,7 +43,7 @@ The cost is not just time. It is lost deals when a competitor responds faster, m
 
 ### For an agency
 
-A client brief arrives. The planner opens OiQb, filters the venue library in under a minute, picks three options, and sends the client a link. The client opens an interactive board, browses floor plans and photos, adjusts the configuration, and clicks Approve. The planner receives a notification. Both sides have a timestamped, immutable record of exactly what was agreed. The whole cycle takes hours, not days.
+A client brief arrives. The planner opens VenueMi, filters the venue library in under a minute, picks three options, and sends the client a link. The client opens an interactive board, browses floor plans and photos, adjusts the configuration, and clicks Approve. The planner receives a notification. Both sides have a timestamped, immutable record of exactly what was agreed. The whole cycle takes hours, not days.
 
 ### For a client
 
@@ -51,13 +51,13 @@ No inbox back-and-forth. No PDF attachments. One link, open on any device. The v
 
 ### For the platform
 
-OiQb becomes the layer that closes the gap between "we know which venues work for this client" and "the client has confirmed and we can proceed." The venue catalog feeds the pitch. The pitch generates the approval. The approval locks the spec. Each step is tracked, sourced, and auditable.
+VenueMi becomes the layer that closes the gap between "we know which venues work for this client" and "the client has confirmed and we can proceed." The venue catalog feeds the pitch. The pitch generates the approval. The approval locks the spec. Each step is tracked, sourced, and auditable.
 
 ---
 
 ## Product structure
 
-OiQb has two interlocking layers.
+VenueMi has two interlocking layers.
 
 **Layer 1 — Personal Venue Catalog** (data layer)
 The agency's private library of venues, structured and searchable. Documents come in from Drive, Notion, email, and direct uploads. AI extracts metadata — capacity, catering policy, AV specs, restrictions, contacts — and maps it against a flexible schema. The planner verifies key fields with one click. The catalog is the foundation: without accurate venue data, the pitch has nothing to draw from.
@@ -82,7 +82,7 @@ Digital Sales Room      →  output layer (pitch board, client portal, snapshot)
 Agencies will pay for a tool that directly accelerates client sign-off and makes their proposals look premium. They will not pay for a better file organiser. The catalog is a prerequisite, but the value event — the moment that justifies the subscription — is when the client opens the board and approves in the same session.
 
 **Speed of response is a competitive differentiator for agencies.**
-An agency that can respond to a brief with a polished, interactive shortlist in under an hour wins deals that a slower competitor loses. OiQb's value is measured in hours saved and deals won, not in database entries.
+An agency that can respond to a brief with a polished, interactive shortlist in under an hour wins deals that a slower competitor loses. VenueMi's value is measured in hours saved and deals won, not in database entries.
 
 **The approval snapshot prevents post-event disputes.**
 Agencies and clients regularly disagree after the fact about what was agreed. An immutable, timestamped record of the approved spec — with source citations for every field — eliminates that dispute. This is a legal and financial protection story, not just a UX convenience. It is the reason agencies at higher price points will pay $150–300/month without hesitation.
@@ -97,10 +97,10 @@ The client opens a link. That is the entire onboarding. If the experience requir
 
 ## Out of scope now
 
-- **Booking and payments.** Contracts, invoicing, deposit collection, and calendar holds are venue operator problems. OiQb ends at sign-off on the spec, not at the financial transaction.
-- **Venue discovery and marketplace.** OiQb works with venues the agency already knows. Finding new venues is a separate workflow — and a Phase 3 direction at earliest.
-- **CRM and deal pipeline.** OiQb is not a sales CRM. It does not manage leads, stages, or follow-up sequences.
-- **Event execution tools.** Timelines, crew management, run-of-show, and on-site logistics are out of scope. OiQb covers the venue selection and sign-off phase only.
+- **Booking and payments.** Contracts, invoicing, deposit collection, and calendar holds are venue operator problems. VenueMi ends at sign-off on the spec, not at the financial transaction.
+- **Venue discovery and marketplace.** VenueMi works with venues the agency already knows. Finding new venues is a separate workflow — and a Phase 3 direction at earliest.
+- **CRM and deal pipeline.** VenueMi is not a sales CRM. It does not manage leads, stages, or follow-up sequences.
+- **Event execution tools.** Timelines, crew management, run-of-show, and on-site logistics are out of scope. VenueMi covers the venue selection and sign-off phase only.
 - **CAD and video processing in Phase 1.** Floor plans and photos are handled. DWG/DXF parsing and video walkthrough extraction are Phase 2.
 
 ---
@@ -109,7 +109,7 @@ The client opens a link. That is the entire onboarding. If the experience requir
 
 **Pitch boards approved per team per month.**
 
-An approved board means the product completed its job: the agency got sign-off, the client has a confirmed spec, and OiQb was the instrument that made it happen. Venues ingested and searches run are inputs. Approvals are the outcome.
+An approved board means the product completed its job: the agency got sign-off, the client has a confirmed spec, and VenueMi was the instrument that made it happen. Venues ingested and searches run are inputs. Approvals are the outcome.
 
 ---
 
@@ -119,8 +119,8 @@ Once the pitch-to-approval loop is proven and trusted, the platform can grow in 
 
 **Upward:** deeper collaboration features — inline comments, version history, multi-stakeholder voting on the client side, integration with calendar and booking tools to bridge the gap between approval and execution.
 
-**Outward:** a two-sided layer where venues pay to maintain a verified public profile that agencies can pull into pitches directly, without manual ingestion. That turns OiQb into a marketplace — but only after the agency-side workflow is embedded and trusted. The venue side is years away. Nothing in near-term planning is designed to serve venues.
+**Outward:** a two-sided layer where venues pay to maintain a verified public profile that agencies can pull into pitches directly, without manual ingestion. That turns VenueMi into a marketplace — but only after the agency-side workflow is embedded and trusted. The venue side is years away. Nothing in near-term planning is designed to serve venues.
 
 ---
 
-**Docs:** [What is OiQb?](../README.md) · [Personal Venue Catalog](../business/Personal_Venue_Catalog/product.md) · [Digital Sales Room](../business/Digital_Sales_Room_for_Events/README.md) · [Market Structure](../business/market.md) · [Architecture](../platform/architecture.md)
+**Docs:** [What is VenueMi?](../README.md) · [Personal Venue Catalog](../business/Personal_Venue_Catalog/product.md) · [Digital Sales Room](../business/Digital_Sales_Room_for_Events/README.md) · [Market Structure](../business/market.md) · [Architecture](../platform/architecture.md)

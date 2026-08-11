@@ -1,4 +1,4 @@
-# AGENTS.md — Documentation Rules for OiQb System Design
+# AGENTS.md — Documentation Rules for VenueMi System Design
 
 > Rules, structure, and patterns for every document in this repository.
 > Any agent, contributor, or tool writing or editing docs here must follow this file.
@@ -7,7 +7,7 @@
 
 ## 1. What this repository is for
 
-This repository is the **single source of truth for OiQb's pre-build and in-flight system design**. It covers:
+This repository is the **single source of truth for VenueMi's pre-build and in-flight system design**. It covers:
 
 - Business rationale and competitive positioning
 - Architecture decisions and domain model
@@ -181,9 +181,9 @@ Do not invent new audience tags. If a document genuinely serves two separate aud
 ### 4.9 Competitive landscape (`docs/business/Digital_Sales_Room_for_Events/comparison.md`)
 
 - Structured as: category sections (one per competitor group), each with a per-tool table, followed by a unified capability matrix.
-- Each per-tool table row has exactly: Tool, What it does, Gap vs. OiQb.
-- The capability matrix is a Markdown table with OiQb in the first column and competitor groups as subsequent columns.
-- A "OiQb's durable edge" section explains why key capabilities cannot be quickly replicated.
+- Each per-tool table row has exactly: Tool, What it does, Gap vs. VenueMi.
+- The capability matrix is a Markdown table with VenueMi in the first column and competitor groups as subsequent columns.
+- A "VenueMi's durable edge" section explains why key capabilities cannot be quickly replicated.
 - The `Personal_Venue_Catalog/comparison.md` is a segment reference document with a `[!NOTE]` callout. New competitive analysis belongs in the DSR comparison file.
 
 ### 4.10 Roadmap index README files (`docs/roadmap/{epics,milestones,decisions}/README.md`)
@@ -279,7 +279,7 @@ The feature checklist is the **mid-level planning document** that sits between e
 ```markdown
 ---
 
-**Docs:** [What is OiQb?](../README.md) · [link](path) · [link](path)
+**Docs:** [What is VenueMi?](../README.md) · [link](path) · [link](path)
 ```
 
 - The navigation footer must be the last element in the file.
@@ -358,4 +358,4 @@ If a rule in this file is wrong or needs updating, change this file first, then 
 
 ---
 
-**Docs:** [What is OiQb?](docs/README.md) · [Architecture](docs/platform/architecture.md) · [Roadmap Vision](docs/roadmap/vision.md)
+**Docs:** [What is VenueMi?](docs/README.md) · [Architecture](docs/platform/architecture.md) · [Roadmap Vision](docs/roadmap/vision.md)

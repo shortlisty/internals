@@ -7,7 +7,7 @@
 
 ## Context
 
-OiQb search must return results from two sources that live in different PostgreSQL schemas:
+VenueMi search must return results from two sources that live in different PostgreSQL schemas:
 
 1. **Tenant venues** — `t_{tenantKey}.venues`. Full 5-mode search (keyword, semantic, structured, geo, hybrid). Schema-isolated, writable by the tenant.
 2. **Platform registry** — `public.venue_registry`. 3-mode MVP search (keyword, structured, geo). Read-only to tenants, admin-writable only.
