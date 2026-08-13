@@ -468,7 +468,7 @@ public interface CuratedListMatchStrategy {
 public interface SearchBranchExecutor<R> {
     List<ScoredResult<R>> execute(SearchQuery query);
 
-    /** Branch label used in metrics (bene_search_latency_seconds{branch=...}). */
+    /** Branch label used in metrics (venuemi_search_latency_seconds{branch=...}). */
     String branchName();
 }
 ```
@@ -564,7 +564,7 @@ mi-data-intelligence
         mi-data-intelligence          (unchanged)
                  │
                  ▼
-        bene-med-model
+        mi-med-model
           ├── MedCaseExtractionStrategy   implements MetadataExtractionStrategy<CaseMetadata>
           ├── MedCaseAggregationStrategy  implements MetadataAggregationStrategy<CaseMetadata>
           ├── MedCaseMigrator             implements MetadataMigrator
@@ -572,7 +572,7 @@ mi-data-intelligence
           └── …
                  │
                  ▼
-        bene-med-service / bene-med-processing-worker
+        mi-med-service / mi-med-processing-worker
 ```
 
 **Rule:** if a class in `mi-venue-processing-worker` or `mi-venue-service` contains the word `venue` in its business logic (not just in a tag string), ask whether it belongs in `mi-venue-model` instead. The worker and service should contain Spring wiring, `@Bean` registrations, and `@RabbitListener` configuration — not domain decisions.

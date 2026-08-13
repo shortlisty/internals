@@ -98,4 +98,4 @@ Error response for plan-gated features: `403 Forbidden` with `featureCode` exten
 
 ---
 
-**Docs:** [Architecture Index](README.md) · [Services](services.md) · [Aggregation](aggregation.md) · [ETL Pipeline](etl-pipeline.md) · [API](api.md) · [Master Catalog](master-catalog.md)
+**Docs:** [Architecture Index](README.md) · [Services](services.md) · [Aggregation](aggregation.md) · [ETL Pipeline](etl-pipeline.md) · [API](api.md) · [Master Catalog](master-catalog.md) · [Data Model](data-model.md)

@@ -28,7 +28,7 @@ All endpoints follow platform conventions based on the actual implementation in 
 - `DELETE` → `204 No Content`
 - Paginated responses: custom wrapper records (e.g. `VenueSummaryListResponse(items, totalElements)`) — not Spring's `Page<T>`
 - Error responses: RFC 7807 `ProblemDetail`, `type = about:blank`, includes `correlationId` and `requestId` extension properties
-- Authority strings are bare — `USER`, `ADMIN`, `TENANT_OWNER` (never `ROLE_` prefixed)
+- Authority strings are bare — `MEMBER`, `ADMIN`, `TENANT_OWNER` (never `ROLE_` prefixed)
 - Tenant context set automatically by `TenantExtractionFilter` from JWT `tenant_id` claim — no tenant path variable on regular tenant-scoped endpoints
 
 ---

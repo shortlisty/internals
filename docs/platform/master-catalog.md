@@ -169,10 +169,10 @@ Before any production tenant has access, run a mandatory calibration pass:
 
 `MasterVenueMatcher` records Micrometer metrics on every extraction run (see [observability.md](observability.md)):
 
-| Metric                                    | Tags                            | Purpose                                                                                   |
-| ----------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------- |
-| `bene_mc_match_total`                     | `stage="extraction"`, `outcome` | `matched` vs `no_match` vs `ambiguous` counts. Tracks how often master catalog is useful. |
-| `bene_mc_match_confidence_seconds` (hist) | `stage="extraction"`            | Distribution of `combined` score across all runs. Calibrate thresholds from this.         |
+| Metric                                       | Tags                            | Purpose                                                                                   |
+| -------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------- |
+| `venuemi_mc_match_total`                     | `stage="extraction"`, `outcome` | `matched` vs `no_match` vs `ambiguous` counts. Tracks how often master catalog is useful. |
+| `venuemi_mc_match_confidence_seconds` (hist) | `stage="extraction"`            | Distribution of `combined` score across all runs. Calibrate thresholds from this.         |
 
 The scraper dry-run report CSV is retained in S3 for 90 days as an audit trail of every master catalog population decision.
 

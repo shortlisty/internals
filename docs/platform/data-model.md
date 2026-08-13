@@ -334,7 +334,7 @@ No scheduled backfill job, no downtime, no `ALTER TABLE` on JSONB. If all rows m
 
 ### Version Distribution Observability
 
-The migrator records the pre-migration version of every document it sees via Micrometer. See [observability.md](observability.md) for the `bene_metadata_schema_version_seen_total` metric.
+The migrator records the pre-migration version of every document it sees via Micrometer. See [observability.md](observability.md) for the `venuemi_metadata_schema_version_seen_total` metric.
 
 ### Schema Version in Master Catalog Metadata
 

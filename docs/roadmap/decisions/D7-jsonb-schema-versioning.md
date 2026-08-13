@@ -98,7 +98,7 @@ Rules:
 **Cons:**
 
 - **Read path code complexity budget consumed.** The `TypeHandler` runner + migrator chain + migration registry is ~500 lines of infrastructure code that must be correct and well-tested. A bug in the migrator (e.g., migration V1→V2 drops unknown keys) corrupts every read of a V1 venue on any tenant. This code path demands a higher code-review bar and static-analysis contract enforcement.
-- **Stale document version distribution observability requires custom metrics.** Without a batch backfill, you do not know how many V1 venues remain until someone reads them. The migrator records Micrometer `bene_metadata_migration_versions_total{from_version=N}` on every call; over time, the distribution of `from_version` counts shows when V1→V2 migration count drops to near-zero and the V1→V2 class can be considered for eventual removal (after 24 months with zero calls).
+- **Stale document version distribution observability requires custom metrics.** Without a batch backfill, you do not know how many V1 venues remain until someone reads them. The migrator records Micrometer `venuemi_metadata_migration_versions_total{from_version=N}` on every call; over time, the distribution of `from_version` counts shows when V1→V2 migration count drops to near-zero and the V1→V2 class can be considered for eventual removal (after 24 months with zero calls).
 
 ---
 
@@ -126,8 +126,8 @@ Rules:
 ## Consequences
 
 - `_schema_version` must never be set to a future number, never manually edited via SQL, and never removed. An ArchUnit/static-analysis rule validates that no code path writes a `_schema_version` value other than via `VenueMetadataMigrator.ensureCurrent()`.
-- Migration classes are added, never removed or reordered. After 24 months of zero `bene_metadata_migration_versions_total{from_version=1}` readings, a follow-up decision record evaluates whether `MetadataMigrationV0ToV1` can be deleted (requires guaranteeing zero v0 documents remain in any tenant schema, verified via a one-shot admin SELECT across all schemas). Until then, it stays.
-- `bene_metadata_migration_versions_total` is a core release-readiness metric. Before each deploy, the dashboards are reviewed; if from_version counts for the "next oldest" migration are still non-trivial, the release proceeds but a ticket is opened to investigate why those venues are stale.
+- Migration classes are added, never removed or reordered. After 24 months of zero `venuemi_metadata_migration_versions_total{from_version=1}` readings, a follow-up decision record evaluates whether `MetadataMigrationV0ToV1` can be deleted (requires guaranteeing zero v0 documents remain in any tenant schema, verified via a one-shot admin SELECT across all schemas). Until then, it stays.
+- `venuemi_metadata_migration_versions_total` is a core release-readiness metric. Before each deploy, the dashboards are reviewed; if from_version counts for the "next oldest" migration are still non-trivial, the release proceeds but a ticket is opened to investigate why those venues are stale.
 - A one-shot admin endpoint exists for force-convergence: `POST /api/v1/admin/tenants/{id}/venues/converge-metadata` issues `UPDATE venues SET metadata = metadata WHERE id IN (...)` per venue to trigger the write-path stamping for a specific tenant. Used only before heavy schema jumps where customer has asked for proactive backfill, not as a routine release step.
 
 ---

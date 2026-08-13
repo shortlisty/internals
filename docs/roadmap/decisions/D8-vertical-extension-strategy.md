@@ -96,10 +96,10 @@ Scraping and master catalog population are further decomposed into mi-mc-ingest-
 
 **Pivot to medical:**
 
-- Create `bene-med-model` (Layer 2 medical library, imports `mi-data-intelligence` unchanged).
+- Create `mi-med-model` (Layer 2 medical library, imports `mi-data-intelligence` unchanged).
 - Implement 5 medical strategy classes.
 - Add medical POJOs + medical Liquibase changelogs.
-- Create `bene-med-service` + `bene-med-processing-worker` (Layer 3) with `@Bean` wiring.
+- Create `mi-med-service` + `mi-med-processing-worker` (Layer 3) with `@Bean` wiring.
 - **0 lines changed in `mi-data-intelligence`. 0 lines changed in existing venue modules.**
 
 **Pros:**
