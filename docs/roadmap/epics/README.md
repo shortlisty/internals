@@ -82,9 +82,10 @@ Infrastructure prerequisites. No direct end-user value. All later epics depend o
 
 | ID  | File                                                       | Title                 | Target milestone(s)     | Dependencies | Status      |
 | --- | ---------------------------------------------------------- | --------------------- | ----------------------- | ------------ | ----------- |
-| E1  | [E1-venue-profiles.md](E1-venue-profiles.md)               | Venue profiles        | v0.1-mvp                | —            | Not started |
-| E2  | [E2-document-intelligence.md](E2-document-intelligence.md) | Document intelligence | v0.2-intelligence-layer | E1           | Not started |
-| E3  | [E3-search.md](E3-search.md)                               | Search                | v0.2-intelligence-layer | E1, E2       | Not started |
+| E1  | [E1-master-venue-catalog.md](E1-master-venue-catalog.md)   | Master venue catalog  | v0.1-mvp                | —            | In progress |
+| E2  | [E2-venue-profiles.md](E2-venue-profiles.md)               | Tenant venue profiles | v0.1-mvp                | E1           | Not started |
+| E3  | [E3-document-intelligence.md](E3-document-intelligence.md) | Document intelligence | v0.2-intelligence-layer | E1, E2       | Not started |
+| E4  | [E4-search.md](E4-search.md)                               | Search                | v0.2-intelligence-layer | E1, E2, E3   | Not started |
 
 ### Group B — Personal Venue Catalog (Data Layer)
 
@@ -92,9 +93,9 @@ The agency's private knowledge base. Layer 1 of the product architecture.
 
 | ID  | File                                                 | Title              | Target milestone(s)               | Dependencies | Status      |
 | --- | ---------------------------------------------------- | ------------------ | --------------------------------- | ------------ | ----------- |
-| E4  | [E4-team-collaboration.md](E4-team-collaboration.md) | Team collaboration | v0.4-export-collaboration         | E1           | Not started |
-| E5  | [E5-plan-enforcement.md](E5-plan-enforcement.md)     | Plan enforcement   | v0.1-mvp, v0.2-intelligence-layer | E1, E2       | Not started |
-| E6  | [E6-data-quality.md](E6-data-quality.md)             | Data quality       | v0.3-data-quality                 | E2, E3       | Not started |
+| E5  | [E5-team-collaboration.md](E5-team-collaboration.md) | Team collaboration | v0.4-export-collaboration         | E2           | Not started |
+| E6  | [E6-plan-enforcement.md](E6-plan-enforcement.md)     | Plan enforcement   | v0.1-mvp, v0.2-intelligence-layer | E2, E3       | Not started |
+| E7  | [E7-data-quality.md](E7-data-quality.md)             | Data quality       | v0.3-data-quality                 | E3, E4       | Not started |
 
 ### Group C — Digital Sales Room (Output Layer)
 
@@ -102,7 +103,7 @@ Client-facing pitch boards and the approval loop. Layer 2 of the product archite
 
 | ID  | File                                         | Title              | Target milestone(s)       | Dependencies | Status      |
 | --- | -------------------------------------------- | ------------------ | ------------------------- | ------------ | ----------- |
-| E7  | [E7-export-sharing.md](E7-export-sharing.md) | Export and sharing | v0.4-export-collaboration | E1, E3, E6   | Not started |
+| E8  | [E8-export-sharing.md](E8-export-sharing.md) | Export and sharing | v0.4-export-collaboration | E2, E4, E7   | Not started |
 
 ### Group D — Post-v1.0 Enhancements
 
@@ -110,8 +111,8 @@ Beyond the v1.0 platform launch. Scaling and deeper capabilities.
 
 | ID  | File                                     | Title        | Target milestone(s) | Dependencies | Status      |
 | --- | ---------------------------------------- | ------------ | ------------------- | ------------ | ----------- |
-| E8  | [E8-integrations.md](E8-integrations.md) | Integrations | — (post-v1.0)       | E1, E7       | Not started |
-| E9  | [E9-marketplace.md](E9-marketplace.md)   | Marketplace  | — (post-v1.0)       | E1, E3, E7   | Not started |
+| E9  | [E9-integrations.md](E9-integrations.md) | Integrations | — (post-v1.0)       | E2, E8       | Not started |
+| E10 | [E10-marketplace.md](E10-marketplace.md) | Marketplace  | — (post-v1.0)       | E2, E4, E8   | Not started |
 
 > **Note on the current index:** This table is the **pre-implementation standardisation snapshot**. Before any epic file is created, review whether the grouping, target milestone assignments, and dependency chains above are final. The act of writing E1 should validate whether the Group A / Group B boundary is correct — if not, update this index first, then create the file.
 
@@ -159,11 +160,11 @@ Ideas that have not been formalised into epics yet. Capture them here so they ar
 
 | Candidate name                | Proposed group | Why it matters                                                                                                               | Blocked by                                      |
 | ----------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| Metadata schema versioning UI | B (PVC)        | Users viewing and managing `_schema_version` state for their own venues; forced-convergence admin actions.                   | E2, E6 written first                            |
-| Vertical extension tooling    | D (Post-v1.0)  | Scaffolding generator for new domain libraries (medical, agro) — strategy pattern implementation aids.                       | E1–E7 all at least In progress                  |
-| CAD file visual processing    | B (PVC)        | DWG/DXF → PNG conversion → GPT-4o vision for floor plan layout understanding. Currently "metadata only" per architecture §5. | E2 at Done, Docling D2 Phase 2 decision         |
-| Video walkthrough extraction  | B (PVC)        | Keyframe extraction + Whisper transcription + scene-level amenity detection. Out of scope Phase 1.                           | E2 at Done, E6 In progress                      |
-| Multi-stakeholder voting      | C (DSR)        | Client-side multi-approver workflow with weighted voting (e.g., brand team + events manager + finance).                      | E7 at Done, approval snapshot epic exists first |
+| Metadata schema versioning UI | B (PVC)        | Users viewing and managing `_schema_version` state for their own venues; forced-convergence admin actions.                   | E3, E7 written first                            |
+| Vertical extension tooling    | D (Post-v1.0)  | Scaffolding generator for new domain libraries (medical, agro) — strategy pattern implementation aids.                       | E1–E8 all at least In progress                  |
+| CAD file visual processing    | B (PVC)        | DWG/DXF → PNG conversion → GPT-4o vision for floor plan layout understanding. Currently "metadata only" per architecture §5. | E3 at Done, Docling D2 Phase 2 decision         |
+| Video walkthrough extraction  | B (PVC)        | Keyframe extraction + Whisper transcription + scene-level amenity detection. Out of scope Phase 1.                           | E3 at Done, E7 In progress                      |
+| Multi-stakeholder voting      | C (DSR)        | Client-side multi-approver workflow with weighted voting (e.g., brand team + events manager + finance).                      | E8 at Done, approval snapshot epic exists first |
 
 Do not let this table grow beyond 10 rows. Review it monthly: promote candidates to real epics, or delete them with a one-line reason recorded in [CHANGELOG.md](../../../CHANGELOG.md).
 

@@ -80,20 +80,20 @@ VenueSummaryListResponse — items: List<VenueSummaryView>, totalElements: long
 
 ---
 
-## Master Catalog Entries (MEMBER-read, ADMIN-write via admin API)
+## Master Venues (MEMBER-read, ADMIN-write via admin API)
 
-Base: `/api/v1/master-catalog/entries`
+Base: `/api/v1/master-venues`
 
-Master catalog entry GET endpoints are always MEMBER-authenticated. Write / edit / delete endpoints live under the Platform Admin API scope (`PLATFORM_ADMIN` authority only).
+Master venue GET endpoints are always MEMBER-authenticated (read-only public projection). Write / edit / delete endpoints live under the Platform Admin API scope (`PLATFORM_ADMIN` authority only).
 
-| Method | Path    | Authority | Status | Request / Response                                    | Notes                                                                                                                                                                                                  |
-| ------ | ------- | --------- | ------ | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `GET`  | `/{id}` | `MEMBER`  | 200    | → `MasterCatalogEntryResponse` (safe projection only) | Read-only public-facing projection of `master_venue` + aliases. Never returns admin-only fields (confidence scores, private notes, source audit). 404 if entry does not exist or is `status=ARCHIVED`. |
+| Method | Path    | Authority | Status | Request / Response                                   | Notes                                                                                                                                                                                                  |
+| ------ | ------- | --------- | ------ | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `GET`  | `/{id}` | `MEMBER`  | 200    | → `MasterVenuePublicResponse` (safe projection only) | Read-only public-facing projection of `master_venue` + aliases. Never returns admin-only fields (confidence scores, private notes, source audit). 404 if entry does not exist or is `status=ARCHIVED`. |
 
 ```java
-MasterCatalogEntryResponse — id, name, aliases[], address, location,
-                              metadata safe projection,
-                              created_at, last_synced_at
+MasterVenuePublicResponse — id, name, aliases[], address, location,
+                             metadata safe projection,
+                             created_at, last_synced_at
 ```
 
 ---
@@ -197,3 +197,73 @@ For quota limits (`PlanMemberQuotaException` equivalent for venues/assets): stat
 ---
 
 **Docs:** [Architecture Index](README.md) · [Architecture Overview](architecture-overview.md) · [Search](search.md) · [Services](services.md) · [Events](events.md) · [Data Model](data-model.md)
+---
+
+## Platform Admin API - Master Catalog Management
+
+Base: `/api/v1/admin/master-venues`
+
+**Authority Required:** `PLATFORM_ADMIN` only. Full unrestricted CRUD access to master venue catalog.
+
+### Master Venues
+
+| Method   | Path           | Authority        | Status | Request / Response                                         | Notes                                                                              |
+| -------- | -------------- | ---------------- | ------ | ---------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `GET`    | `/`            | `PLATFORM_ADMIN` | 200    | Query params → `MasterVenueListResponse`                   | Paginated list with all fields including admin-only data                           |
+| `POST`   | `/`            | `PLATFORM_ADMIN` | 201    | `CreateMasterVenueRequest` → `MasterVenueResponse`         | **No validation constraints** — any data accepted                                  |
+| `GET`    | `/{id}`        | `PLATFORM_ADMIN` | 200    | → `MasterVenueResponse` (full admin view)                  | Complete venue data including confidence scores, source audit, private notes       |
+| `PUT`    | `/{id}`        | `PLATFORM_ADMIN` | 200    | `UpdateMasterVenueRequest` → `MasterVenueResponse`         | **Full replace** — can override any field including metadata and confidence scores |
+| `PATCH`  | `/{id}`        | `PLATFORM_ADMIN` | 200    | `PatchMasterVenueRequest` → `MasterVenueResponse`          | **Partial update** — can modify any subset of fields                               |
+| `DELETE` | `/{id}`        | `PLATFORM_ADMIN` | 204    | → empty body                                               | **Permanent deletion** — removes venue and all aliases/external records            |
+| `POST`   | `/{id}/merge`  | `PLATFORM_ADMIN` | 200    | `MergeVenueRequest` → `MasterVenueResponse`                | Force merge with target venue, bypassing similarity thresholds                     |
+| `POST`   | `/bulk-import` | `PLATFORM_ADMIN` | 202    | `BulkImportRequest` → `BulkImportJobResponse`              | Async bulk import with job tracking                                                |
+| `POST`   | `/dedup-check` | `PLATFORM_ADMIN` | 200    | `DeduplicationCheckRequest` → `DeduplicationCheckResponse` | Check for duplicates without saving — validation endpoint                          |
+
+### Master Venue Aliases
+
+| Method   | Path                      | Authority        | Status | Request / Response                     | Notes                 |
+| -------- | ------------------------- | ---------------- | ------ | -------------------------------------- | --------------------- |
+| `GET`    | `/{id}/aliases`           | `PLATFORM_ADMIN` | 200    | → `List<AliasResponse>`                | List all aliases      |
+| `POST`   | `/{id}/aliases`           | `PLATFORM_ADMIN` | 201    | `CreateAliasRequest` → `AliasResponse` | Add alternative name  |
+| `GET`    | `/{id}/aliases/{aliasId}` | `PLATFORM_ADMIN` | 200    | → `AliasResponse`                      | Get specific alias    |
+| `PUT`    | `/{id}/aliases/{aliasId}` | `PLATFORM_ADMIN` | 200    | `UpdateAliasRequest` → `AliasResponse` | Update specific alias |
+| `DELETE` | `/{id}/aliases/{aliasId}` | `PLATFORM_ADMIN` | 204    | → empty body                           | Remove alias          |
+
+### Admin Override Capabilities
+
+- **Force operations** that bypass all deduplication warnings
+- **Manual confidence scores** — set any value 0.0-1.0
+- **Metadata schema management** — force-migrate venues to current version
+- **Bulk operations** — import, export, cleanup with admin override
+- **Emergency fixes** — modify any field for operational issues
+- **Bypass validation** — create venues that fail normal business rules
+
+### Admin DTOs
+
+```java
+MasterVenueResponse          — id, name, aliases[], address, location, metadata (full),
+                               confidence, source, created_at, updated_at,
+                               admin_notes, quality_score, last_verified_at
+
+CreateMasterVenueRequest     — name (required), address, location, metadata,
+                               confidence (optional), source (optional), admin_notes
+
+UpdateMasterVenueRequest     — all fields including confidence, source, metadata_schema_version
+
+PatchMasterVenueRequest      — any subset of fields, null = no change
+
+ForceMergeRequest           — target_venue_id (UUID, required), merge_strategy (enum, required),
+                               "KEEP_TARGET" = target metadata wins on conflict,
+                               "KEEP_SOURCE" = source metadata wins on conflict,
+                               "MERGE_METADATA" = manual merge with field-level picks
+
+BulkImportRequest           — import_source (enum: "CSV" | "JSONL"), s3_key (string, required),
+                               force_mode (boolean, default: false) bypasses dedup checks
+
+DeduplicationCheckRequest   — name (string, required), address (string), location (geography)
+DeduplicationCheckResponse  — candidates (list of MasterVenueSummary with similarity scores),
+                               action_recommendation (enum: "INSERT" | "MERGE" | "REVIEW"),
+                               confidence_scores (map of candidate_id → score)
+```
+
+**No Restrictions:** Platform admins can create, modify, or delete any master venue record without validation constraints. Any possible change is accepted.

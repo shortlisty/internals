@@ -79,18 +79,18 @@ Before creating a new milestone file, verify all 8 sections against this checkli
 
 ### v0.x — Pre-product-market-fit (building the layers)
 
-| Version | File                                                         | Title                    | Goal sentence                                                                                                         | Included epic groups                   | Included epics    | Status  |
-| ------- | ------------------------------------------------------------ | ------------------------ | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ----------------- | ------- |
-| v0.1    | [v0.1-mvp.md](v0.1-mvp.md)                                   | MVP foundations          | An event planner can create a venue, upload documents, and see extracted metadata in a basic profile view.            | A (Foundation), B1 (PVC core profiles) | E1, E5 (partial)  | Planned |
-| v0.2    | [v0.2-intelligence-layer.md](v0.2-intelligence-layer.md)     | Intelligence layer       | Uploaded documents run through the full ETL pipeline and extracted fields power semantic + structured search.         | A (Foundation), B2 (PVC intelligence)  | E2, E3, E5 (full) | Planned |
-| v0.3    | [v0.3-data-quality.md](v0.3-data-quality.md)                 | Data quality             | A planner can verify, override, and see provenance for every extracted field; conflicts surface for human resolution. | B3 (PVC quality)                       | E6                | Planned |
-| v0.4    | [v0.4-export-collaboration.md](v0.4-export-collaboration.md) | Export and collaboration | A planner can share a venue shortlist with teammates and export a static proposal document for a client.              | B4 (PVC team), C1 (DSR basic sharing)  | E4, E7            | Planned |
+| Version | File                                                         | Title                    | Goal sentence                                                                                                         | Included epic groups                   | Included epics       | Status      |
+| ------- | ------------------------------------------------------------ | ------------------------ | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | -------------------- | ----------- |
+| v0.1    | [v0.1-mvp.md](v0.1-mvp.md)                                   | MVP foundations          | An event planner can create a venue, upload documents, and see extracted metadata in a basic profile view.            | A (Foundation), B1 (PVC core profiles) | E1, E2, E6 (partial) | In progress |
+| v0.2    | [v0.2-intelligence-layer.md](v0.2-intelligence-layer.md)     | Intelligence layer       | Uploaded documents run through the full ETL pipeline and extracted fields power semantic + structured search.         | A (Foundation), B2 (PVC intelligence)  | E3, E4, E6 (full)    | Planned     |
+| v0.3    | [v0.3-data-quality.md](v0.3-data-quality.md)                 | Data quality             | A planner can verify, override, and see provenance for every extracted field; conflicts surface for human resolution. | B3 (PVC quality)                       | E7                   | Planned     |
+| v0.4    | [v0.4-export-collaboration.md](v0.4-export-collaboration.md) | Export and collaboration | A planner can share a venue shortlist with teammates and export a static proposal document for a client.              | B4 (PVC team), C1 (DSR basic sharing)  | E5, E8               | Planned     |
 
 ### v1.0 — Commercially viable (complete loop)
 
 | Version | File                                 | Title           | Goal sentence                                                                                                                                      | Included epic groups           | Included epics     | Status  |
 | ------- | ------------------------------------ | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ | ------------------ | ------- |
-| v1.0    | [v1.0-platform.md](v1.0-platform.md) | Platform launch | An agency can build a venue library, assemble a pitch board, send it to a client, and receive an approved snapshot with a timestamped audit trail. | A + B full + C2 (DSR approval) | E1–E7 all included | Planned |
+| v1.0    | [v1.0-platform.md](v1.0-platform.md) | Platform launch | An agency can build a venue library, assemble a pitch board, send it to a client, and receive an approved snapshot with a timestamped audit trail. | A + B full + C2 (DSR approval) | E1–E8 all included | Planned |
 
 ### Post-v1.0 — Scaling and deeper capabilities
 

@@ -75,7 +75,7 @@ VenueMi is built on top of the iQ Key Value open-source foundation. New services
 - **`mi-venue-processing-worker`** — async sidecar: document ETL, AI extraction, embeddings
 - **`mi-venue-model`** — shared library: domain entities, event contracts, Liquibase migrations
 
-**Stage:** pre-launch MVP — design complete, implementation not yet started.
+**Stage:** v0.1 MVP in progress — Group A Platform Foundation complete, Master Venue Seeding Infrastructure in development, tenant venue features next.
 
 ---
 

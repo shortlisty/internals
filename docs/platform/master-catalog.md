@@ -18,22 +18,22 @@
 
 ## What Is the Master Catalog?
 
-The master venue catalog (`public.master_venue`) is a platform-level reference dataset — a growing catalogue of known venues, seeded during development and enriched over time. It is **not a source of truth**; it is a starting point. Tenant data always wins over master catalog data.
+The master venue catalog (`public.master_venue`) is a **platform-level service component** — a reference dataset that operates behind the scenes to improve tenant experiences without direct tenant interaction. It is **not a tenant-facing feature**; it is **platform infrastructure** that provides autocomplete suggestions, prevents duplicates, and enriches metadata transparently.
 
-Master Catalog is a secondary, gap-fill source via MC_INHERIT provenance (priority 7 — above `SCRAPE_PROVIDER` priority 4, below all AI tiers and manual/verified). When a tenant's extracted venue matches a master catalog entry, null/empty canonical fields are back-filled from the catalog. After the copy, the tenant record is fully independent — there is no live link.
+Master Catalog functions as a background service via MC_INHERIT provenance (priority 7 — above `SCRAPE_PROVIDER` priority 4, below all AI tiers and manual/verified). When a tenant's venue creation or extraction process matches a master catalog entry, null/empty canonical fields are automatically back-filled from the catalog. The tenant sees improved data quality but never directly interacts with the master catalog itself. After the copy, the tenant record is fully independent — there is no live link or ongoing dependency.
 
 ---
 
 ## Cold-Start Population Strategy (MVP)
 
-Three human-in-the-loop channels seed `public.master_venue`. No direct scraper-to-INSERT pipeline. No AI/embeddings in the population process.
+Three **platform admin channels** seed `public.master_venue`. **No tenant interaction** — all management happens at the platform level by platform administrators. Tenants benefit from the improved suggestions and data quality without seeing or managing the underlying reference data.
 
-| Channel                                   | Mechanism                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `source` value  |
-| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
-| **1. Pre-provisioned seed migrations**    | Hardcoded rows in Liquibase XML changesets under `mi-venue-model/src/main/resources/db/changelog/system/`. Curated shortlist of 50–200 high-signal venues (top convention centres, major hotel chains in target launch cities). Runs on first startup against `public` schema via `TenantLiquibaseRunner`. Zero code, zero S3, zero admin interaction.                                                                                                                                                                                                                                                                                                    | `platform_seed` |
-| **2. Platform admin manual entry**        | Master Catalog Admin API (Phase 2, pulled forward for MVP as single-entity CRUD only): `POST /api/v1/admin/master-catalog/entries`, `PATCH /api/v1/admin/master-catalog/entries/{id}`, `POST /api/v1/admin/master-catalog/entries/{id}/aliases`. `PLATFORM_ADMIN` authority only. Pre-write dedup check returns candidate list; admin confirms Insert or Merge manually.                                                                                                                                                                                                                                                                                  | `admin_import`  |
-| **3. Standalone scrapers + human review** | Standalone Node.js scrapers (`mi-mc-ingest-tagvenue-scraper`, etc.) produce CSV/JSONL output, upload to S3 `venuemi/master-catalog/imports/{importId}/`. `MasterCatalogImportOrchestrator` in `mi-mc-loader` (Spring Boot) runs on admin RabbitMQ event `admin.master-catalog.import.dry-run` → produces a CSV audit report. Admin reviews the report (each row: action `INSERT` / `MERGE #id` / `SKIP` with name_sim + geo_distance + duplicate candidates list), edits the Action column, re-uploads reviewed CSV, fires `admin.master-catalog.import.apply` → importer applies reviewed actions exactly. No autonomous decisions on the worker's side. | `web_scrape`    |
-| **Tenant-signal enrichment**              | After `extraction.completed`, if tenant data has high-confidence fields not in master catalog → candidate event (Phase 3, no reverse flow in MVP)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | — (not in MVP)  |
+| Channel                                   | Mechanism                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `source` value  | Tenant Visibility                                                            |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | ---------------------------------------------------------------------------- |
+| **1. Pre-provisioned seed migrations**    | Hardcoded rows in Liquibase XML changesets under `mi-venue-model/src/main/resources/db/changelog/system/`. Curated shortlist of 50–200 high-signal venues (top convention centres, major hotel chains in target launch cities). Runs on first startup against `public` schema via `TenantLiquibaseRunner`. Zero code, zero S3, zero admin interaction.                                                                                                                                                                                                                                                                                                    | `platform_seed` | **Hidden** — provides autocomplete suggestions                               |
+| **2. Platform admin manual entry**        | Master Catalog Admin API (Phase 2, pulled forward for MVP as **complete CRUD interface**): `POST/GET/PUT/PATCH/DELETE /api/v1/admin/master-venues`, `POST/PUT/DELETE /api/v1/admin/master-venues/{id}/aliases`. `PLATFORM_ADMIN` authority only. **Full unrestricted access** — admins can create, modify, or delete any master venue record without validation constraints. Pre-write dedup check via `POST /api/v1/admin/master-venues/dedup-check` returns candidate list; admin has final authority to confirm Insert, Merge, or **force any operation**. Any possible change accepted.                                                               | `admin_import`  | **Hidden** — used for background deduplication                               |
+| **3. Standalone scrapers + human review** | Standalone Node.js scrapers (`mi-mc-ingest-tagvenue-scraper`, etc.) produce CSV/JSONL output, upload to S3 `venuemi/master-catalog/imports/{importId}/`. `MasterCatalogImportOrchestrator` in `mi-mc-loader` (Spring Boot) runs on admin RabbitMQ event `admin.master-catalog.import.dry-run` → produces a CSV audit report. Admin reviews the report (each row: action `INSERT` / `MERGE #id` / `SKIP` with name_sim + geo_distance + duplicate candidates list), edits the Action column, re-uploads reviewed CSV, fires `admin.master-catalog.import.apply` → importer applies reviewed actions exactly. No autonomous decisions on the worker's side. | `web_scrape`    | **Hidden** — enriches tenant metadata transparently                          |
+| **Tenant-signal enrichment**              | After `extraction.completed`, if tenant data has high-confidence fields not in master catalog → candidate event (Phase 3, no reverse flow in MVP)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | — (not in MVP)  | **One-way** — tenant data can inform platform, but tenants don't see process |
 
 ---
 
@@ -90,6 +90,36 @@ else:
 ```
 
 Admin always has the final say via the reviewed CSV action column or the confirm-insert API call.
+
+---
+
+## Platform Admin Full Control
+
+Platform administrators (`PLATFORM_ADMIN` authority) have **complete unrestricted access** to the master venue catalog:
+
+### Full CRUD Operations
+
+- **CREATE**: Add new master venues without any validation constraints
+- **READ**: Access all master venue data, metadata, aliases, and external provider records
+- **UPDATE**: Modify any field in any master venue record, including metadata, confidence scores, and provenance
+- **DELETE**: Remove master venues, aliases, or external provider records
+
+### Override Capabilities
+
+- **Force operations** that bypass deduplication warnings
+- **Manual merge** decisions overriding similarity thresholds
+- **Confidence score adjustments** for any venue record
+- **Metadata schema version** management and force-migration
+- **Bulk operations** for data cleanup and management
+
+### No Restrictions
+
+- **Any possible change is accepted** — no business logic constraints on admin operations
+- **Bypass all validation** — admins can create venues that fail normal validation rules
+- **Override system suggestions** — final authority on all master catalog decisions
+- **Emergency data fixes** — complete access for operational issues
+
+Platform admins are trusted with full control because master venue data quality directly impacts all tenant experiences through autocomplete, deduplication, and metadata enrichment services.
 
 ---
 
