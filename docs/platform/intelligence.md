@@ -92,7 +92,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 **Java implementation sketch** — the orchestrator is generic; venue-specific behaviour is injected via strategies (see §3 Extension Model):
 
 ```java
-// mi-venue-ingestion-worker — Spring wiring only, no domain logic here
+// mi-venue-processing-worker — Spring wiring only, no domain logic here
 @Service
 @RequiredArgsConstructor
 public class AssetExtractionOrchestrator<M> {
@@ -107,7 +107,7 @@ public class AssetExtractionOrchestrator<M> {
   private final MetadataExtractionStrategy<M> extractionStrategy;   // VenueMetadataExtractionStrategy
   private final MetadataAggregationStrategy<M> aggregationStrategy; // VenueMetadataAggregationStrategy
   private final MetadataMigrator migrator;                           // VenueMetadataMigrator
-  private final CuratedListMatchStrategy matchStrategy;              // VenueRegistryMatchStrategy
+  private final CuratedListMatchStrategy matchStrategy;              // MasterVenueMatchStrategy
 
   public void process(ItemAsset asset, byte[] content) {
     // 1. Parse — Tika handles PDF, DOCX, XLSX, images via OCR, DWG
@@ -452,7 +452,7 @@ public interface CuratedListMatchStrategy {
     /**
      * Copy fields from the matched curated entry into the tenant item metadata.
      * Only copies leaf fields that are null/empty on the tenant side.
-     * Sets metadata_sources[field].source = REGISTRY.
+     * Sets metadata_sources[field].source = MC_INHERIT.
      */
     CopyResult copyFields(JsonNode tenantMetadata, JsonNode curatedMetadata, double confidence);
 }
@@ -493,7 +493,7 @@ public final class MetadataAggregationConsumer<M> {
 }
 
 // Parallel search orchestrator. Runs branchA + branchB via CompletableFuture,
-// merges with Reciprocal Rank Fusion, appends origin="TENANT"|"REGISTRY".
+// merges with Reciprocal Rank Fusion, appends origin="TENANT"|"MASTER_CATALOG".
 @Service
 public final class SearchOrchestrator<R> {
     private final SearchBranchExecutor<R> tenantBranch;
@@ -509,7 +509,7 @@ public final class SearchOrchestrator<R> {
 public class VenueMetadataExtractionStrategy
         implements MetadataExtractionStrategy<VenueMetadata> { ... }
 
-// Aggregation: MANUAL_OVERRIDE > VERIFIED_EXTRACTION > HIGH_CONFIDENCE_AI > ... > REGISTRY
+// Aggregation priority: MANUAL_OVERRIDE(10) > VERIFIED(9) > HIGH_CONF_AI(8) > MC_INHERIT(7) > MEDIUM_CONF_AI(6) > LOW_CONF_AI(5) > SCRAPE_PROVIDER(4)
 @Component
 public class VenueMetadataAggregationStrategy
         implements MetadataAggregationStrategy<VenueMetadata> { ... }
@@ -518,17 +518,17 @@ public class VenueMetadataAggregationStrategy
 @Component
 public class VenueMetadataMigrator implements MetadataMigrator { ... }
 
-// Curated list: trigram GIN on venue_registry_aliases + PostGIS ST_DWithin 200m
+// Curated list: trigram GIN on master_venue_alias + PostGIS ST_DWithin 200m
 @Component
-public class VenueRegistryMatchStrategy implements CuratedListMatchStrategy { ... }
+public class MasterVenueMatchStrategy implements CuratedListMatchStrategy { ... }
 
 // Search branch A: tenant venues, full 5-mode hybrid (keyword + semantic + structured + geo + RRF)
 @Component
 public class TenantVenueSearchBranch implements SearchBranchExecutor<VenueSummaryView> { ... }
 
-// Search branch B: public.venue_registry, 3-mode MVP (keyword + structured + geo)
+// Search branch B: public.master_venue, 3-mode MVP (keyword + structured + geo)
 @Component
-public class RegistrySearchBranch implements SearchBranchExecutor<VenueSummaryView> { ... }
+public class MasterCatalogSearchBranch implements SearchBranchExecutor<VenueSummaryView> { ... }
 ```
 
 ### 3.4 Dependency and flow
@@ -550,12 +550,12 @@ mi-data-intelligence
           ├── VenueMetadataExtractionStrategy   implements MetadataExtractionStrategy<VenueMetadata>
           ├── VenueMetadataAggregationStrategy  implements MetadataAggregationStrategy<VenueMetadata>
           ├── VenueMetadataMigrator             implements MetadataMigrator
-          ├── VenueRegistryMatchStrategy        implements CuratedListMatchStrategy
+          ├── MasterVenueMatchStrategy        implements CuratedListMatchStrategy
           ├── TenantVenueSearchBranch           implements SearchBranchExecutor<VenueSummaryView>
-          └── RegistrySearchBranch             implements SearchBranchExecutor<VenueSummaryView>
+          └── MasterCatalogSearchBranch             implements SearchBranchExecutor<VenueSummaryView>
                           │
                           ▼ (compile dependency)
-        mi-venue-service / mi-venue-ingestion-worker
+        mi-venue-service / mi-venue-processing-worker
           └── @Bean registrations wire venue strategies into generic consumers
 
 
@@ -572,10 +572,10 @@ mi-data-intelligence
           └── …
                  │
                  ▼
-        bene-med-service / bene-med-ingestion-worker
+        bene-med-service / bene-med-processing-worker
 ```
 
-**Rule:** if a class in `mi-venue-ingestion-worker` or `mi-venue-service` contains the word `venue` in its business logic (not just in a tag string), ask whether it belongs in `mi-venue-model` instead. The worker and service should contain Spring wiring, `@Bean` registrations, and `@RabbitListener` configuration — not domain decisions.
+**Rule:** if a class in `mi-venue-processing-worker` or `mi-venue-service` contains the word `venue` in its business logic (not just in a tag string), ask whether it belongs in `mi-venue-model` instead. The worker and service should contain Spring wiring, `@Bean` registrations, and `@RabbitListener` configuration — not domain decisions.
 
 ---
 

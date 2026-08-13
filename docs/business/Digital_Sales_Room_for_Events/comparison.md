@@ -107,7 +107,7 @@ The most common "competitor" is not a product — it is the patchwork of general
 | Approval → immutable snapshot (SSOT)         |        ✅         |       ⛔        |          ⛔          |  Partial (e-sign)   |         ⛔         |
 | Agency white-label (custom domain)           |  ✅ (Business+)   |       ✅        |          —           |         ✅          |        n/a         |
 | SMB-friendly pricing                         |        ✅         |       ✅        |          ⛔          |         ✅          |     ✅ (free)      |
-| Venue discovery (new venues)                 | Platform registry |       ⛔        |          ✅          |         ⛔          |         ⛔         |
+| Venue discovery (new venues)                 | Master catalog backdrop |       ⛔        |          ✅          |         ⛔          |         ⛔         |
 
 ---
 

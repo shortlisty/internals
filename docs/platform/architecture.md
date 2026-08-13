@@ -21,9 +21,9 @@ VenueMi Intelligence is a new product service built **on top of the iQ Key Value
 **New services introduced by VenueMi Intelligence:**
 
 - `mi-data-intelligence` — platform-level shared library (JAR). Domain-agnostic extraction pipeline contracts, metadata versioning mechanism, provenance model, event POJOs, and Liquibase migrations for infrastructure tables (`extraction_jobs`, `item_vectors`, `item_metadata_events`, `ai_cost_tracking`). No Spring beans, no business logic, no venue-specific fields. The domain-agnostic layer — reusable across verticals (venue, medical, agro, etc.). Imported by both services and by `mi-venue-model`.
-- `mi-venue-model` — venue-domain shared library (JAR). Venue-specific domain model (`Venue`, `VenueMetadata`, `VenueRegistryEntry`), canonical field set, venue metadata migrations, and Liquibase migrations for venue tables (`venues`, `venue_assets`, `venue_registry`). Depends on `mi-data-intelligence`. Imported by both services.
-- `mi-venue-service` — core domain: venues, assets, metadata, search, plan enforcement, venue registry lookup. Synchronous request/response only.
-- `mi-venue-ingestion-worker` — async sidecar: document ETL pipeline, extraction orchestration, embedding generation, registry matching, scheduled jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `mi-venue-service`.
+- `mi-venue-model` — venue-domain shared library (JAR). Venue-specific domain model (`Venue`, `VenueMetadata`, `MasterVenue`), canonical field set, venue metadata migrations, and Liquibase migrations for venue tables (`venues`, `venue_assets`, `master_venue`). Depends on `mi-data-intelligence`. Imported by both services.
+- `mi-venue-service` — core domain: venues, assets, metadata, search, plan enforcement, master catalog backdrop lookup. Synchronous request/response only.
+- `mi-venue-processing-worker` — async sidecar: document ETL for tenant uploads, embedding generation, metadata aggregation, scheduled maintenance jobs. Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers: mi-mc-ingest-<source>-scraper. Master Catalog population runs in mi-mc-loader (Spring Boot). No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `mi-venue-service`.
 
 **New infrastructure introduced by VenueMi Intelligence:**
 
@@ -124,13 +124,13 @@ VenueMi Intelligence is a new product service built **on top of the iQ Key Value
 
 ---
 
-#### `registry/` — Platform Venue Registry
+#### `master_catalog/` — Master Venue Catalog
 
 **Not tenant-owned. Lives in `public` schema. Read-only to tenants.**
 
-The venue registry is a platform-level reference dataset — a growing catalogue of known venues, seeded during development (see [cold-start.md](../business/Personal_Venue_Catalog/cold-start.md)) and enriched over time. It is not a source of truth; it is a starting point. Tenant data always wins over registry data.
+The master venue catalog is a platform-level reference dataset — a growing catalogue of known venues, seeded during development (see [cold-start.md](../business/Personal_Venue_Catalog/cold-start.md)) and enriched over time. It is not a source of truth; it is a starting point. Tenant data always wins over master catalog data.
 
-**`VenueRegistryEntry`**
+**`MasterVenue`**
 
 | Field          | Type             | Notes                                         |
 | -------------- | ---------------- | --------------------------------------------- |
@@ -146,13 +146,27 @@ The venue registry is a platform-level reference dataset — a growing catalogue
 | `created_at`   | timestamp        |                                               |
 | `updated_at`   | timestamp        |                                               |
 
-**`VenueRegistryAlias`** — alternative names for the same venue (e.g. "The Bowery Hotel" / "Bowery Hotel NYC"):
+**`MasterVenueAlias`** — alternative names for the same venue (e.g. "The Bowery Hotel" / "Bowery Hotel NYC"):
 
-| Field                     | Type         | Notes               |
-| ------------------------- | ------------ | ------------------- |
-| `id`                      | UUID         | PK                  |
-| `venue_registry_entry_id` | UUID         | FK → venue_registry |
-| `alias`                   | varchar(255) |                     |
+| Field            | Type         | Notes              |
+| ---------------- | ------------ | ------------------ |
+| `id`             | UUID         | PK                 |
+| `master_venue_id`| UUID         | FK → master_venue  |
+| `alias`          | varchar(255) |                    |
+
+**`MasterVenueExternal`** — 1 MasterVenue ↔ N external provider records from Tagvenue and other providers:
+
+| Field                  | Type           | Notes                                                              |
+| ---------------------- | -------------- | ------------------------------------------------------------------ |
+| `id`                   | UUID           | PK                                                                 |
+| `master_venue_id`      | UUID           | FK → master_venue                                                  |
+| `provider`             | varchar        | e.g. 'TAGVENUE', 'CVENT'                                           |
+| `provider_external_id` | varchar        | External provider's own ID for the venue                           |
+| `raw_payload`          | jsonb          | Raw JSON payload as received from the provider scraper             |
+| `confidence`           | numeric        | Match confidence between external record and master venue (0.0–1.0)|
+| `crawled_at`           | timestamp      | When the scraper last fetched this record                          |
+| `created_at`           | timestamp      |                                                                    |
+| `updated_at`           | timestamp      |                                                                    |
 
 ---
 
@@ -263,7 +277,7 @@ Every `venues.metadata` JSONB document must carry an integer key `_schema_versio
 | Absent key fallback | `0` (triggers full migration chain from v0)                                                                                                                                                       |
 | Bump condition      | Any backwards-incompatible change to canonical fields, or any addition of a required nested field                                                                                                 |
 | Bump ownership      | `mi-venue-model` library — only the shared model may define `CURRENT_SCHEMA_VERSION`                                                                                                              |
-| Write enforcement   | Every write path (aggregation, manual override, bulk import, registry copy) runs the migrator and sets `_schema_version = CURRENT_SCHEMA_VERSION` before persisting                               |
+| Write enforcement   | Every write path (aggregation, manual override, bulk import, master catalog copy) runs the migrator and sets `_schema_version = CURRENT_SCHEMA_VERSION` before persisting                               |
 | Read enforcement    | `VenueMetadataMigrator.migrateToCurrent(JsonNode)` is called on **every read** from `venues.metadata` (via MyBatis ResultMap handler or wrapper mapper) — deserialization never sees stale shapes |
 
 ### Migration pipeline — `VenueMetadataMigrator`
@@ -354,7 +368,7 @@ All code paths that produce or mutate `venues.metadata` call `migrator.ensureCur
 2. Sets `_schema_version = CURRENT_SCHEMA_VERSION`.
 3. Returns the node ready to be persisted.
 
-Write paths affected: `MetadataAggregationConsumer` (after conflict resolution), `PATCH /metadata/{field}` handler, bulk import job, registry gap-fill copy, `CreateVenueRequest` default metadata initializer.
+Write paths affected: `MetadataAggregationConsumer` (after conflict resolution), `PATCH /metadata/{field}` handler, bulk import job, MC_INHERIT merge, `CreateVenueRequest` default metadata initializer.
 
 ### Read path — safe deserialization
 
@@ -387,9 +401,9 @@ No scheduled backfill job, no downtime, no ALTER TABLE on JSONB. If we later wan
 
 The migrator records the pre-migration version of every document it sees via Micrometer (see §12). This lets us observe how many legacy versions are still in the wild and when it is safe to delete very old migration classes from the chain (typically after all tenants have had their last stale document touched and stamped).
 
-### Schema version in registry metadata
+### Schema version in master catalog metadata
 
-`public.venue_registry.metadata` follows the same `_schema_version` contract. Registry import jobs run `VenueMetadataMigrator.ensureCurrent()` before `INSERT/UPDATE public.venue_registry`. When a tenant copies registry fields into its own venue record (gap-fill, §5 Stage 3), both sides are at known versions and the copy logic merges field-by-field rather than JSON-blob-blit — no cross-version contamination.
+`public.master_venue.metadata` follows the same `_schema_version` contract. Master catalog import jobs run `VenueMetadataMigrator.ensureCurrent()` before `INSERT/UPDATE public.master_venue`. When a tenant copies master catalog fields into its own venue record (MC_INHERIT merge, §5 Stage 3), both sides are at known versions and the copy logic merges field-by-field rather than JSON-blob-blit — no cross-version contamination.
 
 ---
 
@@ -400,12 +414,13 @@ Multiple assets per venue produce multiple extraction events, potentially with c
 ### Conflict Resolution Priority
 
 ```
-MANUAL_OVERRIDE     → always wins (user explicitly set this)
-VERIFIED_EXTRACTION → admin confirmed the AI result
-HIGH_CONFIDENCE_AI  → confidence ≥ 0.9
-MEDIUM_CONFIDENCE_AI→ confidence 0.7–0.9
-LOW_CONFIDENCE_AI   → confidence < 0.7
-REGISTRY            → platform registry seed (lowest priority — fills gaps only)
+MANUAL_OVERRIDE  (10)  → always wins
+VERIFIED          (9)  → verified extraction / human confirmed
+HIGH_CONF_AI      (8)  → confidence ≥ 0.9
+MC_INHERIT        (7)  → master catalog inherited (MC_INHERIT priority 7)
+MEDIUM_CONF_AI    (6)  → confidence 0.7–0.9
+LOW_CONF_AI       (5)  → confidence < 0.7
+SCRAPE_PROVIDER   (4)  → raw provider scrape value (new lowest)
 ```
 
 ### Array Fields (amenities, restrictions)
@@ -522,35 +537,43 @@ Outcome: one SQL `UPDATE` instead of three. The redundant work is eliminated bef
                              │ RabbitMQ:    │ r/w       │ presigned URL
                              │ asset.uploa- │           │ issue + delete
                     ┌────────▼─────────┐  ┌─▼──────────▼──────┐
-                    │ bene-ingestion- │  │   PostgreSQL        │
-                    │    worker        │──►│   t_{tenant}        │
+                    │ mi-venue-        │  │   PostgreSQL        │
+                    │ processing-worker │──►│   t_{tenant}        │
                     │ (async sidecar)  │  │   + pgvector        │
                     └────────┬─────────┘  │   + PostGIS         │
-                             │ registry   └─────────────────────┘
-                             │ match      ┌─────────────────────┐
-                             ├───────────►│   public schema      │
-                             │            │   venue_registry     │
+                             │            └─────────────────────┘
+                             │            ┌─────────────────────┐
+                             │            │   public schema      │
+                             ├───────────►│   master_venue       │
+                             │            │   master_venue_alias │
+                             │            │   master_venue_extern│
                              │            └─────────────────────┘
                              │ read asset ┌─────────────────────┐
                              └───────────►│   S3 / MinIO         │◄── client (direct PUT)
-                                          │   vip/tenants/{key}/ │
-                                          │   vip/registry/      │
+                                          │   venuemi/tenants/{key}/ │
+                                          │   venuemi/master-catalog/│
                                           └─────────────────────┘
+                                          ▲
+                                          │ scraper output CSV/JSONL
+                    ┌─────────────────────┤
+                    │ mi-mc-ingest-tagvenue-scraper│
+                    │ (Node.js) │──► mi-mc-loader ──► public.master_venue
+                    └─────────────────────┘     (Spring Boot)                    / master_venue_external
 ```
 
 ### mi-venue-service
 
 - **Responsibilities:** venue CRUD, asset upload flow (presigned URL), metadata read/write, search API, plan entitlement enforcement
-- **Database:** owns the VenueMi PostgreSQL schema. Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`. Shared with `mi-venue-ingestion-worker` — no cross-service API calls for data.
+- **Database:** owns the VenueMi PostgreSQL schema. Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`. Shared with `mi-venue-processing-worker` — no cross-service API calls for data.
 - **Exposes:** REST API at `/api/v1/venues`
 - **Publishes:** `venue.created`, `venue.updated`, `asset.uploaded`, `asset.deleted` (RabbitMQ)
 - **Consumes:** `extraction.completed`, `extraction.failed` (RabbitMQ) — triggers metadata aggregation
 
-### mi-venue-ingestion-worker
+### mi-venue-processing-worker
 
-- **Responsibilities:** document ETL pipeline (parse → chunk → extract → embed), extraction job lifecycle, registry matching and gap-fill, metadata aggregation, scheduled maintenance jobs (stale re-aggregation, cost reporting)
+- **Responsibilities:** document ETL pipeline (parse → chunk → extract → embed), extraction job lifecycle, master catalog match and MC_INHERIT merge, metadata aggregation, scheduled maintenance jobs (stale re-aggregation, cost reporting). Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers: mi-mc-ingest-<source>-scraper. Master Catalog population runs in mi-mc-loader (Spring Boot). The worker retains: document ETL for tenant uploads, embedding generation, metadata aggregation, scheduled maintenance jobs.
 - **Nature:** async sidecar — no inbound HTTP, no REST API, no service discovery entry. Event-driven only.
-- **Database:** shared PostgreSQL schema with `mi-venue-service`. Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.venue_registry` for the registry match step.
+- **Database:** shared PostgreSQL schema with `mi-venue-service`. Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.master_venue` for the master catalog match step.
 - **Consumes:** `asset.uploaded` (RabbitMQ) — triggers ETL pipeline
 - **Publishes:** `extraction.started`, `extraction.completed`, `extraction.failed` (RabbitMQ)
 - **External calls:** OpenAI API (GPT-4o, text-embedding-3-small), optionally Docling sidecar (Phase 2)
@@ -562,14 +585,14 @@ Both services share one PostgreSQL schema. Ownership defines who may write to a 
 
 | Table                   | Owner                       | The other service may…                                                       |
 | ----------------------- | --------------------------- | ---------------------------------------------------------------------------- |
-| `venues`                | `mi-venue-service`          | read (ingestion-worker: resolve venue_id only)                               |
-| `venue_assets`          | `mi-venue-service`          | read (ingestion-worker: fetch asset for processing)                          |
-| `venue_metadata_events` | `mi-venue-service`          | write via event reaction (`extraction.completed` → venue-service aggregates) |
-| `extraction_jobs`       | `mi-venue-ingestion-worker` | read (venue-service: expose job status to API)                               |
-| `item_vectors`          | `mi-venue-ingestion-worker` | read (venue-service: vector search queries)                                  |
-| `ai_cost_tracking`      | `mi-venue-ingestion-worker` | read (venue-service: expose cost summary to API)                             |
+| `venues`                | `mi-venue-service`          | read (processing-worker: resolve venue_id only)                               |
+| `venue_assets`          | `mi-venue-service`          | read (processing-worker: fetch asset for processing)                          |
+| `venue_metadata_events` | `mi-venue-service`          | write via event reaction (`extraction.completed` → mi-venue-service aggregates) |
+| `extraction_jobs`       | `mi-venue-processing-worker` | read (venue-service: expose job status to API)                               |
+| `item_vectors`          | `mi-venue-processing-worker` | read (venue-service: vector search queries)                                  |
+| `ai_cost_tracking`      | `mi-venue-processing-worker` | read (venue-service: expose cost summary to API)                             |
 
-The single legitimate cross-boundary read from `mi-venue-ingestion-worker` is a `SELECT` on `venue_assets` by `asset_id` (delivered in the `asset.uploaded` event payload). This is a foreign key lookup, not business logic — acceptable and intentional.
+The single legitimate cross-boundary read from `mi-venue-processing-worker` is a `SELECT` on `venue_assets` by `asset_id` (delivered in the `asset.uploaded` event payload). This is a foreign key lookup, not business logic — acceptable and intentional.
 
 ---
 
@@ -577,7 +600,7 @@ The single legitimate cross-boundary read from `mi-venue-ingestion-worker` is a 
 
 `mi-venue-model` is a plain Java library (JAR, no Spring Boot, no `@SpringBootApplication`). It is the **venue-domain layer** — containing only venue-specific entities, field definitions, metadata migrations, and schema changelogs. Generic extraction infrastructure lives in `mi-data-intelligence` (§4c), which this library imports as a compile dependency.
 
-Both `mi-venue-service` and `mi-venue-ingestion-worker` declare `mi-venue-model` as a compile dependency and receive `mi-data-intelligence` transitively.
+Both `mi-venue-service` and `mi-venue-processing-worker` declare `mi-venue-model` as a compile dependency and receive `mi-data-intelligence` transitively.
 
 **Contents:**
 
@@ -604,14 +627,15 @@ mi-venue-model/
 │   └── migrations/                      Append-only ordered list of venue N→N+1 migrations
 │       ├── VenueMetadataMigrationV0ToV1.java   bootstraps legacy pre-versioned docs → v1
 │       └── VenueMetadataMigrationV1ToV2.java   reserved for next schema bump
-├── registry/
-│   ├── VenueRegistryEntry.java          Plain POJO — platform curated venue record (public schema)
-│   └── VenueRegistryAlias.java          Plain POJO — alternative names for registry deduplication
+├── master_catalog/
+│   ├── MasterVenue.java                 Plain POJO — platform curated venue record (public schema)
+│   ├── MasterVenueAlias.java            Plain POJO — alternative names for master catalog deduplication
+│   └── MasterVenueExternal.java         Plain POJO — external provider records (Tagvenue, Cvent, etc.)
 └── db/
     └── changelog/
-        ├── system/                      System (public) schema — venue registry tables
+        ├── system/                      System (public) schema — master venue catalog tables
         │   ├── master.xml
-        │   └── 20260801000000-create-venue-registry.xml
+        │   └── 20260801000000-create-master-venue.xml
         └── tenant/                      Tenant schema — venue domain tables only
             ├── master.xml               includes mi-data-intelligence/intelligence/master.xml
             │                            first, then venue-specific changesets below
@@ -640,7 +664,7 @@ mi-data-intelligence   (platform library — generic contracts)
 mi-venue-model         (venue-domain library — venue-specific model + migrations)
       │
       ├── mi-venue-service          (Spring Boot)
-      └── mi-venue-ingestion-worker (Spring Boot)
+      └── mi-venue-processing-worker (Spring Boot)
 ```
 
 ---
@@ -655,7 +679,7 @@ S3 (MinIO for local dev) is already in the iQ Key Value stack. VenueMi adds its 
 
 | Environment | Bucket           | Notes                                                                                     |
 | ----------- | ---------------- | ----------------------------------------------------------------------------------------- |
-| Dev / CI    | `iqkv-files`     | Shared with foundation services, MinIO default. VIP objects live under `vip/` prefix.     |
+| Dev / CI    | `iqkv-files`     | Shared with foundation services, MinIO default. VIP objects live under `venuemi/` prefix.     |
 | Staging     | `iqkv-files`     | Same shared bucket, same prefix scheme. Isolated by prefix only.                          |
 | Production  | `iqkv-vip-files` | Dedicated bucket. Separate IAM policy, separate lifecycle rules. Key structure identical. |
 
@@ -670,12 +694,12 @@ All VIP objects follow a deterministic, hierarchical key structure. Every segmen
 #### Tenant asset files (uploaded by tenant users)
 
 ```
-vip/tenants/{tenantKey}/venues/{venueId}/assets/{assetId}/{fileName}
+venuemi/tenants/{tenantKey}/venues/{venueId}/assets/{assetId}/{fileName}
 ```
 
 | Segment       | Value                                                   | Example                            |
 | ------------- | ------------------------------------------------------- | ---------------------------------- |
-| `vip/`        | VIP namespace — separates from other foundation objects | (literal)                          |
+| `venuemi/`        | VIP namespace — separates from other foundation objects | (literal)                          |
 | `tenants/`    | Tenant subtree root                                     | (literal)                          |
 | `{tenantKey}` | 8-char nanoid from JWT `tenant_id` claim                | `acme0001`                         |
 | `venues/`     | Venue subtree                                           | (literal)                          |
@@ -687,7 +711,7 @@ vip/tenants/{tenantKey}/venues/{venueId}/assets/{assetId}/{fileName}
 Full example:
 
 ```
-vip/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/6ba7b8109dad11d180b400c04fd430c8/grand-ballroom-deck.pdf
+venuemi/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/6ba7b8109dad11d180b400c04fd430c8/grand-ballroom-deck.pdf
 ```
 
 **Key rules:**
@@ -703,7 +727,7 @@ vip/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/6ba7b8109dad
 ```json
 {
   "asset_id": "<uuid>",
-  "upload_url": "https://minio.local/iqkv-files/vip/tenants/acme0001/venues/.../grand-ballroom-deck.pdf?X-Amz-Signature=...",
+  "upload_url": "https://minio.local/iqkv-files/venuemi/tenants/acme0001/venues/.../grand-ballroom-deck.pdf?X-Amz-Signature=...",
   "expires_at": "2025-06-01T12:15:00Z"
 }
 ```
@@ -714,23 +738,23 @@ Download presigned URLs (1h TTL) are generated on-demand at `GET /assets/{id}/do
 
 ---
 
-#### Platform registry import files (admin / seeding)
+#### Platform master catalog import files (admin / seeding)
 
-Registry seed data and bulk import files are not tenant-owned. They live under a separate subtree:
+Master catalog seed data and bulk import files are not tenant-owned. They live under a separate subtree. Scraper output (from standalone mi-mc-ingest-<source>-scraper Node.js services) goes through mi-mc-loader (Spring Boot) before landing in public.master_venue / master_venue_external:
 
 ```
-vip/registry/imports/{importId}/{fileName}
-vip/registry/exports/{date}/{snapshot}.jsonl.gz
+venuemi/master-catalog/imports/{importId}/{fileName}
+venuemi/master-catalog/exports/{date}/{snapshot}.jsonl.gz
 ```
 
-| Path                               | Purpose                                                                           |
-| ---------------------------------- | --------------------------------------------------------------------------------- |
-| `vip/registry/imports/{importId}/` | One folder per import batch (admin-triggered). Contains raw CSV/JSON input files. |
-| `vip/registry/exports/{date}/`     | Nightly compacted snapshots of `public.venue_registry` for downstream consumers.  |
+| Path                                      | Purpose                                                                                |
+| ----------------------------------------- | -------------------------------------------------------------------------------------- |
+| `venuemi/master-catalog/imports/{importId}/`  | One folder per import batch (admin-triggered). Contains raw CSV/JSON input files.      |
+| `venuemi/master-catalog/exports/{date}/`      | Nightly compacted snapshots of `public.master_venue` for downstream consumers.         |
 
 `{importId}` is a UUID generated at import initiation. `{date}` is `YYYY-MM-DD`.
 
-Registry import files are processed by a scheduled admin job (no inbound HTTP for import — admin drops files via the Registry Admin API, Phase 2). The import job reads from S3, populates `public.venue_registry` and `public.venue_registry_aliases`, then archives the source object by moving it to `vip/registry/imports/processed/{importId}/`.
+Master catalog import files are processed by a scheduled admin job (no inbound HTTP for import — admin drops files via the Master Catalog Admin API, Phase 2). The import job reads from S3, populates `public.master_venue` and `public.master_venue_alias`, then archives the source object by moving it to `venuemi/master-catalog/imports/processed/{importId}/`.
 
 ---
 
@@ -738,9 +762,9 @@ Registry import files are processed by a scheduled admin job (no inbound HTTP fo
 
 Tenant data isolation in S3 mirrors the schema-per-tenant approach in PostgreSQL:
 
-- All tenant objects are scoped under `vip/tenants/{tenantKey}/`. Cross-tenant read is structurally impossible without knowing the other tenant's key.
-- The service account used by `mi-venue-service` and `mi-venue-ingestion-worker` holds a single S3 IAM policy that allows `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on the full `vip/*` prefix. Presigned URLs are scoped to the exact object key — the client cannot enumerate or access any other key.
-- Registry paths (`vip/registry/*`) are not accessible via tenant-issued presigned URLs. They are written only by the platform's internal job service account.
+- All tenant objects are scoped under `venuemi/tenants/{tenantKey}/`. Cross-tenant read is structurally impossible without knowing the other tenant's key.
+- The service account used by `mi-venue-service` and `mi-venue-processing-worker` holds a single S3 IAM policy that allows `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on the full `venuemi/*` prefix. Presigned URLs are scoped to the exact object key — the client cannot enumerate or access any other key.
+- Master catalog paths (`venuemi/master-catalog/*`) are not accessible via tenant-issued presigned URLs. They are written only by the platform's internal job service account (mi-mc-loader).
 
 ---
 
@@ -748,19 +772,19 @@ Tenant data isolation in S3 mirrors the schema-per-tenant approach in PostgreSQL
 
 S3 lifecycle rules are configured on the bucket (not in application code). Two rules apply:
 
-| Rule                       | Prefix                             | Action                                                                                                                                                                                  |
-| -------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Extraction artefact expiry | `vip/tenants/*/venues/*/assets/*/` | Transition to Glacier/IA after 90 days if `extraction_status = COMPLETED` and no re-extraction pending. Managed via tags set on object at confirm time (`extraction_status=completed`). |
-| Registry import cleanup    | `vip/registry/imports/processed/`  | Delete after 30 days.                                                                                                                                                                   |
-| Registry snapshot rotation | `vip/registry/exports/`            | Keep last 14 daily snapshots; delete older.                                                                                                                                             |
+| Rule                            | Prefix                                    | Action                                                                                                                                                                                  |
+| ------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Extraction artefact expiry      | `venuemi/tenants/*/venues/*/assets/*/`        | Transition to Glacier/IA after 90 days if `extraction_status = COMPLETED` and no re-extraction pending. Managed via tags set on object at confirm time (`extraction_status=completed`). |
+| Master catalog import cleanup   | `venuemi/master-catalog/imports/processed/`   | Delete after 30 days.                                                                                                                                                                   |
+| Master catalog snapshot rotation| `venuemi/master-catalog/exports/`              | Keep last 14 daily snapshots; delete older.                                                                                                                                             |
 
 Object tags are set by `mi-venue-service` at `POST /assets/confirm` using `PutObjectTagging`. Tags used:
 
 | Tag key             | Values                                          | Set by                          |
 | ------------------- | ----------------------------------------------- | ------------------------------- |
-| `extraction_status` | `pending`, `completed`, `failed`                | venue-service at confirm/update |
-| `asset_type`        | `pdf_deck`, `floor_plan`, `photo`, `cad_file` … | venue-service at initiate       |
-| `tenant_key`        | 8-char nanoid                                   | venue-service at initiate       |
+| `extraction_status` | `pending`, `completed`, `failed`                | mi-venue-service at confirm/update |
+| `asset_type`        | `pdf_deck`, `floor_plan`, `photo`, `cad_file` … | mi-venue-service at initiate       |
+| `tenant_key`        | 8-char nanoid                                   | mi-venue-service at initiate       |
 
 Tags enable cost allocation reports per tenant and per asset type in AWS Cost Explorer / MinIO billing.
 
@@ -772,28 +796,28 @@ When a tenant deletes an asset (`DELETE /assets/{id}`) or when a tenant account 
 
 1. `mi-venue-service` deletes the `venue_assets` row (DB cascade drops extraction jobs, metadata events referencing the asset).
 2. `mi-venue-service` issues `s3:DeleteObject` for `venue_assets.s3_key`.
-3. A `asset.deleted` event is published → `mi-venue-ingestion-worker` deletes all `item_vectors` rows where `metadata->>'asset_id' = :assetId`.
+3. A `asset.deleted` event is published → `mi-venue-processing-worker` deletes all `item_vectors` rows where `metadata->>'asset_id' = :assetId`.
 
 For full tenant deletion (GDPR right to erasure):
 
 1. `DELETE FROM t_{tenantKey}.venues` cascades to all asset rows.
-2. A separate `tenant.deleted` event triggers a background S3 sweep: `s3:DeleteObjects` with all keys matching `vip/tenants/{tenantKey}/*` (batched in 1000-object chunks to respect S3 API limits).
+2. A separate `tenant.deleted` event triggers a background S3 sweep: `s3:DeleteObjects` with all keys matching `venuemi/tenants/{tenantKey}/*` (batched in 1000-object chunks to respect S3 API limits).
 3. The pgvector sweep deletes all `item_vectors` rows for the tenant schema (schema drop handles this implicitly if the schema is dropped).
 
 ---
 
-### Registry population strategy (cold start for MVP)
+### Master Catalog population strategy (cold start for MVP)
 
-The `public.venue_registry` table is the platform's canonical venue reference. It is never populated by tenant uploads. Registry is a secondary, gap-fill-only source. Tenant data always wins (see §3 conflict resolution priority: `REGISTRY` is lowest).
+The `public.master_venue` table is the platform's canonical venue reference. It is never populated by tenant uploads. Master Catalog is a secondary, gap-fill source via MC_INHERIT provenance (priority 7, above SCRAPE_PROVIDER but below all AI tiers and manual/verified). Tenant data always wins (see §3 conflict resolution priority).
 
-Registry population in MVP uses **three human-in-the-loop channels**. No automatic scraper-to-INSERT pipeline. No AI/embeddings in the population process.
+Master Catalog population in MVP uses **three human-in-the-loop channels**. Scraper output (from standalone mi-mc-ingest-<source>-scraper Node.js services) goes through mi-mc-loader (Spring Boot) before landing in public.master_venue / master_venue_external. No direct scraper-to-INSERT pipeline. No AI/embeddings in the population process.
 
-| Channel                                                    | Mechanism                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Source in `venue_registry.source` |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------- |
-| **1. Pre-provisioned seed migrations (MVP cold-start)**    | Hardcoded rows in Liquibase XML changesets under `mi-venue-model/src/main/resources/db/changelog/system/`. Curated shortlist of 50–200 high-signal venues (top convention centres, major hotel chains in target launch cities). Runs on first startup against `public` schema via `TenantLiquibaseRunner`. Zero code, zero S3, zero admin interaction.                                                                                                                                                             | `platform_seed`                   |
-| **2. Platform admin manual entry (MVP)**                   | Registry Admin API (§17: Phase 2 design signal — pull forward for MVP, single-entity CRUD only, no bulk): `POST /api/v1/admin/registry/entries`, `PATCH /api/v1/admin/registry/entries/{id}`, `POST /api/v1/admin/registry/entries/{id}/aliases`. Authority `PLATFORM_ADMIN` only. Admin provides every field manually; deduplication check runs server-side as a pre-write validation and returns a list of candidate duplicates for human review (admin clicks "Confirm insert" or "Merge with existing #1234"). | `admin_import`                    |
-| **3. Scraper scripts (Cvent et al.) + human review (MVP)** | Standalone scripts outside the service (cron, admin laptop, or optional scheduled container) produce CSV/JSONL output files, upload to S3 `vip/registry/imports/{importId}/` with manifest. `VenueRegistryImportOrchestrator` in `mi-venue-ingestion-worker` runs only when triggered by an admin RabbitMQ event (`admin.registry.import.dry-run`) → produces a CSV audit report → uploads to `vip/registry/imports/reports/{importId}_review.csv`. Admin reviews the report (each row: action `INSERT`            | `MERGE #id`                       | `SKIP` with name_sim + geo_distance + duplicate candidates list), edits the Action column, re-uploads reviewed CSV. Admin then fires `admin.registry.import.apply` → worker applies the reviewed actions exactly, never making its own merge/insert decision. | `web_scrape` |
-| **Tenant-signal enrichment**                               | After `extraction.completed`, if tenant data has high-confidence fields not in registry → candidate event (Phase 3, no reverse flow in MVP)                                                                                                                                                                                                                                                                                                                                                                        | — (not in MVP)                    |
+| Channel                                                        | Mechanism                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Source in `master_venue.source` |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| **1. Pre-provisioned seed migrations (MVP cold-start)**        | Hardcoded rows in Liquibase XML changesets under `mi-venue-model/src/main/resources/db/changelog/system/`. Curated shortlist of 50–200 high-signal venues (top convention centres, major hotel chains in target launch cities). Runs on first startup against `public` schema via `TenantLiquibaseRunner`. Zero code, zero S3, zero admin interaction.                                                                                                                                                                 | `platform_seed`                   |
+| **2. Platform admin manual entry (MVP)**                       | Master Catalog Admin API (§17: Phase 2 design signal — pull forward for MVP, single-entity CRUD only, no bulk): `POST /api/v1/admin/master-catalog/entries`, `PATCH /api/v1/admin/master-catalog/entries/{id}`, `POST /api/v1/admin/master-catalog/entries/{id}/aliases`. Authority `PLATFORM_ADMIN` only. Admin provides every field manually; deduplication check runs server-side as a pre-write validation and returns a list of candidate duplicates for human review (admin clicks "Confirm insert" or "Merge with existing #1234"). | `admin_import`                    |
+| **3. Standalone scrapers (Tagvenue, Cvent et al.) + human review (MVP)** | Standalone Node.js scrapers: mi-mc-ingest-tagvenue-scraper etc. (extracted out of the Java worker) produce CSV/JSONL output files, upload to S3 `venuemi/master-catalog/imports/{importId}/` with manifest. `MasterCatalogImportOrchestrator` in `mi-mc-loader` (Spring Boot) runs only when triggered by an admin RabbitMQ event (`admin.master-catalog.import.dry-run`) → produces a CSV audit report → uploads to `venuemi/master-catalog/imports/reports/{importId}_review.csv`. Admin reviews the report (each row: action `INSERT` | `MERGE #id` | `SKIP` with name_sim + geo_distance + duplicate candidates list), edits the Action column, re-uploads reviewed CSV. Admin then fires `admin.master-catalog.import.apply` → importer applies the reviewed actions exactly, never making its own merge/insert decision. | `web_scrape` |
+| **Tenant-signal enrichment**                                   | After `extraction.completed`, if tenant data has high-confidence fields not in master catalog → candidate event (Phase 3, no reverse flow in MVP)                                                                                                                                                                                                                                                                                                                                                                      | — (not in MVP)                    |
 
 ### Alias normalisation (shared by all population channels + extraction matcher)
 
@@ -811,7 +835,7 @@ normalize(name):
 
 Example: `"The  Bowery-Hotel, NYC!"` → `"bowery hotel nyc"`.
 
-Both the original name and the normalised form are stored. `venue_registry_aliases` holds the original-name alias, and the normalised form is computed on-the-fly during comparison (or stored redundantly in the same row for index-friendliness).
+Both the original name and the normalised form are stored. `master_venue_alias` holds the original-name alias, and the normalised form is computed on-the-fly during comparison (or stored redundantly in the same row for index-friendliness).
 
 ### Scraper import — dry-run dedup check
 
@@ -820,8 +844,8 @@ Channel 3 scraper dry-run and channel 2 admin INSERT pre-write validation share 
 ```
 For a candidate import row (name_raw, address_raw, country_code, location_raw):
   candidates = SELECT r.id, r.name, r.location
-               FROM venue_registry r
-               LEFT JOIN venue_registry_aliases a ON a.venue_registry_entry_id = r.id
+               FROM master_venue r
+               LEFT JOIN master_venue_alias a ON a.master_venue_id = r.id
                WHERE normalize(name_raw) % normalize(COALESCE(a.alias, r.name))
                ORDER BY similarity DESC
                LIMIT 5
@@ -847,17 +871,17 @@ For a candidate import row (name_raw, address_raw, country_code, location_raw):
 
 Admin always has the final say via the reviewed CSV action column or the confirm-insert API call.
 
-### Extraction-time gap-fill (VenueRegistryMatcher) — algorithm and thresholds
+### Extraction-time MC_INHERIT merge (MasterVenueMatcher) — algorithm and thresholds
 
-After a tenant document finishes extraction, `VenueRegistryMatcher` runs as step 3 in §5 Stage 3 (Load). It compares the tenant's `Venue` record against `public.venue_registry` using the same `normalize()` function above. **No LLM calls. No embedding similarity. Pure PostgreSQL pg_trgm + PostGIS, zero external cost.**
+After a tenant document finishes extraction, `MasterVenueMatcher` runs as step 3 in §5 Stage 3 (Load). It compares the tenant's `Venue` record against `public.master_venue` using the same `normalize()` function above. **No LLM calls. No embedding similarity. Pure PostgreSQL pg_trgm + PostGIS, zero external cost.**
 
 ```
 Query strategy:
-  1. Fetch top-5 registry candidates via trigram GIN index on
-     venue_registry_aliases.alias (normalised match).
+  1. Fetch top-5 master catalog candidates via trigram GIN index on
+     master_venue_alias.alias (normalised match).
   2. For each candidate:
        name_sim = similarity( normalize(venue.name),
-                              normalize(best alias OR registry.name) )
+                              normalize(best alias OR master_venue.name) )
        if venue.location not null AND candidate.location not null:
            geo_within_200m = ST_DWithin( venue.location, candidate.location, 200 )
            geo_weight = 1.0
@@ -872,7 +896,7 @@ Combined confidence:
       combined = 1.00 * name_sim   // name-only threshold is much stricter
 
 Outcome and thresholds:
-  MATCH (copy fields):
+  MATCH (MC_INHERIT merge fields):
       (geo_within_200m is not null AND combined >= 0.75)
       OR
       (geo_within_200m is null     AND combined >= 0.90)
@@ -885,36 +909,36 @@ Outcome and thresholds:
         (b) candidate.metadata.{field} is not null AND
         (c) the field is a leaf key (not a nested dict merge):
           copy field value
-          set metadata_sources.{field} = { source: "REGISTRY",
-                                            source_id: registry_entry.id,
+          set metadata_sources.{field} = { source: "MC_INHERIT",
+                                            source_id: master_venue.id,
                                             confidence: combined,
                                             applied_at: now() }
 
   NO MATCH / AMBIGUOUS (everything else, including < 0.08 delta
   between top-2 candidates above 0.60):
       → silent no-op. No venue_metadata_events row written.
-        Registry is secondary; we do not surface candidates to UI in MVP.
+        Master catalog is secondary; we do not surface candidates to UI in MVP.
 ```
 
-After a successful copy, `venues.metadata_aggregated_at` is set to `NOW()` so the subsequent aggregation step (§3) sees the REGISTRY source and applies conflict-resolution priority correctly (`REGISTRY` lowest, overridden by any later extraction/user input).
+After a successful copy, `venues.metadata_aggregated_at` is set to `NOW()` so the subsequent aggregation step (§3) sees the MC_INHERIT source and applies conflict-resolution priority correctly (MC_INHERIT priority 7, above SCRAPE_PROVIDER but below AI tiers/manual overrides).
 
 ### Observability for match quality
 
-`VenueRegistryMatcher` records two Micrometer metrics (§12) on every extraction run:
+`MasterVenueMatcher` records two Micrometer metrics (§12) on every extraction run:
 
-| Metric                                          | Tags                            | Purpose                                                                             |
-| ----------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------- |
-| `bene_registry_match_total`                     | `stage="extraction"`, `outcome` | `matched` vs `no_match` vs `ambiguous` counts. Tracks how often registry is useful. |
-| `bene_registry_match_confidence_seconds` (hist) | `stage="extraction"`            | Distribution of `combined` score across all runs. Calibrate thresholds from this.   |
+| Metric                                  | Tags                            | Purpose                                                                                    |
+| --------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------ |
+| `bene_mc_match_total`                   | `stage="extraction"`, `outcome` | `matched` vs `no_match` vs `ambiguous` counts. Tracks how often master catalog is useful. |
+| `bene_mc_match_confidence_seconds`(hist)| `stage="extraction"`            | Distribution of `combined` score across all runs. Calibrate thresholds from this.         |
 
-Additionally, the scraper dry-run report CSV is retained in S3 for 90 days as an audit trail of every registry population decision.
+Additionally, the scraper dry-run report CSV is retained in S3 for 90 days as an audit trail of every master catalog population decision.
 
 ### Before Sprint 1: threshold calibration dry-run
 
 Before any production tenant has access, run a mandatory calibration pass to de-risk the 0.75/0.90 thresholds:
 
-1. Assemble a fixture set of **50 real-world venue PDFs** from target launch cities. Manually attach the "correct" `venue_registry_entry.id` ground truth to each row (or "no registry match" if none applies).
-2. Run `VenueRegistryMatcher` in **dry-run mode**: no writes to tenant schema. For every fixture, log: top-5 candidates with individual `name_sim`, `geo_within_200m`, `combined`, final outcome `matched|ambiguous|no_match`.
+1. Assemble a fixture set of **50 real-world venue PDFs** from target launch cities. Manually attach the "correct" `master_venue.id` ground truth to each row (or "no master catalog match" if none applies).
+2. Run `MasterVenueMatcher` in **dry-run mode**: no writes to tenant schema. For every fixture, log: top-5 candidates with individual `name_sim`, `geo_within_200m`, `combined`, final outcome `matched|ambiguous|no_match`.
 3. Build confusion matrix against ground truth: TP, FP, FN counts.
 4. **Acceptance criterion: FP rate ≤ 1 %.** A wrong copy poisons tenant data; an FN is just a missed gap-fill that the user fills manually. If FP > 1 %, raise thresholds incrementally (e.g. 0.75 → 0.78 → 0.80) until criterion passes and note the final calibrated thresholds in CHANGELOG.md.
 5. Delete the calibration run log from any environment that stores real tenant PII.
@@ -925,7 +949,7 @@ Before any production tenant has access, run a mandatory calibration pass to de-
 
 `mi-data-intelligence` is a plain Java library (JAR, no Spring Boot, no `@SpringBootApplication`). It is the **domain-agnostic, vertical-independent layer** of the VenueMi platform — containing everything that would be reused verbatim if the platform were applied to a different vertical (medical records, agro assets, legal documents, etc.). Neither venue-specific fields nor venue-specific migration logic belong here.
 
-Both `mi-venue-model` and (transitively) `mi-venue-service` and `mi-venue-ingestion-worker` declare it as a compile dependency.
+Both `mi-venue-model` and (transitively) `mi-venue-service` and `mi-venue-processing-worker` declare it as a compile dependency.
 
 **Contents:**
 
@@ -940,7 +964,7 @@ mi-data-intelligence/
 │   └── ExtractionStatus.java       (see extraction/ — same lifecycle applies to assets)
 ├── metadata/
 │   ├── MetadataSource.java         Provenance per field — generic structure, field names are strings
-│   ├── MetadataEventType.java      enum: ASSET_EXTRACTED, MANUAL_OVERRIDE, BULK_IMPORT, REGISTRY
+│   ├── MetadataEventType.java      enum: ASSET_EXTRACTED, MANUAL_OVERRIDE, BULK_IMPORT, MC_INHERIT, SCRAPE_PROVIDER
 │   ├── MetadataSchemaVersion.java  Versioning contract only: CURRENT_SCHEMA_VERSION constant lives
 │   │                               in the domain library (mi-venue-model), not here. This class
 │   │                               defines the interface contract — what _schema_version means,
@@ -976,7 +1000,7 @@ mi-data-intelligence/
 - `MetadataMigrator` (the chain runner) is here. Concrete `MetadataMigrationV{N}ToV{N+1}` classes are in the domain library. This separation means the runner is reused unchanged across verticals; only the migration list differs.
 - `MetadataTypeHandler` is an abstract base class. Domain libraries extend it once, passing their concrete migrator and target POJO class. Neither service instantiates the base directly.
 - Event POJOs use `item_id` as the generic field name. Domain services map their aggregate root ID (`venue_id`, `case_id`, etc.) to `item_id` when publishing and back when consuming. This is a one-line alias — acceptable coupling.
-- Infrastructure Liquibase changelogs live here so that the `extraction_jobs`, `item_vectors`, `item_metadata_events`, and `ai_cost_tracking` tables are created identically regardless of which vertical is being deployed. Domain changelogs (`venues`, `venue_assets`, `venue_registry`) remain in `mi-venue-model`.
+- Infrastructure Liquibase changelogs live here so that the `extraction_jobs`, `item_vectors`, `item_metadata_events`, and `ai_cost_tracking` tables are created identically regardless of which vertical is being deployed. Domain changelogs (`venues`, `venue_assets`, `master_venue`) remain in `mi-venue-model`.
 - No JPA annotations. Plain POJOs only.
 
 **What does NOT go here — common mistakes to avoid at code review:**
@@ -986,7 +1010,7 @@ mi-data-intelligence/
 | `VenueMetadata` or any domain POJO            | Venue-specific — lives in `mi-venue-model`                                            |
 | `CURRENT_SCHEMA_VERSION = 1` constant         | Domain-version-specific — lives in domain library                                     |
 | `MetadataMigrationV0ToV1`                     | Venue field renames — domain migration, not generic                                   |
-| `VenueRegistryEntry`                          | Curated list structure is generic, but field shape is venue-specific — domain library |
+| `MasterVenue`                                 | Curated list structure is generic, but field shape is venue-specific — domain library |
 | `capacity`, `catering`, `av_tech` field names | Canonical field set — domain library                                                  |
 | Extraction prompt templates                   | Domain config — externalised per vertical, not in any library                         |
 
@@ -999,7 +1023,7 @@ mi-data-intelligence   (platform library, no runtime, no vertical deps)
 mi-venue-model         (venue-domain library, imports mi-data-intelligence)
       │
       ├── mi-venue-service          (Spring Boot)
-      └── mi-venue-ingestion-worker (Spring Boot)
+      └── mi-venue-processing-worker (Spring Boot)
 
 
 Future vertical example:
@@ -1007,17 +1031,17 @@ Future vertical example:
 mi-data-intelligence
       │
       ▼
-bene-med-model           (medical-domain library)
+mi-med-model           (medical-domain library)
       │
-      ├── bene-med-service
-      └── bene-med-ingestion-worker
+      ├── mi-med-service
+      └── mi-med-processing-worker
 ```
 
-The infrastructure (ETL pipeline, aggregation, search orchestration, registry matching) is reused via Spring Boot starters or copy-with-adaptation from the venue implementation. `mi-data-intelligence` provides the contracts those components depend on.
+The infrastructure (ETL pipeline, aggregation, search orchestration, master catalog matching) is reused via Spring Boot starters or copy-with-adaptation from the venue implementation. `mi-data-intelligence` provides the contracts those components depend on.
 
 ---
 
-## 5. ETL Pipeline (mi-venue-ingestion-worker)
+## 5. ETL Pipeline (mi-venue-processing-worker)
 
 Built on **Spring AI's ETL framework**. Three composable stages:
 
@@ -1051,7 +1075,7 @@ The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`,
 
 1. **Embed** — `EmbeddingModel` (`text-embedding-3-small`, 1536 dims). Generic — from `mi-data-intelligence`.
 2. **Store** — `TenantAwarePgVectorStore` writes chunks + embeddings to `item_vectors` table in the tenant's schema. Table defined in `mi-data-intelligence` changelog (§4c).
-3. **Registry match** — `VenueRegistryMatcher` runs the full gap-fill algorithm documented above (trigram name similarity via `pg_trgm` GIN index on `venue_registry_aliases`, PostGIS `ST_DWithin` 200m radius, combined confidence formula, thresholds 0.75 with geo / 0.90 name-only, ambiguity delta guard ≥ 0.08). Registry is secondary only. No LLM calls, no embedding similarity. Full algorithm, thresholds, and field-copy semantics in the "Extraction-time gap-fill" subsection above.
+3. **Master catalog match** — `MasterVenueMatcher` runs the full MC_INHERIT merge algorithm documented above (trigram name similarity via `pg_trgm` GIN index on `master_venue_alias`, PostGIS `ST_DWithin` 200m radius, combined confidence formula, thresholds 0.75 with geo / 0.90 name-only, ambiguity delta guard ≥ 0.08). Master catalog is secondary only. No LLM calls, no embedding similarity. Full algorithm, thresholds, and field-copy semantics in the "Extraction-time MC_INHERIT merge" subsection above.
 4. **Aggregate** — publishes `ExtractionCompletedEvent` (from `mi-data-intelligence`) → `MetadataAggregationConsumer` in `mi-venue-service` updates `venues.metadata` via `VenueMetadataMigrator.ensureCurrent()` (from `mi-venue-model`).
 
 ### Processing SLA
@@ -1088,17 +1112,18 @@ All search is served by `mi-venue-service` querying PostgreSQL directly. No sepa
 - Scope: per-tenant schema (no cross-tenant leakage)
 - Upgrade path: switch to HNSW when tenant exceeds ~500K venues (rare)
 
-### Cross-source Search (tenant venues + public registry)
+### Cross-source Search (tenant venues + master catalog backdrop)
 
-**Problem.** Registry lives in `public.venue_registry`, tenant venues live in `t_{tenantKey}.venues`. Users need one search bar that returns _both_ "my venues" and "registry venues I can import". A single cross-schema SQL `UNION ALL` would collapse this gap technically, but it breaks the schema-per-tenant isolation abstraction and couples two data-sets that have different index statistics, different signal sets, and different column-level permission policies.
+**Problem.** Master catalog lives in `public.master_venue`, tenant venues live in `t_{tenantKey}.venues`. Master Catalog values merge INVISIBLY into tenant results via field-level MC_INHERIT provenance (not separate origin-tagged rows). A single cross-schema SQL `UNION ALL` would collapse this gap technically, but it breaks the schema-per-tenant isolation abstraction and couples two data-sets that have different index statistics, different signal sets, and different column-level permission policies.
 
-**Decided (Approach 2: two parallel SQL selects + app-level merge).** — Single PostgreSQL instance, no external search service. No cross-schema joins or `UNION ALL` in one statement.
+**Decided (Approach 2: two parallel SQL selects + app-level field-level merge).** — Single PostgreSQL instance, no external search service. No cross-schema joins or `UNION ALL` in one statement.
 
 ```
             ┌──────────────────────────────┐
             │  GET /api/v1/venues/?scope=  │
             │  BOTH | TENANT_ONLY          │
-            │  |REGISTRY_ONLY (default)    │
+            │  |MASTER_CATALOG_ONLY        │
+            │  (default: TENANT_ONLY)      │
             │  &search=... &page=0 &size=20│
             └──────────────┬───────────────┘
                            │ MyBatisSchemaInterceptor
@@ -1109,29 +1134,35 @@ All search is served by `mi-venue-service` querying PostgreSQL directly. No sepa
           │  (CompletableFuture.parallel)    │
           └───────┬──────────────────┬───────┘
                   │                  │
-   ┌──────────────▼───────┐  ┌──────▼──────────────────┐
-   │  Branch A: tenant    │  │  Branch B: registry     │
-   │  venues scope        │  │  entries scope         │
-   │  (VenueMapper)       │  │  (RegistryQueryMapper) │
-   │  — no schema         │  │  — explicitly schema-  │
-   │    qualify (implicit │  │    qualified: FROM     │
-   │    search_path)      │  │    public.venue_registry│
-   │  — all 5 modes:      │  │  — 3 modes MVP:        │
-   │    keyword, semantic,│  │    keyword, structured,│
-   │    structured, geo,  │  │    geo only (semantic  │
-   │    hybrid RRF        │  │    TBD Phase 2)        │
-   │  — top-50 + scores   │  │  — top-50 + scores     │
-   └──────────────┬───────┘  └──────┬──────────────────┘
+   ┌──────────────▼───────┐  ┌──────▼──────────────────────────┐
+   │  Branch A: tenant    │  │  Branch B: master catalog       │
+   │  venues scope        │  │  (backdrop, disabled by default)│
+   │  (VenueMapper)       │  │  (MasterVenueQueryMapper)       │
+   │  — no schema         │  │  — explicitly schema-qualified: │
+   │    qualify (implicit │  │    FROM public.master_venue     │
+   │    search_path)      │  │  — 3 modes MVP: keyword,        │
+   │  — all 5 modes:      │  │    structured, geo only         │
+   │    keyword, semantic,│  │    (semantic TBD Phase 2)       │
+   │    structured, geo,  │  │  — top-50 + scores             │
+   │    hybrid RRF        │  │                                │
+   │  — top-50 + scores   │  │                                │
+   └──────────────┬───────┘  └──────┬───────────────────────────┘
                   │                  │
           ┌───────▼──────────────────▼───────┐
-          │  App-level merge + dedup         │
-          │  — same-id check (registry entry │
-          │    already imported → show as    │
-          │    origin=TENANT only)           │
-          │  — Reciprocal Rank Fusion        │
-          │    (equal weight A:B = 0.5:0.5)  │
+          │  App-level field-level merge     │
+          │  — MC_INHERIT provenance merges │
+          │    MC values INTO tenant rows    │
+          │    invisibly (no separate rows) │
+          │  — "REGISTRY" origin removed     │
+          │    from surfaced UI; only        │
+          │    origin=TENANT shown           │
+          │  — Reciprocal Rank Fusion for   │
+          │    scope=BOTH (if explicitly     │
+          │    requested by power user)      │
           │  — slice by (page*size, size)    │
-          │  — append origin: TENANT|REGISTRY│
+          │  — origin: TENANT only (MC rows │
+          │    are not surfaced as separate │
+          │    origin by default)            │
           └──────────────────┬───────────────┘
                              ▼
               VenueSummaryListResponse(items: [...])
@@ -1139,23 +1170,23 @@ All search is served by `mi-venue-service` querying PostgreSQL directly. No sepa
 
 **Rejected alternatives.**
 
-- _(Rejected)_ Materialized registry copy per tenant schema. Duplicates N×registry rows; scraper/admin updates would need fan-out propagation — consistency nightmare.
+- _(Rejected)_ Materialized master catalog copy per tenant schema. Duplicates N×master catalog rows; scraper/admin updates would need fan-out propagation — consistency nightmare.
 - _(Rejected)_ Single `UNION ALL` or JOIN in one SQL statement with `public.` qualified names. Breaks search_path isolation abstraction (planner cardinality on two heterogenous branches produces bad plans), risks admin-only column leakage if the mapper SELECT list is later widened naively, and couples two sources that may scale independently.
-- _(Rejected for MVP)_ Dedicated OpenSearch/Elasticsearch cluster. Over-engineering at MVP scales (< 500 registry entries, < 1000 tenant venues per tenant). PostgreSQL keyword + geo + JSONB filters is sufficient; promote to dedicated search if registry count breaches 100 K rows or tenant-side vector recall becomes a bottleneck (see §17 Phase 2 signal).
+- _(Rejected for MVP)_ Dedicated OpenSearch/Elasticsearch cluster. Over-engineering at MVP scales (< 500 master catalog entries, < 1000 tenant venues per tenant). PostgreSQL keyword + geo + JSONB filters is sufficient; promote to dedicated search if master catalog count breaches 100 K rows or tenant-side vector recall becomes a bottleneck (see §17 Phase 2 signal).
 
-**Failure isolation.** Branch B (registry) timeout or SQL exception → search does _not_ fail the whole request. Returns branch A results with an RFC 7807 `Warning: 299 - "Registry search unavailable, results incomplete"` response header and increments `bene_search_failures_total{branch="registry"}`.
+**Failure isolation.** Branch B (master catalog backdrop) timeout or SQL exception → search does _not_ fail the whole request. Returns branch A results with an RFC 7807 `Warning: 299 - "Master catalog backdrop merge unavailable, results incomplete"` response header and increments `bene_search_failures_total{branch="master_catalog"}`.
 
 **Search parameters.**
 
-- New parameter `scope` (enum `TENANT_ONLY`, `REGISTRY_ONLY`, `BOTH`). Default: `BOTH` so the default search bar shows the union immediately.
-- Semantic mode with `search` natural-language query: only branch A uses cosine similarity against `item_vectors` per-tenant. Branch B falls back to keyword + structured for MVP; registry semantic similarity and entry embeddings are a Phase 2 decision.
+- New parameter `scope` (enum `TENANT_ONLY`, `MASTER_CATALOG_ONLY`, `BOTH`). Default: `TENANT_ONLY`. Master Catalog values merge INVISIBLY into tenant results via field-level MC_INHERIT provenance (not separate origin-tagged rows).
+- Semantic mode with `search` natural-language query: only branch A uses cosine similarity against `item_vectors` per-tenant. Branch B falls back to keyword + structured for MVP; master catalog semantic similarity and entry embeddings are a Phase 2 decision.
 
 **Response shape additions.**
 
-- Each `VenueSummaryView` record includes a new `origin: "TENANT" | "REGISTRY"` field. Consumers route UX actions accordingly (see `from-registry` import endpoint in §7 Venues API).
+- Each `VenueSummaryView` record includes `origin: "TENANT"` only. Old "REGISTRY" as a surfaced origin to UI is removed. MC values merge INTO tenant rows invisibly; provenance tracked only internally in metadata_sources per field with MC_INHERIT source.
 - `totalElements` in `VenueSummaryListResponse` is deliberately _approximate_ for `scope=BOTH` (equal ranks across two top-K → the real total is unknown without issuing two `COUNT(*)`). Clients show "1K+" or "Load more" buttons rather than rendering a page 50 pagination bar.
 
-**Import-on-click semantics.** User clicks a REGISTRY-origin result → client calls `POST /api/v1/venues/from-registry/{registryEntryId}` (see §7). Creates a fresh tenant-owned `venues` row copying registry fields into `metadata` with `metadata_sources[*].source = "REGISTRY"` lowest priority — exactly like extraction-time gap-fill, but user-initiated. Subsequent searches show the result as origin `TENANT` and the merge step deduplicates (de-dup key: `t_{tenant}.venues.registry_entry_id = registryEntry.id` stored on import; see §10 schema).
+**Explicit promote from Master Catalog semantics (power-user / admin action).** Power user/admin explicitly promotes a master catalog entry → client calls `POST /api/v1/venues/from-master-catalog/{masterVenueId}` (see §7). Creates a fresh tenant-owned `venues` row copying master catalog fields into `metadata` with `metadata_sources[*].source = "MC_INHERIT"` priority 7 — exactly like extraction-time MC_INHERIT merge, but explicitly user-initiated. This is a separate workflow, not default search results. Subsequent searches show the result as origin `TENANT` and the merge step deduplicates (de-dup key: `t_{tenant}.venues.master_venue_id = masterVenue.id` stored on import; see §10 schema).
 
 ---
 
@@ -1181,14 +1212,14 @@ All endpoints follow platform conventions based on the actual implementation in 
 
 Base: `/api/v1/venues`
 
-| Method   | Path                               | Authority               | Status | Request / Response                                                    | Notes                                                                                                                                                                                                                                                              |
-| -------- | ---------------------------------- | ----------------------- | ------ | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `GET`    | `/`                                | `MEMBER`                | 200    | Query: `page`, `size`, `sort`, `status`, `search`, `scope` → response | Hybrid search + filter when `search` param present; `scope=TENANT_ONLY                                                                                                                                                                                             | REGISTRY_ONLY | BOTH`(default`BOTH`) |
-| `POST`   | `/`                                | `MEMBER`                | 201    | `CreateVenueRequest` → `VenueResponse`                                | Enforces `max_venues` plan limit before insert                                                                                                                                                                                                                     |
-| `GET`    | `/{id}`                            | `MEMBER`                | 200    | → `VenueResponse` (with consolidated metadata)                        | 404 if not found or belongs to different tenant                                                                                                                                                                                                                    |
-| `PATCH`  | `/{id}`                            | `MEMBER`                | 200    | `UpdateVenueRequest` → `VenueResponse`                                | Partial update — ignores null fields                                                                                                                                                                                                                               |
-| `DELETE` | `/{id}`                            | `ADMIN`, `TENANT_OWNER` | 204    | → empty body                                                          | Soft delete: sets `status = ARCHIVED`. Hard delete: separate admin endpoint (Phase 3)                                                                                                                                                                              |
-| `POST`   | `/from-registry/{registryEntryId}` | `MEMBER`                | 201    | → `VenueResponse`                                                     | Copy-on-import: clones registry entry fields into new tenant `venues` row with `metadata_sources[*].source = "REGISTRY"` (lowest priority). Stores `venues.registry_entry_id` for cross-source dedup. Idempotent: re-import returns the existing tenant venue row. |
+| Method   | Path                                     | Authority               | Status | Request / Response                                                    | Notes                                                                                                                                                                                                                                                                          |
+| -------- | ---------------------------------------- | ----------------------- | ------ | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `GET`    | `/`                                      | `MEMBER`                | 200    | Query: `page`, `size`, `sort`, `status`, `search`, `scope` → response | Hybrid search + filter when `search` param present; `scope=TENANT_ONLY                                                                                                                                                                                                         | MASTER_CATALOG_ONLY | BOTH`(default `TENANT_ONLY`) |
+| `POST`   | `/`                                      | `MEMBER`                | 201    | `CreateVenueRequest` → `VenueResponse`                                | Enforces `max_venues` plan limit before insert                                                                                                                                                                                                                                 |
+| `GET`    | `/{id}`                                  | `MEMBER`                | 200    | → `VenueResponse` (with consolidated metadata)                        | 404 if not found or belongs to different tenant                                                                                                                                                                                                                                |
+| `PATCH`  | `/{id}`                                  | `MEMBER`                | 200    | `UpdateVenueRequest` → `VenueResponse`                                | Partial update — ignores null fields                                                                                                                                                                                                                                           |
+| `DELETE` | `/{id}`                                  | `ADMIN`, `TENANT_OWNER` | 204    | → empty body                                                          | Soft delete: sets `status = ARCHIVED`. Hard delete: separate admin endpoint (Phase 3)                                                                                                                                                                                          |
+| `POST`   | `/from-master-catalog/{masterVenueId}`   | `MEMBER`                | 201    | → `VenueResponse`                                                     | Explicit promote from Master Catalog (power-user / admin action): clones master venue fields into new tenant `venues` row with `metadata_sources[*].source = "MC_INHERIT"` (priority 7). Stores `venues.master_venue_id` for cross-source dedup. Idempotent: re-promote returns the existing tenant venue row. |
 
 #### Search
 
@@ -1199,7 +1230,7 @@ If query complexity grows beyond what URL params can express cleanly (Phase 2), 
 | Parameter    | Type              | Description                                                    |
 | ------------ | ----------------- | -------------------------------------------------------------- |
 | `search`     | string            | Natural language or keyword query — triggers hybrid mode       |
-| `scope`      | enum              | `TENANT_ONLY`, `REGISTRY_ONLY`, `BOTH` (default)               |
+| `scope`      | enum              | `TENANT_ONLY`, `MASTER_CATALOG_ONLY`, `BOTH` (default: TENANT_ONLY) |
 | `status`     | enum              | `DRAFT`, `ACTIVE`, `ARCHIVED`                                  |
 | `capacity`   | integer           | Minimum total capacity                                         |
 | `lat`, `lng` | decimal           | Centre point for geo-spatial search                            |
@@ -1216,27 +1247,28 @@ If query complexity grows beyond what URL params can express cleanly (Phase 2), 
 CreateVenueRequest  — name (required), address, description, tags
 UpdateVenueRequest  — all fields optional; null fields ignored (PATCH semantics)
 VenueResponse       — id, name, address, location, status, metadata (consolidated),
-                       metadata_aggregated_at, asset_count, registry_entry_id (nullable),
+                       metadata_aggregated_at, asset_count, master_venue_id (nullable),
                        created_by, created_at, updated_at
 VenueSummaryView    — id, name, address, location, summary metadata slice, origin
-                       (origin: "TENANT" | "REGISTRY")
+                       (origin: "TENANT" only — MC origin not surfaced as separate row to UI;
+                        MC values merge invisibly into tenant rows via field-level MC_INHERIT)
 ```
 
 ---
 
-### Registry Entries (MEMBER-read, ADMIN-write via admin API)
+### Master Catalog Entries (MEMBER-read, ADMIN-write via admin API)
 
-Base: `/api/v1/registry/entries`
+Base: `/api/v1/master-catalog/entries`
 
-Registry entry GET endpoints are always MEMBER-authenticated (JWT-required, same authority as tenant venues). Write / edit / delete endpoints live under the Platform Admin API scope (§13; `PLATFORM_ADMIN` authority only).
+Master catalog entry GET endpoints are always MEMBER-authenticated (JWT-required, same authority as tenant venues). Write / edit / delete endpoints live under the Platform Admin API scope (§13; `PLATFORM_ADMIN` authority only).
 
-| Method | Path    | Authority | Status | Request / Response                               | Notes                                                                                                                                                                                                    |
-| ------ | ------- | --------- | ------ | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET`  | `/{id}` | `MEMBER`  | 200    | → `RegistryEntryResponse` (safe projection only) | Read-only public-facing projection of `venue_registry` + aliases. Never returns admin-only fields (confidence scores, private notes, source audit). 404 if entry does not exist or is `status=ARCHIVED`. |
+| Method | Path    | Authority | Status | Request / Response                                  | Notes                                                                                                                                                                                                             |
+| ------ | ------- | --------- | ------ | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/{id}` | `MEMBER`  | 200    | → `MasterCatalogEntryResponse` (safe projection only) | Read-only public-facing projection of `master_venue` + aliases. Never returns admin-only fields (confidence scores, private notes, source audit). 404 if entry does not exist or is `status=ARCHIVED`. |
 
 ```
-RegistryEntryResponse — id, name, aliases[], address, location, metadata safe projection,
-                         created_at, last_synced_at
+MasterCatalogEntryResponse — id, name, aliases[], address, location, metadata safe projection,
+                              created_at, last_synced_at
 ```
 
 ---
@@ -1349,7 +1381,7 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 | `asset.uploaded` | asset_id, venue_id, tenant_id, asset_type, s3_key, content_type | Asset confirmed, ready for extraction |
 | `asset.deleted`  | asset_id, venue_id, tenant_id                                   | Asset removed                         |
 
-### Published by mi-venue-ingestion-worker
+### Published by mi-venue-processing-worker
 
 | Routing key            | Payload fields                                | Description           |
 | ---------------------- | --------------------------------------------- | --------------------- |
@@ -1359,7 +1391,7 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 
 For the scalable topology (§3, variant A2), the publisher appends a hash-slot suffix to the `extraction.completed` routing key: `extraction.completed.{slot}` where `slot = Math.abs(venueId.hashCode() % SLOT_COUNT)`. Same `venue_id` always produces the same slot.
 
-### Consumed by mi-venue-ingestion-worker
+### Consumed by mi-venue-processing-worker
 
 | Routing key      | Queue                                      | Action                                |
 | ---------------- | ------------------------------------------ | ------------------------------------- |
@@ -1400,12 +1432,12 @@ Feature codes used in `foundation-billing-service` plan config:
 
 | Feature code             | Free | Pro | Enterprise | Enforcement point                    |
 | ------------------------ | ---- | --- | ---------- | ------------------------------------ |
-| `max_venues`             | 10   | 500 | unlimited  | venue-service: before create         |
-| `max_assets_per_venue`   | 20   | 100 | unlimited  | venue-service: before upload         |
+| `max_venues`             | 10   | 500 | unlimited  | mi-venue-service: before create         |
+| `max_assets_per_venue`   | 20   | 100 | unlimited  | mi-venue-service: before upload         |
 | `basic_extraction`       | ✅   | ✅  | ✅         | ai-service: PDF text only            |
 | `advanced_extraction`    | ⛔   | ✅  | ✅         | ai-service: all asset types          |
-| `cad_support`            | ⛔   | ✅  | ✅         | venue-service: reject DWG/DXF upload |
-| `semantic_search`        | ⛔   | ✅  | ✅         | venue-service: search endpoint       |
+| `cad_support`            | ⛔   | ✅  | ✅         | mi-venue-service: reject DWG/DXF upload |
+| `semantic_search`        | ⛔   | ✅  | ✅         | mi-venue-service: search endpoint       |
 | `priority_ai_processing` | ⛔   | ⛔  | ✅         | RabbitMQ: route to priority queue    |
 | `api_access`             | ⛔   | ✅  | ✅         | gateway: API key route               |
 | `white_label`            | ⛔   | ⛔  | ✅         | ui-app: branding config              |
@@ -1416,7 +1448,7 @@ Enforcement via `PlanFeatureGuard` (same pattern as IAM service's existing imple
 
 ## 10. Database Schema (Liquibase, tenant schema)
 
-Migrations live in `mi-venue-model` under `src/main/resources/db/changelog/tenant/` — the shared library is the single source of truth for schema. Both `mi-venue-service` and `mi-venue-ingestion-worker` include the library on their classpath; `mi-venue-service` runs the migrations on startup (or a dedicated init container applies them on tenant provisioning via `TenantProvisionedEvent` listener, same pattern as IAM).
+Migrations live in `mi-venue-model` under `src/main/resources/db/changelog/tenant/` — the shared library is the single source of truth for schema. Both `mi-venue-service` and `mi-venue-processing-worker` include the library on their classpath; `mi-venue-service` runs the migrations on startup (or a dedicated init container applies them on tenant provisioning via `TenantProvisionedEvent` listener, same pattern as IAM).
 
 ### Naming and format conventions
 
@@ -1434,7 +1466,7 @@ Follows the platform coding guidelines (§12):
 ```
 db/changelog/system/
 ├── master.xml
-└── 20260801000000-create-venue-registry.xml   ← public schema, platform-owned
+└── 20260801000000-create-master-venue.xml   ← public schema, platform-owned
 
 db/changelog/tenant/
 ├── master.xml
@@ -1446,7 +1478,7 @@ db/changelog/tenant/
 └── 20260801000006-create-ai-cost-tracking.xml
 ```
 
-The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml` first (to the `public` schema), then `tenant/master.xml` to each `t_{tenantKey}` schema. The `venue_registry` and `venue_registry_aliases` tables are created in `public` once, not per-tenant.
+The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml` first (to the `public` schema), then `tenant/master.xml` to each `t_{tenantKey}` schema. The `master_venue`, `master_venue_alias`, and `master_venue_external` tables are created in `public` once, not per-tenant.
 
 ### Changeset structure (example: venues table)
 
@@ -1486,15 +1518,15 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
         <constraints nullable="false"/>
       </column>
       <column name="metadata_aggregated_at" type="TIMESTAMP"/>
-      <column name="registry_entry_id" type="UUID">
-        <remarks>FK to public.venue_registry.id. Populated when venue is created via user-initiated
-        copy-on-import (POST /venues/from-registry/{id}) or by extraction-time gap-fill when
+      <column name="master_venue_id" type="UUID">
+        <remarks>FK to public.master_venue.id. Populated when venue is created via user-initiated
+        explicit promote (POST /venues/from-master-catalog/{id}) or by extraction-time MC_INHERIT merge when
         matcher produces MATCH with no ambiguity. NULL when venue was created directly
-        (admin POST /venues or extraction with no registry match). Used by search orchestrator
-        for cross-source dedup (registry-origin result already imported → show as TENANT only).
+        (admin POST /venues or extraction with no master catalog match). Used by search orchestrator
+        for cross-source dedup (master catalog result already imported → show as TENANT only).
         No DB-level FK constraint (cross-schema FKs are not supported in PostgreSQL across
         tenant schemas + public). Referential integrity is enforced at application level;
-        sweeping orphan references on registry.admin.entry.deleted event is a Phase 2 task.</remarks>
+        sweeping orphan references on master-catalog.admin.entry.deleted event is a Phase 2 task.</remarks>
       </column>
       <column name="created_by" type="UUID">
         <constraints nullable="false"/>
@@ -1543,21 +1575,22 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 
 **Public schema (platform-owned, not tenant-scoped):**
 
-| Table                    | Key columns                                                                                                                                                     | Notes                                                                           |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `venue_registry`         | `id` UUID PK, `name` VARCHAR(255), `address` TEXT, `city` VARCHAR(100), `location` GEOGRAPHY, `metadata` JSONB, `confidence` NUMERIC(3,2), `source` VARCHAR(50) | Platform seed data. Read-only to tenants. `metadata._schema_version` mandatory. |
-| `venue_registry_aliases` | `id` UUID PK, `venue_registry_entry_id` UUID FK, `alias` VARCHAR(255)                                                                                           | Alternative names for registry deduplication                                    |
+| Table                    | Key columns                                                                                                                                                          | Notes                                                                                     |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `master_venue`           | `id` UUID PK, `name` VARCHAR(255), `address` TEXT, `city` VARCHAR(100), `location` GEOGRAPHY, `metadata` JSONB, `confidence` NUMERIC(3,2), `source` VARCHAR(50)      | Platform seed data. Read-only to tenants. `metadata._schema_version` mandatory.          |
+| `master_venue_alias`     | `id` UUID PK, `master_venue_id` UUID FK, `alias` VARCHAR(255)                                                                                                       | Alternative names for master catalog deduplication                                        |
+| `master_venue_external`  | `id` UUID PK, `master_venue_id` UUID FK, `provider` VARCHAR, `provider_external_id` VARCHAR, `raw_payload` JSONB, `confidence` NUMERIC, `crawled_at` TIMESTAMP      | 1 MasterVenue ↔ N external provider records from Tagvenue, Cvent, etc. (scraper output)  |
 
 **Tenant schema `t_{tenantKey}` (tenant-owned):**
 
 | Table                   | Key columns                                                                                                                                                         | Owner                                                                         |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `venues`                | `id` UUID PK, `status` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY, `registry_entry_id` UUID (nullable, app-level FK) | `mi-venue-service`. `metadata._schema_version` mandatory, default 1 on insert |
+| `venues`                | `id` UUID PK, `status` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY, `master_venue_id` UUID (nullable, app-level FK) | `mi-venue-service`. `metadata._schema_version` mandatory, default 1 on insert |
 | `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536)                                | `mi-venue-service`                                                            |
-| `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB                             | `mi-venue-ingestion-worker`                                                   |
+| `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB                             | `mi-venue-processing-worker`                                                   |
 | `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                                                        | `mi-venue-service`                                                            |
-| `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in `mi-data-intelligence` changelog (§4c).        | `mi-venue-ingestion-worker`                                                   |
-| `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                                                         | `mi-venue-ingestion-worker`                                                   |
+| `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in `mi-data-intelligence` changelog (§4c).        | `mi-venue-processing-worker`                                                   |
+| `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                                                         | `mi-venue-processing-worker`                                                   |
 
 ### Index strategy summary
 
@@ -1577,24 +1610,24 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 | `item_vectors`     | `idx_vectors_embedding`      | IVFFlat | `embedding`                       | Vector similarity search                                                                 |
 | `item_vectors`     | `idx_vectors_asset`          | btree   | `(metadata->>'asset_id')`         | Fast sweep on asset.deleted event                                                        |
 | `ai_cost_tracking` | `idx_ai_cost_month`          | btree   | `DATE_TRUNC('month', created_at)` | Monthly cost rollup                                                                      |
-| `venues`           | `idx_venues_registry_entry`  | btree   | `registry_entry_id`               | Cross-source search dedup (find tenant venues already imported from a registry entry id) |
+| `venues`           | `idx_venues_master_venue_id` | btree   | `master_venue_id`                  | Cross-source search dedup (find tenant venues already imported from a master venue id)   |
 
-### Cross-schema Access Rules (registry in public vs tenant schema)
+### Cross-schema Access Rules (master catalog in public vs tenant schema)
 
-PostgreSQL schema-per-tenant tenancy model means `public.venue_registry` lives in a different schema than `t_{tenantKey}.venues`. The `MyBatisSchemaInterceptor` sets `SET search_path TO t_{tenantKey}, public` before every statement, so `public` _objects are_ accessible from tenant connection — but access is tightly restricted to prevent abstraction leakage and accidental cross-tenant writes.
+PostgreSQL schema-per-tenant tenancy model means `public.master_venue` lives in a different schema than `t_{tenantKey}.venues`. The `MyBatisSchemaInterceptor` sets `SET search_path TO t_{tenantKey}, public` before every statement, so `public` _objects are_ accessible from tenant connection — but access is tightly restricted to prevent abstraction leakage and accidental cross-tenant writes.
 
 **Rules (enforced at code review + MyBatis mapper audit):**
 
 1. **Only three mapper interfaces are permitted to reference `public.` schema-qualified names explicitly.** Every other mapper MUST use unqualified table names so that `search_path` resolves them _inside_ the tenant schema. Permitted qualified readers:
-   - `RegistryEntryQueryMapper` (search-read branch B): `FROM public.venue_registry r LEFT JOIN public.venue_registry_aliases a …` — read-only SELECT list with a fixed column whitelist (no `SELECT *`), never admin-only fields.
-   - `VenueRegistryMatcherMapper` (extraction-time gap-fill in §5 Stage 3): same qualified reads.
-   - The `RegistryAdminMapper` (PLATFORM_ADMIN only, §13): reads + writes `public.venue_registry` / aliases.
+   - `MasterVenueQueryMapper` (search-read branch B): `FROM public.master_venue r LEFT JOIN public.master_venue_alias a …` — read-only SELECT list with a fixed column whitelist (no `SELECT *`), never admin-only fields.
+   - `MasterVenueMatcherMapper` (extraction-time MC_INHERIT merge in §5 Stage 3): same qualified reads.
+   - The `MasterCatalogAdminMapper` (PLATFORM_ADMIN only, §13): reads + writes `public.master_venue` / aliases / external.
 
 2. **Single-statement cross-schema `JOIN` / `UNION ALL` inside one MyBatis `<select>` is forbidden.** It couples planner statistics across two heterogenous tables, risks admin-only column leakage if a SELECT list is widened later, and breaks the "future-proof: swap schema-per-tenant for row-level tenancy" invariant. If we ever move to row-level tenancy (per-table `tenant_id` instead of schemas), every statement needs to re-qualify tables; the three qualified mappers above are the only audit surface. Cross-source merging always happens in the `VenueSearchOrchestrator` app-layer (§6), never in SQL.
 
-3. **No cross-schema DDL-level FK constraints.** PostgreSQL does not support FKs across schemas owned by different role-level isolation; the `venues.registry_entry_id → venue_registry.id` reference is application-enforced only. Sweeper for orphaned `registry_entry_id` values after `registry.admin.entry.deleted` events is deferred to Phase 2.
+3. **No cross-schema DDL-level FK constraints.** PostgreSQL does not support FKs across schemas owned by different role-level isolation; the `venues.master_venue_id → master_venue.id` reference is application-enforced only. Sweeper for orphaned `master_venue_id` values after `master-catalog.admin.entry.deleted` events is deferred to Phase 2.
 
-4. **Role-level hardening (optional pre-production):** The connection pool `mi-venue-service` runs as is `t_{tenantKey}` owner only; grant `SELECT` on `public.venue_registry` / aliases to the app role explicitly. `INSERT / UPDATE / DELETE` on `public` tables to this role is revoked; only the `registry_admin` connection pool / PLATFORM_ADMIN user holds write grants on public registry tables.
+4. **Role-level hardening (optional pre-production):** The connection pool `mi-venue-service` runs as is `t_{tenantKey}` owner only; grant `SELECT` on `public.master_venue` / aliases / external to the app role explicitly. `INSERT / UPDATE / DELETE` on `public` tables to this role is revoked; only the `master_catalog_admin` connection pool / PLATFORM_ADMIN user holds write grants on public master catalog tables.
 
 ---
 
@@ -1643,14 +1676,14 @@ Both VenueMi services follow foundation patterns exactly.
 | `bene_extractions_total`                   | tenant_id, extractor_type, status | Success/failure rates                                                                                                                                                                                                                                                                                                                        |
 | `bene_extraction_duration_seconds`         | extractor_type                    | Latency histogram                                                                                                                                                                                                                                                                                                                            |
 | `bene_ai_cost_usd_total`                   | tenant_id, model                  | Cost tracking                                                                                                                                                                                                                                                                                                                                |
-| `bene_search_requests_total`               | search_mode, scope                | keyword / semantic / hybrid. `scope=TENANT_ONLY                                                                                                                                                                                                                                                                                              | REGISTRY_ONLY | BOTH`.                                                                                                                                                                                                                        |
-| `bene_search_latency_seconds`              | search_mode, branch               | Branch-level latency histogram. `branch=tenant` / `registry` / `orchestrator_total` — lets us attribute slowdowns to one of the two parallel SQL branches or the app-level merge step.                                                                                                                                                       |
-| `bene_search_failures_total`               | branch                            | Counter incremented when a branch query fails (SQL exception, timeout). For `branch=registry` the orchestrator returns partial tenant results with a `Warning` header (see §6). For `branch=tenant` the whole request 5xx.                                                                                                                   |
+| `bene_search_requests_total`               | search_mode, scope                | keyword / semantic / hybrid. `scope=TENANT_ONLY                                                                                                                                                                                                                                                                                              | MASTER_CATALOG_ONLY | BOTH` (default: TENANT_ONLY).                                                                                                                                                                                          |
+| `bene_search_latency_seconds`              | search_mode, branch               | Branch-level latency histogram. `branch=tenant` / `master_catalog` / `orchestrator_total` — lets us attribute slowdowns to one of the two parallel SQL branches or the app-level merge step.                                                                                                                                                  |
+| `bene_search_failures_total`               | branch                            | Counter incremented when a branch query fails (SQL exception, timeout). For `branch=master_catalog` the orchestrator returns partial tenant results with a `Warning` header (see §6). For `branch=tenant` the whole request 5xx.                                                                                                              |
 | `bene_metadata_schema_version_seen_total`  | tenant_id, schema_version, op     | Counter incremented on every `migrateToCurrent()` or `ensureCurrent()` call — labels the schema version the document had _before_ migration. `op` = `read` or `write`. Lets us see how many legacy v0/v1/vN docs are still in the read/write hot paths so we know when old migration classes are candidates for retirement.                  |
 | `bene_metadata_migration_duration_seconds` | target_version                    | Latency histogram for the full migration chain (per target version — always CURRENT_SCHEMA_VERSION in steady state). Alerts if a new migration step is unexpectedly slow for large JSONB payloads.                                                                                                                                           |
-| `bene_registry_match_total`                | stage, outcome                    | `stage` = `"extraction"` (tenant gap-fill) or `"import_dedup"` (scraper/admin pre-write). `outcome` = `matched` / `ambiguous` / `no_match`. Tracks how often the registry produces useful hits. If `matched` plateaus near 0, the seed set is too small and scraper runs are overdue.                                                        |
-| `bene_registry_match_confidence_seconds`   | stage                             | Histogram of the `combined` confidence score per matcher invocation. Buckets 0.5–0.6, 0.6–0.7, 0.7–0.8, 0.8–0.9, 0.9–1.0. Used during post-launch threshold recalibration — drift above the 0.75 MATCH bar indicates thresholds can be tightened; a spike of 0.72–0.75 near-boundary hits suggests a small bump to 0.78 would eliminate FPs. |
-| `bene_venue_import_from_registry_total`    | tenant_id, status                 | User-initiated copy-on-import via `POST /venues/from-registry/{id}`. `status=created                                                                                                                                                                                                                                                         | duplicate     | error`. Measures how often the registry seed set is directly useful to end users. Baseline "registry ROI" signal — if `created`is flat vs`matched` (extraction-time), users prefer implicit gap-fill over explicit import UI. |
+| `bene_mc_match_total`                      | stage, outcome                    | `stage` = `"extraction"` (tenant MC_INHERIT merge) or `"import_dedup"` (scraper/admin pre-write). `outcome` = `matched` / `ambiguous` / `no_match`. Tracks how often the master catalog produces useful hits. If `matched` plateaus near 0, the seed set is too small and scraper runs are overdue.                                              |
+| `bene_mc_match_confidence_seconds`         | stage                             | Histogram of the `combined` confidence score per matcher invocation. Buckets 0.5–0.6, 0.6–0.7, 0.7–0.8, 0.8–0.9, 0.9–1.0. Used during post-launch threshold recalibration — drift above the 0.75 MATCH bar indicates thresholds can be tightened; a spike of 0.72–0.75 near-boundary hits suggests a small bump to 0.78 would eliminate FPs. |
+| `bene_venue_import_from_master_catalog_total` | tenant_id, status              | User-initiated explicit promote via `POST /venues/from-master-catalog/{id}`. `status=created                                                                                                                                                                                                                                                | duplicate     | error`. Measures how often the master catalog seed set is directly useful to end users. Baseline "MC ROI" signal — if `created`is flat vs`matched` (extraction-time), users prefer implicit MC_INHERIT gap-fill over explicit promote UI. |
 
 Grafana dashboard added to `docker/grafana/provisioning/dashboards/VipService.json`.
 
@@ -1660,8 +1693,8 @@ Grafana dashboard added to `docker/grafana/provisioning/dashboards/VipService.js
 
 | Concern                 | Approach                                                                                                                                                |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tenant data isolation   | Schema-per-tenant (PostgreSQL + pgvector); S3 key prefix `vip/tenants/{tenantKey}/` per tenant — see §4b for full key layout                            |
-| Asset access            | Presigned S3 URLs only (15 min upload, 1h download). No public bucket. Registry paths (`vip/registry/*`) inaccessible via tenant-issued presigned URLs. |
+| Tenant data isolation   | Schema-per-tenant (PostgreSQL + pgvector); S3 key prefix `venuemi/tenants/{tenantKey}/` per tenant — see §4b for full key layout                                        |
+| Asset access            | Presigned S3 URLs only (15 min upload, 1h download). No public bucket. Master catalog paths (`venuemi/master-catalog/*`) inaccessible via tenant-issued presigned URLs. |
 | AI data handling        | Documents sent to OpenAI API per their data processing terms. Enterprise option: Azure OpenAI (data stays in tenant's region).                          |
 | GDPR / right to erasure | `DELETE tenant` cascades to venues → assets → S3 objects → vector embeddings                                                                            |
 | Audit trail             | All `venue.*`, `asset.*`, `extraction.*` events passively consumed by Audit Service                                                                     |
@@ -1691,16 +1724,16 @@ Full rationale and competitor analysis: see `../business/Digital_Sales_Room_for_
 
 ## 15. Open Decisions (resolve before Sprint 1)
 
-- [x] **One service or two?** ~~`mi-venue-service` + `bene-ai-service` vs. a single `mi-venue-service` with an internal AI module.~~ **Decided:** Two deployments — `mi-venue-service` (synchronous API, data-tied) and `mi-venue-ingestion-worker` (async sidecar, shared schema, no inbound HTTP). Services are tied to data; ingestion is a processing concern, not a peer service.
-- [x] **Naming convention.** Service names reflect domain/purpose, not implementation technology. `mi-venue-ingestion-worker` describes what it does (ingest and process assets), not how (AI/ML).
-- [x] **Platform venue registry.** A `public.venue_registry` table seeds new tenant venues with known data at extraction time. Copy-on-match, not link — tenant record is independent after copy. Source tagged `REGISTRY` in `metadata_sources`, lowest priority in conflict resolution. No reverse flow from tenant to registry in MVP.
-- [x] **Metadata schema versioning and JSONB drift.** Every `venues.metadata` and `venue_registry.metadata` JSONB document carries a top-level integer `_schema_version` (initial: 1; absent = 0 "legacy"). `mi-data-intelligence` (§4c) contains the `MetadataMigration` interface and `MetadataMigrator` chain runner. `mi-venue-model` (§4a) contains the venue-specific migration classes (`VenueMetadataMigrationV0ToV1`, `VenueMetadataMigrationV1ToV2`, …), `VenueMetadataMigrator` (extends `MetadataMigrator`), and `VenueMetadataSchemaVersion.CURRENT_SCHEMA_VERSION`. Every read upgrades the shape in memory via `VenueMetadataTypeHandler` (extends `MetadataTypeHandler` from `mi-data-intelligence`); every write stamps the document to `CURRENT_SCHEMA_VERSION` before persist. No offline backfill job, incremental online convergence. Same migrator classpath-identical in both services, zero drift. Full design in §2a.
+- [x] **One service or two?** ~~`mi-venue-service` + `bene-ai-service` vs. a single `mi-venue-service` with an internal AI module.~~ **Decided:** Two deployments — `mi-venue-service` (synchronous API, data-tied) and `mi-venue-processing-worker` (async sidecar, shared schema, no inbound HTTP). Services are tied to data; ingestion is a processing concern, not a peer service.
+- [x] **Naming convention.** Service names reflect domain/purpose, not implementation technology. `mi-venue-processing-worker` describes what it does (ingest and process assets), not how (AI/ML).
+- [x] **Master Venue Catalog (MC).** A `public.master_venue` table (with `master_venue_alias`, `master_venue_external` tables) serves as invisible backdrop for gap-filling tenant venue data at extraction time. Copy-on-match (MC_INHERIT provenance), not link — tenant record is fully independent after copy. Source tagged `MC_INHERIT` in `metadata_sources` with priority 7 (above SCRAPE_PROVIDER 4, below HIGH_CONF_AI 8). No reverse flow from tenant to master catalog in MVP; master catalog admin-writable only.
+- [x] **Metadata schema versioning and JSONB drift.** Every `venues.metadata` and `public.master_venue.metadata` JSONB document carries a top-level integer `_schema_version` (initial: 1; absent = 0 "legacy"). `mi-data-intelligence` (§4c) contains the `MetadataMigration` interface and `MetadataMigrator` chain runner. `mi-venue-model` (§4a) contains the venue-specific migration classes (`VenueMetadataMigrationV0ToV1`, `VenueMetadataMigrationV1ToV2`, …), `VenueMetadataMigrator` (extends `MetadataMigrator`), and `VenueMetadataSchemaVersion.CURRENT_SCHEMA_VERSION`. Every read upgrades the shape in memory via `VenueMetadataTypeHandler` (extends `MetadataTypeHandler` from `mi-data-intelligence`); every write (aggregation, manual override, bulk import, MC_INHERIT merge) stamps the document to `CURRENT_SCHEMA_VERSION` before persist. No offline backfill job, incremental online convergence. Same migrator classpath-identical in both services, zero drift. Full design in §2a.
 - [x] **Metadata aggregation race condition prevention.** How to prevent Lost Update when N extraction jobs for the same venue publish `extraction.completed` concurrently? **Rejected:** optimistic locking with retry-loop (complex retry code, hard to test livelock scenarios, conflicts hit the database first). **Rejected:** distributed locks (Redis or advisory locks — new dependency, deadlock surface, operational complexity). **Rejected:** `SELECT … FOR UPDATE` row locks (serialises at the DB, works but requires explicit transaction scripting and still contends on hot venues). **Decided:** RabbitMQ FIFO routing per `venue_id` using hash-partitioned queues (§3). Eliminates the race at the messaging layer before the consumer runs. Zero new dependencies, no retry code. Variant A1 (single queue, concurrency=1, prefetch=1) for MVP; variant A2 (16 hash-slot queues) when throughput requires. Consumer wraps the SELECT+merge+UPDATE in a single DB transaction + MANUAL ack only after COMMIT. Composes naturally with the existing 5 s debounce window — three rapid events become one aggregation. Full design in §3 "Concurrency Control and Race Condition Prevention" and §8 queue configuration.
-- [x] **Cross-source search architecture (tenant venues + public registry across schema boundary).** **Decided (Approach 2):** two parallel SQL branches → app-level merge, no PostgreSQL cross-schema JOIN/UNION in a single statement. Search bar on the tenant's venues page returns the union by default. **Rejected:** schema-level registry materialised copy per tenant (N×row duplication, scraper admin updates become fan-out consistency nightmare). **Rejected:** single SQL `UNION ALL` between `public.venue_registry` and `t_tenant.venues` in one MyBatis statement — couples planner statistics on two heterogenous tables, risks leaking admin-only registry columns if the SELECT whitelist is widened later, breaks the "swap schema-per-tenant ↔ row-level tenancy" future-proof invariant (would have to rewrite all UNION queries). **Rejected for MVP:** dedicated OpenSearch/Elasticsearch unified index. New operational service, over-engineering at MVP scale (< 500 registry rows, < 1000 tenant venues per tenant). Promote to OpenSearch only if registry breaches 100 K rows _or_ registry semantic search switches on (§17 Phase 2 signal). **Flow:** `VenueSearchOrchestrator` issues branch A (tenant mapper `VenueMapper`, implicit search_path, full 5-mode hybrid incl. semantic pgvector cosine) and branch B (`RegistryEntryQueryMapper`, **explicitly schema-qualified `FROM public.venue_registry … LEFT JOIN public.venue_registry_aliases`**, MVP 3-mode keyword + structured + geo only — no semantic on registry in MVP) via `CompletableFuture.supplyAsync` independent threads. App-level: dedup (if `venues.registry_entry_id == registryEntry.id` — registry result already imported → drop the REGISTRY origin, keep TENANT origin only) → reciprocal rank fusion A:B weight 0.5:0.5 (equal weight, re-tune post-launch if bias is observed) → slice page 20 → append `origin="TENANT"|"REGISTRY"` on each summary record. **Failure isolation:** branch B timeout/exception → return branch A only with HTTP `Warning: 299 - "Registry search unavailable"` header + Micrometer `bene_search_failures_total{branch="registry"}`. **New API surface (§7):** `GET /api/v1/venues/?scope=TENANT_ONLY|REGISTRY_ONLY|BOTH` (default `BOTH`); new DTO fields `VenueResponse.registry_entry_id` (nullable UUID, app-level FK populated on `from-registry` import or unambiguous extraction-time MATCH) and `VenueSummaryView.origin` enum; `GET /api/v1/registry/entries/{id}` (MEMBER auth, safe projection, never admin-only fields); `POST /api/v1/venues/from-registry/{registryEntryId}` (copy-on-import, REGISTRY lowest-priority source tagged, idempotent — re-import returns existing). **Cross-schema access rules (§10):** only three MyBatis mappers are ever allowed to emit `public.`-qualified SQL — `RegistryEntryQueryMapper` (read search), `VenueRegistryMatcherMapper` (read gap-fill), `RegistryAdminMapper` (admin writes). All other mappers use unqualified names via search_path. Single-statement JOIN/UNION across schemas is forbidden. **Metrics (§12):** `bene_search_requests_total{search_mode, scope}`, `bene_search_latency_seconds{search_mode, branch=tenant|registry|orchestrator_total}`, `bene_venue_import_from_registry_total{tenant_id, status=created|duplicate|error}`. **Semantic search on registry entries:** NOT in MVP. Registry entry description embeddings (generation during scraper/admin apply + cosine branch in the orchestrator) is explicitly deferred to Phase 2 decision — see §17. Full design diagram and edge cases: see §6 "Cross-source Search (tenant venues + public registry)".
+- [x] **Cross-source search architecture (tenant venues + public MasterVenue across schema boundary).** **Decided:** two parallel SQL branches → app-level merge, no PostgreSQL cross-schema JOIN/UNION in a single statement. Default scope is `TENANT_ONLY` (branch B: master catalog backdrop merges invisibly via field-level MC_INHERIT provenance, not as separate visible rows). **Rejected:** schema-level master catalog materialised copy per tenant (N×row duplication, scraper admin updates become fan-out consistency nightmare). **Rejected:** single SQL `UNION ALL` between `public.master_venue` and `t_tenant.venues` in one MyBatis statement — couples planner statistics on two heterogenous tables, risks leaking admin-only master catalog columns if the SELECT whitelist is widened later, breaks the "swap schema-per-tenant ↔ row-level tenancy" future-proof invariant (would have to rewrite all UNION queries). **Rejected for MVP:** dedicated OpenSearch/Elasticsearch unified index. New operational service, over-engineering at MVP scale (< 500 master catalog rows, < 1000 tenant venues per tenant). Promote to OpenSearch only if master catalog breaches 100 K rows _or_ master catalog semantic search switches on (§17 Phase 2 signal). **Flow:** `VenueSearchOrchestrator` issues branch A (tenant mapper `VenueMapper`, implicit search_path, full 5-mode hybrid incl. semantic pgvector cosine) and branch B (`MasterVenueQueryMapper`, **explicitly schema-qualified `FROM public.master_venue … LEFT JOIN public.master_venue_alias`**, MVP 3-mode keyword + structured + geo only — no semantic on master catalog in MVP) via `CompletableFuture.supplyAsync` independent threads. App-level: dedup (if `venues.master_venue_id == masterVenue.id` — master catalog result already imported → drop the separate MASTER_CATALOG row, keep TENANT origin only) → reciprocal rank fusion A:B weight 0.5:0.5 (equal weight, re-tune post-launch if bias is observed) → slice page 20 → append `origin="TENANT"|"MASTER_CATALOG"` on each summary record. **Failure isolation:** branch B timeout/exception → return branch A only with HTTP `Warning: 299 - "Master catalog backdrop merge unavailable, results may be incomplete"` header + Micrometer `bene_search_failures_total{branch="master_catalog"}`. **New API surface (§7):** `GET /api/v1/venues/?scope=TENANT_ONLY|MASTER_CATALOG_ONLY|BOTH` (default `TENANT_ONLY`); new DTO fields `VenueResponse.master_venue_id` (nullable UUID, app-level FK populated on `from-master-catalog` import or unambiguous extraction-time MATCH) and `VenueSummaryView.origin` enum; `GET /api/v1/master-catalog/entries/{id}` (MEMBER auth, safe projection, never admin-only fields); `POST /api/v1/venues/from-master-catalog/{masterVenueId}` (copy-on-import, MC_INHERIT source tagged with priority 7, idempotent — re-import returns existing). **Cross-schema access rules (§10):** only three MyBatis mappers are ever allowed to emit `public.`-qualified SQL — `MasterVenueQueryMapper` (read search), `MasterVenueMatcherMapper` (read gap-fill), `MasterVenueAdminMapper` (admin writes). All other mappers use unqualified names via search_path. Single-statement JOIN/UNION across schemas is forbidden. **Metrics (§12):** `bene_search_requests_total{search_mode, scope}`, `bene_search_latency_seconds{search_mode, branch=tenant|master_catalog|orchestrator_total}`, `bene_venue_import_from_master_catalog_total{tenant_id, status=created|duplicate|error}`. **Semantic search on master catalog entries:** NOT in MVP. Master catalog description embeddings (generation during scraper/admin apply + cosine branch in the orchestrator) is explicitly deferred to Phase 2 decision — see §17. Full design diagram and edge cases: see §6 "Cross-source Search (tenant venues + Master Catalog backdrop)".
 - [ ] **Docling in Phase 1?** Start with pure Tika (simpler). Add Docling sidecar in Phase 2 when floor plan / table fidelity is needed. **Lean: Tika-only for Phase 1.**
-- [x] **Registry match threshold and algorithm.** Fuzzy name + PostGIS proximity, **no embeddings/LLM in the match path.** Registry is explicitly secondary — FP rate must stay ≤ 1 %, even at cost of elevated FN. Shared `normalize()` function strips leading articles, lowercases, strips non-alnum, collapses whitespace — applied identically to both sides of every comparison. **Cold-start population paths:** (1) hardcoded Liquibase XML seed rows (50–200 high-signal venues) in `mi-venue-model/src/main/resources/db/changelog/system/` → source `platform_seed`; (2) Platform Admin single-entity CRUD API (no bulk MVP) with pre-write dedup candidate list → admin confirms Merge/Insert manually → source `admin_import`; (3) standalone scraper scripts (Cvent etc.) → S3 `vip/registry/imports/{id}/` → admin-triggered `admin.registry.import.dry-run` RabbitMQ event → `VenueRegistryImportOrchestrator` produces a review CSV with `name_sim` + `geo_distance` + per-row action recommendation (MERGE/REVIEW/INSERT thresholds: 0.90+150m → MERGE rec, 0.75/300m → REVIEW rec, else INSERT rec) → admin edits Action column, re-uploads, fires `admin.registry.import.apply` → worker applies verbatim with no independent decisions → source `web_scrape`. **Tenant extraction-time gap-fill:** combined confidence = geo available ? `0.60·name_trigram_sim + 0.40·(geo_within_200m ? 1 : 0)` : `1.00·name_trigram_sim`. MATCH threshold = combined ≥ 0.75 (with geo) OR ≥ 0.90 (name-only) AND top-2 candidate delta ≥ 0.08 (not ambiguous). Below thresholds → silent no-op; REGISTRY is lowest conflict-resolution priority so tenant extraction/user input always overrides the copy. **Before Sprint 1 dry-run calibration on 50 real PDFs:** ground-truth each fixture, run `VenueRegistryMatcher` in no-write mode, build confusion matrix, accept only if FP ≤ 1 %, else incrementally raise thresholds. Full design: see "Registry population strategy (cold start for MVP)" section above. Micrometer metrics `bene_registry_match_total{stage,outcome}` + `bene_registry_match_confidence_seconds{stage}` histogram added to §12.
+- [x] **Master Catalog match threshold and algorithm.** Fuzzy name + PostGIS proximity, **no embeddings/LLM in the match path.** Master Catalog backdrop is explicitly secondary — FP rate must stay ≤ 1 %, even at cost of elevated FN. Shared `normalize()` function strips leading articles, lowercases, strips non-alnum, collapses whitespace — applied identically to both sides of every comparison. **Cold-start population paths:** (1) hardcoded Liquibase XML seed rows (50–200 high-signal venues) in `mi-venue-model/src/main/resources/db/changelog/system/` → source `platform_seed`; (2) Platform Admin single-entity CRUD API (no bulk MVP) with pre-write dedup candidate list → admin confirms Merge/Insert manually → source `admin_import`; (3) standalone scraper scripts (Cvent etc.) → S3 `venuemi/master-catalog/imports/{id}/` → admin-triggered `admin.master_catalog.import.dry-run` RabbitMQ event → `MasterVenueImportOrchestrator` produces a review CSV with `name_sim` + `geo_distance` + per-row action recommendation (MERGE/REVIEW/INSERT thresholds: 0.90+150m → MERGE rec, 0.75/300m → REVIEW rec, else INSERT rec) → admin edits Action column, re-uploads, fires `admin.master_catalog.import.apply` → worker applies verbatim with no independent decisions → source `web_scrape`. **Tenant extraction-time gap-fill:** combined confidence = geo available ? `0.60·name_trigram_sim + 0.40·(geo_within_200m ? 1 : 0)` : `1.00·name_trigram_sim`. MATCH threshold = combined ≥ 0.75 (with geo) OR ≥ 0.90 (name-only) AND top-2 candidate delta ≥ 0.08 (not ambiguous). Below thresholds → silent no-op; MC_INHERIT has priority 7 in conflict resolution (above SCRAPE_PROVIDER priority 4) so tenant extraction/user input always overrides the copy. **Before Sprint 1 dry-run calibration on 50 real PDFs:** ground-truth each fixture, run `MasterVenueMatcher` in no-write mode, build confusion matrix, accept only if FP ≤ 1 %, else incrementally raise thresholds. Full design: see "Master Catalog population strategy (cold start for MVP)" section above. Micrometer metrics `bene_master_catalog_match_total{stage,outcome}` + `bene_master_catalog_match_confidence_seconds{stage}` histogram added to §12.
 - [x] **Chunking table placement and naming.** Schema: inside each tenant schema `t_{tenantKey}` (same schema as venues / venue_assets, NOT public, NOT a separate cross-tenant vector schema). **Rejected:** shared cross-tenant `vector_store` in `public`. Rejection rationale: a shared table requires a `tenant_id` column plus an extra sweep job on `tenant.deleted`, loses the `DROP SCHEMA … CASCADE` implicit-vector-cleanup path we already rely on for GDPR erasure, opens a cross-tenant leak bug surface any time a WHERE clause forgets to filter by `tenant_id`, forces the venue+vectors write path across two resources that are no longer atomically transactional, and would produce one giant shared IVFFlat index whose REINDEX blocks every tenant on the cluster simultaneously. **Decided:** one `item_vectors` table per tenant schema (defined in `mi-data-intelligence` changelog, §4c), routed by the same `MyBatisSchemaInterceptor`. **Table name:** `item_vectors` — generic name from `mi-data-intelligence`; the venue prefix is applied at the service layer via `TenantAwarePgVectorStore`. **Rejected:** Spring AI's default name `vector_store` because it is not self-documenting. Columns: `id UUID PK`, `content TEXT` (raw chunk), `metadata JSONB` (Spring AI tags: `venue_id`, `asset_id`, `asset_type`, `token_count`, `chunk_index`), `embedding VECTOR(1536)`. Initial vector index: IVFFlat (cosine-distance), cheaper than HNSW at MVP volumes. `idx_vectors_asset` btree expression index on `(metadata->>'asset_id')` for fast `asset.deleted` sweep. See §17 Phase 2 design signal for the 1 M-row IVFFlat→HNSW evaluation trigger.
-- [x] **Shared library split: `mi-data-intelligence` + `mi-venue-model`.** **Problem:** all extraction pipeline contracts, event POJOs, metadata versioning mechanism, provenance model, and infrastructure Liquibase changelogs were co-located with venue-specific domain classes in a single `mi-venue-model` library. This made the infrastructure layer impossible to reuse in a future vertical (medical, agro, legal) without carrying venue field names as a transitive dependency. **Decided:** split into two compile-time JARs. `mi-data-intelligence` — domain-agnostic platform library: `ExtractionJob`, `ExtractionStatus`, `ExtractorType`, `AssetType`, `MetadataMigration` interface, `MetadataMigrator` runner, `MetadataTypeHandler` abstract base, `MetadataSource` (provenance), `MetadataEventType`, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`), and infrastructure Liquibase changelogs (`extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`). Contains no venue-specific field names. `mi-venue-model` — venue-domain library: `Venue`, `VenueStatus`, `VenueAsset`, `VenueMetadata` (canonical field set), `VenueCapacity`, `VenueMetadataMigrator` (extends `MetadataMigrator`), `VenueMetadataTypeHandler` (extends `MetadataTypeHandler`), `VenueMetadataSchemaVersion.CURRENT_SCHEMA_VERSION`, concrete migration classes, `VenueRegistryEntry`, `VenueRegistryAlias`, and venue/registry Liquibase changelogs. Depends on `mi-data-intelligence`. **Pivot cost:** a new vertical creates a new `bene-{domain}-model` that imports `mi-data-intelligence` and adds its own domain model + migrations. Zero changes to `mi-data-intelligence`. Full design: §4a and §4c.
+- [x] **Shared library split: `mi-data-intelligence` + `mi-venue-model`.** **Problem:** all extraction pipeline contracts, event POJOs, metadata versioning mechanism, provenance model, and infrastructure Liquibase changelogs were co-located with venue-specific domain classes in a single `mi-venue-model` library. This made the infrastructure layer impossible to reuse in a future vertical (medical, agro, legal) without carrying venue field names as a transitive dependency. **Decided:** split into two compile-time JARs. `mi-data-intelligence` — domain-agnostic platform library: `ExtractionJob`, `ExtractionStatus`, `ExtractorType`, `AssetType`, `MetadataMigration` interface, `MetadataMigrator` runner, `MetadataTypeHandler` abstract base, `MetadataSource` (provenance), `MetadataEventType`, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`), and infrastructure Liquibase changelogs (`extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`). Contains no venue-specific field names. `mi-venue-model` — venue-domain library: `Venue`, `VenueStatus`, `VenueAsset`, `VenueMetadata` (canonical field set), `VenueCapacity`, `VenueMetadataMigrator` (extends `MetadataMigrator`), `VenueMetadataTypeHandler` (extends `MetadataTypeHandler`), `VenueMetadataSchemaVersion.CURRENT_SCHEMA_VERSION`, concrete migration classes, `MasterVenue`, `MasterVenueAlias`, and venue / master catalog Liquibase changelogs. Depends on `mi-data-intelligence`. **Pivot cost:** a new vertical creates a new `bene-{domain}-model` that imports `mi-data-intelligence` and adds its own domain model + migrations. Zero changes to `mi-data-intelligence`. Full design: §4a and §4c.
 - [ ] **Cost tracking granularity:** per-asset or per-tenant-per-month? Both are in schema; decide which is surfaced in UI.
 - [ ] **Old migration class retirement policy.** After how many consecutive months of zero hits on the `schema_version < N` Prometheus counter do we delete the oldest migration classes from the chain? Define the guardrail before the first schema bump so we do not accumulate deprecated code indefinitely.
 
@@ -2043,10 +2076,10 @@ One `@RestControllerAdvice` per service. Every handler uses the same `problem(ty
 
 - [ ] **Docling in Phase 1?** No — Tika-only for MVP. Add Docling sidecar in Phase 2 for floor plan / table fidelity.
 - [ ] **MVP scope cut** — Phase 1 is: venue profiles, asset upload, basic extraction (PDF only), keyword + semantic search, team collaboration. Everything else is Phase 2+.
-- [ ] **Implement `VenueMetadataMigrator` v0 + v1 chain** in `mi-venue-model` before any service code reads or writes `venues.metadata`. Wire `VenueMetadataTypeHandler` into the `VenueResultMap`. Add a 1-line counter Micrometer call inside `migrateToCurrent()` so version distribution metrics work from day zero. Add JUnit tests for `MetadataMigrationV0ToV1` with 5+ fixture JSON shapes (empty `{}`, `{}` without `_schema_version`, full v1 shape, partial v1 shape, registry-copy shape) to cover legacy-bootstrapping edge cases.
+- [ ] **Implement `VenueMetadataMigrator` v0 + v1 chain** in `mi-venue-model` before any service code reads or writes `venues.metadata`. Wire `VenueMetadataTypeHandler` into the `VenueResultMap`. Add a 1-line counter Micrometer call inside `migrateToCurrent()` so version distribution metrics work from day zero. Add JUnit tests for `MetadataMigrationV0ToV1` with 5+ fixture JSON shapes (empty `{}`, `{}` without `_schema_version`, full v1 shape, partial v1 shape, master-catalog-copy shape) to cover legacy-bootstrapping edge cases.
 - [ ] **Implement metadata aggregation FIFO routing (A1 for MVP)** in `mi-venue-service` `MetadataAggregationConsumer`: configure `@RabbitListener` on `venuemi.metadata.aggregation` with `concurrency=1`, `prefetchCount=1`, `acknowledgeMode=MANUAL`. Wrap the full SELECT → debounce check → merge via VenueMetadataMigrator → UPDATE → venue_metadata_events consume cycle in a single `@Transactional` DB transaction. Ack the RabbitMQ message only after the transaction commits; nack with requeue (up to 3x) on transient exceptions, then DLQ. Add an integration test that publishes three `extraction.completed` events for the same `venue_id` in quick succession, consumes the queue, and asserts that the final `venues.metadata` contains merged fields from all three sources AND that exactly one SQL `UPDATE` was executed (debounce + FIFO coalescing). When queue depth metrics show sustained backlog > 1 s, promote from A1 to A2 (16 hash-slot queues + publisher-side slot computation); consumer handler code is unchanged.
-- [ ] **Implement VenueRegistryMatcher + dry-run threshold calibration.** Code: `VenueRegistryMatcher` class in `mi-venue-ingestion-worker` (pure PostgreSQL pg_trgm + PostGIS, shared `normalize()` 6-step function (strip articles, lowercase, strip non-alnum, collapse whitespace, trim both sides of every comparison), fetch top-5 trigram candidates via GIN index, PostGIS ST_DWithin 200m radius, combined confidence formula with 0.60·name + 0.40·geo (or pure name when geo missing), MATCH thresholds 0.75 with geo / 0.90 name-only, ambiguity guard delta ≥ 0.08, field copy only for leaf keys that are null on tenant side + REGISTRY source tag in metadata_sources, set metadata_aggregated_at = NOW() after copy. Populate `venues.registry_entry_id` on unambiguous MATCH so cross-source search dedup works. Micrometer counters matched/ambiguous/no_match counter + confidence histogram. Unit tests: 10+ synthetic pairs (exact, fuzzy, geo cross-city mismatch, no geo strict, ambiguous 2-cand delta=0.05 ambiguous guard). Dry-run calibration: 50 real PDFs with ground truth, build confusion matrix, acceptance FP-rate ≤ 1 %, adjust thresholds and document final numbers → release. Admin single-entity CRUD MVP: `POST/PATCH /api/v1/admin/registry/entries` + dedup candidate endpoint returning review list. Scraper dry-run review CSV + `VenueRegistryImportOrchestrator` RabbitMQ events `admin.registry.import.dry-run` → report → `admin.registry.import.apply` verbatim apply (never autonomous decisions on the worker's side).
-- [ ] **Implement cross-source search path (?scope + RRF merge + registry detail + from-registry import).** Code in `mi-venue-service`: (1) new `scope` enum param wired on `GET /api/v1/venues/`; (2) `VenueSearchOrchestrator` with `CompletableFuture` parallel branch A (tenant mapper `VenueMapper` full 5 modes) + branch B (`RegistryEntryQueryMapper` explicitly qualified `public.venue_registry … LEFT JOIN public.venue_registry_aliases`, 3 MVP modes keyword+structured+geo only, fixed column whitelist). Branch timeout 2 s on registry. (3) App-level merge: dedup by `registry_entry_id` → drop REGISTRY origin if already imported → Reciprocal Rank Fusion equal weights 0.5:0.5 → top-50 each → slice page by page/size → append `origin: "TENANT" | "REGISTRY"` per record. (4) Failure isolation: branch B exception/timeout → return A only + `Warning` header + Micrometer `bene_search_failures_total{branch="registry"}`. (5) DTOs: add `registry_entry_id` nullable UUID to `VenueResponse`, add `origin` to `VenueSummaryView`. (6) `GET /api/v1/registry/entries/{id}` (MEMBER authority, fixed column safe projection — never confidence, private notes, or source audit fields). (7) `POST /api/v1/venues/from-registry/{registryEntryId}` (MEMBER): idempotent (if venue with `registry_entry_id` exists → return existing), else INSERT copying registry fields into metadata with `REGISTRY` lowest-priority `metadata_sources` source tag + set `registry_entry_id` + `metadata_aggregated_at = NOW()`. (8) Unit tests: 8 scenarios (BOTH scopes equal weight dedup imported, BOTH scopes dedup not imported, REGISTRY_ONLY scope returns only registry origin, TENANT_ONLY scope never queries RegistryEntryQueryMapper, RRF interleaving order, Warning header on branch B timeout, 3-seconds branch B timeout degrades gracefully, from-registry POST idempotent on second call). (9) Enforce cross-schema rule at code review: no other MyBatis mapper emits `public.` SQL except RegistryEntryQueryMapper / VenueRegistryMatcherMapper / RegistryAdminMapper; cross-schema JOIN/UNION in one statement forbidden (§10).
+- [ ] **Implement MasterVenueMatcher + dry-run threshold calibration.** Code: `MasterVenueMatcher` class in `mi-venue-processing-worker` (pure PostgreSQL pg_trgm + PostGIS, shared `normalize()` 6-step function (strip articles, lowercase, strip non-alnum, collapse whitespace, trim both sides of every comparison), fetch top-5 trigram candidates via GIN index, PostGIS ST_DWithin 200m radius, combined confidence formula with 0.60·name + 0.40·geo (or pure name when geo missing), MATCH thresholds 0.75 with geo / 0.90 name-only, ambiguity guard delta ≥ 0.08, field copy only for leaf keys that are null on tenant side + MC_INHERIT provenance tag (priority 7) in metadata_sources, set metadata_aggregated_at = NOW() after copy. Populate `venues.master_venue_id` on unambiguous MATCH so cross-source search dedup works. Micrometer counters matched/ambiguous/no_match counter + confidence histogram. Unit tests: 10+ synthetic pairs (exact, fuzzy, geo cross-city mismatch, no geo strict, ambiguous 2-cand delta=0.05 ambiguous guard). Dry-run calibration: 50 real PDFs with ground truth, build confusion matrix, acceptance FP-rate ≤ 1 %, adjust thresholds and document final numbers → release. Admin single-entity CRUD MVP: `POST/PATCH /api/v1/admin/master-catalog/entries` + dedup candidate endpoint returning review list. Scraper dry-run review CSV + `MasterVenueImportOrchestrator` RabbitMQ events `admin.master_catalog.import.dry-run` → report → `admin.master_catalog.import.apply` verbatim apply (never autonomous decisions on the worker's side).
+- [ ] **Implement cross-source search path (?scope + RRF merge + master catalog detail + from-master-catalog import).** Code in `mi-venue-service`: (1) new `scope` enum param wired on `GET /api/v1/venues/`; (2) `VenueSearchOrchestrator` with `CompletableFuture` parallel branch A (tenant mapper `VenueMapper` full 5 modes) + branch B (`MasterVenueQueryMapper` explicitly qualified `public.master_venue … LEFT JOIN public.master_venue_alias`, 3 MVP modes keyword+structured+geo only, fixed column whitelist). Branch timeout 2 s on master catalog backdrop. (3) App-level merge: dedup by `master_venue_id` → drop separate MASTER_CATALOG row if already imported → Reciprocal Rank Fusion equal weights 0.5:0.5 → top-50 each → slice page by page/size → append `origin: "TENANT" | "MASTER_CATALOG"` per record. (4) Failure isolation: branch B exception/timeout → return A only + `Warning` header + Micrometer `bene_search_failures_total{branch="master_catalog"}`. (5) DTOs: add `master_venue_id` nullable UUID to `VenueResponse`, add `origin` to `VenueSummaryView`. (6) `GET /api/v1/master-catalog/entries/{id}` (MEMBER authority, fixed column safe projection — never confidence, private notes, or source audit fields). (7) `POST /api/v1/venues/from-master-catalog/{masterVenueId}` (MEMBER): idempotent (if venue with `master_venue_id` exists → return existing), else INSERT copying master catalog fields into metadata with MC_INHERIT (priority 7) `metadata_sources` source tag + set `master_venue_id` + `metadata_aggregated_at = NOW()`. (8) Unit tests: 8 scenarios (BOTH scopes equal weight dedup imported, BOTH scopes dedup not imported, MASTER_CATALOG_ONLY scope returns only MASTER_CATALOG origin, TENANT_ONLY scope never queries MasterVenueQueryMapper, RRF interleaving order, Warning header on branch B timeout, 3-seconds branch B timeout degrades gracefully, from-master-catalog POST idempotent on second call). (9) Enforce cross-schema rule at code review: no other MyBatis mapper emits `public.` SQL except MasterVenueQueryMapper / MasterVenueMatcherMapper / MasterVenueAdminMapper; cross-schema JOIN/UNION in one statement forbidden (§10).
 
 ### Phase 2 Design (post-MVP signal)
 
@@ -2057,10 +2090,10 @@ One `@RestControllerAdvice` per service. Every handler uses the same `problem(ty
 - CAD visual extraction — convert DWG/DXF to image, then GPT-4o vision
 - Video walkthroughs — keyframe extraction via ffmpeg, vision-based amenity detection
 - **Venue groups** — `venue_groups` and `venue_group_members` tables, tenant-owned library organisation by city / event type / client / season. Tree/folder navigation in the tenant app. No impact on search or extraction.
-- **Registry admin API** — internal platform endpoint for bulk-importing seed data, managing registry entries, reviewing match quality. `PLATFORM_ADMIN` authority only.
+- **Master Catalog admin API** — internal platform endpoint for bulk-importing seed data, managing master catalog entries, reviewing match quality. `PLATFORM_ADMIN` authority only.
 - **pgvector index strategy: IVFFlat → HNSW evaluation.** Start with IVFFlat (indexed `idx_vectors_embedding`, cosine distance, 1536 dims, MVCC-friendly). When any single tenant's `item_vectors` count exceeds 1 M rows (Micrometer gauge `bene_item_vectors_rows_total{tenant_id}`), schedule a maintenance window to benchmark HNSW on that tenant's data. HNSW delivers better recall/performance at high volumes but has a higher build cost and write amplification; only promote tenants that actually breach the size threshold, keep IVFFlat as default for small tenants.
-- **Registry semantic search + unified search index evaluation.** Two triggers to revisit search: (1) If Prometheus `bene_search_latency_seconds{branch="tenant"}` p99 > 500 ms sustained for 10 min on concurrent usage _and_ per-tenant venues count > 10 K (pgvector + tsvector hit plan-scaling wall) _or_ (2) Registry admin wants semantic on registry entries enabled ("venue atmosphere" queries on seed data). Trigger path: introduce `venue_registry.metadata.description_embedding` (VECTOR 1536) in `public` schema, generate embeddings during scraper/admin apply on `registry_entry.created` events, add cosine branch to RegistryEntryQueryMapper (now 4 modes), run 6-month production latency/cost profiling on `bene_search_latency_seconds` + `bene_ai_cost_usd_total` + `bene_search_requests_total{scope=REGISTRY_ONLY}`. If either branch's p99 > 500 ms or `bene_venue_import_from_registry_total{status=created}` (ROI signal) is above 10 per user per week, consider a dedicated shared OpenSearch cluster (single index with `tenant_id` + `registry_entry_id` fields) for both sources — before building, run a 2-week shadow benchmark on the same corpus using OpenSearch Neural Search plugin + field-mapped hybrid. For MVP: PostgreSQL stays search engine of record; no new infrastructure.
-- **Sweep orphan `venues.registry_entry_id` values after `registry.admin.entry.deleted`.** When Registry Admin deletes or archives an entry, run a per-tenant sweeping job to set `registry_entry_id = NULL` on any tenant-owned venue rows that still referenced it. Prevents the cross-source dedup from silently "showing the already imported but now gone" behavior (the TENANT origin still works; only the dedup filter becomes a no-op). Deferred because registry seed is small in MVP and deletions are a rare admin action. When scheduled: log with counter `bene_registry_entry_sweep_total{outcome=updated|no_match|error}` and run in a background worker thread pool, not in the admin API request cycle.
+- **Master Catalog semantic search + unified search index evaluation.** Two triggers to revisit search: (1) If Prometheus `bene_search_latency_seconds{branch="tenant"}` p99 > 500 ms sustained for 10 min on concurrent usage _and_ per-tenant venues count > 10 K (pgvector + tsvector hit plan-scaling wall) _or_ (2) Master Catalog admin wants semantic on master catalog entries enabled ("venue atmosphere" queries on seed data). Trigger path: introduce `master_venue.metadata.description_embedding` (VECTOR 1536) in `public` schema, generate embeddings during scraper/admin apply on `master_venue.created` events, add cosine branch to MasterVenueQueryMapper (now 4 modes), run 6-month production latency/cost profiling on `bene_search_latency_seconds` + `bene_ai_cost_usd_total` + `bene_search_requests_total{scope=MASTER_CATALOG_ONLY}`. If either branch's p99 > 500 ms or `bene_venue_import_from_master_catalog_total{status=created}` (ROI signal) is above 10 per user per week, consider a dedicated shared OpenSearch cluster (single index with `tenant_id` + `master_venue_id` fields) for both sources — before building, run a 2-week shadow benchmark on the same corpus using OpenSearch Neural Search plugin + field-mapped hybrid. For MVP: PostgreSQL stays search engine of record; no new infrastructure.
+- **Sweep orphan `venues.master_venue_id` values after `master_catalog.admin.entry.deleted`.** When Master Catalog Admin deletes or archives an entry, run a per-tenant sweeping job to set `master_venue_id = NULL` on any tenant-owned venue rows that still referenced it. Prevents the cross-source dedup from silently "showing the already imported but now gone" behavior (the TENANT origin still works; only the dedup filter becomes a no-op). Deferred because master catalog seed is small in MVP and deletions are a rare admin action. When scheduled: log with counter `bene_master_catalog_entry_sweep_total{outcome=updated|no_match|error}` and run in a background worker thread pool, not in the admin API request cycle.
 
 ### Phase 3 Design
 

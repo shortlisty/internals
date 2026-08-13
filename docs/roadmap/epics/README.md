@@ -37,7 +37,7 @@ Epics are grouped by the product layer they belong to, matching the two-layer ar
 
 | Group                                      | Description                                                                                                                                                                            |
 | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **A. Platform Foundation**                 | Infrastructure that must exist before any user-facing capability runs. Tenancy, shared libraries, schema contracts, registry. No end-user value on its own — everything depends on it. |
+| **A. Platform Foundation**                 | Infrastructure that must exist before any user-facing capability runs. Tenancy, shared libraries, schema contracts, master catalog. No end-user value on its own — everything depends on it. |
 | **B. Personal Venue Catalog (Data Layer)** | The agency's private library: venue profiles, document ingestion, extraction, metadata, search, data quality. Layer 1 per the vision statement.                                        |
 | **C. Digital Sales Room (Output Layer)**   | Client-facing pitch boards, the approval loop, snapshots. Layer 2 per the vision statement. The buying trigger — agencies pay because this layer exists.                               |
 | **D. Post-v1.0 Enhancements**              | Scaling features, deeper collaboration, integrations, marketplace, vertical extension. Not part of the v1.0 launch scope.                                                              |

@@ -14,6 +14,16 @@ VenueMi Intelligence is a knowledge base and workflow tool for event managers an
 
 The product has one user: the event professional. Everything is designed around their daily workflow — receiving venue documents, building a library of trusted venues, answering client briefs, and preparing proposals. The end client (the person who commissions the event) is a recipient of output from that workflow, not a user of the tool.
 
+### Internal Venue Master Catalog (hidden backdrop layer)
+
+Behind the tenant app sits a single internal reference dataset called the **Venue Master Catalog (MC)** — stored in the platform-wide `public.master_venue` table family. It is a hidden layer that tenants never see or search directly, but it improves every tenant's experience in three invisible ways:
+
+1. **Silent gap-fill at asset-ETL time.** When a planner uploads a venue document and the AI extraction leaves some fields blank or low-confidence, the platform matches the tenant venue against the Master Catalog by name + city + geo-coordinates. If a match is found, missing fields are filled in automatically from the master row, attributed with provenance `MC_INHERIT` (priority 7/10 — between `LOW_CONF_AI` and `MEDIUM_CONF_AI`). The planner sees a "23 fields auto-filled" confirmation and a single verification checkbox — no mention of the "Master Catalog" anywhere in the UI.
+2. **Silent form auto-populate on venue creation.** When a planner types a venue name (e.g. "Grand Hyatt Dubai") into the Create Venue form and a Master Catalog match exceeds the 0.75 combined name+geo threshold, the form pre-fills all non-conflicting fields. The planner can still overwrite any field — edits become `MANUAL_OVERRIDE` (priority 10/10). This solves the "empty form cold start" for venues the planner has not yet uploaded documents for.
+3. **Ingestion-time dedup of provider records.** Whenever a new provider record is scraped (e.g. a Tagvenue room listing) or a platform seed row is inserted, it is first upserted into `public.master_venue_external` and then fuzzy-matched against the existing master rows before a new `master_venue` is created. This ensures the master dataset never accumulates fifty "Grand Hyatt Dubai" duplicates, and every new external record enriches the shared provenance pool rather than creating a new orphan row.
+
+The Master Catalog is populated via three channels — platform seed data (Liquibase XML for 50–200 tier-2 city venues at launch), admin CRUD imports (internal team), and provider web scrapers such as the `mi-mc-ingest-tagvenue-scraper` writing JSON consumed by `mi-mc-loader`. Tenant data never flows back into the Master Catalog to preserve data isolation and client confidentiality.
+
 ---
 
 ## The tenant app

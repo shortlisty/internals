@@ -28,7 +28,7 @@ Key capabilities:
 - One-click human verification — split-screen: source document left, extracted fields right
 - Flexible metadata schema (JSONB) — no rigid field set, adapts to any venue type
 - Hybrid search: keyword, semantic (natural language), structured filters, geo-spatial
-- Platform-level curated registry for major markets — fills gaps when the agency's files are sparse
+- Platform master venue catalog for major markets — invisible gap-fill when the agency's files are sparse (provenance MC_INHERIT, lowest non-scrape priority)
 
 ### Layer 2 — Digital Sales Room (output layer)
 
@@ -58,7 +58,7 @@ How venue data enters the library without manual re-entry.
 - Direct upload for PDFs, photos, floor plans, spec sheets
 - AI extraction pipeline: Tika (parsing) → GPT-4o (structured extraction) → confidence scores per field
 - Human verification screen: planner reviews AI output against source, corrects in one click
-- Curated registry match: if the venue is in the platform's known list, gap-fill from registry at lowest priority
+- Master catalog match: if the venue is in the master catalog, gap-fill at MC_INHERIT priority (invisible backdrop merge)
 
 ### 2. Venue catalog
 
@@ -79,7 +79,7 @@ Retrieval across the entire library.
 - Semantic similarity: "find venues like this one"
 - Geo-spatial: venues within X km of a given address or city centre
 - Hybrid mode (default): keyword + semantic + structured filters in one query
-- Results include origin tag: tenant catalog or platform registry
+- Master catalog values merge invisibly into tenant results; provenance (MC_INHERIT) tracked internally per field, not surfaced as a separate result bucket
 
 ### 4. Pitch board
 

@@ -101,7 +101,7 @@ EA, HR, or events leads at mid-to-large companies running quarterly offsites, an
 - AI extraction: capacity, catering policy, AV specs, restrictions, contacts, pricing
 - Human verification: split-screen confirm/correct flow, confidence scores, source citations
 - Hybrid search: keyword, semantic, structured filters
-- Platform curated registry for major markets (gap-fill at lowest priority)
+- Master venue catalog for major markets (invisible gap-fill at MC_INHERIT priority, provenance tracked per field)
 
 **Pitch board**
 
@@ -139,7 +139,7 @@ EA, HR, or events leads at mid-to-large companies running quarterly offsites, an
 
 - Integration hooks: CRM, calendar, booking systems
 - Export: PDF spec sheet, Excel, structured JSON
-- Platform venue registry: public venue profiles agencies can pull directly into pitches
+- Master venue catalog surfacing: verified master venue profiles agencies can promote from backdrop into pitches directly
 - Analytics: brief-to-approval conversion rate, time-to-approval, most-pitched venues
 
 ---
@@ -174,7 +174,7 @@ EA, HR, or events leads at mid-to-large companies running quarterly offsites, an
 
 ### Future revenue
 
-- **Venue registry listings:** venues pay for a verified public profile that agencies can pull into pitches directly, reducing ingestion time
+- **Master venue listings:** venues pay for a verified profile in the master catalog that agencies can surface into pitches directly, reducing ingestion time
 - **Lead signal products:** anonymised aggregate data on which venue types and configurations appear most in approved pitches — sold to hospitality operators for market intelligence
 
 ### Unit economics target
@@ -223,7 +223,7 @@ The agency has to trust that their client will open a link rather than expect a 
 The catalog's value depends on extracted data being reliable. Real venue documents vary enormously in format and quality. Mitigation: benchmark 50 real venue documents before launch, publish accuracy results internally, never promise field-level accuracy that hasn't been measured. Human verification is a first-class feature, not a backup.
 
 **Cold start — empty catalog on signup.**
-An empty library produces an empty pitch. Mitigation: concierge onboarding (team imports the first 20 venues for free), plus a platform curated registry for major markets so the first search always returns something useful.
+An empty library produces an empty pitch. Mitigation: concierge onboarding (team imports the first 20 venues for free), plus the master venue catalog gap-fills invisibly for major markets so the first search always returns something useful.
 
 **Client-side experience must be zero-friction.**
 If the client needs to create an account, download an app, or ask the agency how to use the board — the product has failed. Mitigation: test the board link with non-technical users before launch. If anyone asks "how do I open this?" — fix the board before shipping.

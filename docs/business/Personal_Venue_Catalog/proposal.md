@@ -351,7 +351,7 @@ Personal and direct. No paid acquisition yet.
 
 - Direct outreach to event professionals in existing network
 - LinkedIn outreach with specific pain point framing ("do you manage a venue library?")
-- Concierge onboarding offer: we import your first 20 venues for free — reduces the activation barrier to zero
+- Concierge onboarding offer: we import your first 20 venues for free — reduces the activation barrier to zero. During import, any venue matching the internal Venue Master Catalog entries (50–200 tier-2 US/EU city venues pre-seeded) receives 20–30 auto-populated fields (capacity, venue type, default catering policy, city) immediately, without waiting for user PDF uploads.
 - Community seeding: event professional Facebook groups, r/eventplanning, industry Slack groups (EventProfs, MPI chapters)
 - One US city focus first — build word-of-mouth in a specific community before expanding
 
@@ -382,9 +382,9 @@ Personal and direct. No paid acquisition yet.
 
 **AI extraction accuracy below expectations.** The core value proposition depends on extraction being good enough that event professionals trust the output. Real-world venue PDFs vary enormously. Mitigation: benchmark 50 real venue documents before launch and measure field-level accuracy. Show confidence scores always. Make manual override a first-class, one-click feature.
 
-**Empty platform problem (cold start).** A venue library with one venue in it is not useful. Mitigation: concierge onboarding gets early customers past the empty-state friction. Seed the free tier with publicly available venue data from major US markets so it is never completely empty.
+**Empty platform problem (cold start).** A venue library with one venue in it is not useful. Mitigation: three layers. (1) **Concierge onboarding** gets early customers past the empty-state friction on day one. (2) **Master Catalog silent auto-populate**: before a planner uploads any document, if they create a venue whose name+city matches the internal pre-seeded Venue Master Catalog (50–200 tier-2 US/EU venues at launch: Austin, Nashville, Miami, Naples, etc.), 20–30 fields are filled in immediately from the hidden backdrop layer. (3) **Master Catalog enrichment via scrapers**: the `mi-mc-ingest-tagvenue-scraper` CronJob refreshes city-level data nightly so the backdrop grows before tenants do. For free-tier users, this means they rarely see a truly blank form — venues in the seed cities are pre-populated on creation.
 
-**Trust and data confidentiality.** Event professionals' venue portfolios contain proprietary relationships and pricing intelligence. Mitigation: schema-per-tenant isolation, encryption at rest and in transit, clear data handling policy, transparency about how OpenAI processes documents (enterprise option: Azure OpenAI for data residency).
+**Trust and data confidentiality.** Event professionals' venue portfolios contain proprietary relationships and pricing intelligence. Mitigation: schema-per-tenant isolation, encryption at rest and in transit, clear data handling policy, transparency about how OpenAI processes documents (enterprise option: Azure OpenAI for data residency). **Tenant data never flows back into the shared Master Catalog** to prevent information leakage. The Master Catalog is populated only from public sources (seed, admin imports, web scrapers) — one-way enrichment only.
 
 **Single-user adoption without team buy-in.** Stickiness is team-level, not individual. Mitigation: price at the team level (Pro includes unlimited team members), make the shared library the primary UX entry point.
 

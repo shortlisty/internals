@@ -48,7 +48,7 @@ Every tenant gets its own PostgreSQL database with its own users, tables, and co
 
 ### Option C — Schema-per-tenant inside one shared PostgreSQL instance
 
-Each tenant gets its own named schema `t_{tenantKey}`. Tables are created per-schema: `t_acme0001.venues`, `t_acme0001.venue_assets`, `t_acme0001.item_vectors`, etc. A `MyBatisSchemaInterceptor` sets `SET search_path = t_acme0001, public` on each connection before the SQL executes. Queries reference `venues` unqualified — the connection's search_path resolves it. `public` schema contains only the `venue_registry` (platform-curated, read-only) and infrastructure tables.
+Each tenant gets its own named schema `t_{tenantKey}`. Tables are created per-schema: `t_acme0001.venues`, `t_acme0001.venue_assets`, `t_acme0001.item_vectors`, etc. A `MyBatisSchemaInterceptor` sets `SET search_path = t_acme0001, public` on each connection before the SQL executes. Queries reference `venues` unqualified — the connection's search_path resolves it. `public` schema contains only the `master_venue` (master catalog, read-only) and infrastructure tables.
 
 **Pros:**
 
@@ -70,9 +70,9 @@ Each tenant gets its own named schema `t_{tenantKey}`. Tables are created per-sc
 
 **Option C: Schema-per-tenant inside one shared PostgreSQL instance.**
 
-VenueMi inherits the foundation's `foundation-tenancy` library unchanged. All VenueMi tenant-specific tables (`venues`, `venue_assets`, `venue_groups`, `extraction_jobs`, `item_vectors`, `venue_metadata_events`, `ai_cost_tracking`) are created inside `t_{tenantKey}`. The `venue_registry` platform reference table lives in `public` and is read-only to tenant connections.
+VenueMi inherits the foundation's `foundation-tenancy` library unchanged. All VenueMi tenant-specific tables (`venues`, `venue_assets`, `venue_groups`, `extraction_jobs`, `item_vectors`, `venue_metadata_events`, `ai_cost_tracking`) are created inside `t_{tenantKey}`. The `master_venue` master catalog reference table lives in `public` and is read-only to tenant connections.
 
-Only one mapper (`RegistryEntryQueryMapper`) may explicitly qualify `public.` in SQL. All other mappers rely on `search_path` set by `MyBatisSchemaInterceptor` and never reference schema names.
+Only one mapper (`MasterVenueQueryMapper`) may explicitly qualify `public.` in SQL. All other mappers rely on `search_path` set by `MyBatisSchemaInterceptor` and never reference schema names.
 
 ---
 
@@ -86,7 +86,7 @@ Only one mapper (`RegistryEntryQueryMapper`) may explicitly qualify `public.` in
 
 ## Consequences
 
-- **No cross-schema SQL.** No query may JOIN or UNION ALL across tenant schemas in a single statement. Cross-source search (Option D in D4) explicitly runs two separate queries via parallel `CompletableFuture`, not a UNION ALL. This is a documented and static-analysis-enforced rule: `RegistryEntryQueryMapper` is the only code path with `public.` qualification.
+- **No cross-schema SQL.** No query may JOIN or UNION ALL across tenant schemas in a single statement. Cross-source search (Option D in D4) explicitly runs two separate queries via parallel `CompletableFuture`, not a UNION ALL. This is a documented and static-analysis-enforced rule: `MasterVenueQueryMapper` is the only code path with `public.` qualification.
 - **Per-tenant changelogs are immutable and append-only.** Liquibase changesets in `mi-venue-model` must never be edited or reordered after merge. `TenantLiquibaseRunner` runs the changelog sequentially on each tenant schema; editing an old changeset creates checksum mismatches that require tenant-by-tenant manual intervention.
 - **PostgreSQL max_locks_per_transaction is tuned upward.** Schema-per-tenant with 1,000 schemas × 8 tables = 8,000 tables; access patterns that touch many tables in one transaction (e.g., the admin cross-tenant search function) require higher lock table capacity. The foundation PostgreSQL image already ships with this tuned.
 - **Index maintenance on new tenants is tenant-scoped.** When a changelog adds a new index to `venues`, `TenantLiquibaseRunner` creates it per tenant in the async onboarding job. New tenants get the index on creation. Existing tenants' indexes are created during a rolling window where tenant activity is low; a `CREATE INDEX CONCURRENTLY` wrapper in Liquibase avoids locking the table during the build.

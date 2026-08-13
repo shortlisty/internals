@@ -126,7 +126,7 @@ Each line follows this exact format:
 - [ ] CAD/DWG floor plan file → PNG conversion → layout-aware amenity extraction via vision model · Epic: E2-document-intelligence · Milestone: — (post-v1.0) · Priority: P3
 - [ ] Venue walkthrough videos: keyframe extraction + Whisper transcription → scene-level amenity tagging · Epic: E2-document-intelligence · Milestone: — (post-v1.0) · Priority: P3
 - [ ] Saved search presets: planner saves a "wedding 150 pax + outdoor" query as a reusable filter · Epic: E3-search · Milestone: — (post-v1.0) · Priority: P3
-- [ ] New-venue alerting: weekly email when a new venue matching a saved search preset appears in the catalogue or registry · Epic: E3-search · Milestone: — (post-v1.0) · Priority: P3
+- [ ] New-venue alerting: weekly email when a new venue matching a saved search preset appears in the catalogue or via master catalog backdrop new-record signal · Epic: E3-search · Milestone: — (post-v1.0) · Priority: P3
 - [ ] Tenant-wide metadata-schema versioning UI: view `_schema_version` state and run forced-convergence admin actions per venue · Epic: E6-data-quality · Milestone: — (post-v1.0) · Priority: P3
 - [ ] Vertical-extension library scaffolding generator: add medical or agro venue sub-types using the strategy-pattern extension hooks · Epic: E1-venue-profiles · Milestone: — (post-v1.0) · Priority: P3
 
@@ -141,7 +141,7 @@ Each line follows this exact format:
 - [ ] When a pitch board is approved, auto-attach a calendar booking link (Cal.com / Google Calendar) for the next call · Epic: E8-integrations · Milestone: — (post-v1.0) · Priority: P3
 - [ ] Venue-owner verified profile in a public marketplace (two-sided listing, distinct from agency private catalogues) · Epic: E9-marketplace · Milestone: — (post-v1.0) · Priority: P3
 - [ ] Agency planner can send a one-click introduction message to a venue owner from the marketplace venue card · Epic: E9-marketplace · Milestone: — (post-v1.0) · Priority: P3
-- [ ] Marketplace venues can be searched across the public registry before being copy-on-imported into the tenant's private library · Epic: E9-marketplace · Milestone: — (post-v1.0) · Priority: P3
+- [ ] Marketplace venues can be searched across the master catalog before being explicitly promoted (copy-on-import) into tenant's private library · Epic: E9-marketplace · Milestone: — (post-v1.0) · Priority: P3
 
 ---
 

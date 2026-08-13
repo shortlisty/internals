@@ -1,26 +1,27 @@
-# Cold start strategy
+# Cold start strategy — Venue Master Catalog seed
 
 > [!NOTE]
 > This document was written for the **Personal Venue Catalog** segment — an internal knowledge-base tool for event agencies. It is a reference example for that positioning, not the primary product direction. The current product focus is the [Digital Sales Room for Events](../../Digital_Sales_Room_for_Events/README.md).
 
 > **Audience:** Founders, team.
-> **Purpose:** How to seed the venue library before the first paying customer — collecting real venue data during development to solve the empty-library problem, test the ETL pipeline on real documents, and build demo content that is credible.
+> **Purpose:** How to seed the **internal platform Venue Master Catalog (MC)** before the first paying customer — collecting real venue data during development to power three hidden backdrop capabilities for all future tenants, test the ETL/importer/dedup pipeline on real documents, and build demo content that is credible.
 
 ---
 
 ## The problem
 
-A venue library with one venue in it is not useful. An event manager who signs up and sees an empty screen does not get the aha moment — they get the onboarding problem. The product only clicks when the library already has substance.
+An event manager who signs up and sees a blank Create-Venue form does not get the aha moment — they get the manual-entry problem. The product clicks only when 20+ fields are auto-populated the moment they type a venue name they already know.
 
-This creates a bootstrapping challenge: the product needs data to demonstrate value, but customers provide the data only after they see value.
+This creates a bootstrapping challenge: the **Master Catalog backdrop layer** needs real reference data to silently auto-populate tenant venues, but tenants have not yet uploaded any documents to draw from.
 
-The solution is to collect the seed data ourselves during development. This is not a workaround — it is a development requirement. Collecting and ingesting 50–100 real venues before launch achieves three things simultaneously:
+The solution is to collect and curate a high-quality Master Catalog seed dataset ourselves during development. This is not a workaround — it is a platform foundation requirement. Collecting and ingesting 50–200 real venues before launch achieves four things simultaneously:
 
-1. **ETL pipeline testing** — real venue documents are the only honest test of extraction quality. Clean, invented test fixtures do not reveal the parsing failures that matter.
-2. **Demo content** — a live demo with real, recognisable venues in a specific city is orders of magnitude more convincing than placeholder data.
-3. **Free-tier seed library** — new users on the free tier start with a non-empty library. Their first interaction is a search that returns results, not an empty state.
+1. **Master Catalog importer & dedup pipeline testing** — real provider records (from web scrapers such as Tagvenue, or manual admin CSV imports) are the only honest test of the fuzzy name+geo matching algorithm, the `master_venue_external` UPSERT logic, and the field-level provenance conflict resolution. Clean, invented test fixtures do not reveal the merge anomalies or ambiguity cases that matter.
+2. **ETL & extraction pipeline testing** — accompanying venue documents (PDF decks, floor plans, spec sheets downloaded from the venues' own websites) are the only honest benchmark of AI extraction accuracy on real-world files.
+3. **Demo & concierge credibility** — a live onboarding session with real, recognisable venues in a specific city (20–40 venues each in Austin, Nashville, Miami, Naples) that arrive in the planner's form 90% pre-filled is orders of magnitude more convincing than placeholder data or a blank empty state.
+4. **Silent backdrop value for every future tenant** — every new agency (free or paid) that creates a venue whose name+city+geo matches the seed Master Catalog immediately receives the gap-fill and form auto-populate behaviour, without any team configuration. The platform "just knows" common venues the moment a planner types their name.
 
-This is also the 50-document benchmark called out in [vision.md](../../roadmap/vision.md) under strategic bets. Collecting seed data and running the accuracy benchmark are the same activity.
+This is also the 50-document extraction accuracy benchmark called out in [vision.md](../../roadmap/vision.md) under strategic bets. Collecting the seed dataset and running the accuracy benchmark are the same activity.
 
 ---
 
@@ -40,7 +41,7 @@ Additionally, word-of-mouth travels faster in smaller professional communities. 
 
 ### Primary seed cities
 
-Three cities, 30–40 venues each, chosen for active event markets, concentration of SMB agencies, and good public venue data availability.
+Three US cities + one EU launch candidate, 20–40 venues each, chosen for active event markets, concentration of SMB agencies, and good public venue data availability. All four cities feed directly into the shared platform **Venue Master Catalog (`public.master_venue`)** — every future tenant (US or EU-based small agency) that works with venues in these cities gets silent auto-populate immediately on signup, regardless of tier.
 
 **Austin, TX**
 Strong corporate event market (SXSW ecosystem, tech company offsites), growing agency scene, active social events (weddings, galas). Venue culture leans toward unique spaces — converted warehouses, rooftop terraces, hotel ballrooms. Strong public web presence for local venues.
@@ -51,14 +52,17 @@ One of the fastest-growing US event markets. Corporate events, conferences, bach
 **Miami, FL**
 Active corporate event market, international flavour, strong hospitality sector. Art Deco hotel ballrooms, rooftop venues, waterfront spaces. High concentration of independent event spaces with public-facing marketing material.
 
-**Reserve cities** (expand to if the primary three go well): Denver, Charlotte, Nashville, Portland, San Antonio.
+**Naples, IT (EU launch candidate, primary for DSR concierge onboarding pilot)**
+Smaller, tighter event market with strong luxury/wedding/conference agencies and high venue density per square km. Ideal cold-start test for the DSR primary product direction because the local planner community is tight-knit — 25–30 curated local venues in the Master Catalog will cover ~80% of brief requirements for a typical boutique agency. Good public web presence for boutique hotels, villas, and historic palazzo event spaces.
+
+**Reserve cities** (expand to if the primary four go well): Denver, Charlotte, Portland, San Antonio, Milan, Berlin, Marbella.
 
 ### What to avoid
 
-- Tier-1 cities (NYC, LA, Chicago, Las Vegas) — save for the demo pitch deck, not the seed library
+- Tier-1 cities (NYC, LA, Chicago, Las Vegas) — save for the demo pitch deck, not the Master Catalog seed dataset
 - Stadium, arena, and convention centre venues — too large, operator-side tools already cover them, not VenueMi's ICP
-- Chain hotel ballrooms (Marriott, Hilton, Hyatt branded) — their venue data is centralised and controlled, not publicly accessible per-property
-- Venues with no web presence or no downloadable spec materials — they are not useful for ETL testing
+- Chain hotel ballrooms (Marriott, Hilton, Hyatt branded) — their venue data is centralised and controlled, not publicly accessible per-property, and fuzzy dedup against chain names produces too many false-positives
+- Venues with no web presence or no downloadable spec materials — they are not useful for ETL testing, and the Master Catalog seed rows benefit most from having source documents to benchmark extraction against
 
 ---
 
@@ -146,47 +150,50 @@ Public venue pages include photos, reviews, and sometimes structured attributes 
 
 ### Target
 
-100 venues total across three cities before MVP launch:
+120–150 Master Catalog entries total across four cities before MVP launch:
 
-- Austin: 35 venues
-- Nashville: 35 venues
-- Miami: 30 venues
+- Austin, TX: 35 venues
+- Nashville, TN: 35 venues
+- Miami, FL: 30 venues
+- Naples, IT: 25–30 venues
 
 ### Process per venue
 
 1. Find the venue (Google Maps search, local event guide websites, wedding/corporate event directories)
-2. Confirm it meets the selection criteria
+2. Confirm it meets the selection criteria above
 3. Download all publicly available documents from the venue's website (PDF decks, floor plans, menus)
 4. Save photo URLs or download photos from the venue's website and Google Maps
-5. Create a venue card in VenueMi with name, address, and source URL
-6. Upload all documents — this is a live ETL pipeline test run
-7. Review extraction output, note failures, log confidence scores per field
-8. Fix extraction errors manually — this populates the override history and tests the correction UX
+5. Record the raw structured data as a **`MasterVenueRecord` JSON** entry — same field shape that `mi-mc-ingest-tagvenue-scraper` emits, so these manual entries are interchangeable with scraper entries and feed directly into the same `mi-mc-loader` pipeline later.
+6. Submit the JSON through either the **admin MasterVenue CRUD API** or the `mi-mc-loader --file` CLI so it is inserted into `public.master_venue` with an associated `master_venue_external` row (`external_source='platform_seed'`). This is a live test of the importer UPSERT dedup pipeline.
+7. Run the same venue documents through the asset-ETL pipeline for a linked test tenant venue to test extraction quality end-to-end.
+8. Review extraction output, note failures, log confidence scores per field. If a seed entry has any fields that extraction missed but we verified manually on the venue website, update the `master_venue.metadata` row via admin edit as `MANUAL_OVERRIDE` (priority 10/10) — this tests the provenance priority chain because future scraper re-runs will not overwrite hand-verified seed data.
 
-This process is the 50-document accuracy benchmark and the seed library build at the same time. Every venue ingested is both a test case and a library asset.
+This process is simultaneously: (a) the 50-document extraction accuracy benchmark from the vision strategic bets, (b) the `mi-mc-loader` fuzzy dedup & merge integration test, (c) the concierge onboarding demo dataset for every future concierge pilot.
 
 ### Tracking
 
-Maintain a simple spreadsheet during collection:
+Maintain a simple spreadsheet during collection, plus the resulting `master_venue_import_log` audit rows from `public.master_venue_import_log`:
 
-| City | Venue name | Category | Documents collected | Extraction quality (1–5) | Notes |
-| ---- | ---------- | -------- | ------------------- | ------------------------ | ----- |
+| City | Venue name | Category | Documents collected | Seed JSON written? | Inserted via importer? | Extraction quality (1–5) | Impoter dedup: new row or merged? | Notes |
+| ---- | ---------- | -------- | ------------------- | ------------------- | ---------------------- | ------------------------ | --------------------------------- | ----- |
 
-Score extraction quality 1–5 per venue after reviewing the output. Track which field types fail most often (capacity tables, catering policy, curfew, contacts). This feeds directly into ETL pipeline improvements before launch.
+Score extraction quality 1–5 per venue after reviewing the output. Track which field types fail most often (capacity tables, catering policy, curfew, contacts). Track importer dedup outcomes separately: did this venue create a new master row, or did it correctly merge with an existing Tagvenue scraper record for the same physical venue? This is the only honest way to validate the 0.75 / 0.90 fuzzy-match thresholds are calibrated correctly.
 
 ---
 
 ## Exit criteria
 
-The seed library is good enough to demo and launch when:
+The **Venue Master Catalog seed dataset** is good enough to enable backdrop functionality for every future tenant when:
 
-- [ ] 100 venues ingested across three cities
-- [ ] At least 60% of venues have a confidence score of 4 or above on core fields (capacity, catering policy, venue type, contacts)
-- [ ] At least five natural-language search queries return accurate, sourced results from the library
-- [ ] The demo flow (upload PDF → see profile → run search) works end-to-end with a real, messy venue document
-- [ ] The accuracy benchmark is documented: field-level pass/fail rates across 50+ documents
+- [ ] 120–150 `public.master_venue` rows inserted across four seed cities via the importer pipeline
+- [ ] At least 80% of seed rows have an associated `master_venue_external` record with `external_source='platform_seed'`; any remaining 20% come from a parallel Tagvenue scraper run for the same cities to validate dedup merges.
+- [ ] Cross-source dedup test passes: for 20 known venues in Austin/Naples, a manually created CSV seed entry + a Tagvenue scraper entry for the same physical venue produce **one merged `master_venue` row** with two `master_venue_external` children (no duplicate master rows). This proves the fuzzy 0.75/0.90 thresholds are production-ready.
+- [ ] At least 60% of seed venues have `MANUAL_OVERRIDE` or `VERIFIED` confidence of 4 or above on the four core fields (capacity, catering policy, venue type, contacts) via admin edits.
+- [ ] Silent form auto-populate (backdrop pattern 2) verified end-to-end: for 10 seed venues in a test tenant, typing the venue name into CreateVenue returns a correctly pre-filled form at 90%+ field coverage, with provenance `MC_INHERIT` stored on each filled field.
+- [ ] Silent gap-fill (backdrop pattern 1) verified end-to-end: for 10 test tenant venues where extraction leaves 5+ fields null, the gap-fill stage copies the correct values from the linked matched master row.
+- [ ] The 50-document extraction accuracy benchmark is documented: field-level pass/fail rates across 50+ real venue PDFs, with low-confidence fields clearly flagged for the ETL roadmap.
 
-When these criteria are met, the product is ready for the first customer conversation. The seed library stays in the platform as free-tier content for early users.
+When these criteria are met, the platform is ready for the first concierge onboarding pilot and first customer conversation. The Master Catalog stays in production as the hidden backdrop layer — tenants never interact with it directly, but every tenant benefits from its 20–30 field auto-populate on every CreateVenue and every asset upload.
 
 ---
 
