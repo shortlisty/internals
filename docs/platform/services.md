@@ -125,7 +125,7 @@ mi-venue-model/
 │   └── migrations/
 │       ├── VenueMetadataMigrationV0ToV1.java   bootstraps legacy pre-versioned docs → v1
 │       └── VenueMetadataMigrationV1ToV2.java   reserved for next schema bump
-├── master_catalog/
+├── mastercatalog/
 │   ├── MasterVenue.java                 Plain POJO — platform curated venue record (public schema)
 │   ├── MasterVenueAlias.java            Plain POJO — alternative names for deduplication
 │   └── MasterVenueExternal.java         Plain POJO — external provider records (Tagvenue, Cvent, etc.)
