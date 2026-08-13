@@ -1,7 +1,7 @@
 # Market structure
 
 > **Audience:** Anyone.
-> **Purpose:** Explain how the event industry software market is structured — the roles, the tools, who builds for whom, and where the gap is. A mental model document, not a competitive analysis. For detailed per-tool breakdowns see [Digital_Sales_Room_for_Events/comparison.md](Digital_Sales_Room_for_Events/comparison.md).
+> **Purpose:** Explain how the event industry software market is structured — the roles, the tools, who builds for whom, and where the gap is. A mental model document, not a competitive analysis. For detailed per-tool breakdowns see [digital-sales-room-for-events/comparison.md](digital-sales-room-for-events/comparison.md).
 
 ---
 
@@ -114,9 +114,9 @@ It sits downstream of discovery (you already know the venues) and upstream of pr
 
 The business model follows the gap: charge the planner, not the venue. The event manager is the paying customer. The knowledge base is the product.
 
-For the detailed per-tool competitive analysis: [Digital_Sales_Room_for_Events/comparison.md](Digital_Sales_Room_for_Events/comparison.md).
-For the product structure: [Digital_Sales_Room_for_Events/product.md](Digital_Sales_Room_for_Events/product.md).
-For the business case: [Digital_Sales_Room_for_Events/proposal.md](Digital_Sales_Room_for_Events/proposal.md).
+For the detailed per-tool competitive analysis: [digital-sales-room-for-events/comparison.md](digital-sales-room-for-events/comparison.md).
+For the product structure: [digital-sales-room-for-events/product.md](digital-sales-room-for-events/product.md).
+For the business case: [digital-sales-room-for-events/proposal.md](digital-sales-room-for-events/proposal.md).
 
 ---
 
@@ -167,4 +167,4 @@ For the business case: [Digital_Sales_Room_for_Events/proposal.md](Digital_Sales
 
 ---
 
-**Docs:** [What is VenueMi?](../README.md) · [Product Structure](Digital_Sales_Room_for_Events/product.md) · [Business Proposal](Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](Digital_Sales_Room_for_Events/comparison.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is VenueMi?](../README.md) · [Product Structure](digital-sales-room-for-events/product.md) · [Business Proposal](digital-sales-room-for-events/proposal.md) · [Competitive Landscape](digital-sales-room-for-events/comparison.md) · [Vision](../roadmap/vision.md)

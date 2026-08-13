@@ -1,7 +1,7 @@
 # Business proposal
 
 > [!NOTE]
-> This document was written for the **Personal Venue Catalog** segment — an internal knowledge-base tool for event agencies. It is a reference example for that positioning, not the primary product direction. The current product focus is the [Digital Sales Room for Events](../../Digital_Sales_Room_for_Events/README.md).
+> This document was written for the **Personal Venue Catalog** segment — an internal knowledge-base tool for event agencies. It is a reference example for that positioning, not the primary product direction. The current product focus is the [Digital Sales Room for Events](../../digital-sales-room-for-events/README.md).
 
 > **Audience:** Founders, team.
 > **Purpose:** Full business case for VenueMi Intelligence — ICP, feature phases, monetization, go-to-market, risks, and open questions. US market first, platform-native for global expansion.

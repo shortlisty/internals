@@ -25,7 +25,7 @@ The DSR concept in one sentence: an interactive client collaboration workspace w
 
 ## Relationship to Personal Venue Catalog
 
-The **Personal Venue Catalog** ([../Personal_Venue_Catalog/](../Personal_Venue_Catalog/)) is not discarded — it is the data layer inside the DSR. Venues still need to be ingested, structured, and searchable. The position shift is about what the primary **output** is: not search results for the internal team, but an interactive pitch delivered to the client.
+The **Personal Venue Catalog** ([../personal-venue-catalog/](../personal-venue-catalog/)) is not discarded — it is the data layer inside the DSR. Venues still need to be ingested, structured, and searchable. The position shift is about what the primary **output** is: not search results for the internal team, but an interactive pitch delivered to the client.
 
 ```
 Personal Venue Catalog  →  data layer (ingestion, ETL, metadata, search)
@@ -34,4 +34,4 @@ Digital Sales Room      →  output layer (pitch board, client portal, snapshot)
 
 ---
 
-**Docs:** [What is VenueMi?](../../README.md) · [Market Structure](../market.md) · [Personal Venue Catalog](../Personal_Venue_Catalog/product.md) · [Architecture](../../platform/architecture.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is VenueMi?](../../README.md) · [Market Structure](../market.md) · [Personal Venue Catalog](../personal-venue-catalog/product.md) · [Architecture](../../platform/architecture.md) · [Vision](../../roadmap/vision.md)

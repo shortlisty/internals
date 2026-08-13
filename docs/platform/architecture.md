@@ -128,7 +128,7 @@ VenueMi Intelligence is a new product service built **on top of the iQ Key Value
 
 **Not tenant-owned. Lives in `public` schema. Read-only to tenants.**
 
-The master venue catalog is a platform-level reference dataset — a growing catalogue of known venues, seeded during development (see [cold-start.md](../business/Personal_Venue_Catalog/cold-start.md)) and enriched over time. It is not a source of truth; it is a starting point. Tenant data always wins over master catalog data.
+The master venue catalog is a platform-level reference dataset — a growing catalogue of known venues, seeded during development (see [cold-start.md](../business/personal-venue-catalog/cold-start.md)) and enriched over time. It is not a source of truth; it is a starting point. Tenant data always wins over master catalog data.
 
 **`MasterVenue`**
 
@@ -1718,7 +1718,7 @@ Grafana dashboard added to `docker/grafana/provisioning/dashboards/VipService.js
 | File storage         | S3 / MinIO (existing foundation)                                     | Presigned URL pattern already proven in IAM                                                                                                                                                                                                                                                                            |
 | Shared library split | `mi-data-intelligence` (generic) + `mi-venue-model` (venue-specific) | Enables pivot to other verticals without refactoring infrastructure contracts. Generic extraction pipeline, event POJOs, metadata versioning mechanism, and provenance model live in `mi-data-intelligence` and are reused unchanged. Venue canonical field set and migrations live in `mi-venue-model`. See §4a, §4c. |
 
-Full rationale and competitor analysis: see `../business/Digital_Sales_Room_for_Events/comparison.md`.
+Full rationale and competitor analysis: see `../business/digital-sales-room-for-events/comparison.md`.
 
 ---
 
@@ -2118,4 +2118,4 @@ One `@RestControllerAdvice` per service. Every handler uses the same `problem(ty
 
 ---
 
-**Docs:** [What is VenueMi?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is VenueMi?](../README.md) · [Business Proposal](../business/digital-sales-room-for-events/proposal.md) · [Competitive Landscape](../business/digital-sales-room-for-events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md) · [Vision](../roadmap/vision.md)

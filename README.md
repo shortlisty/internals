@@ -31,12 +31,12 @@ See [docs/README.md](docs/README.md) for the full plain-language overview.
 
 | Document                                                                           | Audience       | What it covers                                                 |
 | ---------------------------------------------------------------------------------- | -------------- | -------------------------------------------------------------- |
-| [Overview](docs/business/Digital_Sales_Room_for_Events/README.md)                  | Founders, team | DSR concept, relationship to catalog layer                     |
-| [Product Structure](docs/business/Digital_Sales_Room_for_Events/product.md)        | Founders, team | Two-layer architecture, capability pillars, UX concept         |
-| [Business Proposal](docs/business/Digital_Sales_Room_for_Events/proposal.md)       | Founders, team | ICP, feature phases, pricing, GTM, risks                       |
-| [Pitch Mechanics](docs/business/Digital_Sales_Room_for_Events/pitch-mechanics.md)  | Founders, team | Micro-site structure, collaboration layer, approval snapshot   |
-| [Cold Start Strategy](docs/business/Digital_Sales_Room_for_Events/cold-start.md)   | Founders, team | Seed catalog, concierge onboarding, city-by-city expansion     |
-| [Competitive Landscape](docs/business/Digital_Sales_Room_for_Events/comparison.md) | Founders, team | DSR vs. proposal tools, venue discovery, agency CRM, DIY stack |
+| [Overview](docs/business/digital-sales-room-for-events/README.md)                  | Founders, team | DSR concept, relationship to catalog layer                     |
+| [Product Structure](docs/business/digital-sales-room-for-events/product.md)        | Founders, team | Two-layer architecture, capability pillars, UX concept         |
+| [Business Proposal](docs/business/digital-sales-room-for-events/proposal.md)       | Founders, team | ICP, feature phases, pricing, GTM, risks                       |
+| [Pitch Mechanics](docs/business/digital-sales-room-for-events/pitch-mechanics.md)  | Founders, team | Micro-site structure, collaboration layer, approval snapshot   |
+| [Cold Start Strategy](docs/business/digital-sales-room-for-events/cold-start.md)   | Founders, team | Seed catalog, concierge onboarding, city-by-city expansion     |
+| [Competitive Landscape](docs/business/digital-sales-room-for-events/comparison.md) | Founders, team | DSR vs. proposal tools, venue discovery, agency CRM, DIY stack |
 
 ### Personal Venue Catalog (segment reference)
 
@@ -45,11 +45,11 @@ See [docs/README.md](docs/README.md) for the full plain-language overview.
 
 | Document                                                                    | What it covers                             |
 | --------------------------------------------------------------------------- | ------------------------------------------ |
-| [Product Structure](docs/business/Personal_Venue_Catalog/product.md)        | Tenant app, capability pillars, UI concept |
-| [Business Proposal](docs/business/Personal_Venue_Catalog/proposal.md)       | ICP, monetisation, GTM, risks              |
-| [Competitive Landscape](docs/business/Personal_Venue_Catalog/comparison.md) | Competitor analysis and gap matrix         |
-| [Cold Start Strategy](docs/business/Personal_Venue_Catalog/cold-start.md)   | Seeding the library before launch          |
-| [Sales materials](docs/business/Personal_Venue_Catalog/sales/)              | Pitch, battlecards, objections, messaging  |
+| [Product Structure](docs/business/personal-venue-catalog/product.md)        | Tenant app, capability pillars, UI concept |
+| [Business Proposal](docs/business/personal-venue-catalog/proposal.md)       | ICP, monetisation, GTM, risks              |
+| [Competitive Landscape](docs/business/personal-venue-catalog/comparison.md) | Competitor analysis and gap matrix         |
+| [Cold Start Strategy](docs/business/personal-venue-catalog/cold-start.md)   | Seeding the library before launch          |
+| [Sales materials](docs/business/personal-venue-catalog/sales/)              | Pitch, battlecards, objections, messaging  |
 
 ### Platform
 

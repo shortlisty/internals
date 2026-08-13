@@ -28,10 +28,10 @@
 
 ### Changed
 
-- Standardised audience blockquotes across 4 docs per AGENTS.md §3: added `> **Audience:** X.` / `> **Purpose:** Y.` format to docs/README.md, docs/business/Digital_Sales_Room_for_Events/README.md, docs/platform/intelligence.md, and docs/business/Personal_Venue_Catalog/comparison.md.
-- Normalised navigation footers per AGENTS.md §5: removed redundant top-of-file `**Docs:**` nav blocks from docs/platform/architecture.md, docs/platform/intelligence.md, and docs/business/Personal_Venue_Catalog/comparison.md so the footer nav appears exactly once as the last element.
+- Standardised audience blockquotes across 4 docs per AGENTS.md §3: added `> **Audience:** X.` / `> **Purpose:** Y.` format to docs/README.md, docs/business/digital-sales-room-for-events/README.md, docs/platform/intelligence.md, and docs/business/personal-venue-catalog/comparison.md.
+- Normalised navigation footers per AGENTS.md §5: removed redundant top-of-file `**Docs:**` nav blocks from docs/platform/architecture.md, docs/platform/intelligence.md, and docs/business/personal-venue-catalog/comparison.md so the footer nav appears exactly once as the last element.
 - Removed duplicate metadata pre-footer block (Document type / Stage / Audience lines) from docs/platform/intelligence.md — that information now lives in the standard audience blockquote.
-- Updated docs/business/market.md cross-references and footer nav to point to Digital_Sales_Room_for_Events docs as the primary product positioning, replacing Personal_Venue_Catalog links that preceded the DSR direction shift.
+- Updated docs/business/market.md cross-references and footer nav to point to digital-sales-room-for-events docs as the primary product positioning, replacing personal-venue-catalog links that preceded the DSR direction shift.
 - Resolved 17 broken index links in roadmap READMEs: docs/roadmap/epics/README.md (E1–E9), docs/roadmap/milestones/README.md (v0.1–v1.0), docs/roadmap/decisions/README.md (D1–D3) now list the planned files as plain text rather than linking to files that have not yet been written.
 - Expanded docs/platform/architecture.md Docs footer nav to include Intelligence Layer and Vision links, matching the other platform docs.
 
@@ -41,24 +41,24 @@
 
 ### Added
 
-- `docs/business/Digital_Sales_Room_for_Events/README.md` — concept overview and document index for the DSR positioning; explains the two-layer architecture (Personal Venue Catalog as data layer, Digital Sales Room as output layer).
-- `docs/business/Digital_Sales_Room_for_Events/product.md` — product structure for the DSR concept: two-layer architecture, five capability pillars (ingestion, catalog, search, pitch board, approval/snapshot), UX concept for agency and client sides, positioning against discovery platforms and generic proposal tools.
-- `docs/business/Digital_Sales_Room_for_Events/proposal.md` — business case: ICP matrix with updated pricing ($150–300/mo), feature phases, unit economics, GTM playbook (concierge onboarding + viral loop via pitch board), risks, and open questions.
-- `docs/business/Digital_Sales_Room_for_Events/pitch-mechanics.md` — pitch board mechanics: micro-site structure, event context header, venue cards filtered by brief, collaboration layer (contextual comments, markers, activity feed), approval → immutable snapshot, white-label tiers.
-- `docs/business/Digital_Sales_Room_for_Events/cold-start.md` — cold start strategy for DSR: two cold-start problems (empty catalog + no demo story), city-focused launch rationale, why focused geography eases outreach, seed catalog build process, concierge onboarding model, validation milestones before self-serve.
-- `docs/business/Digital_Sales_Room_for_Events/comparison.md` — competitive landscape for DSR: five category sections (DSR/proposal tools, venue discovery, agency CRM/ops, venue management, DIY stack), per-category tables, unified capability matrix, durable edge analysis.
+- `docs/business/digital-sales-room-for-events/README.md` — concept overview and document index for the DSR positioning; explains the two-layer architecture (Personal Venue Catalog as data layer, Digital Sales Room as output layer).
+- `docs/business/digital-sales-room-for-events/product.md` — product structure for the DSR concept: two-layer architecture, five capability pillars (ingestion, catalog, search, pitch board, approval/snapshot), UX concept for agency and client sides, positioning against discovery platforms and generic proposal tools.
+- `docs/business/digital-sales-room-for-events/proposal.md` — business case: ICP matrix with updated pricing ($150–300/mo), feature phases, unit economics, GTM playbook (concierge onboarding + viral loop via pitch board), risks, and open questions.
+- `docs/business/digital-sales-room-for-events/pitch-mechanics.md` — pitch board mechanics: micro-site structure, event context header, venue cards filtered by brief, collaboration layer (contextual comments, markers, activity feed), approval → immutable snapshot, white-label tiers.
+- `docs/business/digital-sales-room-for-events/cold-start.md` — cold start strategy for DSR: two cold-start problems (empty catalog + no demo story), city-focused launch rationale, why focused geography eases outreach, seed catalog build process, concierge onboarding model, validation milestones before self-serve.
+- `docs/business/digital-sales-room-for-events/comparison.md` — competitive landscape for DSR: five category sections (DSR/proposal tools, venue discovery, agency CRM/ops, venue management, DIY stack), per-category tables, unified capability matrix, durable edge analysis.
 
 ### Changed
 
 - `docs/roadmap/vision.md` — fully rewritten to reflect DSR positioning: updated one-sentence, two-role audience (agency + client), two-layer product structure, new strategic bets (pitch board as buying trigger, approval snapshot for dispute prevention, client onboarding = open a link), north star metric changed from "weekly active searches" to "pitch boards approved per team per month".
 - `docs/README.md` — fully rewritten: problem framing expanded to include scattered feedback and missing agreed spec, two-layer structure section added, pricing updated to $150/$300, nav bar updated with Competitive Landscape link.
 - `README.md` — DSR section expanded from one row to a full six-row table; blank line formatting fixed.
-- `AGENTS.md` — §2 repository structure tree updated to reflect `Digital_Sales_Room_for_Events/` and `Personal_Venue_Catalog/` subdirectories; file naming rule updated with explicit PascalCase exception for concept containers; §4.8 and §4.9 rewritten to reference new file paths and DSR document conventions.
+- `AGENTS.md` — §2 repository structure tree updated to reflect `digital-sales-room-for-events/` and `personal-venue-catalog/` subdirectories; file naming rule updated with explicit PascalCase exception for concept containers; §4.8 and §4.9 rewritten to reference new file paths and DSR document conventions.
 
 ### Restructured
 
-- `docs/business/` — original flat business documents (`product.md`, `proposal.md`, `comparison.md`, `cold-start.md`, `sales/`) moved into `docs/business/Personal_Venue_Catalog/`. File `market.md` remains at `docs/business/market.md` — still relevant across both positioning layers. All internal links updated.
-- All files in `docs/business/Personal_Venue_Catalog/` marked with `[!NOTE]` callout identifying them as segment reference documents for the catalog data-layer positioning, not the primary product direction.
+- `docs/business/` — original flat business documents (`product.md`, `proposal.md`, `comparison.md`, `cold-start.md`, `sales/`) moved into `docs/business/personal-venue-catalog/`. File `market.md` remains at `docs/business/market.md` — still relevant across both positioning layers. All internal links updated.
+- All files in `docs/business/personal-venue-catalog/` marked with `[!NOTE]` callout identifying them as segment reference documents for the catalog data-layer positioning, not the primary product direction.
 
 ---
 

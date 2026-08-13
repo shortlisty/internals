@@ -647,4 +647,4 @@ pgvector with IVFFlat index:
 
 ---
 
-**Docs:** [What is VenueMi?](../README.md) · [Business Proposal](../business/Digital_Sales_Room_for_Events/proposal.md) · [Competitive Landscape](../business/Digital_Sales_Room_for_Events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is VenueMi?](../README.md) · [Business Proposal](../business/digital-sales-room-for-events/proposal.md) · [Competitive Landscape](../business/digital-sales-room-for-events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md) · [Vision](../roadmap/vision.md)

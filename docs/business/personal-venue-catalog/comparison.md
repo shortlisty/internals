@@ -1,10 +1,10 @@
 # Venue Intelligence Platform — Competitive Landscape
 
 > [!NOTE]
-> This document was written for the **Personal Venue Catalog** segment — an internal knowledge-base tool for event agencies. It is a reference example for that positioning, not the primary product direction. The current product focus is the [Digital Sales Room for Events](../../Digital_Sales_Room_for_Events/README.md).
+> This document was written for the **Personal Venue Catalog** segment — an internal knowledge-base tool for event agencies. It is a reference example for that positioning, not the primary product direction. The current product focus is the [Digital Sales Room for Events](../../digital-sales-room-for-events/README.md).
 
 > **Audience:** Founders, team.
-> **Purpose:** Strategic reference for the competitive positioning of VenueMi across the event tool ecosystem. Used as context for the more focused DSR competitive analysis in [Digital_Sales_Room_for_Events/comparison.md](../../Digital_Sales_Room_for_Events/comparison.md).
+> **Purpose:** Strategic reference for the competitive positioning of VenueMi across the event tool ecosystem. Used as context for the more focused DSR competitive analysis in [digital-sales-room-for-events/comparison.md](../../digital-sales-room-for-events/comparison.md).
 
 ---
 

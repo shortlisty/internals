@@ -15,7 +15,7 @@ VenueMi is the collaborative workspace where event agencies turn their venue kno
 
 The product concept has evolved. The original design — a private venue catalog with AI extraction and semantic search — remains the correct data layer. The position has sharpened: the primary output is not an internal search engine, but a client-facing interactive pitch board that ends with a mutually approved specification.
 
-Architecture and domain model are settled and documented. No code has shipped yet. New product documents are being written under [Digital Sales Room for Events](../business/Digital_Sales_Room_for_Events/).
+Architecture and domain model are settled and documented. No code has shipped yet. New product documents are being written under [Digital Sales Room for Events](../business/digital-sales-room-for-events/).
 
 ---
 
@@ -62,12 +62,12 @@ VenueMi has two interlocking layers.
 **Layer 1 — Personal Venue Catalog** (data layer)
 The agency's private library of venues, structured and searchable. Documents come in from Drive, Notion, email, and direct uploads. AI extracts metadata — capacity, catering policy, AV specs, restrictions, contacts — and maps it against a flexible schema. The planner verifies key fields with one click. The catalog is the foundation: without accurate venue data, the pitch has nothing to draw from.
 
-Full design: [Personal Venue Catalog](../business/Personal_Venue_Catalog/product.md).
+Full design: [Personal Venue Catalog](../business/personal-venue-catalog/product.md).
 
 **Layer 2 — Digital Sales Room** (output layer)
 The client-facing pitch board. The planner selects venues from the catalog, the system assembles an interactive web page — photos, floor plans, metadata, a configurable spec — and shares a private link. The client browses, comments, and approves. When they click Approve, the system freezes a snapshot: an immutable record of every field, file, and decision, timestamped and attributed. That snapshot is the Single Source of Truth for the event.
 
-Full design: [Digital Sales Room for Events](../business/Digital_Sales_Room_for_Events/).
+Full design: [Digital Sales Room for Events](../business/digital-sales-room-for-events/).
 
 ```
 Personal Venue Catalog  →  data layer  (ingestion, ETL, metadata, search)
@@ -123,4 +123,4 @@ Once the pitch-to-approval loop is proven and trusted, the platform can grow in 
 
 ---
 
-**Docs:** [What is VenueMi?](../README.md) · [Personal Venue Catalog](../business/Personal_Venue_Catalog/product.md) · [Digital Sales Room](../business/Digital_Sales_Room_for_Events/README.md) · [Market Structure](../business/market.md) · [Architecture](../platform/architecture.md)
+**Docs:** [What is VenueMi?](../README.md) · [Personal Venue Catalog](../business/personal-venue-catalog/product.md) · [Digital Sales Room](../business/digital-sales-room-for-events/README.md) · [Market Structure](../business/market.md) · [Architecture](../platform/architecture.md)

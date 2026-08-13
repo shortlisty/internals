@@ -1,7 +1,7 @@
 # Cold start strategy — Venue Master Catalog seed
 
 > [!NOTE]
-> This document was written for the **Personal Venue Catalog** segment — an internal knowledge-base tool for event agencies. It is a reference example for that positioning, not the primary product direction. The current product focus is the [Digital Sales Room for Events](../../Digital_Sales_Room_for_Events/README.md).
+> This document was written for the **Personal Venue Catalog** segment — an internal knowledge-base tool for event agencies. It is a reference example for that positioning, not the primary product direction. The current product focus is the [Digital Sales Room for Events](../../digital-sales-room-for-events/README.md).
 
 > **Audience:** Founders, team.
 > **Purpose:** How to seed the **internal platform Venue Master Catalog (MC)** before the first paying customer — collecting real venue data during development to power three hidden backdrop capabilities for all future tenants, test the ETL/importer/dedup pipeline on real documents, and build demo content that is credible.

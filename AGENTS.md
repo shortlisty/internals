@@ -29,14 +29,14 @@ system-design-documentation/
     ├── README.md                      ← Plain-language product overview (any audience)
     ├── business/
     │   ├── market.md                  ← Event chain, market structure, the vacant slot
-    │   ├── Digital_Sales_Room_for_Events/   ← Primary product direction
+    │   ├── digital-sales-room-for-events/   ← Primary product direction
     │   │   ├── README.md              ← Concept overview and document index
     │   │   ├── product.md             ← Two-layer architecture, capability pillars, UX
     │   │   ├── proposal.md            ← ICP, monetisation, GTM, risks
     │   │   ├── pitch-mechanics.md     ← Micro-site structure, collaboration, approval snapshot
     │   │   ├── cold-start.md          ← Seed catalog, concierge onboarding, city expansion
     │   │   └── comparison.md          ← Competitive landscape and gap matrix
-    │   └── Personal_Venue_Catalog/    ← Segment reference — catalog data-layer docs
+    │   └── personal-venue-catalog/    ← Segment reference — catalog data-layer docs
     │       ├── product.md             ← Tenant app, capability pillars (catalog positioning)
     │       ├── proposal.md            ← ICP, monetisation, GTM (catalog positioning)
     │       ├── comparison.md          ← Competitive analysis (catalog positioning)
@@ -68,7 +68,7 @@ system-design-documentation/
 
 - Do not add files outside the structure above without updating this file first.
 - Do not create nested subdirectories beyond what is shown unless the README.md for that folder is updated to explain the new structure.
-- File names are lowercase, hyphen-separated (`my-file-name.md`). No spaces, no underscores, no camelCase. **Exception:** the two `business/` subdirectories use PascalCase with underscores (`Digital_Sales_Room_for_Events/`, `Personal_Venue_Catalog/`) to clearly signal their role as concept containers, not document collections.
+- File names are lowercase, hyphen-separated (`my-file-name.md`). No spaces, no underscores, no camelCase. **Exception:** the two `business/` subdirectories use PascalCase with underscores (`digital-sales-room-for-events/`, `personal-venue-catalog/`) to clearly signal their role as concept containers, not document collections.
 - Epic files are prefixed `E{N}-` (e.g. `E1-venue-profiles.md`). Numbers start at 1, increment by 1, never reuse.
 - Milestone files are prefixed `v{X}.{Y}-` (e.g. `v0.1-mvp.md`). Align with product version numbering.
 - Decision files are prefixed `D{N}-` (e.g. `D1-one-service-vs-two.md`). Numbers start at 1, increment by 1, never reuse.
@@ -169,22 +169,22 @@ Do not invent new audience tags. If a document genuinely serves two separate aud
 - Do not duplicate content from `comparison.md` into `battlecards.md`. Battlecards reference the competitive analysis; they do not reproduce it.
 - Do not include pricing figures that are not confirmed. Mark uncertain numbers with `(TBC)`.
 
-### 4.8 Product structure (`docs/business/Digital_Sales_Room_for_Events/product.md`)
+### 4.8 Product structure (`docs/business/digital-sales-room-for-events/product.md`)
 
 - Audience is `Founders, team`.
 - Explains the product in business terms: the two-layer architecture (Personal Venue Catalog as data layer, Digital Sales Room as output layer), capability pillars, and UX concept for both the agency side and the client side.
 - Do not describe implementation details here. For domain model, schemas, and service boundaries, see `architecture.md`.
 - Do not duplicate the competitive gap analysis from `comparison.md`. The positioning summary is a one-paragraph conclusion, not a re-analysis.
 - Link to epic files for each pillar rather than re-listing their scope.
-- The `Personal_Venue_Catalog/product.md` is a segment reference document — it describes the catalog subsystem in its original standalone positioning. It carries a `[!NOTE]` callout and must not be treated as the primary product definition.
+- The `personal-venue-catalog/product.md` is a segment reference document — it describes the catalog subsystem in its original standalone positioning. It carries a `[!NOTE]` callout and must not be treated as the primary product definition.
 
-### 4.9 Competitive landscape (`docs/business/Digital_Sales_Room_for_Events/comparison.md`)
+### 4.9 Competitive landscape (`docs/business/digital-sales-room-for-events/comparison.md`)
 
 - Structured as: category sections (one per competitor group), each with a per-tool table, followed by a unified capability matrix.
 - Each per-tool table row has exactly: Tool, What it does, Gap vs. VenueMi.
 - The capability matrix is a Markdown table with VenueMi in the first column and competitor groups as subsequent columns.
 - A "VenueMi's durable edge" section explains why key capabilities cannot be quickly replicated.
-- The `Personal_Venue_Catalog/comparison.md` is a segment reference document with a `[!NOTE]` callout. New competitive analysis belongs in the DSR comparison file.
+- The `personal-venue-catalog/comparison.md` is a segment reference document with a `[!NOTE]` callout. New competitive analysis belongs in the DSR comparison file.
 
 ### 4.10 Roadmap index README files (`docs/roadmap/{epics,milestones,decisions}/README.md`)
 
