@@ -125,4 +125,4 @@ VenueMi combines the knowledge layer with the client-facing output in a single p
 
 ---
 
-**Docs:** [What is VenueMi?](../../README.md) · [Business Proposal](proposal.md) · [Architecture](../../platform/architecture.md) · [Intelligence Layer](../../platform/intelligence.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is VenueMi?](../../README.md) · [Business Proposal](proposal.md) · [Architecture](../../platform/README.md) · [Intelligence Layer](../../platform/intelligence.md) · [Vision](../../roadmap/vision.md)

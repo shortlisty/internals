@@ -29,11 +29,11 @@
 ### Changed
 
 - Standardised audience blockquotes across 4 docs per AGENTS.md §3: added `> **Audience:** X.` / `> **Purpose:** Y.` format to docs/README.md, docs/business/digital-sales-room-for-events/README.md, docs/platform/intelligence.md, and docs/business/personal-venue-catalog/comparison.md.
-- Normalised navigation footers per AGENTS.md §5: removed redundant top-of-file `**Docs:**` nav blocks from docs/platform/architecture.md, docs/platform/intelligence.md, and docs/business/personal-venue-catalog/comparison.md so the footer nav appears exactly once as the last element.
+- Normalised navigation footers per AGENTS.md §5: removed redundant top-of-file `**Docs:**` nav blocks from docs/platform/README.md, docs/platform/intelligence.md, and docs/business/personal-venue-catalog/comparison.md so the footer nav appears exactly once as the last element.
 - Removed duplicate metadata pre-footer block (Document type / Stage / Audience lines) from docs/platform/intelligence.md — that information now lives in the standard audience blockquote.
 - Updated docs/business/market.md cross-references and footer nav to point to digital-sales-room-for-events docs as the primary product positioning, replacing personal-venue-catalog links that preceded the DSR direction shift.
 - Resolved 17 broken index links in roadmap READMEs: docs/roadmap/epics/README.md (E1–E9), docs/roadmap/milestones/README.md (v0.1–v1.0), docs/roadmap/decisions/README.md (D1–D3) now list the planned files as plain text rather than linking to files that have not yet been written.
-- Expanded docs/platform/architecture.md Docs footer nav to include Intelligence Layer and Vision links, matching the other platform docs.
+- Expanded docs/platform/README.md Docs footer nav to include Intelligence Layer and Vision links, matching the other platform docs.
 
 ---
 
@@ -112,5 +112,5 @@
 - `docs/README.md` — plain-language product overview. Audience: anyone. Covers the problem, what VenueMi does, who it is for, how it works, monetization model, and one-sentence summary.
 - `docs/business/proposal.md` — full business proposal: ICP matrix, feature phases (Phase 1–3), monetization tiers, go-to-market strategy, international expansion plan, key risks, and open questions.
 - `docs/business/comparison.md` — competitive landscape analysis: Cvent, Tripleseat, Momentus, VenueScanner, VenueFindAI, VenueArc, Spark (GEVME/PCMA), Bynder, Brandfolder, Unstructured.io, Docling, Apache Tika. Includes gap summary matrix.
-- `docs/platform/architecture.md` — architecture reference: platform context, domain model (Venue, VenueAsset, ExtractionJob, MetadataEvent), metadata aggregation engine, service architecture (mi-venue-service, mi-venue-processing-worker, mi-venue-model), ETL pipeline, search architecture, API surface, event contracts, plan entitlement mapping, database schema, UI integration, observability, security, technology decisions, and open decisions.
+- `docs/platform/README.md` — architecture reference: platform context, domain model (Venue, VenueAsset, ExtractionJob, MetadataEvent), metadata aggregation engine, service architecture (mi-venue-service, mi-venue-processing-worker, mi-venue-model), ETL pipeline, search architecture, API surface, event contracts, plan entitlement mapping, database schema, UI integration, observability, security, technology decisions, and open decisions.
 - `docs/platform/intelligence.md` — intelligence layer reference: Spring AI ETL pipeline, asset-type processing matrix, chunking strategy, Apache Tika rationale, Docling integration, venue-specific extraction schema, confidence-sourced metadata model, multi-source aggregation design, scalability architecture, and technology decisions summary.

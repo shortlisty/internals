@@ -72,4 +72,4 @@ VenueMi turns venue files into a pitch and a pitch into an approved spec — so 
 
 ---
 
-**Docs:** [What is VenueMi?](README.md) · [Market Structure](business/market.md) · [Digital Sales Room](business/digital-sales-room-for-events/README.md) · [Competitive Landscape](business/digital-sales-room-for-events/comparison.md) · [Architecture](platform/architecture.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
+**Docs:** [What is VenueMi?](README.md) · [Market Structure](business/market.md) · [Digital Sales Room](business/digital-sales-room-for-events/README.md) · [Competitive Landscape](business/digital-sales-room-for-events/comparison.md) · [Architecture](platform/README.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)

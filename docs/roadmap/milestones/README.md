@@ -155,4 +155,4 @@ Do not let this table grow beyond 8 rows. Review it when any milestone transitio
 
 ---
 
-**Docs:** [Vision](../vision.md) · [Epics](../epics/README.md) · [Decisions](../decisions/README.md) · [Architecture](../../platform/architecture.md) · [Intelligence Layer](../../platform/intelligence.md)
+**Docs:** [Vision](../vision.md) · [Epics](../epics/README.md) · [Decisions](../decisions/README.md) · [Architecture](../../platform/README.md) · [Intelligence Layer](../../platform/intelligence.md)

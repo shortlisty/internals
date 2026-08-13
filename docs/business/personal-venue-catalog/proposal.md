@@ -402,4 +402,4 @@ Personal and direct. No paid acquisition yet.
 
 ---
 
-**Docs:** [What is VenueMi?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../../platform/architecture.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is VenueMi?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../../platform/README.md) · [Vision](../../roadmap/vision.md)

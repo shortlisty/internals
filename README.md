@@ -53,10 +53,10 @@ See [docs/README.md](docs/README.md) for the full plain-language overview.
 
 ### Platform
 
-| Document                                                | Audience              | What it covers                                           |
-| ------------------------------------------------------- | --------------------- | -------------------------------------------------------- |
-| [Architecture Reference](docs/platform/architecture.md) | Engineers, architects | Domain model, services, schema, API, event contracts     |
-| [Intelligence Layer](docs/platform/intelligence.md)     | Engineers, architects | ETL pipeline, extraction, AI layer, technology decisions |
+| Document                                            | Audience              | What it covers                                           |
+| --------------------------------------------------- | --------------------- | -------------------------------------------------------- |
+| [Architecture Reference](docs/platform/README.md)   | Engineers, architects | Domain model, services, schema, API, event contracts     |
+| [Intelligence Layer](docs/platform/intelligence.md) | Engineers, architects | ETL pipeline, extraction, AI layer, technology decisions |
 
 ---
 

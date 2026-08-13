@@ -877,4 +877,4 @@ The document intelligence infrastructure, ETL pipeline architecture, venue-speci
 
 ---
 
-**Docs:** [What is VenueMi?](../../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Intelligence Layer](../../platform/intelligence.md) · [Architecture](../../platform/architecture.md)
+**Docs:** [What is VenueMi?](../../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Intelligence Layer](../../platform/intelligence.md) · [Architecture](../../platform/README.md)

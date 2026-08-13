@@ -52,7 +52,7 @@ Both services connect to the same PostgreSQL instance and share the tenant schem
 - Failure isolation: an LLM API outage or a malformed-PDF OOM kills only the ingestion worker; user search and CRUD continue
 - Resource isolation: dedicate CPU/memory profiles per service (ingestion gets larger pods with more memory for Tika Pipes forked JVMs; mi-venue-service gets smaller pods tuned for request concurrency)
 - Clean separation of concerns: service team can reason about "reads/API" vs "processing pipeline" independently
-- Table ownership model (§4 of architecture.md) clarifies who writes what, preventing drift
+- Table ownership model (§4 of README.md) clarifies who writes what, preventing drift
 
 **Cons:**
 
@@ -83,7 +83,7 @@ One synchronous service (`mi-venue-service`) for HTTP and one async sidecar (`mi
 ## Consequences
 
 - The deployment manifest ships two containers per environment (`mi-venue-service` + `mi-venue-processing-worker`). Helm chart has separate replica counts, HPA triggers, and resource quotas per service.
-- Table ownership is documented in architecture.md §4 and enforced at code review: processing-worker never issues `UPDATE venues`; mi-venue-service never writes to `extraction_jobs` or `item_vectors` directly.
+- Table ownership is documented in README.md §4 and enforced at code review: processing-worker never issues `UPDATE venues`; mi-venue-service never writes to `extraction_jobs` or `item_vectors` directly.
 - Rolling deployments of `mi-venue-processing-worker` must use RabbitMQ `MANUAL` ack mode so in-flight messages are re-queued on consumer shutdown. No message loss is acceptable.
 - HPA for `mi-venue-processing-worker` scales on RabbitMQ queue depth (`venuemi.asset.uploaded` messages ready), not CPU. HPA for `mi-venue-service` scales on request rate + p95 latency.
 
@@ -95,4 +95,4 @@ One synchronous service (`mi-venue-service`) for HTTP and one async sidecar (`mi
 
 ---
 
-**Docs:** [Vision](../vision.md) · [Architecture](../../platform/architecture.md) · [Epics](../epics/README.md) · [Milestones](../milestones/README.md)
+**Docs:** [Vision](../vision.md) · [Architecture](../../platform/README.md) · [Epics](../epics/README.md) · [Milestones](../milestones/README.md)

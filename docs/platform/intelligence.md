@@ -272,7 +272,7 @@ Everything above (Tika, Docling, Spring AI ETL) is infrastructure. VenueMi's pro
 
 Generic document intelligence tools extract generic fields. VenueMi extracts fields that matter for event professionals.
 
-This schema is the **venue canonical field set** — defined as `VenueMetadata` in `mi-venue-model` (see §2 of [Architecture](architecture.md)). It is the venue-domain's answer to the question "what does a structured document look like for this vertical?". The extraction prompt sent to GPT-4o is derived directly from this schema. If the platform pivots to a different vertical (medical, agro), the domain library is swapped — the extraction pipeline, embedding, and search infrastructure remain identical.
+This schema is the **venue canonical field set** — defined as `VenueMetadata` in `mi-venue-model` (see §2 of [Architecture](README.md)). It is the venue-domain's answer to the question "what does a structured document look like for this vertical?". The extraction prompt sent to GPT-4o is derived directly from this schema. If the platform pivots to a different vertical (medical, agro), the domain library is swapped — the extraction pipeline, embedding, and search infrastructure remain identical.
 
 ```json
 {
@@ -484,7 +484,7 @@ These classes contain no domain knowledge. They are final implementations wired 
 public final class AssetExtractionOrchestrator<M> { ... }
 
 // Listens on RabbitMQ, runs SELECT → debounce → aggregate → UPDATE per venue.
-// Concurrency=1 / prefetchCount=1 per slot queue (see architecture.md §3).
+// Concurrency=1 / prefetchCount=1 per slot queue (see README.md §3).
 @RabbitListener
 public final class MetadataAggregationConsumer<M> {
     private final MetadataAggregationStrategy<M> strategy;
@@ -638,7 +638,7 @@ pgvector with IVFFlat index:
 
 ## 6. Open Questions for Implementation
 
-- [x] **Docling vs. pure Tika:** ~~Start with Tika for MVP speed. Add Docling for Phase 2 when floor plan fidelity matters.~~ **Decided:** Tika-only for Phase 1 (MVP). Docling sidecar added in Phase 2 for floor plan and table fidelity. See §15 of [Architecture](architecture.md).
+- [x] **Docling vs. pure Tika:** ~~Start with Tika for MVP speed. Add Docling for Phase 2 when floor plan fidelity matters.~~ **Decided:** Tika-only for Phase 1 (MVP). Docling sidecar added in Phase 2 for floor plan and table fidelity. See §15 of [Architecture](README.md).
 - **OCR strategy:** Tika bundles Tesseract for basic OCR. GPT-4o vision handles complex cases. Threshold: if Tika OCR confidence < 0.7, escalate to GPT-4o vision.
 - **CAD files:** Tika extracts metadata from DWG/DXF (dimensions, layers). For Phase 1, expose raw metadata. Phase 2: convert to PNG via LibreCAD/ODA, then GPT-4o vision for layout understanding.
 - **Video walkthroughs:** Out of scope for Phase 1. Phase 2: extract keyframes (ffmpeg), run GPT-4o vision on representative frames.
@@ -647,4 +647,4 @@ pgvector with IVFFlat index:
 
 ---
 
-**Docs:** [What is VenueMi?](../README.md) · [Business Proposal](../business/digital-sales-room-for-events/proposal.md) · [Competitive Landscape](../business/digital-sales-room-for-events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](architecture.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is VenueMi?](../README.md) · [Business Proposal](../business/digital-sales-room-for-events/proposal.md) · [Competitive Landscape](../business/digital-sales-room-for-events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](README.md) · [Vision](../roadmap/vision.md)

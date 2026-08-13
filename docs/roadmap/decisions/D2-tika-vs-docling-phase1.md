@@ -79,7 +79,7 @@ Docling is designed-in as a Phase 2 capability. The pipeline uses a pluggable `D
 
 ## Consequences
 
-- MVP accuracy benchmarking (§12 of architecture.md) calibrates expected accuracy using Tika-only extraction on a 50-PDF real-world corpus. Marketing materials and product documentation do not promise table-level accuracy that Tika cannot deliver.
+- MVP accuracy benchmarking (§12 of README.md) calibrates expected accuracy using Tika-only extraction on a 50-PDF real-world corpus. Marketing materials and product documentation do not promise table-level accuracy that Tika cannot deliver.
 - The human-verification UI marks capacity.configuration fields and catering.policy fields with a "Table source — please verify" hint when the asset is a multi-page PDF. This compensates for Tika's known table-mangling weakness in the interim.
 - A backlog item exists for Phase 2: Docling sidecar deployment, custom DocumentReader implementation, content-type routing, and the historical re-extraction job. It is tracked under the Phase 2 milestone.
 - When Docling is enabled, confidence scores for table-derived fields must be recalibrated against the new parser output. Existing confidence thresholds for auto-accept vs. human-review are explicitly parser-versioned.
@@ -92,4 +92,4 @@ Docling is designed-in as a Phase 2 capability. The pipeline uses a pluggable `D
 
 ---
 
-**Docs:** [Vision](../vision.md) · [Intelligence Layer](../../platform/intelligence.md) · [Architecture](../../platform/architecture.md) · [Epics](../epics/README.md)
+**Docs:** [Vision](../vision.md) · [Intelligence Layer](../../platform/intelligence.md) · [Architecture](../../platform/README.md) · [Epics](../epics/README.md)

@@ -114,7 +114,7 @@ Scraping and master catalog population are further decomposed into mi-mc-ingest-
 
 - **MVP delivery is slower than monolithic Option A by 1–2 weeks.** The 5 generic interfaces, the parameterised consumers, and the compile-vs-runtime separation require careful design. A junior engineer without Strategy-pattern familiarity can write a monolithic venue-specific aggregation consumer in 2 days but may take 5 days to design the generic `MetadataAggregationStrategy<M>` interface correctly and write tests for it. This is a one-time cost that pays for itself on the first vertical pivot.
 - **Java generics complexity budget consumed.** `AssetExtractionOrchestrator<M>` parameterised on `<M extends MetadataBase>` combined with `@Bean` parameterised Spring wiring produces compiler warnings that require `@SuppressWarnings` in a small number of well-documented locations. IDE code-navigation from a strategy interface usage to its venue implementation requires resolving the generic parameter first; new joiners need a 30-minute architecture onboarding to understand the flow.
-- **Naming discipline is a social contract, not enforced by Java.** Nothing mechanically prevents a developer from adding a `venue_id` field to a generic event POJO in `mi-data-intelligence` "just to make the venue service easier." Once the first vertical noun leaks into the generic core, the second one will, and within 6 months Option C devolves into Option A with extra layers. Enforcement is code-review discipline + a documented list of "what does not go in mi-data-intelligence" (D7 architecture.md §4c has this table).
+- **Naming discipline is a social contract, not enforced by Java.** Nothing mechanically prevents a developer from adding a `venue_id` field to a generic event POJO in `mi-data-intelligence` "just to make the venue service easier." Once the first vertical noun leaks into the generic core, the second one will, and within 6 months Option C devolves into Option A with extra layers. Enforcement is code-review discipline + a documented list of "what does not go in mi-data-intelligence" (D7 README.md §4c has this table).
 
 ---
 
@@ -143,7 +143,7 @@ New vertical must follow the same pattern. Any code change that introduces a ver
 
 ## Consequences
 
-- Architecture.md §4c explicitly lists "What does NOT go here — common mistakes at code review." This table is the enforcement checklist for code review. Any PR adding a vertical-specific field, POJO, migration, or prompt to `mi-data-intelligence` is rejected with a comment linking to the table in §4c and linking to this decision record.
+- README.md §4c explicitly lists "What does NOT go here — common mistakes at code review." This table is the enforcement checklist for code review. Any PR adding a vertical-specific field, POJO, migration, or prompt to `mi-data-intelligence` is rejected with a comment linking to the table in §4c and linking to this decision record.
 - `mi-data-intelligence` package structure has a zero vertical-noun rule. `find . -name '*.java' | xargs grep -E 'venue|medical|agro|legal' -i` inside the `mi-data-intelligence` module must return zero matches, excluding test comments that explicitly reference a domain for illustration. A CI grep check enforces this pre-merge.
 - New vertical onboarding SOP is documented: (1) create domain library, (2) implement 5 strategy interfaces, (3) add domain POJOs and changelogs, (4) create thin services with `@Bean` wiring, (5) verify `mi-data-intelligence` grep rule still passes, (6) deploy. The SOP explicitly states: "If you must modify `mi-data-intelligence` to ship your vertical, your strategy implementations are missing an interface contract. File a design review to extend the generic interface before modifying the core."
 - Service code review rule: any class in `mi-venue-service` or `mi-venue-processing-worker` that contains more than `@Bean` definitions, `@RabbitListener` annotations, and HTTP DTO translation must be challenged. If the class contains an `if (venue.getCatering() == ...)` business logic line, it belongs in `mi-venue-model`, not the service.
@@ -156,4 +156,4 @@ New vertical must follow the same pattern. Any code change that introduces a ver
 
 ---
 
-**Docs:** [Vision](../vision.md) · [Intelligence Layer](../../platform/intelligence.md) · [Architecture](../../platform/architecture.md) · [Epics](../epics/README.md)
+**Docs:** [Vision](../vision.md) · [Intelligence Layer](../../platform/intelligence.md) · [Architecture](../../platform/README.md) · [Epics](../epics/README.md)

@@ -34,4 +34,4 @@ Digital Sales Room      →  output layer (pitch board, client portal, snapshot)
 
 ---
 
-**Docs:** [What is VenueMi?](../../README.md) · [Market Structure](../market.md) · [Personal Venue Catalog](../personal-venue-catalog/product.md) · [Architecture](../../platform/architecture.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is VenueMi?](../../README.md) · [Market Structure](../market.md) · [Personal Venue Catalog](../personal-venue-catalog/product.md) · [Architecture](../../platform/README.md) · [Vision](../../roadmap/vision.md)

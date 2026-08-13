@@ -94,19 +94,19 @@ The most common "competitor" is not a product — it is the patchwork of general
 
 ## Capability matrix
 
-| Capability                                   |      VenueMi      | Qwilr / Dock.us | Cvent / VenueScanner | HoneyBook / Dubsado |     DIY stack      |
-| -------------------------------------------- | :---------------: | :-------------: | :------------------: | :-----------------: | :----------------: |
-| Planner-owned venue knowledge base           |        ✅         |       ⛔        |          ⛔          |         ⛔          |  Partial (manual)  |
-| AI extraction from agency's own docs         |        ✅         |       ⛔        |          ⛔          |         ⛔          |         ⛔         |
-| Structured venue catalog (search + filter)   |        ✅         |       ⛔        |          ⛔          |         ⛔          | Partial (Airtable) |
-| Event-specific filtering of venue data       |        ✅         |       ⛔        |          ⛔          |         ⛔          |         ⛔         |
-| Client-facing interactive pitch (micro-site) |        ✅         |       ✅        |          ⛔          |       Partial       |         ⛔         |
-| No client login required                     |        ✅         |       ✅        |          —           |       Partial       |         ✅         |
-| Two-sided comments and collaboration         |        ✅         |     Partial     |          ⛔          |         ⛔          |  Partial (email)   |
-| Floor plan / photo preview in pitch          |        ✅         |     Partial     |          ⛔          |         ⛔          |         ⛔         |
-| Approval → immutable snapshot (SSOT)         |        ✅         |       ⛔        |          ⛔          |  Partial (e-sign)   |         ⛔         |
-| Agency white-label (custom domain)           |  ✅ (Business+)   |       ✅        |          —           |         ✅          |        n/a         |
-| SMB-friendly pricing                         |        ✅         |       ✅        |          ⛔          |         ✅          |     ✅ (free)      |
+| Capability                                   |         VenueMi         | Qwilr / Dock.us | Cvent / VenueScanner | HoneyBook / Dubsado |     DIY stack      |
+| -------------------------------------------- | :---------------------: | :-------------: | :------------------: | :-----------------: | :----------------: |
+| Planner-owned venue knowledge base           |           ✅            |       ⛔        |          ⛔          |         ⛔          |  Partial (manual)  |
+| AI extraction from agency's own docs         |           ✅            |       ⛔        |          ⛔          |         ⛔          |         ⛔         |
+| Structured venue catalog (search + filter)   |           ✅            |       ⛔        |          ⛔          |         ⛔          | Partial (Airtable) |
+| Event-specific filtering of venue data       |           ✅            |       ⛔        |          ⛔          |         ⛔          |         ⛔         |
+| Client-facing interactive pitch (micro-site) |           ✅            |       ✅        |          ⛔          |       Partial       |         ⛔         |
+| No client login required                     |           ✅            |       ✅        |          —           |       Partial       |         ✅         |
+| Two-sided comments and collaboration         |           ✅            |     Partial     |          ⛔          |         ⛔          |  Partial (email)   |
+| Floor plan / photo preview in pitch          |           ✅            |     Partial     |          ⛔          |         ⛔          |         ⛔         |
+| Approval → immutable snapshot (SSOT)         |           ✅            |       ⛔        |          ⛔          |  Partial (e-sign)   |         ⛔         |
+| Agency white-label (custom domain)           |     ✅ (Business+)      |       ✅        |          —           |         ✅          |        n/a         |
+| SMB-friendly pricing                         |           ✅            |       ✅        |          ⛔          |         ✅          |     ✅ (free)      |
 | Venue discovery (new venues)                 | Master catalog backdrop |       ⛔        |          ✅          |         ⛔          |         ⛔         |
 
 ---

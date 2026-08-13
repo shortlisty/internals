@@ -91,4 +91,4 @@ VenueMi combines ETL, PIM, DAM, and search in a single tenant app focused specif
 
 ---
 
-**Docs:** [What is VenueMi?](../../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../../platform/architecture.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is VenueMi?](../../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../../platform/README.md) · [Vision](../../roadmap/vision.md)

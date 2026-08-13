@@ -99,4 +99,4 @@ Only one mapper (`MasterVenueQueryMapper`) may explicitly qualify `public.` in S
 
 ---
 
-**Docs:** [Vision](../vision.md) · [Architecture](../../platform/architecture.md) · [Intelligence Layer](../../platform/intelligence.md) · [Epics](../epics/README.md)
+**Docs:** [Vision](../vision.md) · [Architecture](../../platform/README.md) · [Intelligence Layer](../../platform/intelligence.md) · [Epics](../epics/README.md)

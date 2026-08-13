@@ -138,4 +138,4 @@ Rules:
 
 ---
 
-**Docs:** [Vision](../vision.md) · [Architecture](../../platform/architecture.md) · [Intelligence Layer](../../platform/intelligence.md) · [Epics](../epics/README.md)
+**Docs:** [Vision](../vision.md) · [Architecture](../../platform/README.md) · [Intelligence Layer](../../platform/intelligence.md) · [Epics](../epics/README.md)

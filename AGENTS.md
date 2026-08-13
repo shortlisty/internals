@@ -47,7 +47,7 @@ system-design-documentation/
     │           ├── objections.md      ← Objection handling: concern, response, follow-up
     │           └── messaging.md       ← Taglines, hero copy, value pillars, naming (copy bank)
     ├── platform/
-    │   ├── architecture.md            ← Domain model, services, schema, API, events
+    │   ├── README.md            ← Domain model, services, schema, API, events
     │   └── intelligence.md            ← ETL pipeline, extraction, AI layer
     ├── roadmap/
     │   ├── vision.md                  ← Product direction and strategic bets (not a changelog)
@@ -105,7 +105,7 @@ Do not invent new audience tags. If a document genuinely serves two separate aud
 - Sections must flow as a narrative that a reader can read top to bottom without jumping around.
 - No internal jargon without first defining it in plain language.
 
-### 4.2 Architecture reference (`docs/platform/architecture.md`, `docs/platform/intelligence.md`)
+### 4.2 Architecture reference (`docs/platform/README.md`, `docs/platform/intelligence.md`)
 
 - Audience is always engineers or architects.
 - Every major section must have a one-sentence summary before any tables or diagrams.
@@ -133,7 +133,7 @@ Do not invent new audience tags. If a document genuinely serves two separate aud
   - `Done`: All user stories `- [x]` ticked; containing milestone reached `Completed` with all feature checkboxes ticked; no unresolved open `-[ ]` questions remain.
 - **Index-first rule:** Before creating a new `E{N}-{slug}.md` file, add its row to the index table in [epics/README.md](docs/roadmap/epics/README.md), commit that index update, then create the file. Never create an epic file first and add it to the index later.
 - **Cross-reference rule:** Every epic referenced by a milestone file must, in its own `Milestone references` section, link back to that milestone file. Bidirectional links are mandatory — a one-way link is a drift bug.
-- Do not describe implementation details here. Implementation lives in architecture.md.
+- Do not describe implementation details here. Implementation lives in README.md.
 
 ### 4.5 Milestones (`docs/roadmap/milestones/`)
 
@@ -173,7 +173,7 @@ Do not invent new audience tags. If a document genuinely serves two separate aud
 
 - Audience is `Founders, team`.
 - Explains the product in business terms: the two-layer architecture (Personal Venue Catalog as data layer, Digital Sales Room as output layer), capability pillars, and UX concept for both the agency side and the client side.
-- Do not describe implementation details here. For domain model, schemas, and service boundaries, see `architecture.md`.
+- Do not describe implementation details here. For domain model, schemas, and service boundaries, see `README.md`.
 - Do not duplicate the competitive gap analysis from `comparison.md`. The positioning summary is a one-paragraph conclusion, not a re-analysis.
 - Link to epic files for each pillar rather than re-listing their scope.
 - The `personal-venue-catalog/product.md` is a segment reference document — it describes the catalog subsystem in its original standalone positioning. It carries a `[!NOTE]` callout and must not be treated as the primary product definition.
@@ -247,7 +247,7 @@ The feature checklist is the **mid-level planning document** that sits between e
   ```
   A feature line without all three links/tags is not committed scope and must be either completed or removed. The checklist is a flattened VIEW over epics + milestones — never a third independent source of truth. If the scope or priority of a feature changes, update the epic/milestone file AND this document in the same commit.
 - **Grouping:** Features are grouped by priority tier first (P0 at top, P3 at bottom). Within a tier, group by the product layer from §4.10 (Group A / B / C / D) so related features stay together. No alphabetical ordering.
-- **Feature descriptions write in user-visible terms, not implementation terms.** "Event planner can upload a PDF floor plan" (good), not "Implement Tika PDF parser with spatial OCR" (implementation — that belongs in architecture.md).
+- **Feature descriptions write in user-visible terms, not implementation terms.** "Event planner can upload a PDF floor plan" (good), not "Implement Tika PDF parser with spatial OCR" (implementation — that belongs in README.md).
 - **No dates, no assignees, no percentages.** Checkboxes only. No `40%` markers. Tick `- [x]` only when the feature is fully demoable end-to-end to a real user in its target milestone environment. An engineer's "works on my machine" does not qualify.
 - **No additional sections beyond:** 1) Title + audience, 2) What this document is, 3) Priority tier definitions, 4) How to read each feature line (legend for the metadata format), 5) P0 block, 6) P1 block, 7) P2 block, 8) P3 block, 9) Navigation footer. No other sections.
 
@@ -273,7 +273,7 @@ The feature checklist is the **mid-level planning document** that sits between e
 
 ### Links
 
-- All internal links are relative: `../platform/architecture.md`, not absolute paths.
+- All internal links are relative: `../platform/README.md`, not absolute paths.
 - Every document that is part of the `docs/` tree must include a navigation footer:
 
 ```markdown
@@ -302,14 +302,14 @@ The feature checklist is the **mid-level planning document** that sits between e
 ## 6. What agents and tools must not do
 
 - **Do not summarise content from one doc into another.** Instead, link. Duplication creates drift.
-- **Do not add implementation code to design docs.** Short illustrative sketches are acceptable in architecture.md and intelligence.md only. Full implementations belong in source repositories.
+- **Do not add implementation code to design docs.** Short illustrative sketches are acceptable in README.md and intelligence.md only. Full implementations belong in source repositories.
 - **Do not delete open decision checkboxes.** Mark them `- [x]` with the resolution inline, then leave them.
 - **Do not change the audience of an existing document** without considering whether it should be split.
 - **Do not create a new document** without first checking whether the content belongs in an existing file.
 - **Do not use `# H1` headings inside a document** except for the document title at line one.
 - **Do not write in past tense in vision.md.** Vision is forward-looking.
 - **Do not write dates in milestone files** unless the milestone is `Completed`. Planned dates create false commitments.
-- **Do not put roadmap content in architecture.md** and architectural content in roadmap files. They serve different readers.
+- **Do not put roadmap content in README.md** and architectural content in roadmap files. They serve different readers.
 
 ---
 
@@ -358,4 +358,4 @@ If a rule in this file is wrong or needs updating, change this file first, then 
 
 ---
 
-**Docs:** [What is VenueMi?](docs/README.md) · [Architecture](docs/platform/architecture.md) · [Roadmap Vision](docs/roadmap/vision.md)
+**Docs:** [What is VenueMi?](docs/README.md) · [Architecture](docs/platform/README.md) · [Roadmap Vision](docs/roadmap/vision.md)

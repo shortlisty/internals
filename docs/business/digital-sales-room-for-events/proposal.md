@@ -243,4 +243,4 @@ Agencies will rely on the approval snapshot to resolve disputes. Mitigation: be 
 
 ---
 
-**Docs:** [What is VenueMi?](../../README.md) · [Product Structure](product.md) · [Market Structure](../market.md) · [Architecture](../../platform/architecture.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is VenueMi?](../../README.md) · [Product Structure](product.md) · [Market Structure](../market.md) · [Architecture](../../platform/README.md) · [Vision](../../roadmap/vision.md)

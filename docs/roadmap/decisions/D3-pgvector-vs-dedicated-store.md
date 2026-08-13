@@ -88,4 +88,4 @@ Vectors live in per-tenant `item_vectors` tables via the pgvector extension. Ind
 
 ---
 
-**Docs:** [Vision](../vision.md) · [Intelligence Layer](../../platform/intelligence.md) · [Architecture](../../platform/architecture.md) · [Epics](../epics/README.md)
+**Docs:** [Vision](../vision.md) · [Intelligence Layer](../../platform/intelligence.md) · [Architecture](../../platform/README.md) · [Epics](../epics/README.md)

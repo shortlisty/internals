@@ -123,4 +123,4 @@ Once the pitch-to-approval loop is proven and trusted, the platform can grow in 
 
 ---
 
-**Docs:** [What is VenueMi?](../README.md) · [Personal Venue Catalog](../business/personal-venue-catalog/product.md) · [Digital Sales Room](../business/digital-sales-room-for-events/README.md) · [Market Structure](../business/market.md) · [Architecture](../platform/architecture.md)
+**Docs:** [What is VenueMi?](../README.md) · [Personal Venue Catalog](../business/personal-venue-catalog/product.md) · [Digital Sales Room](../business/digital-sales-room-for-events/README.md) · [Market Structure](../business/market.md) · [Architecture](../platform/README.md)

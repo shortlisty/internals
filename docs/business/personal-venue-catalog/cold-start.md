@@ -175,7 +175,7 @@ This process is simultaneously: (a) the 50-document extraction accuracy benchmar
 Maintain a simple spreadsheet during collection, plus the resulting `master_venue_import_log` audit rows from `public.master_venue_import_log`:
 
 | City | Venue name | Category | Documents collected | Seed JSON written? | Inserted via importer? | Extraction quality (1–5) | Impoter dedup: new row or merged? | Notes |
-| ---- | ---------- | -------- | ------------------- | ------------------- | ---------------------- | ------------------------ | --------------------------------- | ----- |
+| ---- | ---------- | -------- | ------------------- | ------------------ | ---------------------- | ------------------------ | --------------------------------- | ----- |
 
 Score extraction quality 1–5 per venue after reviewing the output. Track which field types fail most often (capacity tables, catering policy, curfew, contacts). Track importer dedup outcomes separately: did this venue create a new master row, or did it correctly merge with an existing Tagvenue scraper record for the same physical venue? This is the only honest way to validate the 0.75 / 0.90 fuzzy-match thresholds are calibrated correctly.
 
