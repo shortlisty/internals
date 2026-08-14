@@ -66,6 +66,16 @@ Follow-up: "How many venues do you actively work with? We can have those in your
 
 ---
 
+**"We already have Aisle Planner / Planning Pod / HoneyBook. Why another tool?"**
+
+Underlying concern: _I already pay for and live inside an all-in-one event platform. Adding another SaaS feels like duplicate effort, another login, another place data can get out of sync — I've been burned by tool sprawl before._
+
+Response: Totally fair question — we hear it from every agency that's already invested in one of those tools. The short answer: VenueMi does not replace Aisle Planner or Planning Pod. It plugs into them and solves the one thing none of them do well — the 1–3 hours before the venue is confirmed, when you're hunting through Drive folders and old emails for venue specs, copy-pasting data into Canva or Qwilr, and chasing client feedback in WhatsApp. Those tools are brilliant at contracts, invoicing, timelines, BEOs, seating, and day-of project management. VenueMi is brilliant at: reading all your venue decks automatically, giving you a searchable knowledge base of every venue you've ever worked with, turning 4 venues into a branded client link in 60 seconds, and getting a frictionless sign-off with a visible history. Then, when the client clicks Approve, we sync the approved venue snapshot — contact, capacity, catering policy, floor plans, client preferences, budget line items, timeline anchors — straight into Aisle Planner / Planning Pod / HoneyBook with one click. No retyping. No data drift. You use the all-in-one for everything downstream, exactly as you do today. VenueMi just makes the upstream venue-selection loop 10x faster and 10x more pleasant.
+
+Follow-up: "Walk me through what your current venue-selection-to-Approved flow looks like end to end. I want to see exactly where the friction is right now and whether VenueMi takes it out without touching the parts that already work for you."
+
+---
+
 **"My team won't adopt a new tool."**
 
 Underlying concern: _I've bought software before that nobody used._
