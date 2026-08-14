@@ -123,6 +123,19 @@ VenueMi occupies a gap between two categories that currently do not overlap.
 
 VenueMi combines the knowledge layer with the client-facing output in a single product built specifically for the event planning workflow. The catalog feeds the pitch. The pitch generates the approval. Neither exists without the other, and no existing tool provides both.
 
+### Positioning analogy: Papermark for venues
+
+A useful reference frame (brainstorm shorthand, not copy).
+
+Papermark won users away from DocSend not by building a broader product with more enterprise features, but by doing one thing better: frictionless delivery of pitch decks, with zero login friction, instant page render, and pleasant white-label branding. It focused on the narrow part of the sales loop that DocSend took for granted, and dominated that slice.
+
+VenueMi applies the same focus to the venue-selection loop inside event agencies. Planning Pod and Aisle Planner are broad, all-in-one operations platforms — they manage contracts, budgets, BEOs, seating charts, timelines, invoicing, vendor management, and client portals. VenueMi does not compete with any of that. It owns one narrower slice the all-in-ones do poorly:
+
+> 1. Personal venue knowledge governance — AI extraction, provenance per field, progressive enrichment, searchable catalog nobody has to manually build and maintain.
+> 2. Frictionless client pitch delivery with shared trust history — no portal login, immutable venue-specific audit trail, bilateral preference capture, structured Approve snapshot.
+
+The approved venue snapshot then hands off into Planning Pod / Aisle Planner / HoneyBook for the downstream project work in one click. The planner keeps the stack they already use. VenueMi takes the painful two hours before the venue is confirmed and turns it into ten minutes. In the same way Papermark replaces "upload deck to Drive, attach to email, track opens manually" without trying to be a CRM, VenueMi turns your scattered venue PDFs and WhatsApp threads into (1) a smart personal venue catalog you can actually search, and (2) a one-click approval deal room — then hands the confirmed venue straight into your existing Planning Pod or Aisle Planner workflow.
+
 ---
 
 **Docs:** [What is VenueMi?](../../README.md) · [Business Proposal](proposal.md) · [Architecture](../../platform/README.md) · [Intelligence Layer](../../platform/intelligence.md) · [Vision](../../roadmap/vision.md)
