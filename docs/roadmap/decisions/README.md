@@ -26,6 +26,8 @@ Each decision file follows the template in [AGENTS.md § 4.6](../../../AGENTS.md
 | [D7-jsonb-schema-versioning.md](D7-jsonb-schema-versioning.md)                                       | `_schema_version` + online incremental JSONB migration                                                                | Accepted |
 | [D8-vertical-extension-strategy.md](D8-vertical-extension-strategy.md)                               | Strategy pattern: generic core + domain library swap                                                                  | Accepted |
 | [D14-master-venue-seeding-infrastructure-first.md](D14-master-venue-seeding-infrastructure-first.md) | Master venue seeding infrastructure first                                                                             | Accepted |
+| [D15-progressive-enrichment.md](D15-progressive-enrichment.md)                                       | Progressive profile enrichment: beauty first, accuracy in background                                                  | Accepted |
+| [D16-deal-room-trust-model.md](D16-deal-room-trust-model.md)                                         | Deal Room trust model: immutable history, bilateral control, confidence-as-transparency                               | Accepted |
 
 ---
 
