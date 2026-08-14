@@ -149,4 +149,109 @@ Each city adds a self-contained growth pocket. Cross-city word-of-mouth is rare 
 
 ---
 
-**Docs:** [What is VenueMi?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Vision](../../roadmap/vision.md)
+## Concrete outreach channels by audience segment
+
+To turn the concierge model into a repeatable pipeline, outreach focuses on five segments, each with distinct channels and a tailored opener. Each segment maps to a specific toolstack (see below) because the opener references tools the prospect already uses.
+
+### 1. Solo wedding planners (15–40 events/year)
+
+These planners run on HoneyBook or Aisle Planner + Instagram + WhatsApp. They value beauty and speed over enterprise features.
+
+**Channels:**
+
+- **Instagram / TikTok:** Search hashtags `#WeddingPlanner[City]` + `#[City]Weddings`. Engage with recent venue posts (genuine comment, not a pitch), then DM referencing the specific venue they posted.
+- **The Knot / WeddingWire / Wezoree / Zola directories:** Filter by city, export agency names, visit their websites, cold email the founder directly.
+- **Local wedding association chapters (WIPA, ABC):** Attend chapter meetups as a supplier/guest.
+
+**Opener pattern:** "I saw you posted Villa Medici last month — I built a tool that pulls your venue PDFs into a searchable catalog and turns 3 venues into a branded client link in 60 seconds. Want to see it with venues you've actually worked with?"
+
+### 2. Small event agencies (2–8 people)
+
+These teams live in Notion + Drive + Asana or Monday.com + Canva. They run mixed corporate and social work.
+
+**Channels:**
+
+- **LinkedIn advanced search:** Boolean `("event agency" OR "event management") AND "[City]" AND ("founder" OR "director" OR "owner")`. Engage with a recent post (genuine comment) before sending a personalized connection request referencing a specific event they ran.
+- **MPI (Meeting Professionals International) / PCMA (Professional Convention Management Association) chapter directories:** Most chapters publish member lists or host local networking events. Join as a supplier partner if the tier is under $500/year.
+- **EventPlanning.com / FindEventProfs.com / Event-Directory.com directories:** Filter by city and agency size.
+
+**Opener pattern:** "I looked at [their recent corporate event case study] — most agencies we talk to lose 2 hours per brief hunting through Drive folders and Notion tables for the right venues. VenueMi turns that into 5 minutes. Want to see a demo with 5 Naples venues you'd recognise?"
+
+### 3. In-house corporate event leads
+
+These people sit inside mid-to-large companies, report to Marketing or HR, and use Cvent or Bizzabo for conferences + Asana for project management. They are harder to reach but have budget and recurring venue problems.
+
+**Channels:**
+
+- **LinkedIn Sales Navigator:** Titles: "Head of Events," "Director of Corporate Events," "Events Marketing Manager," "Senior Event Planner." Filter by company size (200–5,000 employees) + industry (tech, finance, professional services) + city.
+- **Via agency introductions:** Corporate leads trust their agency's vendor recommendations far more than cold outreach. Ask every agency that goes live: "Who are the three best corporate event leads you work with? I'll give you a free month for a warm intro."
+
+**Opener pattern:** "I work with [agency they know] here in Naples. They cut their venue sourcing time per brief from 2 hours to 10 minutes using VenueMi. Do you have 15 minutes next week to see a 3-venue demo with local spots?"
+
+### 4. Venue managers / venue sales teams
+
+Venue managers are a secondary audience — they are not the primary buyer, but they are connectors, and a version of the product that helps them send pitches to planners is a natural upsell.
+
+**Channels:**
+
+- **IAVM (International Association of Venue Managers) chapters and member directory**
+- **Direct outreach via venue website contact forms** — the sales or events manager usually responds if you reference their venue's specific materials: "I was reviewing your rooftop deck PDF — I noticed you send custom proposals to planners one-off. VenueMi can turn your deck into a branded interactive link in 30 seconds."
+- **Venue open days and supplier networking nights** — every mid-size city has these. In-person handshakes beat cold email for venue people.
+
+### 5. DMCs (Destination Management Companies)
+
+DMCs manage venues across entire regions for corporate clients. They manage more venues per brief than any other segment and are the highest-LTV early adopter candidate.
+
+**Channels:**
+
+- **ADMEI (Association of Destination Management Executives International) directory**
+- **MPI conferences** — DMCs are heavily represented at MPI WEC and European MPI events
+- **Referral via local agencies** — agencies work with DMCs on out-of-town events and make warm intros
+
+**Opener pattern:** "Most DMCs I talk to manage 200+ venues across 3–5 cities but still run on spreadsheets and 10-year-old Access databases. VenueMi turns every venue deck you already have into a searchable catalog with one-click client pitch links. Want to see it with 10 of your venues imported free?"
+
+### Outreach cadence: quick start plan for month one
+
+1. LinkedIn Sales Navigator: 3 saved searches (solo planners, small agencies, corporate leads) in the launch city. 10 saved leads per search.
+2. Join 3 associations/groups: MPI local chapter, WIPA local chapter, one LinkedIn group (Event Planning & Event Management or BizBash).
+3. Browse 3 directories: The Knot (weddings), EventPlanning.com (agencies), one local city business directory. Export/save 20–30 profiles.
+4. First 10 conversations: aim for "send me your Drive folder and I'll import 5 venues for free" over "sign up for a demo." The concierge onboarding is the pitch.
+
+---
+
+## Toolstack landscape and integration priority roadmap
+
+Early adopters do not live in VenueMi. They live in a 5–8 tool stack that already works most days. VenueMi must slot in next to it, not replace it. Integration priority maps to how often each tool appears in the ICP segments above.
+
+### Tier 1 — Must have before v1.0 commercial launch
+
+| Tool / platform                      | Why it matters                                                                                                                                                                         | Integration target                                                                                                                       |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **Google Drive / Dropbox**           | 95% of agencies store venue source files here. Concierge onboarding today is "share the Drive folder" — import should be a one-click OAuth connect, not a manual download-then-upload. | One-click import of selected folder(s) → VenueMi triggers extraction pipeline. File browser picker UI inside the app.                    |
+| **Google Workspace / Microsoft 365** | Client pitches are sent via Gmail or Outlook. Deal Room links are composed in email, Approve confirmations come back into email.                                                       | Send pitch link directly from app via connected Gmail/Outlook account. Inbound Approve email receipts auto-linked to Deal Room timeline. |
+
+### Tier 2 — Ship in v1.1, before aggressive self-serve
+
+| Tool / platform   | Why it matters                                                                                                                                                                                                                   | Integration target                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **HoneyBook**     | Dominant CRM/proposal tool for solo wedding planners and small boutique agencies. VenueMi must not feel like "yet another CRM" — it feeds pitch-ready venue selections back into HoneyBook proposals.                            | OAuth connect → **Pull**: read existing HoneyBook client briefs (headcount, dates, style tags, event type) → auto-populate pitch context and seed VenueMi chat-search filters. **Push**: on Approve, write the approved venue snapshot back as (1) a HoneyBook proposal seed with venue contact, capacity, catering policy, and floor-plan assets pre-filled; (2) brief custom fields reflecting the client's Deal Room preferences.                                                                                                       |
+| **Aisle Planner** | Wedding planner specific. Shares a user base with HoneyBook, but Aisle Planner has deeper wedding-specific workflow (timelines, seating, design boards, BEOs). Planners here live inside the design board and timeline features. | OAuth connect → **Pull**: pull Aisle Planner client brief questionnaire answers, guest count ranges, and wedding-style mood-board tags → seed context for VenueMi search and pitch. **Push**: on Approve, write the approved venue as (1) proposal line-item seed in the Aisle Planner proposal builder; (2) timeline anchor milestone (venue date, curfew, guest cap, catering rules) in the timeline template system; (3) venue assets (floor plans, photos, PDFs) into the Aisle Planner design-board asset library to avoid re-upload. |
+| **Dubsado**       | Automation-heavy solopreneur CRM. Heavy user base among planners who want everything wired together. Dubsado's killer feature is the automated workflow chain.                                                                   | OAuth connect → **Pull**: Dubsado form and questionnaire answers → brief context in VenueMi. **Push**: Deal Room Approve event automatically triggers Dubsado workflow stages: "Approve received" → advance pipeline, auto-fire contract template, kick off invoice, ping the planner. Client Deal Room preferences (format, catering rules, AV flags) → written to Dubsado project custom fields for downstream tasks.                                                                                                                    |
+
+### Tier 3 — v1.2–v1.3, enterprise and volume segments
+
+| Tool / platform                  | Why it matters                                                                                                                                                                     | Integration target                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Asana / Monday.com / ClickUp** | Corporate event leads and larger agencies run multi-stakeholder projects here. VenueMi's Deal Room activities should write back to the project rather than exist in a silo.        | Approve event → auto-complete the matching Asana/Monday task with a comment linking the Deal Room history snapshot. Client preferences captured in VenueMi → written as subtasks or custom fields. Brief context (guests, date, style tags) pulled from Asana project description + custom fields → seed VenueMi pitch context.                                                                                                                                                                                                                     |
+| **Planning Pod**                 | Mixed venue-corporate teams use Planning Pod for budgets, BEOs, and floor plans. Planning Pod has a venue module — VenueMi complements it with a richer knowledge and pitch layer. | **Pull**: client questionnaires, event briefs, custom budget envelopes from Planning Pod → seed VenueMi search context and pitch brief. **Push**: on Approve, sync approved venue + metadata as (1) a **BEO seed** in the Planning Pod BEO builder (capacity, catering policy, F&B rules, contact, AV defaults pre-filled); (2) budget line items reflecting venue fee and catering estimate; (3) bi-directional floor-plan asset sync so Planner updates to a PDF floor plan in VenueMi show up in Planning Pod floor-plan layouts and vice versa. |
+| **Cvent Vendor Marketplace**     | Discovery complement. Planners find a new venue via Cvent → one-click import into VenueMi personal catalog for extraction and permanent storage.                                   | Cvent vendor listing deep link → import venue's public materials (deck, floor plans, photos) into VenueMi with a single bookmarklet or extension click.                                                                                                                                                                                                                                                                                                                                                                                             |
+| **Notion**                       | The default DIY knowledge base. Agencies who have invested in a Notion venue database want a gradual migration path, not a cold switch.                                            | One-way read of a Notion venue database into VenueMi as a seed import. Optional two-way sync for text notes and tags after v2.0.                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **Canva**                        | Planners today recreate custom pitch visuals in Canva for every brief. VenueMi's output should be brand-equivalent so they don't feel the need.                                    | Export Deal Room venue card grid as a Canva-compatible template (PNG assets + metadata CSV) for the 10% of cases where they need bespoke design output Canva still does better.                                                                                                                                                                                                                                                                                                                                                                     |
+
+### How integrations reinforce the positioning
+
+The pattern across all tiers is consistent: VenueMi is a venue knowledge + pitch approval specialist that plugs into the tools the agency already runs their business on. The value proposition is not "replace your stack" — it is "make the venue part of your stack 10x faster and 10x more pleasant, without making you leave anything behind."
+
+---
+
+**Docs:** [What is VenueMi?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Vision](../../roadmap/vision.md) · [Competitive Landscape](comparison.md)
