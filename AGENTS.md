@@ -68,7 +68,7 @@ system-design-documentation/
 
 - Do not add files outside the structure above without updating this file first.
 - Do not create nested subdirectories beyond what is shown unless the README.md for that folder is updated to explain the new structure.
-- File names are lowercase, hyphen-separated (`my-file-name.md`). No spaces, no underscores, no camelCase. **Exception:** the two `business/` subdirectories use PascalCase with underscores (`digital-sales-room-for-events/`, `personal-venue-catalog/`) to clearly signal their role as concept containers, not document collections.
+- File names are lowercase, hyphen-separated (`my-file-name.md`). No spaces, no underscores, no camelCase.
 - Epic files are prefixed `E{N}-` (e.g. `E1-venue-profiles.md`). Numbers start at 1, increment by 1, never reuse.
 - Milestone files are prefixed `v{X}.{Y}-` (e.g. `v0.1-mvp.md`). Align with product version numbering.
 - Decision files are prefixed `D{N}-` (e.g. `D1-one-service-vs-two.md`). Numbers start at 1, increment by 1, never reuse.
