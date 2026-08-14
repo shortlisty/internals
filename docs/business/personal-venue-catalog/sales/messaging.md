@@ -24,8 +24,19 @@ Status values: `Candidate` | `Approved` | `Retired`
 
 | Copy                                             | Status   | Notes                                                                                                 |
 | ------------------------------------------------ | -------- | ----------------------------------------------------------------------------------------------------- |
-| Every venue your team knows. Finally searchable. | Approved | Outcome-first. ICP language. Used in homepage H1.                                                     |
+| Every venue your team knows. Finally searchable. | Approved | Outcome-first. ICP language. Used in homepage H1 (PVC positioning).                                   |
 | Turn scattered venue files into instant answers. | Retired  | Leads with AI transformation, not the outcome. Good for secondary copy but not as a primary headline. |
+
+### DSR positioning — taglines for Planning Pod / Aisle Planner users
+
+These taglines carry the full two-product logic (smart catalog + frictionless approval deal room) and explicitly position VenueMi as a plug-in, not a replacement. Use for outreach to agencies already on an all-in-one ops stack.
+
+| Copy                                                                                                                   | Status    | Notes                                                                                                                                        |
+| ---------------------------------------------------------------------------------------------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Your smart venue catalog. One-click client approval. The rest stays in Planning Pod.                                   | Candidate | Primary DSR candidate for this segment. Names both product halves explicitly, names Planning Pod, sets no-replacement expectation.           |
+| The two hours before the venue is confirmed? 10 minutes. Everything downstream stays exactly where it is.              | Candidate | Pain-first outcome tagline. Good for cold outreach subject lines and LinkedIn ads. No jargon — the ICP recognises "the two hours" instantly. |
+| Scattered PDFs + WhatsApp → smart venue catalog + one-click approval. Straight back into your Aisle Planner workflow.  | Candidate | Input → output → handoff. Exactly the structure from product.md analogy. Compact, reads like a before/after.                                 |
+| Papermark for venues — all the friction out of pitching and sign-off, none of the project management you already have. | Candidate | Analogy tagline. Great for pitch decks and calls where the listener knows Papermark/DocSend. Do not use on a landing page H1 (too meta).     |
 
 ### Punchy alternatives
 
