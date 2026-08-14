@@ -49,16 +49,19 @@ These tools help planners find venues they haven't worked with yet. They operate
 
 ### 3. Event agency CRM and ops tools
 
-These tools manage the agency's client relationships and project workflows. Some generate proposals or contracts, but they are business-management tools — not venue intelligence tools.
+These tools manage the agency's client relationships and project workflows. Some generate proposals or contracts, but they are business-management tools — not venue intelligence tools. Some include a client portal, but every portal requires the client to create a login and set a password before they can see anything.
 
-| Tool             | What it does                                                              | Gap vs. VenueMi                                                 |
-| ---------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| **HoneyBook**    | Proposals, contracts, invoicing, payments for creative/event solopreneurs | No venue library or extraction; proposals are manual templates  |
-| **Dubsado**      | CRM, forms, contracts, workflows                                          | Same as HoneyBook; no venue concept                             |
-| **Planning Pod** | Venue-operator tool (BEO, booking, billing)                               | Built for venue operators, not planners; no agency-side catalog |
-| **Tripleseat**   | Sales and catering software for restaurants/hotels                        | Venue-side; data is transactional, not document-extracted       |
+| Tool              | What it does                                                                  | Gap vs. VenueMi                                                                                                                                                                                                                                                    |
+| ----------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **HoneyBook**     | Proposals, contracts, invoicing, payments for creative/event solopreneurs     | No venue library or extraction; proposals are manual templates. Client portal requires login.                                                                                                                                                                      |
+| **Aisle Planner** | Wedding-focused all-in-one: proposals, design boards, timelines, seating, BEO | No venue AI extraction or structured catalog. Planner enters every venue by hand. Client collaboration gated behind client account + password. Beautiful design tools but venue knowledge stays a manual layer.                                                    |
+| **Dubsado**       | CRM, forms, contracts, workflows                                              | Same as HoneyBook; no venue concept. Client portal requires login.                                                                                                                                                                                                 |
+| **Planning Pod**  | All-in-one ops for event firms + venue ops: BEO, budgets, floor plans, forms  | Strong post-approve workflow (proposal builder, BEOs, floor plan layouts, client portals with forms/questionnaires) but no venue extraction or catalog. Planner still manually creates every venue record. Client must set up a portal account before interacting. |
+| **Tripleseat**    | Sales and catering software for restaurants/hotels                            | Venue-side; data is transactional, not document-extracted.                                                                                                                                                                                                         |
 
-**Summary:** These tools cover what happens _after_ the venue is confirmed — contracts, invoicing, project management. VenueMi covers what happens _before_: finding, evaluating, pitching, and getting client sign-off. The two workflows are adjacent and can coexist.
+**Summary:** These tools cover what happens _after_ the venue is confirmed — contracts, invoicing, project management, day-of timelines, BEOs. VenueMi covers what happens _before_: venue knowledge extraction, fast portfolio search, client pitch building, and frictionless approval. The two product categories are adjacent, not competing. The ideal workflow is: VenueMi extracts + pitches + gets sign-off → approved venue snapshot, budget items, and brief details are synced one-click into the agency's Aisle Planner / Planning Pod / HoneyBook proposal and timeline templates.
+
+**Client portal gap:** Every tool in this category solves client collaboration by creating a client-side user account with a password. VenueMi solves the pitch-approval step by sending a one-click link — no account, no password, no friction for the client. This is a material adoption difference on the buy-side: 20–40% of recipients never complete a client-portal registration flow, whereas a direct link is opened and read immediately. VenueMi then hands the approved project off to the agency's existing portal for all downstream work (contracts, payments, timelines).
 
 ---
 
@@ -94,32 +97,39 @@ The most common "competitor" is not a product — it is the patchwork of general
 
 ## Capability matrix
 
-| Capability                                   |         VenueMi         | Qwilr / Dock.us | Cvent / VenueScanner | HoneyBook / Dubsado |     DIY stack      |
-| -------------------------------------------- | :---------------------: | :-------------: | :------------------: | :-----------------: | :----------------: |
-| Planner-owned venue knowledge base           |           ✅            |       ⛔        |          ⛔          |         ⛔          |  Partial (manual)  |
-| AI extraction from agency's own docs         |           ✅            |       ⛔        |          ⛔          |         ⛔          |         ⛔         |
-| Structured venue catalog (search + filter)   |           ✅            |       ⛔        |          ⛔          |         ⛔          | Partial (Airtable) |
-| Event-specific filtering of venue data       |           ✅            |       ⛔        |          ⛔          |         ⛔          |         ⛔         |
-| Client-facing interactive pitch (micro-site) |           ✅            |       ✅        |          ⛔          |       Partial       |         ⛔         |
-| No client login required                     |           ✅            |       ✅        |          —           |       Partial       |         ✅         |
-| Two-sided comments and collaboration         |           ✅            |     Partial     |          ⛔          |         ⛔          |  Partial (email)   |
-| Floor plan / photo preview in pitch          |           ✅            |     Partial     |          ⛔          |         ⛔          |         ⛔         |
-| Approval → immutable snapshot (SSOT)         |           ✅            |       ⛔        |          ⛔          |  Partial (e-sign)   |         ⛔         |
-| Agency white-label (custom domain)           |     ✅ (Business+)      |       ✅        |          —           |         ✅          |        n/a         |
-| SMB-friendly pricing                         |           ✅            |       ✅        |          ⛔          |         ✅          |     ✅ (free)      |
-| Venue discovery (new venues)                 | Master catalog backdrop |       ⛔        |          ✅          |         ⛔          |         ⛔         |
+| Capability                                    |         VenueMi         | Qwilr / Dock.us | Cvent / VenueScanner | HoneyBook / Aisle Planner / Dubsado / Planning Pod |     DIY stack      |
+| --------------------------------------------- | :---------------------: | :-------------: | :------------------: | :------------------------------------------------: | :----------------: |
+| Planner-owned venue knowledge base            |           ✅            |       ⛔        |          ⛔          |                         ⛔                         |  Partial (manual)  |
+| AI extraction from agency's own docs          |           ✅            |       ⛔        |          ⛔          |                         ⛔                         |         ⛔         |
+| Structured venue catalog (search + filter)    |           ✅            |       ⛔        |          ⛔          |                         ⛔                         | Partial (Airtable) |
+| Event-specific filtering of venue data        |           ✅            |       ⛔        |          ⛔          |                         ⛔                         |         ⛔         |
+| Client-facing interactive pitch (micro-site)  |           ✅            |       ✅        |          ⛔          |                      Partial                       |         ⛔         |
+| No client login required                      |           ✅            |       ✅        |          —           |                         ⛔                         |         ✅         |
+| Two-sided comments and collaboration          |           ✅            |     Partial     |          ⛔          |                      Partial                       |  Partial (email)   |
+| Floor plan / photo preview in pitch           |           ✅            |     Partial     |          ⛔          |                         ⛔                         |         ⛔         |
+| Approval → immutable snapshot (SSOT)          |           ✅            |       ⛔        |          ⛔          |               Partial (e-sign only)                |         ⛔         |
+| Immutable audit trail of all proposal actions |           ✅            |       ⛔        |          ⛔          |                         ⛔                         |         ⛔         |
+| Provenance-tagged pitch metadata              |           ✅            |       ⛔        |          ⛔          |                         ⛔                         |         ⛔         |
+| Confidence-tier badges (client-visible)       |           ✅            |       ⛔        |          ⛔          |                         ⛔                         |         ⛔         |
+| Structured client preference capture          |           ✅            |     Partial     |          ⛔          |                      Partial                       |         ⛔         |
+| Agency white-label (custom domain)            |     ✅ (Business+)      |       ✅        |          —           |                         ✅                         |        n/a         |
+| SMB-friendly pricing                          |           ✅            |       ✅        |          ⛔          |                         ✅                         |     ✅ (free)      |
+| Venue discovery (new venues)                  | Master catalog backdrop |       ⛔        |          ✅          |                         ⛔                         |         ⛔         |
+| Sync approved snapshot → CRM / ops tools      |           ✅            |       ⛔        |          ⛔          |                    n/a (vendor)                    |         ⛔         |
 
 ---
 
 ## VenueMi's durable edge
 
-Three things that would require a competitor to build from scratch:
+Four things that would require a competitor to build from scratch:
 
 **1. The venue knowledge layer.** Qwilr could add a "venue database" feature tomorrow — but it would still be manual entry, not extracted from the agency's existing files. The extraction pipeline (Tika + GPT-4o + confidence scores + human verification) is months of work, not a feature flag.
 
 **2. Event-specific pitch rendering.** The pitch board doesn't show all metadata for every venue — it filters and ranks by what matters for _this_ brief. That requires a structured catalog with per-field data, not a PDF upload.
 
 **3. The approval snapshot with provenance.** The snapshot isn't just "client clicked approve" — it records the exact metadata version, source citations, and configuration at the moment of approval. Rebuilding this on top of a general DSR tool would require the entire catalog layer anyway.
+
+**4. The end-to-end trust model (provenance + audit trail + bilateral control).** Provenance badges travel from ingestion all the way to the client view. Every action writes to an append-only log visible to both sides. Confidence tiers are visible to the client, not hidden in admin. This design philosophy is baked in at every layer — UI, schema, event log, permission model. A competitor cannot bolt it on as a late feature; they would have to rebuild the product around it.
 
 ---
 
