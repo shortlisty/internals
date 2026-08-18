@@ -7,19 +7,20 @@
 
 ## Document Map
 
-| Document                                     | Contents                                                                                      |
-| -------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| **This file**                                | Platform context, foundation reuse, tech stack decisions, implementation patterns             |
-| [data-model.md](data-model.md)               | Domain model, canonical field set, schema versioning, database schema & indexes               |
-| [services.md](services.md)                   | Service decomposition, shared libraries (`mi-venue-model`, `mi-data-intelligence`), S3 layout |
-| [aggregation.md](aggregation.md)             | Metadata aggregation, conflict resolution, FIFO race-condition prevention                     |
-| [master-catalog.md](master-catalog.md)       | Master Venue Catalog — cold start, alias normalisation, MC_INHERIT merge algorithm            |
-| [etl-pipeline.md](etl-pipeline.md)           | ETL pipeline (parse → transform → load), Spring AI stages, processing SLAs                    |
-| [search.md](search.md)                       | Search architecture — keyword, semantic, geo, hybrid, cross-source orchestration              |
-| [api.md](api.md)                             | REST API surface — all endpoints, DTOs, error responses                                       |
-| [events.md](events.md)                       | RabbitMQ event contracts, plan entitlement mapping                                            |
-| [observability.md](observability.md)         | Prometheus metrics, Grafana dashboards, security model                                        |
-| [roadmap-decisions.md](roadmap-decisions.md) | Open decisions, pre-Sprint 1 tasks, Phase 2/3 design backlog                                  |
+| Document                                           | Contents                                                                                      |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **This file**                                      | Platform context, foundation reuse, tech stack decisions, implementation patterns             |
+| [data-model.md](data-model.md)                     | Domain model, canonical field set, schema versioning, database schema & indexes               |
+| [services.md](services.md)                         | Service decomposition, shared libraries (`mi-venue-model`, `mi-data-intelligence`), S3 layout |
+| [aggregation.md](aggregation.md)                   | Metadata aggregation, conflict resolution, FIFO race-condition prevention                     |
+| [master-catalog.md](master-catalog.md)             | Master Venue Catalog — cold start, alias normalisation, MC_INHERIT merge algorithm            |
+| [etl-pipeline.md](etl-pipeline.md)                 | ETL pipeline (parse → transform → load), Spring AI stages, processing SLAs                    |
+| [search.md](search.md)                             | Search architecture — keyword, semantic, geo, hybrid, cross-source orchestration              |
+| [api.md](api.md)                                   | REST API surface — all endpoints, DTOs, error responses                                       |
+| [events.md](events.md)                             | RabbitMQ event contracts, plan entitlement mapping                                            |
+| [observability.md](observability.md)               | Prometheus metrics, Grafana dashboards, security model                                        |
+| [roadmap-decisions.md](roadmap-decisions.md)       | Open decisions, pre-Sprint 1 tasks, Phase 2/3 design backlog                                  |
+| [ui-venue-management.md](ui-venue-management.md)   | UI: venue CRUD form, list, field registry, component structure, themes/skins, addon placement |
 
 ---
 
@@ -343,12 +344,27 @@ One `@RestControllerAdvice` per service. Every handler uses the same `problem(ty
 Extend `foundation-ui-app` — do **not** fork. New VenueMi features live under:
 
 ```
-src/features/venue-management/
-├── create-venue/
-├── upload-asset/
-├── view-venue/          (profile + metadata card + asset gallery)
-├── edit-metadata/       (manual override, confidence badges, conflict alerts)
-└── search-venues/       (search bar, filters, semantic results)
+src/
+├── addons/
+│   └── venue-management/              ← isolated addon: field registry + utils + CSS tokens
+│       ├── index.ts
+│       └── registry/
+│           ├── field-registry.types.ts
+│           ├── venue-field-registry.ts
+│           └── registry.utils.ts
+├── entities/
+│   └── venue/                         ← VenueSummary, VenueDetail, VenueMetadata, VenueAnnotation
+├── features/
+│   ├── create-venue/
+│   ├── edit-venue-metadata/           ← tabbed metadata form, driven by field registry
+│   ├── upload-venue-asset/
+│   └── venue-quick-fill/              ← inline SEEDED→ENRICHED nudge
+├── widgets/
+│   ├── venue-list/                    ← list + filters + search bar
+│   └── venue-profile/                 ← header, tabs, asset gallery
+└── pages/
+    ├── venues/                        ← /venues
+    └── venues_.$id/                   ← /venues/:id
 ```
 
 New routes added to TanStack Router:
@@ -358,10 +374,10 @@ New routes added to TanStack Router:
 | `/venues`              | Member | Venue list / search  |
 | `/venues/new`          | Member | Create venue         |
 | `/venues/:id`          | Member | Venue profile        |
-| `/venues/:id/assets`   | Member | Asset gallery        |
-| `/venues/:id/metadata` | Member | Metadata view + edit |
 
 Reuse without modification: auth flows, session management, token refresh, team management, billing/entitlements (`FeatureGate`, `useEntitlements`), notification bell.
+
+Full component structure, field registry, theme/skin pattern, and API integration: see [ui-venue-management.md](ui-venue-management.md).
 
 ---
 

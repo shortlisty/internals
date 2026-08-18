@@ -133,12 +133,12 @@ mi-venue-model/
     └── changelog/
         ├── system/                      System (public) schema — master venue catalog tables
         │   ├── master.xml
-        │   └── 20260801000000-create-master-venue.xml
+        │   └── 20260901000000-create-master-venue.xml
         └── tenant/                      Tenant schema — venue domain tables only
             ├── master.xml               includes mi-data-intelligence/intelligence/master.xml
             │                            first, then venue-specific changesets
-            ├── 20260801000001-create-venues.xml
-            └── 20260801000002-create-venue-assets.xml
+            ├── 20260901000001-create-venues.xml
+            └── 20260901000002-create-venue-assets.xml
 ```
 
 > Infrastructure table changelogs (`extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`) live in `mi-data-intelligence/db/changelog/intelligence/` and are included via the `tenant/master.xml` reference. They must not be duplicated here.
@@ -294,10 +294,10 @@ mi-data-intelligence/
     └── changelog/
         └── intelligence/
             ├── master.xml
-            ├── 20260801000003-create-extraction-jobs.xml
-            ├── 20260801000004-create-item-metadata-events.xml
-            ├── 20260801000005-create-item-vectors.xml
-            └── 20260801000006-create-ai-cost-tracking.xml
+            ├── 20260901000003-create-extraction-jobs.xml
+            ├── 20260901000004-create-item-metadata-events.xml
+            ├── 20260901000005-create-item-vectors.xml
+            └── 20260901000006-create-ai-cost-tracking.xml
 ```
 
 **Rules:**
