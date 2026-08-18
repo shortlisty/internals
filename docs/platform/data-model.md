@@ -23,40 +23,40 @@
 
 **Aggregate root: `Venue`**
 
-| Field                          | Type             | Notes                                                                                            |
-| ------------------------------ | ---------------- | ------------------------------------------------------------------------------------------------ |
-| `id`                           | UUID             | PK                                                                                               |
-| `name`                         | varchar(255)     | Extracted from files / AI-drafted. Source of truth for dedup and search.                         |
-| `display_name`                 | varchar(255)     | Agent-assigned label for their collection (nullable). Shown in UI list/cards in place of `name`. |
-| `address`                      | text             |                                                                                                  |
-| `city`                         | varchar(100)     | Denormalised from address. Btree-indexed for fast city filters.                                  |
-| `country_code`                 | char(2)          | ISO 3166-1 alpha-2. Denormalised. Nullable (not always resolvable from raw address).             |
-| `location`                     | geography(point) | PostGIS, lat/lng                                                                                 |
-| `website_url`                  | varchar(500)     | Primary venue website. Used in Sales Room card and enrichment. Nullable.                         |
-| `description`                  | text             | Human-written or AI-drafted                                                                      |
-| `primary_photo_asset_id`       | UUID             | App-level FK → `venue_assets`. Nullable. Fast cover photo resolution for list views.             |
-| `status`                       | enum             | `DRAFT`, `ACTIVE`, `ARCHIVED`                                                                    |
-| `profile_stage`                | enum             | `SEEDED`, `ENRICHED`, `CURATED`, `READY` — progressive enrichment state (see §2b)               |
-| `source`                       | enum             | `MANUAL`, `FILE_IMPORT`, `MASTER_CATALOG`, `BULK_CSV` — how the record was created              |
-| `metadata`                     | jsonb            | Consolidated extracted + manual fields                                                           |
-| `metadata_sources`             | jsonb            | Provenance per field (see §2a)                                                                   |
-| `metadata_aggregated_at`       | timestamp        | When consolidation last ran                                                                      |
-| `description_embedding`        | vector(1536)     | pgvector, for semantic search                                                                    |
-| `description_text`             | tsvector         | Auto-updated via trigger, full-text search                                                       |
-| `master_venue_id`              | UUID             | App-level FK → `public.master_venue`. Nullable. Set on MC_INHERIT match or explicit import.      |
-| `last_used_in_sales_room_at`   | timestamp        | Updated when venue is included in any Sales Room. Informs ranking and retention analytics.       |
-| `created_by`                   | UUID             | IAM user id                                                                                      |
-| `created_at`                   | timestamp        |                                                                                                  |
-| `updated_at`                   | timestamp        |                                                                                                  |
+| Field                        | Type             | Notes                                                                                            |
+| ---------------------------- | ---------------- | ------------------------------------------------------------------------------------------------ |
+| `id`                         | UUID             | PK                                                                                               |
+| `name`                       | varchar(255)     | Extracted from files / AI-drafted. Source of truth for dedup and search.                         |
+| `display_name`               | varchar(255)     | Agent-assigned label for their collection (nullable). Shown in UI list/cards in place of `name`. |
+| `address`                    | text             |                                                                                                  |
+| `city`                       | varchar(100)     | Denormalised from address. Btree-indexed for fast city filters.                                  |
+| `country_code`               | char(2)          | ISO 3166-1 alpha-2. Denormalised. Nullable (not always resolvable from raw address).             |
+| `location`                   | geography(point) | PostGIS, lat/lng                                                                                 |
+| `website_url`                | varchar(500)     | Primary venue website. Used in Sales Room card and enrichment. Nullable.                         |
+| `description`                | text             | Human-written or AI-drafted                                                                      |
+| `primary_photo_asset_id`     | UUID             | App-level FK → `venue_assets`. Nullable. Fast cover photo resolution for list views.             |
+| `status`                     | enum             | `DRAFT`, `ACTIVE`, `ARCHIVED`                                                                    |
+| `profile_stage`              | enum             | `SEEDED`, `ENRICHED`, `CURATED`, `READY` — progressive enrichment state (see §2b)                |
+| `source`                     | enum             | `MANUAL`, `FILE_IMPORT`, `MASTER_CATALOG`, `BULK_CSV` — how the record was created               |
+| `metadata`                   | jsonb            | Consolidated extracted + manual fields                                                           |
+| `metadata_sources`           | jsonb            | Provenance per field (see §2a)                                                                   |
+| `metadata_aggregated_at`     | timestamp        | When consolidation last ran                                                                      |
+| `description_embedding`      | vector(1536)     | pgvector, for semantic search                                                                    |
+| `description_text`           | tsvector         | Auto-updated via trigger, full-text search                                                       |
+| `master_venue_id`            | UUID             | App-level FK → `public.master_venue`. Nullable. Set on MC_INHERIT match or explicit import.      |
+| `last_used_in_sales_room_at` | timestamp        | Updated when venue is included in any Sales Room. Informs ranking and retention analytics.       |
+| `created_by`                 | UUID             | IAM user id                                                                                      |
+| `created_at`                 | timestamp        |                                                                                                  |
+| `updated_at`                 | timestamp        |                                                                                                  |
 
 **`profile_stage` transitions** (computed automatically inside `MetadataAggregationConsumer`, never set manually):
 
-| Stage      | Condition to reach it                                                                                      |
-| ---------- | ---------------------------------------------------------------------------------------------------------- |
-| `SEEDED`   | Default on creation. Name present + at least one asset uploaded.                                          |
+| Stage      | Condition to reach it                                                                                                 |
+| ---------- | --------------------------------------------------------------------------------------------------------------------- |
+| `SEEDED`   | Default on creation. Name present + at least one asset uploaded.                                                      |
 | `ENRICHED` | `capacity.max_total` known + `venue_type` non-empty + `catering.policy` known. Typically via extraction + MC_INHERIT. |
-| `CURATED`  | At least one `venue_annotations` row exists for this venue (agent added a note, tag, or rating).           |
-| `READY`    | All `ENRICHED` conditions met + `primary_photo_asset_id` set + `website_url` present.                     |
+| `CURATED`  | At least one `venue_annotations` row exists for this venue (agent added a note, tag, or rating).                      |
+| `READY`    | All `ENRICHED` conditions met + `primary_photo_asset_id` set + `website_url` present.                                 |
 
 Transitions are monotone by default (SEEDED → ENRICHED → CURATED → READY) but can regress if a key field is removed.
 
@@ -140,18 +140,18 @@ Annotations are owned per-member (not per-tenant) and can be scoped as private (
 
 **`VenueAnnotation`**
 
-| Field              | Type          | Notes                                                                                         |
-| ------------------ | ------------- | --------------------------------------------------------------------------------------------- |
-| `id`               | UUID          | PK                                                                                            |
-| `venue_id`         | UUID          | FK → venues                                                                                   |
-| `annotation_type`  | enum          | `NOTE`, `TAG`, `RATING`, `BOOKMARK`, `INTERNAL_FLAG`                                          |
-| `text_value`       | text          | For `NOTE` and `TAG`. `TAG` values are short labels (max 50 chars). Nullable for other types. |
-| `color_hex`        | varchar(7)    | For `TAG` and `INTERNAL_FLAG`. Hex color for colored badge in UI (e.g. `#F59E0B`). Nullable. |
-| `numeric_value`    | numeric(3,1)  | For `RATING` (0.0–5.0 scale). Nullable for other types.                                      |
-| `is_private`       | boolean       | `true` = visible to creator only; `false` = shared with the whole team. Default: `true`.      |
-| `created_by`       | UUID          | IAM user id of the member who created this annotation.                                        |
-| `created_at`       | timestamp     |                                                                                               |
-| `updated_at`       | timestamp     |                                                                                               |
+| Field             | Type         | Notes                                                                                         |
+| ----------------- | ------------ | --------------------------------------------------------------------------------------------- |
+| `id`              | UUID         | PK                                                                                            |
+| `venue_id`        | UUID         | FK → venues                                                                                   |
+| `annotation_type` | enum         | `NOTE`, `TAG`, `RATING`, `BOOKMARK`, `INTERNAL_FLAG`                                          |
+| `text_value`      | text         | For `NOTE` and `TAG`. `TAG` values are short labels (max 50 chars). Nullable for other types. |
+| `color_hex`       | varchar(7)   | For `TAG` and `INTERNAL_FLAG`. Hex color for colored badge in UI (e.g. `#F59E0B`). Nullable.  |
+| `numeric_value`   | numeric(3,1) | For `RATING` (0.0–5.0 scale). Nullable for other types.                                       |
+| `is_private`      | boolean      | `true` = visible to creator only; `false` = shared with the whole team. Default: `true`.      |
+| `created_by`      | UUID         | IAM user id of the member who created this annotation.                                        |
+| `created_at`      | timestamp    |                                                                                               |
+| `updated_at`      | timestamp    |                                                                                               |
 
 **Design rules:**
 
@@ -655,42 +655,42 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 
 **Tenant schema `t_{tenantKey}` (tenant-owned):**
 
-| Table                   | Key columns                                                                                                                                                                                                                          | Owner                        |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------- |
+| Table                   | Key columns                                                                                                                                                                                                                                                                                                                                                                                            | Owner                        |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------- |
 | `venues`                | `id` UUID PK, `name` VARCHAR(255), `display_name` VARCHAR(255), `city` VARCHAR(100), `country_code` CHAR(2), `website_url` VARCHAR(500), `primary_photo_asset_id` UUID, `status` VARCHAR(20), `profile_stage` VARCHAR(20), `source` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY, `master_venue_id` UUID nullable, `last_used_in_sales_room_at` TIMESTAMP | `mi-venue-service`           |
-| `venue_annotations`     | `id` UUID PK, `venue_id` UUID FK, `annotation_type` VARCHAR(20), `text_value` TEXT, `color_hex` VARCHAR(7), `numeric_value` NUMERIC(3,1), `is_private` BOOLEAN, `created_by` UUID                                                   | `mi-venue-service`           |
-| `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536)                                                                                                 | `mi-venue-service`           |
-| `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB                                                                                             | `mi-venue-processing-worker` |
-| `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                                                                                                                        | `mi-venue-service`           |
-| `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in `mi-data-intelligence` changelog.                                                                              | `mi-venue-processing-worker` |
-| `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                                                                                                                         | `mi-venue-processing-worker` |
+| `venue_annotations`     | `id` UUID PK, `venue_id` UUID FK, `annotation_type` VARCHAR(20), `text_value` TEXT, `color_hex` VARCHAR(7), `numeric_value` NUMERIC(3,1), `is_private` BOOLEAN, `created_by` UUID                                                                                                                                                                                                                      | `mi-venue-service`           |
+| `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536)                                                                                                                                                                                                                                                                   | `mi-venue-service`           |
+| `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB                                                                                                                                                                                                                                                                | `mi-venue-processing-worker` |
+| `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                                                                                                                                                                                                                                                                                           | `mi-venue-service`           |
+| `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in `mi-data-intelligence` changelog.                                                                                                                                                                                                                                                 | `mi-venue-processing-worker` |
+| `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                                                                                                                                                                                                                                                                                            | `mi-venue-processing-worker` |
 
 ### Index Strategy
 
-| Table                | Index name                        | Type      | Column(s)                          | Purpose                                           |
-| -------------------- | --------------------------------- | --------- | ---------------------------------- | ------------------------------------------------- |
-| `venues`             | `idx_venues_embedding`            | IVFFlat   | `description_embedding`            | Semantic search                                   |
-| `venues`             | `idx_venues_fts`                  | GIN       | `description_text`                 | Full-text search (name, display_name, description, address) |
-| `venues`             | `idx_venues_metadata`             | GIN       | `metadata jsonb_path_ops`          | JSONB attribute filters                           |
-| `venues`             | `idx_venues_location`             | GIST      | `location`                         | Geo-spatial queries                               |
-| `venues`             | `idx_venues_city`                 | btree     | `city`                             | City filter in search and list views              |
-| `venues`             | `idx_venues_country_code`         | btree     | `country_code`                     | Country filter                                    |
-| `venues`             | `idx_venues_profile_stage`        | btree     | `profile_stage`                    | Filter by enrichment stage; onboarding dashboards |
-| `venues`             | `idx_venues_master_venue_id`      | btree     | `master_venue_id`                  | Cross-source search dedup                         |
-| `venue_annotations`  | `idx_annotations_venue`           | btree     | `venue_id`                         | FK lookup, all annotations for a venue            |
-| `venue_annotations`  | `idx_annotations_created_by`      | btree     | `venue_id, created_by`             | Member's own annotations per venue                |
-| `venue_annotations`  | `idx_annotations_type`            | btree     | `annotation_type`                  | Filter by type (TAG, NOTE, etc.)                  |
-| `venue_annotations`  | `idx_annotations_tag_value`       | btree     | `LOWER(text_value)` WHERE TAG      | Case-insensitive tag lookup and dedup             |
-| `venue_assets`       | `idx_assets_venue`                | btree     | `venue_id`                         | FK lookup                                         |
-| `venue_assets`       | `idx_assets_type`                 | btree     | `asset_type`                       | Filter by type                                    |
-| `venue_assets`       | `idx_assets_embedding`            | IVFFlat   | `extracted_text_embedding`         | Chunk-level vector search                         |
-| `extraction_jobs`    | `idx_jobs_asset`                  | btree     | `asset_id`                         | FK lookup                                         |
-| `extraction_jobs`    | `idx_jobs_status`                 | btree     | `status`                           | Queue polling                                     |
-| `metadata_events`    | `idx_metadata_events_venue`       | btree     | `venue_id, occurred_at DESC`       | Timeline queries                                  |
-| `metadata_events`    | `idx_metadata_events_source`      | btree     | `source_id, source_type`           | Provenance lookup                                 |
-| `item_vectors`       | `idx_vectors_embedding`           | IVFFlat   | `embedding`                        | Vector similarity search                          |
-| `item_vectors`       | `idx_vectors_asset`               | btree     | `(metadata->>'asset_id')`          | Fast sweep on `asset.deleted` event               |
-| `ai_cost_tracking`   | `idx_ai_cost_month`               | btree     | `DATE_TRUNC('month', created_at)`  | Monthly cost rollup                               |
+| Table               | Index name                   | Type    | Column(s)                         | Purpose                                                     |
+| ------------------- | ---------------------------- | ------- | --------------------------------- | ----------------------------------------------------------- |
+| `venues`            | `idx_venues_embedding`       | IVFFlat | `description_embedding`           | Semantic search                                             |
+| `venues`            | `idx_venues_fts`             | GIN     | `description_text`                | Full-text search (name, display_name, description, address) |
+| `venues`            | `idx_venues_metadata`        | GIN     | `metadata jsonb_path_ops`         | JSONB attribute filters                                     |
+| `venues`            | `idx_venues_location`        | GIST    | `location`                        | Geo-spatial queries                                         |
+| `venues`            | `idx_venues_city`            | btree   | `city`                            | City filter in search and list views                        |
+| `venues`            | `idx_venues_country_code`    | btree   | `country_code`                    | Country filter                                              |
+| `venues`            | `idx_venues_profile_stage`   | btree   | `profile_stage`                   | Filter by enrichment stage; onboarding dashboards           |
+| `venues`            | `idx_venues_master_venue_id` | btree   | `master_venue_id`                 | Cross-source search dedup                                   |
+| `venue_annotations` | `idx_annotations_venue`      | btree   | `venue_id`                        | FK lookup, all annotations for a venue                      |
+| `venue_annotations` | `idx_annotations_created_by` | btree   | `venue_id, created_by`            | Member's own annotations per venue                          |
+| `venue_annotations` | `idx_annotations_type`       | btree   | `annotation_type`                 | Filter by type (TAG, NOTE, etc.)                            |
+| `venue_annotations` | `idx_annotations_tag_value`  | btree   | `LOWER(text_value)` WHERE TAG     | Case-insensitive tag lookup and dedup                       |
+| `venue_assets`      | `idx_assets_venue`           | btree   | `venue_id`                        | FK lookup                                                   |
+| `venue_assets`      | `idx_assets_type`            | btree   | `asset_type`                      | Filter by type                                              |
+| `venue_assets`      | `idx_assets_embedding`       | IVFFlat | `extracted_text_embedding`        | Chunk-level vector search                                   |
+| `extraction_jobs`   | `idx_jobs_asset`             | btree   | `asset_id`                        | FK lookup                                                   |
+| `extraction_jobs`   | `idx_jobs_status`            | btree   | `status`                          | Queue polling                                               |
+| `metadata_events`   | `idx_metadata_events_venue`  | btree   | `venue_id, occurred_at DESC`      | Timeline queries                                            |
+| `metadata_events`   | `idx_metadata_events_source` | btree   | `source_id, source_type`          | Provenance lookup                                           |
+| `item_vectors`      | `idx_vectors_embedding`      | IVFFlat | `embedding`                       | Vector similarity search                                    |
+| `item_vectors`      | `idx_vectors_asset`          | btree   | `(metadata->>'asset_id')`         | Fast sweep on `asset.deleted` event                         |
+| `ai_cost_tracking`  | `idx_ai_cost_month`          | btree   | `DATE_TRUNC('month', created_at)` | Monthly cost rollup                                         |
 
 ### Cross-Schema Access Rules
 
