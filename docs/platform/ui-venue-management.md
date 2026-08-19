@@ -1,7 +1,7 @@
 # VenueMi — UI: Venue Management
 
 > **Audience:** Frontend engineers, designers.
-> **Purpose:** Component structure, field registry pattern, shared entity abstraction, form layout
+> **Purpose:** Component structure, form spec pattern, shared entity abstraction, form layout
 > contract, and file placement for venue CRUD in `foundation-ui-app` (tenant) and
 > `foundation-ui-platform-admin` (admin).
 
@@ -18,14 +18,14 @@
 
 ## 1. Guiding Principles
 
-- **DRY / KISS first.** One field registry, one set of form components, one entity abstraction.
+- **DRY / KISS first.** One form spec, one set of form components, one entity abstraction.
   Both `Venue` (tenant) and `MasterVenue` (platform) share the same canonical metadata schema and
   therefore the same form. Differences are handled by a single `context` discriminator — not by
   duplicating components.
 - **MasterVenue is the more mature entity.** It has richer data (multi-source scraped, admin-curated,
   high-confidence). Tenant `Venue` is catching up as the product grows. The UI layer reflects this:
   features present on `MasterVenue` first, promoted to tenant `Venue` as backend adds support.
-- **Schema-driven form.** The form is built from a static field registry (TS constant). Adding a
+- **Schema-driven form.** The form is built from a static form spec (TS constant). Adding a
   canonical field requires one registry entry — no new component.
 - **Fast list rendering.** List views consume flat summary DTOs resolved server-side. No JSONB
   traversal on the client for list display.
@@ -114,6 +114,15 @@ export type {
   ProfileStage,
   VenueSource,
 } from "@/addons/venue-management/types";
+
+export type {
+  AssetType,
+  PhotoCategory,
+  ExtractionStatus,
+  AssetTableData,
+  VenueAsset,
+  VenueAssetSummary,
+} from "@venuemi/ui-types";
 
 /** Flat projection for list view — server resolves photo URL and key metadata fields. */
 export interface VenueSummary {
@@ -300,17 +309,17 @@ src/
 │   └── venue-management/          ← shared addon: types, registry, utils, CSS tokens
 │       ├── index.ts
 │       ├── types.ts               ← AnyVenue, VenueContext, VenueMetadata, FieldProvenance
-│       └── registry/
-│           ├── field-registry.types.ts
-│           ├── venue-field-registry.ts
-│           └── registry.utils.ts
+│       └── spec/
+│           ├── form-spec.types.ts
+│           ├── venue-form-spec.ts
+│           └── form-spec.utils.ts
 ├── entities/
 │   └── venue/
 │       ├── index.ts
 │       └── types.ts               ← VenueSummary, VenueDetail, VenueAnnotation
 ├── features/
 │   ├── create-venue/
-│   ├── edit-venue-metadata/       ← tabbed form via field registry
+│   ├── edit-venue-metadata/       ← tabbed form via form spec
 │   ├── upload-venue-asset/
 │   └── venue-quick-fill/          ← SEEDED→ENRICHED inline nudge
 ├── widgets/
@@ -347,12 +356,12 @@ copied. Components, registry, and utils are identical. The admin app passes
 
 ---
 
-## 5. Field Registry
+## 5. form spec
 
 ### Types
 
 ```typescript
-// src/addons/venue-management/registry/field-registry.types.ts
+// src/addons/venue-management/spec/form-spec.types.ts
 
 import type { ProfileStage } from "../types";
 
@@ -410,7 +419,7 @@ export interface TabDefinition {
   icon?: string;
 }
 
-export interface VenueFormRegistry {
+export interface VenueFormSpec {
   tabs: TabDefinition[];
   sections: SectionDefinition[];
   fields: FieldDefinition[];
@@ -422,9 +431,9 @@ export interface VenueFormRegistry {
 One registry, used by both apps unchanged.
 
 ```typescript
-// src/addons/venue-management/registry/venue-field-registry.ts
+// src/addons/venue-management/spec/venue-form-spec.ts
 
-export const VENUE_FIELD_REGISTRY: VenueFormRegistry = {
+export const VENUE_FORM_SPEC: VenueFormSpec = {
   tabs: [
     { key: "basics", label: "Basics", order: 1, icon: "Building2" },
     { key: "technical", label: "Technical", order: 2, icon: "Cpu" },
@@ -827,9 +836,9 @@ export const VENUE_FIELD_REGISTRY: VenueFormRegistry = {
 ### Registry utils
 
 ```typescript
-// src/addons/venue-management/registry/registry.utils.ts
+// src/addons/venue-management/spec/form-spec.utils.ts
 
-import type { VenueFormRegistry, FieldDefinition } from "./field-registry.types";
+import type { VenueFormSpec, FieldDefinition } from "./form-spec.types";
 import type { ProfileStage, VenueMetadata } from "../types";
 
 export function resolveFieldValue(metadata: VenueMetadata, key: string): unknown {
@@ -852,7 +861,7 @@ export function setFieldValue(metadata: VenueMetadata, key: string, value: unkno
 }
 
 export function missingFieldsForStage(
-  registry: VenueFormRegistry,
+  registry: VenueFormSpec,
   metadata: VenueMetadata,
   stage: ProfileStage,
 ): FieldDefinition[] {
@@ -863,7 +872,7 @@ export function missingFieldsForStage(
   });
 }
 
-export function groupByTabAndSection(registry: VenueFormRegistry) {
+export function groupByTabAndSection(registry: VenueFormSpec) {
   return registry.tabs
     .slice()
     .sort((a, b) => a.order - b.order)
@@ -911,6 +920,25 @@ VenueProfilePage  (/venues/:id  or  /master-venues/:id)
 │
 ├── VenueAnnotationsPanel       ← rendered only when context='tenant'
 └── VenueAssetGallery           ← rendered only when context='tenant'
+      │
+      ├── AssetPhotoGallery          ← tabs per PhotoCategory; ordered by display_order
+      │     thumbnail grid → lightbox on click
+      │     empty category tabs hidden; 'Other' always last
+      │
+      ├── AssetDocumentList          ← groups: Floor Plans, Venue Decks, Spec Sheets,
+      │     Menus, Price Lists, Misc  Menus, CAD Files, Misc
+      │     each row: icon(AssetType), label|fileName, sizeBytes, cdnUrl download,
+      │     extractionStatus chip (PENDING/IN_PROGRESS animate; FAILED shows warning)
+      │
+      ├── AssetDataTableViewer       ← rendered when asset has tableData
+      │     inline table: headers + rows, max 10 rows shown, "Show all" expands
+      │     source sheet name shown as subtitle
+      │
+      └── AssetUploadZone            ← drag-and-drop or file picker
+            accepts: image/*, .pdf, .docx, .csv, .xlsx, .dwg, .dxf, .mp4, .mov
+            on drop: infers AssetType from MIME + extension
+            if AssetType === 'PHOTO': prompts PhotoCategory selector before confirm
+            upload progress per file → fires POST /assets/initiate → PUT S3 → POST confirm
 
 VenueListPage  (/venues  or  /master-venues)
 ├── VenueListFilters            ← city, status/context-appropriate filters
@@ -1018,6 +1046,17 @@ PATCH /api/v1/venues/:id/metadata   { fieldKey: string; value: unknown }
 // Annotations
 GET|POST        /api/v1/venues/:id/annotations
 PATCH|DELETE    /api/v1/venues/:id/annotations/:annotationId
+// Assets — summary list (no tableData, fast for gallery render)
+GET    /api/v1/venues/:id/assets?type=&category=   → VenueAssetSummary[]
+// Full asset (includes tableData — loaded on demand)
+GET    /api/v1/venues/:id/assets/:assetId          → VenueAsset
+// Two-phase upload
+POST   /api/v1/venues/:id/assets/initiate   { assetType, photoCategory?, fileName, contentType, sizeBytes }
+PUT    <presignedS3Url>                     direct from browser
+POST   /api/v1/venues/:id/assets/:assetId/confirm
+// Update label, photoCategory, displayOrder
+PATCH  /api/v1/venues/:id/assets/:assetId
+DELETE /api/v1/venues/:id/assets/:assetId
 
 // src/shared/api/master-venue.ts  (admin app)
 
@@ -1075,10 +1114,9 @@ rewrite needed.
 > edited, and deleted. The only thing emulated is the API layer — all network calls are
 > intercepted by MSW handlers returning fixture data.
 >
-> This means the prototype exercises the full component tree, the field registry rendering, the
-> `AnyVenue` context switching, the `SourceBadge` popover, `VenueAnnotationsPanel`, and
-> `VenueQuickFillBar` — exactly as they will behave in production. UI bugs, awkward interactions,
-> and missing states are caught here, not after backend integration.
+> Shared code (`@venuemi/ui-types`) is referenced via `file:` protocol pointing directly
+> to TypeScript source — no build step, no publish. See
+> [ui-shared-packages.md](ui-shared-packages.md) §7 for the exact setup.
 
 Venue management UI is prototyped in **`foundation-ui-blank`** before being promoted to the
 production apps. This keeps auth, billing, and routing concerns out of UX exploration.
@@ -1098,10 +1136,10 @@ foundation-ui-blank/src/
 │   └── venue-management/        ← develop the addon here first
 │       ├── types.ts
 │       ├── index.ts
-│       └── registry/
-│           ├── field-registry.types.ts
-│           ├── venue-field-registry.ts
-│           └── registry.utils.ts
+│       └── spec/
+│           ├── form-spec.types.ts
+│           ├── venue-form-spec.ts
+│           └── form-spec.utils.ts
 ├── entities/
 │   └── venue/                   ← VenueSummary, VenueDetail, VenueAnnotation
 ├── features/
@@ -1171,15 +1209,15 @@ src/addons/venue-management/
                            PROFILE_STAGES, VENUE_STATUSES, VENUE_SOURCES  ← string literal
                            constants, used in filters and type guards
 
-  registry/
-    field-registry.types.ts  FieldType, FieldAction, EnumOption,
+  spec/
+    form-spec.types.ts  FieldType, FieldAction, EnumOption,
                              FieldDefinition, SectionDefinition, TabDefinition,
-                             VenueFormRegistry
+                             VenueFormSpec
 
-    venue-field-registry.ts  VENUE_FIELD_REGISTRY  ← the single source of truth
+    venue-form-spec.ts  VENUE_FORM_SPEC  ← the single source of truth
                              for tabs, sections, and fields
 
-    registry.utils.ts        resolveFieldValue, setFieldValue,
+    form-spec.utils.ts        resolveFieldValue, setFieldValue,
                              missingFieldsForStage, groupByTabAndSection
 
   index.ts                 public barrel — re-exports everything above;

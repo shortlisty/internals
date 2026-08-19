@@ -9,7 +9,7 @@
 
 ## Related Documents
 
-- [ui-venue-management.md](ui-venue-management.md) — Venue catalog UI, field registry, AnyVenue abstraction
+- [ui-venue-management.md](ui-venue-management.md) — Venue catalog UI, form spec, AnyVenue abstraction
 - [data-model.md](data-model.md) — venue, venue_annotations, canonical metadata
 - [api.md](api.md) — REST endpoints
 - [architecture-overview.md](architecture-overview.md) — FSD layers, addon pattern, plan entitlements
@@ -68,14 +68,23 @@ export interface Proposal {
   clientName: string;
   clientEmail: string | null;
   status: ProposalStatus;
-  brandingEnabled: boolean; // plan gate: white_label
-  shareToken: string; // opaque token — part of public URL
-  shareUrl: string; // full URL sent to client
-  eventDate: string | null; // ISO date — drives retention policy
-  createdBy: string; // IAM user id
+  brandingEnabled: boolean;          // plan gate: white_label
+  shareToken: string;                // opaque token — part of public URL
+  shareUrl: string;                  // full URL sent to client
+  eventDate: string | null;          // ISO date — drives retention policy
+  /**
+   * IAM user id of the agency member who owns this proposal.
+   * Mandatory — every proposal must have exactly one owner on the agency side.
+   * Shown to client as "Your contact", receives all client activity notifications.
+   * Can be reassigned by TENANT_OWNER but never unset.
+   */
+  ownerId: string;
+  ownerName: string;                 // display name snapshot — kept in sync on read
+  ownerEmail: string;                // for client-facing "contact your planner" link
+  createdBy: string;                 // IAM user id — may differ from ownerId if reassigned
   approvedAt: string | null;
   approvedByClientName: string | null;
-  snapshotId: string | null; // set on APPROVED
+  snapshotId: string | null;         // set on APPROVED
   createdAt: string;
   updatedAt: string;
 }
@@ -89,6 +98,8 @@ export interface ProposalSummary extends Pick<
   | "shareUrl"
   | "eventDate"
   | "approvedAt"
+  | "ownerId"
+  | "ownerName"
   | "createdAt"
   | "updatedAt"
 > {
@@ -205,7 +216,9 @@ export interface ProposalSnapshot {
   venues: ProposalVenueSnapshot[];
   clientName: string;
   approvedAt: string;
-  plannerName: string;
+  /** Owner at the time of approval — immutable part of the record. */
+  ownerName: string;
+  ownerEmail: string;
   tenantName: string;
   /** All ProposalEvents up to and including PROPOSAL_APPROVED */
   eventLog: ProposalEvent[];
@@ -544,6 +557,10 @@ the tenant from the token.
 > snapshot, client board before preference set, client board after shortlisting, the approve
 > confirmation, and the post-approve read-only state. Missing states are UX bugs — catch them
 > here, not after backend integration.
+
+Shared code (`@venuemi/ui-types`) is referenced via `file:` protocol pointing directly
+to TypeScript source — no build step, no publish. See
+[ui-shared-packages.md](ui-shared-packages.md) §7 for the exact setup.
 
 Same approach as `ui-venue-management.md` §11. Prototype in `foundation-ui-blank` first.
 

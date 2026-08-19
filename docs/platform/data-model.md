@@ -68,26 +68,112 @@ Transitions are monotone by default (SEEDED → ENRICHED → CURATED → READY) 
 
 **Aggregate root: `VenueAsset`**
 
-| Field                      | Type         | Notes                                                                        |
-| -------------------------- | ------------ | ---------------------------------------------------------------------------- |
-| `id`                       | UUID         | PK                                                                           |
-| `venue_id`                 | UUID         | FK → venues                                                                  |
-| `asset_type`               | enum         | `PDF_DECK`, `FLOOR_PLAN`, `PHOTO`, `VIDEO`, `CAD_FILE`, `SPEC_SHEET`, `MISC` |
-| `file_name`                | varchar(255) |                                                                              |
-| `content_type`             | varchar(100) | MIME type                                                                    |
-| `size_bytes`               | bigint       |                                                                              |
-| `s3_key`                   | text         | Storage path                                                                 |
-| `extracted_text`           | text         | Raw text extracted by parser                                                 |
-| `extracted_text_embedding` | vector(1536) | pgvector, chunk-level search                                                 |
-| `extraction_status`        | enum         | `PENDING`, `IN_PROGRESS`, `COMPLETED`, `FAILED`                              |
-| `uploaded_by`              | UUID         |                                                                              |
-| `uploaded_at`              | timestamp    |                                                                              |
+| Field                      | Type          | Notes                                                                                           |
+| -------------------------- | ------------- | ----------------------------------------------------------------------------------------------- |
+| `id`                       | UUID          | PK                                                                                              |
+| `venue_id`                 | UUID          | FK → venues                                                                                     |
+| `asset_type`               | enum          | See asset type taxonomy below                                                                   |
+| `photo_category`           | enum          | Nullable. Only set when `asset_type = PHOTO`. See photo category taxonomy below.                |
+| `display_order`            | smallint      | Per-venue sort order within the same `asset_type` + `photo_category` group. Default 0.         |
+| `label`                    | varchar(255)  | Optional human label: "Main entrance", "Floor plan — ground floor", "Summer 2024 menu". Nullable. |
+| `file_name`                | varchar(255)  | Original file name as uploaded.                                                                 |
+| `content_type`             | varchar(100)  | MIME type                                                                                       |
+| `size_bytes`               | bigint        |                                                                                                 |
+| `s3_key`                   | text          | Storage path                                                                                    |
+| `cdn_url`                  | text          | Resolved CDN URL for direct client access. Nullable — set after S3 confirm.                    |
+| `thumbnail_s3_key`         | text          | Nullable. Set for PHOTO and VIDEO types after thumbnail generation job completes.               |
+| `thumbnail_cdn_url`        | text          | Nullable. CDN URL for thumbnail.                                                                |
+| `table_data`               | jsonb         | Nullable. Set for CSV/spreadsheet types — parsed rows as array of objects. See §2c.            |
+| `extracted_text`           | text          | Raw text extracted by parser (PDF, DOCX, CSV)                                                   |
+| `extracted_text_embedding` | vector(1536)  | pgvector, chunk-level search                                                                    |
+| `extraction_status`        | enum          | `PENDING`, `IN_PROGRESS`, `COMPLETED`, `FAILED`                                                 |
+| `uploaded_by`              | UUID          |                                                                                                 |
+| `uploaded_at`              | timestamp     |                                                                                                 |
+
+#### Asset type taxonomy
+
+```
+PHOTO          — image file (jpg, png, webp, heic)
+               → requires photo_category
+               → thumbnail generated after upload
+
+FLOOR_PLAN     — architectural drawing or spatial layout (pdf, png, jpg, dwg)
+               → no photo_category
+               → extraction: spatial text, room labels
+
+PDF_DECK       — general venue presentation, brochure, or spec deck (pdf)
+               → extraction: full text → metadata fields
+
+SPEC_SHEET     — single-page technical spec (pdf, docx)
+               → extraction: structured field extraction (capacity, AV, etc.)
+
+MENU           — catering / F&B menu (pdf, docx)
+               → extraction: catering fields enrichment
+
+PRICE_LIST     — pricing table or rate card (pdf, csv, xlsx)
+               → extraction: pricing fields enrichment
+               → if csv/xlsx: table_data populated
+
+DATA_TABLE     — any structured tabular data (csv, xlsx)
+               → table_data populated
+               → no text extraction
+
+VIDEO          — venue tour or event footage (mp4, mov)
+               → thumbnail (cover frame) generated
+               → no text extraction
+
+CAD_FILE       — AutoCAD or vector drawing (dwg, dxf, svg)
+               → no extraction
+
+MISC           — anything that does not fit above
+               → best-effort text extraction only
+```
+
+#### Photo category taxonomy
+
+Applies only when `asset_type = PHOTO`. Controls gallery grouping in UI.
+
+```
+EXTERIOR       — facade, entrance, surroundings
+INTERIOR       — main hall, rooms, corridors
+SETUP          — room configured for an event (banquet, theater, etc.)
+DETAIL         — architectural or decor detail
+CATERING       — food presentation, bar, kitchen
+OUTDOOR        — terrace, garden, rooftop
+TEAM           — staff photos (optional, rarely used)
+OTHER          — uncategorised photo
+```
+
+#### §2c Table data schema (`table_data` JSONB)
+
+Used for `DATA_TABLE`, `PRICE_LIST` when source is CSV or XLSX. Stores parsed tabular content
+for direct UI rendering without re-fetching the original file.
+
+```json
+{
+  "headers": ["Package", "Guests", "Price per person", "Currency"],
+  "rows": [
+    ["Banquet Standard",  "100–150", "45",  "EUR"],
+    ["Banquet Premium",   "100–150", "65",  "EUR"],
+    ["Cocktail Standard", "up to 200", "30", "EUR"]
+  ],
+  "source_sheet": "Pricing 2025",   // original worksheet name if xlsx
+  "row_count": 3,
+  "parsed_at": "2026-08-18T10:00:00Z"
+}
+```
+
+Constraints: max 500 rows, max 20 columns. Larger files are stored as-is in S3 and not
+parsed into `table_data` — `extraction_status` is set to `COMPLETED` with a `size_exceeded`
+flag in `extracted_text`.
 
 **Upload flow:** two-phase presigned URL (same pattern as IAM avatar upload).
 
 1. `POST /assets/initiate` → returns presigned S3 PUT URL + `asset_id`
 2. Client uploads directly to S3
 3. `POST /assets/{id}/confirm` → marks asset ready, publishes `asset.uploaded` event
+4. Worker picks up event → generates thumbnail (PHOTO/VIDEO), parses table data (CSV/XLSX),
+   queues text extraction job (PDF/DOCX)
 
 ---
 
@@ -659,7 +745,7 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------- |
 | `venues`                | `id` UUID PK, `name` VARCHAR(255), `display_name` VARCHAR(255), `city` VARCHAR(100), `country_code` CHAR(2), `website_url` VARCHAR(500), `primary_photo_asset_id` UUID, `status` VARCHAR(20), `profile_stage` VARCHAR(20), `source` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY, `master_venue_id` UUID nullable, `last_used_in_sales_room_at` TIMESTAMP | `mi-venue-service`           |
 | `venue_annotations`     | `id` UUID PK, `venue_id` UUID FK, `annotation_type` VARCHAR(20), `text_value` TEXT, `color_hex` VARCHAR(7), `numeric_value` NUMERIC(3,1), `is_private` BOOLEAN, `created_by` UUID                                                                                                                                                                                                                      | `mi-venue-service`           |
-| `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536)                                                                                                                                                                                                                                                                   | `mi-venue-service`           |
+| \enue_assets\          | \id\ UUID PK, \enue_id\ UUID FK, \sset_type\ VARCHAR(50), \photo_category\ VARCHAR(30), \display_order\ SMALLINT, \label\ VARCHAR(255), \cdn_url\ TEXT, \	humbnail_cdn_url\ TEXT, \	able_data\ JSONB, \xtraction_status\ VARCHAR(20), \xtracted_text_embedding\ VECTOR(1536) | \mi-venue-service\           |
 | `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB                                                                                                                                                                                                                                                                | `mi-venue-processing-worker` |
 | `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                                                                                                                                                                                                                                                                                           | `mi-venue-service`           |
 | `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in `mi-data-intelligence` changelog.                                                                                                                                                                                                                                                 | `mi-venue-processing-worker` |
@@ -682,8 +768,9 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 | `venue_annotations` | `idx_annotations_type`       | btree   | `annotation_type`                 | Filter by type (TAG, NOTE, etc.)                            |
 | `venue_annotations` | `idx_annotations_tag_value`  | btree   | `LOWER(text_value)` WHERE TAG     | Case-insensitive tag lookup and dedup                       |
 | `venue_assets`      | `idx_assets_venue`           | btree   | `venue_id`                        | FK lookup                                                   |
-| `venue_assets`      | `idx_assets_type`            | btree   | `asset_type`                      | Filter by type                                              |
-| `venue_assets`      | `idx_assets_embedding`       | IVFFlat | `extracted_text_embedding`        | Chunk-level vector search                                   |
+| `venue_assets`      | `idx_assets_type`            | btree   | `asset_type`                            | Filter by type                                              |
+| `venue_assets`      | `idx_assets_photo_category`  | btree   | `venue_id, photo_category, display_order` | Ordered photo gallery fetch per category                  |
+| `venue_assets`      | `idx_assets_embedding`       | IVFFlat | `extracted_text_embedding`              | Chunk-level vector search                                   |
 | `extraction_jobs`   | `idx_jobs_asset`             | btree   | `asset_id`                        | FK lookup                                                   |
 | `extraction_jobs`   | `idx_jobs_status`            | btree   | `status`                          | Queue polling                                               |
 | `metadata_events`   | `idx_metadata_events_venue`  | btree   | `venue_id, occurred_at DESC`      | Timeline queries                                            |

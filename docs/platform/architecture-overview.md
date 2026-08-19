@@ -20,7 +20,7 @@
 | [events.md](events.md)                           | RabbitMQ event contracts, plan entitlement mapping                                                   |
 | [observability.md](observability.md)             | Prometheus metrics, Grafana dashboards, security model                                               |
 | [roadmap-decisions.md](roadmap-decisions.md)     | Open decisions, pre-Sprint 1 tasks, Phase 2/3 design backlog                                         |
-| [ui-venue-management.md](ui-venue-management.md) | UI: venue CRUD form, list, field registry, component structure, themes/skins, addon placement        |
+| [ui-venue-management.md](ui-venue-management.md) | UI: venue CRUD form, list, form spec, component structure, themes/skins, addon placement        |
 | [ui-deal-workspace.md](ui-deal-workspace.md)     | UI: Deal Workspace — proposal assembly, client board, immutable history, approval snapshot           |
 | [ui-shared-packages.md](ui-shared-packages.md)   | UI: shared workspace packages (`@venuemi/ui-venue-core`, `@venuemi/ui-deal-core`) — drift prevention |
 
@@ -348,17 +348,17 @@ Extend `foundation-ui-app` — do **not** fork. New VenueMi features live under:
 ```
 src/
 ├── addons/
-│   └── venue-management/              ← isolated addon: field registry + utils + CSS tokens
+│   └── venue-management/              ← isolated addon: form spec + utils + CSS tokens
 │       ├── index.ts
-│       └── registry/
-│           ├── field-registry.types.ts
-│           ├── venue-field-registry.ts
-│           └── registry.utils.ts
+│       └── spec/
+│           ├── form-spec.types.ts
+│           ├── venue-form-spec.ts
+│           └── form-spec.utils.ts
 ├── entities/
 │   └── venue/                         ← VenueSummary, VenueDetail, VenueMetadata, VenueAnnotation
 ├── features/
 │   ├── create-venue/
-│   ├── edit-venue-metadata/           ← tabbed metadata form, driven by field registry
+│   ├── edit-venue-metadata/           ← tabbed metadata form, driven by form spec
 │   ├── upload-venue-asset/
 │   └── venue-quick-fill/              ← inline SEEDED→ENRICHED nudge
 ├── widgets/
@@ -379,7 +379,7 @@ New routes added to TanStack Router:
 
 Reuse without modification: auth flows, session management, token refresh, team management, billing/entitlements (`FeatureGate`, `useEntitlements`), notification bell.
 
-Full component structure, field registry, theme/skin pattern, and API integration: see [ui-venue-management.md](ui-venue-management.md).
+Full component structure, form spec, theme/skin pattern, and API integration: see [ui-venue-management.md](ui-venue-management.md).
 
 ---
 
