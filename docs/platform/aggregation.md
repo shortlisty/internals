@@ -15,7 +15,7 @@
 
 ---
 
-## 3. Metadata Aggregation
+## Overview
 
 Multiple assets per venue produce multiple extraction events, potentially with conflicting values. The aggregation service resolves conflicts and maintains the consolidated `metadata` column.
 
@@ -43,11 +43,28 @@ Aggregation runs (async, via RabbitMQ) when:
 - A user submits a manual override → immediate re-aggregation
 - A scheduled job catches stale venues (24h without re-aggregation)
 
-Aggregation is debounced (5s) to batch rapid successive events.
+Aggregation is debounced (5s) to batch rapid successive events. The `venuemi_metadata_schema_version_seen_total` Micrometer metric (see [observability.md](observability.md)) records the pre-migration version on every aggregation pass — use it to monitor stale-document distribution and scheduled job catch-up rate.
 
 ---
 
-## Concurrency Control and Race Condition Prevention
+## Profile Stage Recalculation
+
+`profile_stage` is recomputed inside every aggregation consumer transaction — immediately after the metadata merge, before the `UPDATE` commits. It is never set by application code outside `MetadataAggregationConsumer`.
+
+Transition rules evaluated in order:
+
+| Stage      | Condition                                                                                  |
+| ---------- | ------------------------------------------------------------------------------------------ |
+| `SEEDED`   | Default. Name present + at least one asset exists in `venue_assets`.                       |
+| `ENRICHED` | `capacity.max_total` non-null + `venue_type` non-empty + `catering.policy` non-null.       |
+| `CURATED`  | All `ENRICHED` conditions met + `COUNT(*) FROM venue_annotations WHERE venue_id = ?` ≥ 1.  |
+| `READY`    | All `CURATED` conditions met + `primary_photo_asset_id` non-null + `website_url` non-null. |
+
+Regression is allowed: if a key field is removed (e.g. manual override clears `catering.policy`), stage drops back to `SEEDED` or `ENRICHED` accordingly.
+
+The `venue_annotations` COUNT and the `venue_assets` existence check are the only two reads outside `venues` that happen inside the aggregation transaction. Both are indexed (`idx_annotations_venue`, `idx_assets_venue`) and add negligible overhead.
+
+The full step sequence with `profile_stage` included:
 
 Metadata aggregation is a read-modify-write operation: `SELECT venues.metadata` → merge extracted fields → `UPDATE venues.metadata`. If three extraction jobs for the same venue complete in parallel, three workers can simultaneously read stale metadata, each merge one PDF's fields, and each write back — two of the three writes are lost (Lost Update anomaly).
 
@@ -87,9 +104,7 @@ Two variants share the same conceptual model. Start with A1 for MVP; both use th
 | Parallelism property | Different venues process in parallel across slots. Same venue always routes to the same slot → strict FIFO ordering per venue.                   |
 | When to choose       | If immediate horizontal headroom is desired, or to avoid an A1→A2 queue topology migration later. ~20 extra lines of code on the publisher side. |
 
-### Consumer-Side Guarantees (Both Variants)
-
-The consumer must enclose the entire aggregation step in a single database transaction:
+The full step sequence with `profile_stage` included:
 
 ```
 Consumer transaction boundary (single DB transaction):
@@ -99,15 +114,26 @@ Consumer transaction boundary (single DB transaction):
   3. If metadata_aggregated_at within 5 s debounce window → no-op, ack message.
   4. Else → merge all unprocessed venue_metadata_events into metadata
      via VenueMetadataMigrator.ensureCurrent() + conflict resolution
-  5. UPDATE venues SET metadata = ?, metadata_sources = ?,
-     metadata_aggregated_at = NOW(), updated_at = NOW()
+  5. SELECT COUNT(*) FROM venue_assets       WHERE venue_id = ?   (idx_assets_venue)
+     SELECT COUNT(*) FROM venue_annotations  WHERE venue_id = ?   (idx_annotations_venue)
+     → compute new profile_stage from merged metadata + counts above
+  6. UPDATE venues SET
+       metadata                  = ?,
+       metadata_sources          = ?,
+       metadata_aggregated_at    = NOW(),
+       profile_stage             = ?,
+       updated_at                = NOW()
      WHERE id = ?
-  6. DELETE / mark-consumed processed venue_metadata_events
-  7. COMMIT
-  8. RabbitMQ ack — only after successful COMMIT
+  7. DELETE / mark-consumed processed venue_metadata_events
+  8. COMMIT
+  9. RabbitMQ ack — only after successful COMMIT
 ```
 
 Acknowledgement mode on the listener container must be `MANUAL` (or `AUTO` with `prefetchCount = 1`). One message at a time per queue — never batch.
+
+---
+
+## Concurrency Control and Race Condition Prevention
 
 ### Debounce + FIFO Synergy
 
@@ -125,7 +151,7 @@ Outcome: one SQL `UPDATE` instead of three.
 - **No retry loops or conflict handling.** No conflict exception, no exponential-backoff retry code, no test surface for livelock.
 - **Event sourcing friendly.** If `venue_metadata_events` are replayed, per-venue ordering is preserved at the messaging layer.
 - **Straightforward integration testing.** Seed three `extraction.completed` events for the same `venue_id`, consume, assert final `venues.metadata` contains merged fields from all three sources. No `CountDownLatch` multi-threaded test harness.
-- **Compatible with `_schema_version`** (see [data-model.md](data-model.md) §2a). The `VenueMetadataMigrator` runs inside step 5 of the consumer transaction, before the `UPDATE` commits.
+- **Compatible with `_schema_version`** (see [data-model.md](data-model.md) §2a). The `VenueMetadataMigrator` runs inside step 4 of the consumer transaction, before the `UPDATE` commits.
 
 ### Queue Consumer Configuration
 

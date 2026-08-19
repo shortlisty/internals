@@ -145,17 +145,23 @@ public class AssetExtractionOrchestrator<M> {
 
 ### 1.3 Asset-Type Processing Matrix
 
-| Asset Type             | Parser                            | OCR Needed  | Structured Extraction | Vector Indexed    |
-| ---------------------- | --------------------------------- | ----------- | --------------------- | ----------------- |
-| PDF Deck (text)        | Tika → ParagraphPdfDocumentReader | No          | Yes (GPT-4o)          | Yes               |
-| PDF Deck (scanned)     | Tika + OCR (Tesseract)            | Yes         | Yes (GPT-4o)          | Yes               |
-| Floor Plan (PDF)       | Docling (layout-aware)            | No          | Yes (GPT-4o vision)   | Yes               |
-| Floor Plan (image)     | GPT-4o vision direct              | Yes (LLM)   | Yes                   | Yes               |
-| Photos                 | GPT-4o vision                     | No          | Amenity detection     | Yes               |
-| DOCX / Technical Spec  | TikaDocumentReader                | No          | Yes (GPT-4o)          | Yes               |
-| XLSX (capacity tables) | TikaDocumentReader                | No          | Structured parsing    | Yes               |
-| DWG / DXF (CAD)        | Tika AutoCAD parser               | No          | Metadata only         | Metadata only     |
-| Video (walkthrough)    | Extract thumbnail + audio         | Via Whisper | Partial               | Partial (Phase 2) |
+| Asset Type            | Asset Type Enum | Parser                            | OCR Needed  | Structured Extraction     | `table_data` | Vector Indexed    |
+| --------------------- | --------------- | --------------------------------- | ----------- | ------------------------- | ------------ | ----------------- |
+| PDF Deck (text)       | `PDF_DECK`      | Tika → ParagraphPdfDocumentReader | No          | Yes (GPT-4o)              | No           | Yes               |
+| PDF Deck (scanned)    | `PDF_DECK`      | Tika + OCR (Tesseract)            | Yes         | Yes (GPT-4o)              | No           | Yes               |
+| Floor Plan (PDF)      | `FLOOR_PLAN`    | Docling (layout-aware, Phase 2)   | No          | Yes (GPT-4o vision)       | No           | Yes               |
+| Floor Plan (image)    | `FLOOR_PLAN`    | GPT-4o vision direct              | Yes (LLM)   | Yes                       | No           | Yes               |
+| Photos                | `PHOTO`         | GPT-4o vision                     | No          | Amenity + category detect | No           | Yes               |
+| Spec Sheet            | `SPEC_SHEET`    | TikaDocumentReader                | No          | Yes (GPT-4o)              | No           | Yes               |
+| Menu                  | `MENU`          | TikaDocumentReader                | No          | Catering fields only      | No           | Yes               |
+| Price List (PDF)      | `PRICE_LIST`    | TikaDocumentReader                | No          | Pricing fields only       | No           | Yes               |
+| Price List (CSV/XLSX) | `PRICE_LIST`    | Tika → structured rows            | No          | Pricing fields only       | **Yes**      | Metadata only     |
+| Data Table (CSV/XLSX) | `DATA_TABLE`    | Tika → structured rows            | No          | No                        | **Yes**      | Metadata only     |
+| CAD File              | `CAD_FILE`      | Tika AutoCAD parser               | No          | Metadata only             | No           | Metadata only     |
+| Video                 | `VIDEO`         | Extract thumbnail + audio         | Via Whisper | Partial (Phase 2)         | No           | Partial (Phase 2) |
+| Other                 | `MISC`          | Tika best-effort                  | If needed   | Best-effort text only     | No           | Yes               |
+
+`table_data` is populated synchronously in the worker before text extraction is queued — it is a fast CSV/XLSX parse, not an AI call. See [data-model.md §2c](data-model.md) for the `table_data` JSONB schema and size constraints (max 500 rows × 20 columns).
 
 ### 1.4 Chunking Strategy
 
@@ -297,6 +303,7 @@ This schema is the **venue canonical field set** — defined as `VenueMetadata` 
       "policy": "in_house_exclusive",
       "kosher_available": true,
       "halal_available": false,
+      "vegan_available": false,
       "outside_catering_allowed": false
     },
     "av_tech": {
@@ -316,7 +323,18 @@ This schema is the **venue canonical field set** — defined as `VenueMetadata` 
       "load_in_access": "freight_elevator",
       "parking_spaces": 200,
       "valet_available": true,
-      "curfew_time": "23:00"
+      "curfew_time": "23:00",
+      "setup_hours_before": 3,
+      "teardown_hours_after": 2
+    },
+    "outdoor_space": {
+      "available": true,
+      "covered": false,
+      "sqm": 400
+    },
+    "exclusivity": {
+      "exclusive_use": true,
+      "shared_space": false
     },
     "restrictions": ["no_open_flame", "no_confetti", "no_outside_alcohol"],
     "contacts": [{ "name": "...", "role": "venue_sales", "email": "...", "phone": "..." }],
@@ -324,6 +342,14 @@ This schema is the **venue canonical field set** — defined as `VenueMetadata` 
       "minimum_spend": 10000,
       "currency": "USD",
       "rental_fee_indicative": 5000
+    },
+    "social": {
+      "instagram_handle": "grand_ballroom_nyc",
+      "google_place_id": "ChIJN1t_tDeuEmsRUsoyG83frY4"
+    },
+    "ratings": {
+      "google_rating": 4.7,
+      "google_review_count": 312
     }
   }
 }
@@ -639,12 +665,14 @@ pgvector with IVFFlat index:
 ## 6. Open Questions for Implementation
 
 - [x] **Docling vs. pure Tika:** ~~Start with Tika for MVP speed. Add Docling for Phase 2 when floor plan fidelity matters.~~ **Decided:** Tika-only for Phase 1 (MVP). Docling sidecar added in Phase 2 for floor plan and table fidelity. See §15 of [Architecture](README.md).
-- **OCR strategy:** Tika bundles Tesseract for basic OCR. GPT-4o vision handles complex cases. Threshold: if Tika OCR confidence < 0.7, escalate to GPT-4o vision.
+- [x] **OCR strategy:** ~~Tika bundles Tesseract for basic OCR. GPT-4o vision handles complex cases.~~ **Decided:** If Tika OCR confidence < 0.7 on a scanned PDF, escalate to GPT-4o vision. Threshold is fixed, not configurable in Phase 1.
+- [x] **Chunking overlap for capacity tables:** ~~50-token overlap is standard.~~ **Decided:** Venue-specific content (capacity tables, spec sheets) uses 256-token chunks with 30-token overlap. General venue deck text uses 512 tokens with 50-token overlap. Configured per `asset_type` in `VenueMetadataExtractionStrategy`.
 - **CAD files:** Tika extracts metadata from DWG/DXF (dimensions, layers). For Phase 1, expose raw metadata. Phase 2: convert to PNG via LibreCAD/ODA, then GPT-4o vision for layout understanding.
 - **Video walkthroughs:** Out of scope for Phase 1. Phase 2: extract keyframes (ffmpeg), run GPT-4o vision on representative frames.
-- **Chunking overlap:** 50-token overlap is standard. Venue-specific content (e.g., capacity tables) should use smaller chunks (256 tokens) to preserve row-level precision.
+- **Photo category inference:** When `asset_type = PHOTO` and `photo_category` is not provided by the user, the worker should infer it from GPT-4o vision output (`EXTERIOR`, `INTERIOR`, `SETUP`, etc.). Confidence threshold for auto-assignment TBD — below threshold defaults to `OTHER`.
 - **Embedding freshness:** Re-embed when manual overrides change the consolidated metadata. Trigger via `MetadataAggregatedEvent`. Don't re-embed unchanged chunks.
+- **`google_place_id` enrichment pipeline:** When `social.google_place_id` is set (via MC_INHERIT or manual entry), a background job can pull structured data from Google Places API — address, photos, rating, hours — and apply as `SCRAPE_PROVIDER` provenance events. Priority 4, overridden by any AI or manual source. Design TBD.
 
 ---
 
-**Docs:** [What is VenueMi?](../README.md) · [Business Proposal](../business/digital-sales-room-for-events/proposal.md) · [Competitive Landscape](../business/digital-sales-room-for-events/comparison.md) · [Intelligence Layer](intelligence.md) · [Architecture](README.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is VenueMi?](../README.md) · [Business Proposal](../business/digital-sales-room-for-events/proposal.md) · [Competitive Landscape](../business/digital-sales-room-for-events/comparison.md) · [Architecture](README.md) · [Data Model](data-model.md) · [Vision](../roadmap/vision.md)

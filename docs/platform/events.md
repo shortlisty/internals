@@ -22,12 +22,16 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 
 ### Published by `mi-venue-service`
 
-| Routing key      | Payload fields                                                  | Description                           |
-| ---------------- | --------------------------------------------------------------- | ------------------------------------- |
-| `venue.created`  | venue_id, tenant_id, created_by                                 | New venue profile created             |
-| `venue.updated`  | venue_id, tenant_id, changed_fields                             | Venue fields updated                  |
-| `asset.uploaded` | asset_id, venue_id, tenant_id, asset_type, s3_key, content_type | Asset confirmed, ready for extraction |
-| `asset.deleted`  | asset_id, venue_id, tenant_id                                   | Asset removed                         |
+| Routing key                | Payload fields                                                                                   | Description                             |
+| -------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------- |
+| `venue.created`            | venue_id, tenant_id, created_by                                                                  | New venue profile created               |
+| `venue.updated`            | venue_id, tenant_id, changed_fields                                                              | Venue fields updated                    |
+| `venue.stage_changed`      | venue_id, tenant_id, previous_stage, new_stage                                                   | profile_stage recalculated (planned)    |
+| `asset.uploaded`           | asset_id, venue_id, tenant_id, asset_type, photo_category, s3_key, content_type                  | Asset confirmed, ready for extraction   |
+| `asset.deleted`            | asset_id, venue_id, tenant_id                                                                    | Asset removed                           |
+| `proposal.shared`          | proposal_id, tenant_id, owner_id, share_token                                                    | Proposal link sent to client            |
+| `proposal.approved`        | proposal_id, tenant_id, owner_id, approved_by_client_name, snapshot_id                           | Client clicked Approve, snapshot locked |
+| `proposal.client_activity` | proposal_id, tenant_id, event_type (CLIENT_OPENED \| CLIENT_PREFERENCE_SET \| CLIENT_NOTE_ADDED) | Client interacted with the board        |
 
 ### Published by `mi-venue-processing-worker`
 
@@ -55,9 +59,9 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 
 ### Consumed by `foundation-audit-service` (passive, no changes)
 
-| Routing key                          | Notes                                                      |
-| ------------------------------------ | ---------------------------------------------------------- |
-| `venue.#`, `asset.#`, `extraction.#` | Automatically captured by audit service's wildcard binding |
+| Routing key                                        | Notes                                                      |
+| -------------------------------------------------- | ---------------------------------------------------------- |
+| `venue.#`, `asset.#`, `extraction.#`, `proposal.#` | Automatically captured by audit service's wildcard binding |
 
 ---
 
@@ -80,17 +84,19 @@ The consumer listens either on one queue (A1) or on all 16 slot queues (A2) via 
 
 Feature codes used in `foundation-billing-service` plan config:
 
-| Feature code             | Free | Pro | Enterprise | Enforcement point                         |
-| ------------------------ | ---- | --- | ---------- | ----------------------------------------- |
-| `max_venues`             | 10   | 500 | unlimited  | `mi-venue-service`: before create         |
-| `max_assets_per_venue`   | 20   | 100 | unlimited  | `mi-venue-service`: before upload         |
-| `basic_extraction`       | ✅   | ✅  | ✅         | AI processing: PDF text only              |
-| `advanced_extraction`    | ⛔   | ✅  | ✅         | AI processing: all asset types            |
-| `cad_support`            | ⛔   | ✅  | ✅         | `mi-venue-service`: reject DWG/DXF upload |
-| `semantic_search`        | ⛔   | ✅  | ✅         | `mi-venue-service`: search endpoint       |
-| `priority_ai_processing` | ⛔   | ⛔  | ✅         | RabbitMQ: route to priority queue         |
-| `api_access`             | ⛔   | ✅  | ✅         | gateway: API key route                    |
-| `white_label`            | ⛔   | ⛔  | ✅         | `foundation-ui-app`: branding config      |
+| Feature code             | Free | Pro | Enterprise | Enforcement point                          |
+| ------------------------ | ---- | --- | ---------- | ------------------------------------------ |
+| `max_venues`             | 10   | 500 | unlimited  | `mi-venue-service`: before create          |
+| `max_assets_per_venue`   | 20   | 100 | unlimited  | `mi-venue-service`: before upload          |
+| `max_proposals`          | 3    | 50  | unlimited  | `mi-venue-service`: before proposal create |
+| `basic_extraction`       | ✅   | ✅  | ✅         | AI processing: PDF text only               |
+| `advanced_extraction`    | ⛔   | ✅  | ✅         | AI processing: all asset types             |
+| `video_support`          | ⛔   | ✅  | ✅         | `mi-venue-service`: reject VIDEO upload    |
+| `cad_support`            | ⛔   | ✅  | ✅         | `mi-venue-service`: reject DWG/DXF upload  |
+| `semantic_search`        | ⛔   | ✅  | ✅         | `mi-venue-service`: search endpoint        |
+| `priority_ai_processing` | ⛔   | ⛔  | ✅         | RabbitMQ: route to priority queue          |
+| `api_access`             | ⛔   | ✅  | ✅         | gateway: API key route                     |
+| `white_label`            | ⛔   | ⛔  | ✅         | `foundation-ui-app`: branding config       |
 
 Enforcement via `PlanFeatureGuard` (same pattern as IAM service's existing implementation).
 

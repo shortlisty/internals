@@ -12,6 +12,8 @@
 - [aggregation.md](aggregation.md) — how conflicting field values are resolved at write time
 - [master-catalog.md](master-catalog.md) — `public.master_venue` tables and MC_INHERIT provenance
 - [etl-pipeline.md](etl-pipeline.md) — how extraction jobs produce `venue_metadata_events`
+- [ui-venue-management.md](ui-venue-management.md) — UI types, form spec, asset gallery components
+- [ui-shared-packages.md](ui-shared-packages.md) — `@venuemi/ui-types`: TypeScript mirrors of all entities here
 
 ---
 
@@ -729,6 +731,95 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 </databaseChangeLog>
 ```
 
+### Changeset Structure Example — `venue_assets` Table
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.33.xsd">
+
+  <changeSet id="20260901000002-create-venue-assets" author="iqkv">
+
+    <createTable tableName="venue_assets">
+      <column name="id" type="UUID">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="venue_id" type="UUID">
+        <constraints nullable="false" foreignKeyName="fk_assets_venue" references="venues(id)"/>
+      </column>
+      <!-- classification -->
+      <column name="asset_type" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="photo_category" type="VARCHAR(30)"/>
+      <column name="display_order" type="SMALLINT" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="label" type="VARCHAR(255)"/>
+      <!-- file -->
+      <column name="file_name" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="content_type" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="size_bytes" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="s3_key" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="cdn_url" type="TEXT"/>
+      <column name="thumbnail_s3_key" type="TEXT"/>
+      <column name="thumbnail_cdn_url" type="TEXT"/>
+      <!-- structured content -->
+      <column name="table_data" type="JSONB"/>
+      <!-- extraction -->
+      <column name="extracted_text" type="TEXT"/>
+      <column name="extracted_text_embedding" type="VECTOR(1536)"/>
+      <column name="extraction_status" type="VARCHAR(20)" defaultValue="PENDING">
+        <constraints nullable="false"/>
+      </column>
+      <!-- audit -->
+      <column name="uploaded_by" type="UUID">
+        <constraints nullable="false"/>
+      </column>
+      <column name="uploaded_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createIndex tableName="venue_assets" indexName="idx_assets_venue">
+      <column name="venue_id"/>
+    </createIndex>
+    <createIndex tableName="venue_assets" indexName="idx_assets_type">
+      <column name="asset_type"/>
+    </createIndex>
+    <!-- Composite: ordered gallery fetch per venue + category -->
+    <createIndex tableName="venue_assets" indexName="idx_assets_photo_category">
+      <column name="venue_id"/>
+      <column name="photo_category"/>
+      <column name="display_order"/>
+    </createIndex>
+    <createIndex tableName="venue_assets" indexName="idx_assets_embedding" using="ivfflat">
+      <column name="extracted_text_embedding vector_cosine_ops"/>
+    </createIndex>
+
+    <rollback>
+      <dropIndex tableName="venue_assets" indexName="idx_assets_embedding"/>
+      <dropIndex tableName="venue_assets" indexName="idx_assets_photo_category"/>
+      <dropIndex tableName="venue_assets" indexName="idx_assets_type"/>
+      <dropIndex tableName="venue_assets" indexName="idx_assets_venue"/>
+      <dropTable tableName="venue_assets"/>
+    </rollback>
+
+  </changeSet>
+</databaseChangeLog>
+```
+
 ### Schema Overview
 
 **Public schema (platform-owned, not tenant-scoped):**
@@ -745,7 +836,7 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------- |
 | `venues`                | `id` UUID PK, `name` VARCHAR(255), `display_name` VARCHAR(255), `city` VARCHAR(100), `country_code` CHAR(2), `website_url` VARCHAR(500), `primary_photo_asset_id` UUID, `status` VARCHAR(20), `profile_stage` VARCHAR(20), `source` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY, `master_venue_id` UUID nullable, `last_used_in_sales_room_at` TIMESTAMP | `mi-venue-service`           |
 | `venue_annotations`     | `id` UUID PK, `venue_id` UUID FK, `annotation_type` VARCHAR(20), `text_value` TEXT, `color_hex` VARCHAR(7), `numeric_value` NUMERIC(3,1), `is_private` BOOLEAN, `created_by` UUID                                                                                                                                                                                                                      | `mi-venue-service`           |
-| \enue_assets\           | \id\ UUID PK, \enue_id\ UUID FK, \sset_type\ VARCHAR(50), \photo_category\ VARCHAR(30), \display_order\ SMALLINT, \label\ VARCHAR(255), \cdn_url\ TEXT, \ humbnail_cdn_url\ TEXT, \ able_data\ JSONB, \xtraction_status\ VARCHAR(20), \xtracted_text_embedding\ VECTOR(1536)                                                                                                                           | \mi-venue-service\           |
+| `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `photo_category` VARCHAR(30), `display_order` SMALLINT, `label` VARCHAR(255), `cdn_url` TEXT, `thumbnail_cdn_url` TEXT, `table_data` JSONB, `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536)                                                                                                                       | `mi-venue-service`           |
 | `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB                                                                                                                                                                                                                                                                | `mi-venue-processing-worker` |
 | `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                                                                                                                                                                                                                                                                                           | `mi-venue-service`           |
 | `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in `mi-data-intelligence` changelog.                                                                                                                                                                                                                                                 | `mi-venue-processing-worker` |

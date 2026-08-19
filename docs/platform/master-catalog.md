@@ -181,6 +181,8 @@ After a successful copy, `venues.metadata_aggregated_at` is set to `NOW()` so th
 
 Also populates `venues.master_venue_id` on unambiguous MATCH — used by cross-source search dedup in [search.md](search.md).
 
+`social.google_place_id` is a priority MC_INHERIT field. When the master catalog record carries a `google_place_id`, it is copied on MATCH even if the tenant venue already has other `social` sub-fields set — because it unlocks cheap downstream enrichment (Google Places API: address, photos, rating, hours) at `SCRAPE_PROVIDER` priority 4, without any AI cost.
+
 ---
 
 ## Before Sprint 1 — Threshold Calibration Dry-Run
