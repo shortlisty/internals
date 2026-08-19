@@ -68,10 +68,10 @@ export interface Proposal {
   clientName: string;
   clientEmail: string | null;
   status: ProposalStatus;
-  brandingEnabled: boolean;          // plan gate: white_label
-  shareToken: string;                // opaque token — part of public URL
-  shareUrl: string;                  // full URL sent to client
-  eventDate: string | null;          // ISO date — drives retention policy
+  brandingEnabled: boolean; // plan gate: white_label
+  shareToken: string; // opaque token — part of public URL
+  shareUrl: string; // full URL sent to client
+  eventDate: string | null; // ISO date — drives retention policy
   /**
    * IAM user id of the agency member who owns this proposal.
    * Mandatory — every proposal must have exactly one owner on the agency side.
@@ -79,12 +79,12 @@ export interface Proposal {
    * Can be reassigned by TENANT_OWNER but never unset.
    */
   ownerId: string;
-  ownerName: string;                 // display name snapshot — kept in sync on read
-  ownerEmail: string;                // for client-facing "contact your planner" link
-  createdBy: string;                 // IAM user id — may differ from ownerId if reassigned
+  ownerName: string; // display name snapshot — kept in sync on read
+  ownerEmail: string; // for client-facing "contact your planner" link
+  createdBy: string; // IAM user id — may differ from ownerId if reassigned
   approvedAt: string | null;
   approvedByClientName: string | null;
-  snapshotId: string | null;         // set on APPROVED
+  snapshotId: string | null; // set on APPROVED
   createdAt: string;
   updatedAt: string;
 }

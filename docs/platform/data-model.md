@@ -68,27 +68,27 @@ Transitions are monotone by default (SEEDED → ENRICHED → CURATED → READY) 
 
 **Aggregate root: `VenueAsset`**
 
-| Field                      | Type          | Notes                                                                                           |
-| -------------------------- | ------------- | ----------------------------------------------------------------------------------------------- |
-| `id`                       | UUID          | PK                                                                                              |
-| `venue_id`                 | UUID          | FK → venues                                                                                     |
-| `asset_type`               | enum          | See asset type taxonomy below                                                                   |
-| `photo_category`           | enum          | Nullable. Only set when `asset_type = PHOTO`. See photo category taxonomy below.                |
-| `display_order`            | smallint      | Per-venue sort order within the same `asset_type` + `photo_category` group. Default 0.         |
-| `label`                    | varchar(255)  | Optional human label: "Main entrance", "Floor plan — ground floor", "Summer 2024 menu". Nullable. |
-| `file_name`                | varchar(255)  | Original file name as uploaded.                                                                 |
-| `content_type`             | varchar(100)  | MIME type                                                                                       |
-| `size_bytes`               | bigint        |                                                                                                 |
-| `s3_key`                   | text          | Storage path                                                                                    |
-| `cdn_url`                  | text          | Resolved CDN URL for direct client access. Nullable — set after S3 confirm.                    |
-| `thumbnail_s3_key`         | text          | Nullable. Set for PHOTO and VIDEO types after thumbnail generation job completes.               |
-| `thumbnail_cdn_url`        | text          | Nullable. CDN URL for thumbnail.                                                                |
-| `table_data`               | jsonb         | Nullable. Set for CSV/spreadsheet types — parsed rows as array of objects. See §2c.            |
-| `extracted_text`           | text          | Raw text extracted by parser (PDF, DOCX, CSV)                                                   |
-| `extracted_text_embedding` | vector(1536)  | pgvector, chunk-level search                                                                    |
-| `extraction_status`        | enum          | `PENDING`, `IN_PROGRESS`, `COMPLETED`, `FAILED`                                                 |
-| `uploaded_by`              | UUID          |                                                                                                 |
-| `uploaded_at`              | timestamp     |                                                                                                 |
+| Field                      | Type         | Notes                                                                                             |
+| -------------------------- | ------------ | ------------------------------------------------------------------------------------------------- |
+| `id`                       | UUID         | PK                                                                                                |
+| `venue_id`                 | UUID         | FK → venues                                                                                       |
+| `asset_type`               | enum         | See asset type taxonomy below                                                                     |
+| `photo_category`           | enum         | Nullable. Only set when `asset_type = PHOTO`. See photo category taxonomy below.                  |
+| `display_order`            | smallint     | Per-venue sort order within the same `asset_type` + `photo_category` group. Default 0.            |
+| `label`                    | varchar(255) | Optional human label: "Main entrance", "Floor plan — ground floor", "Summer 2024 menu". Nullable. |
+| `file_name`                | varchar(255) | Original file name as uploaded.                                                                   |
+| `content_type`             | varchar(100) | MIME type                                                                                         |
+| `size_bytes`               | bigint       |                                                                                                   |
+| `s3_key`                   | text         | Storage path                                                                                      |
+| `cdn_url`                  | text         | Resolved CDN URL for direct client access. Nullable — set after S3 confirm.                       |
+| `thumbnail_s3_key`         | text         | Nullable. Set for PHOTO and VIDEO types after thumbnail generation job completes.                 |
+| `thumbnail_cdn_url`        | text         | Nullable. CDN URL for thumbnail.                                                                  |
+| `table_data`               | jsonb        | Nullable. Set for CSV/spreadsheet types — parsed rows as array of objects. See §2c.               |
+| `extracted_text`           | text         | Raw text extracted by parser (PDF, DOCX, CSV)                                                     |
+| `extracted_text_embedding` | vector(1536) | pgvector, chunk-level search                                                                      |
+| `extraction_status`        | enum         | `PENDING`, `IN_PROGRESS`, `COMPLETED`, `FAILED`                                                   |
+| `uploaded_by`              | UUID         |                                                                                                   |
+| `uploaded_at`              | timestamp    |                                                                                                   |
 
 #### Asset type taxonomy
 
@@ -153,11 +153,11 @@ for direct UI rendering without re-fetching the original file.
 {
   "headers": ["Package", "Guests", "Price per person", "Currency"],
   "rows": [
-    ["Banquet Standard",  "100–150", "45",  "EUR"],
-    ["Banquet Premium",   "100–150", "65",  "EUR"],
+    ["Banquet Standard", "100–150", "45", "EUR"],
+    ["Banquet Premium", "100–150", "65", "EUR"],
     ["Cocktail Standard", "up to 200", "30", "EUR"]
   ],
-  "source_sheet": "Pricing 2025",   // original worksheet name if xlsx
+  "source_sheet": "Pricing 2025", // original worksheet name if xlsx
   "row_count": 3,
   "parsed_at": "2026-08-18T10:00:00Z"
 }
@@ -745,7 +745,7 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------- |
 | `venues`                | `id` UUID PK, `name` VARCHAR(255), `display_name` VARCHAR(255), `city` VARCHAR(100), `country_code` CHAR(2), `website_url` VARCHAR(500), `primary_photo_asset_id` UUID, `status` VARCHAR(20), `profile_stage` VARCHAR(20), `source` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY, `master_venue_id` UUID nullable, `last_used_in_sales_room_at` TIMESTAMP | `mi-venue-service`           |
 | `venue_annotations`     | `id` UUID PK, `venue_id` UUID FK, `annotation_type` VARCHAR(20), `text_value` TEXT, `color_hex` VARCHAR(7), `numeric_value` NUMERIC(3,1), `is_private` BOOLEAN, `created_by` UUID                                                                                                                                                                                                                      | `mi-venue-service`           |
-| \enue_assets\          | \id\ UUID PK, \enue_id\ UUID FK, \sset_type\ VARCHAR(50), \photo_category\ VARCHAR(30), \display_order\ SMALLINT, \label\ VARCHAR(255), \cdn_url\ TEXT, \	humbnail_cdn_url\ TEXT, \	able_data\ JSONB, \xtraction_status\ VARCHAR(20), \xtracted_text_embedding\ VECTOR(1536) | \mi-venue-service\           |
+| \enue_assets\           | \id\ UUID PK, \enue_id\ UUID FK, \sset_type\ VARCHAR(50), \photo_category\ VARCHAR(30), \display_order\ SMALLINT, \label\ VARCHAR(255), \cdn_url\ TEXT, \ humbnail_cdn_url\ TEXT, \ able_data\ JSONB, \xtraction_status\ VARCHAR(20), \xtracted_text_embedding\ VECTOR(1536)                                                                                                                           | \mi-venue-service\           |
 | `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB                                                                                                                                                                                                                                                                | `mi-venue-processing-worker` |
 | `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                                                                                                                                                                                                                                                                                           | `mi-venue-service`           |
 | `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in `mi-data-intelligence` changelog.                                                                                                                                                                                                                                                 | `mi-venue-processing-worker` |
@@ -753,31 +753,31 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 
 ### Index Strategy
 
-| Table               | Index name                   | Type    | Column(s)                         | Purpose                                                     |
-| ------------------- | ---------------------------- | ------- | --------------------------------- | ----------------------------------------------------------- |
-| `venues`            | `idx_venues_embedding`       | IVFFlat | `description_embedding`           | Semantic search                                             |
-| `venues`            | `idx_venues_fts`             | GIN     | `description_text`                | Full-text search (name, display_name, description, address) |
-| `venues`            | `idx_venues_metadata`        | GIN     | `metadata jsonb_path_ops`         | JSONB attribute filters                                     |
-| `venues`            | `idx_venues_location`        | GIST    | `location`                        | Geo-spatial queries                                         |
-| `venues`            | `idx_venues_city`            | btree   | `city`                            | City filter in search and list views                        |
-| `venues`            | `idx_venues_country_code`    | btree   | `country_code`                    | Country filter                                              |
-| `venues`            | `idx_venues_profile_stage`   | btree   | `profile_stage`                   | Filter by enrichment stage; onboarding dashboards           |
-| `venues`            | `idx_venues_master_venue_id` | btree   | `master_venue_id`                 | Cross-source search dedup                                   |
-| `venue_annotations` | `idx_annotations_venue`      | btree   | `venue_id`                        | FK lookup, all annotations for a venue                      |
-| `venue_annotations` | `idx_annotations_created_by` | btree   | `venue_id, created_by`            | Member's own annotations per venue                          |
-| `venue_annotations` | `idx_annotations_type`       | btree   | `annotation_type`                 | Filter by type (TAG, NOTE, etc.)                            |
-| `venue_annotations` | `idx_annotations_tag_value`  | btree   | `LOWER(text_value)` WHERE TAG     | Case-insensitive tag lookup and dedup                       |
-| `venue_assets`      | `idx_assets_venue`           | btree   | `venue_id`                        | FK lookup                                                   |
-| `venue_assets`      | `idx_assets_type`            | btree   | `asset_type`                            | Filter by type                                              |
-| `venue_assets`      | `idx_assets_photo_category`  | btree   | `venue_id, photo_category, display_order` | Ordered photo gallery fetch per category                  |
-| `venue_assets`      | `idx_assets_embedding`       | IVFFlat | `extracted_text_embedding`              | Chunk-level vector search                                   |
-| `extraction_jobs`   | `idx_jobs_asset`             | btree   | `asset_id`                        | FK lookup                                                   |
-| `extraction_jobs`   | `idx_jobs_status`            | btree   | `status`                          | Queue polling                                               |
-| `metadata_events`   | `idx_metadata_events_venue`  | btree   | `venue_id, occurred_at DESC`      | Timeline queries                                            |
-| `metadata_events`   | `idx_metadata_events_source` | btree   | `source_id, source_type`          | Provenance lookup                                           |
-| `item_vectors`      | `idx_vectors_embedding`      | IVFFlat | `embedding`                       | Vector similarity search                                    |
-| `item_vectors`      | `idx_vectors_asset`          | btree   | `(metadata->>'asset_id')`         | Fast sweep on `asset.deleted` event                         |
-| `ai_cost_tracking`  | `idx_ai_cost_month`          | btree   | `DATE_TRUNC('month', created_at)` | Monthly cost rollup                                         |
+| Table               | Index name                   | Type    | Column(s)                                 | Purpose                                                     |
+| ------------------- | ---------------------------- | ------- | ----------------------------------------- | ----------------------------------------------------------- |
+| `venues`            | `idx_venues_embedding`       | IVFFlat | `description_embedding`                   | Semantic search                                             |
+| `venues`            | `idx_venues_fts`             | GIN     | `description_text`                        | Full-text search (name, display_name, description, address) |
+| `venues`            | `idx_venues_metadata`        | GIN     | `metadata jsonb_path_ops`                 | JSONB attribute filters                                     |
+| `venues`            | `idx_venues_location`        | GIST    | `location`                                | Geo-spatial queries                                         |
+| `venues`            | `idx_venues_city`            | btree   | `city`                                    | City filter in search and list views                        |
+| `venues`            | `idx_venues_country_code`    | btree   | `country_code`                            | Country filter                                              |
+| `venues`            | `idx_venues_profile_stage`   | btree   | `profile_stage`                           | Filter by enrichment stage; onboarding dashboards           |
+| `venues`            | `idx_venues_master_venue_id` | btree   | `master_venue_id`                         | Cross-source search dedup                                   |
+| `venue_annotations` | `idx_annotations_venue`      | btree   | `venue_id`                                | FK lookup, all annotations for a venue                      |
+| `venue_annotations` | `idx_annotations_created_by` | btree   | `venue_id, created_by`                    | Member's own annotations per venue                          |
+| `venue_annotations` | `idx_annotations_type`       | btree   | `annotation_type`                         | Filter by type (TAG, NOTE, etc.)                            |
+| `venue_annotations` | `idx_annotations_tag_value`  | btree   | `LOWER(text_value)` WHERE TAG             | Case-insensitive tag lookup and dedup                       |
+| `venue_assets`      | `idx_assets_venue`           | btree   | `venue_id`                                | FK lookup                                                   |
+| `venue_assets`      | `idx_assets_type`            | btree   | `asset_type`                              | Filter by type                                              |
+| `venue_assets`      | `idx_assets_photo_category`  | btree   | `venue_id, photo_category, display_order` | Ordered photo gallery fetch per category                    |
+| `venue_assets`      | `idx_assets_embedding`       | IVFFlat | `extracted_text_embedding`                | Chunk-level vector search                                   |
+| `extraction_jobs`   | `idx_jobs_asset`             | btree   | `asset_id`                                | FK lookup                                                   |
+| `extraction_jobs`   | `idx_jobs_status`            | btree   | `status`                                  | Queue polling                                               |
+| `metadata_events`   | `idx_metadata_events_venue`  | btree   | `venue_id, occurred_at DESC`              | Timeline queries                                            |
+| `metadata_events`   | `idx_metadata_events_source` | btree   | `source_id, source_type`                  | Provenance lookup                                           |
+| `item_vectors`      | `idx_vectors_embedding`      | IVFFlat | `embedding`                               | Vector similarity search                                    |
+| `item_vectors`      | `idx_vectors_asset`          | btree   | `(metadata->>'asset_id')`                 | Fast sweep on `asset.deleted` event                         |
+| `ai_cost_tracking`  | `idx_ai_cost_month`          | btree   | `DATE_TRUNC('month', created_at)`         | Monthly cost rollup                                         |
 
 ### Cross-Schema Access Rules
 

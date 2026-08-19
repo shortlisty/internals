@@ -77,6 +77,7 @@ packages/ui-types/
 ```
 
 `package.json`:
+
 ```json
 {
   "name": "@venuemi/ui-types",
@@ -97,34 +98,27 @@ No `peerDependencies`. Zero runtime dependencies. TypeScript is dev-only.
 // venue/asset.types.ts
 
 export type AssetType =
-  | 'PHOTO'
-  | 'FLOOR_PLAN'
-  | 'PDF_DECK'
-  | 'SPEC_SHEET'
-  | 'MENU'
-  | 'PRICE_LIST'
-  | 'DATA_TABLE'
-  | 'VIDEO'
-  | 'CAD_FILE'
-  | 'MISC';
+  | "PHOTO"
+  | "FLOOR_PLAN"
+  | "PDF_DECK"
+  | "SPEC_SHEET"
+  | "MENU"
+  | "PRICE_LIST"
+  | "DATA_TABLE"
+  | "VIDEO"
+  | "CAD_FILE"
+  | "MISC";
 
 export type PhotoCategory =
-  | 'EXTERIOR'
-  | 'INTERIOR'
-  | 'SETUP'
-  | 'DETAIL'
-  | 'CATERING'
-  | 'OUTDOOR'
-  | 'TEAM'
-  | 'OTHER';
+  "EXTERIOR" | "INTERIOR" | "SETUP" | "DETAIL" | "CATERING" | "OUTDOOR" | "TEAM" | "OTHER";
 
-export type ExtractionStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+export type ExtractionStatus = "PENDING" | "IN_PROGRESS" | "COMPLETED" | "FAILED";
 
 /** Parsed tabular content — populated for DATA_TABLE and PRICE_LIST (csv/xlsx). */
 export interface AssetTableData {
   headers: string[];
   rows: string[][];
-  sourceSheet: string | null;  // original worksheet name for xlsx
+  sourceSheet: string | null; // original worksheet name for xlsx
   rowCount: number;
   parsedAt: string;
 }
@@ -141,8 +135,8 @@ export interface VenueAsset {
   contentType: string;
   sizeBytes: number;
   cdnUrl: string | null;
-  thumbnailCdnUrl: string | null;      // set for PHOTO and VIDEO after processing
-  tableData: AssetTableData | null;    // set for DATA_TABLE and PRICE_LIST (csv/xlsx)
+  thumbnailCdnUrl: string | null; // set for PHOTO and VIDEO after processing
+  tableData: AssetTableData | null; // set for DATA_TABLE and PRICE_LIST (csv/xlsx)
   extractionStatus: ExtractionStatus;
   uploadedBy: string;
   uploadedAt: string;
@@ -171,57 +165,72 @@ export interface VenueAssetSummary {
 ```typescript
 // venue/asset.constants.ts
 
-import type { AssetType, PhotoCategory, ExtractionStatus } from './asset.types';
+import type { AssetType, PhotoCategory, ExtractionStatus } from "./asset.types";
 
 export const ASSET_TYPES = [
-  'PHOTO', 'FLOOR_PLAN', 'PDF_DECK', 'SPEC_SHEET',
-  'MENU', 'PRICE_LIST', 'DATA_TABLE', 'VIDEO', 'CAD_FILE', 'MISC',
+  "PHOTO",
+  "FLOOR_PLAN",
+  "PDF_DECK",
+  "SPEC_SHEET",
+  "MENU",
+  "PRICE_LIST",
+  "DATA_TABLE",
+  "VIDEO",
+  "CAD_FILE",
+  "MISC",
 ] as const;
 
 export const PHOTO_CATEGORIES = [
-  'EXTERIOR', 'INTERIOR', 'SETUP', 'DETAIL',
-  'CATERING', 'OUTDOOR', 'TEAM', 'OTHER',
+  "EXTERIOR",
+  "INTERIOR",
+  "SETUP",
+  "DETAIL",
+  "CATERING",
+  "OUTDOOR",
+  "TEAM",
+  "OTHER",
 ] as const;
 
-export const EXTRACTION_STATUSES = [
-  'PENDING', 'IN_PROGRESS', 'COMPLETED', 'FAILED',
-] as const;
+export const EXTRACTION_STATUSES = ["PENDING", "IN_PROGRESS", "COMPLETED", "FAILED"] as const;
 
 export const ASSET_TYPE_LABELS: Record<AssetType, string> = {
-  PHOTO:      'Photo',
-  FLOOR_PLAN: 'Floor Plan',
-  PDF_DECK:   'Venue Deck',
-  SPEC_SHEET: 'Spec Sheet',
-  MENU:       'Menu',
-  PRICE_LIST: 'Price List',
-  DATA_TABLE: 'Data Table',
-  VIDEO:      'Video',
-  CAD_FILE:   'CAD File',
-  MISC:       'Other',
+  PHOTO: "Photo",
+  FLOOR_PLAN: "Floor Plan",
+  PDF_DECK: "Venue Deck",
+  SPEC_SHEET: "Spec Sheet",
+  MENU: "Menu",
+  PRICE_LIST: "Price List",
+  DATA_TABLE: "Data Table",
+  VIDEO: "Video",
+  CAD_FILE: "CAD File",
+  MISC: "Other",
 };
 
 export const PHOTO_CATEGORY_LABELS: Record<PhotoCategory, string> = {
-  EXTERIOR: 'Exterior',
-  INTERIOR: 'Interior',
-  SETUP:    'Setup',
-  DETAIL:   'Detail',
-  CATERING: 'Catering',
-  OUTDOOR:  'Outdoor',
-  TEAM:     'Team',
-  OTHER:    'Other',
+  EXTERIOR: "Exterior",
+  INTERIOR: "Interior",
+  SETUP: "Setup",
+  DETAIL: "Detail",
+  CATERING: "Catering",
+  OUTDOOR: "Outdoor",
+  TEAM: "Team",
+  OTHER: "Other",
 };
 
 /** Asset types that carry photo_category. */
-export const PHOTO_ASSET_TYPES = ['PHOTO'] as const satisfies AssetType[];
+export const PHOTO_ASSET_TYPES = ["PHOTO"] as const satisfies AssetType[];
 
 /** Asset types that produce table_data on the backend. */
-export const TABULAR_ASSET_TYPES = ['DATA_TABLE', 'PRICE_LIST'] as const satisfies AssetType[];
+export const TABULAR_ASSET_TYPES = ["DATA_TABLE", "PRICE_LIST"] as const satisfies AssetType[];
 
 // ── Type guards ────────────────────────────────────────────────────────────
 
-export const isAssetType        = (v: unknown): v is AssetType        => (ASSET_TYPES as readonly string[]).includes(v as string);
-export const isPhotoCategory    = (v: unknown): v is PhotoCategory    => (PHOTO_CATEGORIES as readonly string[]).includes(v as string);
-export const isExtractionStatus = (v: unknown): v is ExtractionStatus => (EXTRACTION_STATUSES as readonly string[]).includes(v as string);
+export const isAssetType = (v: unknown): v is AssetType =>
+  (ASSET_TYPES as readonly string[]).includes(v as string);
+export const isPhotoCategory = (v: unknown): v is PhotoCategory =>
+  (PHOTO_CATEGORIES as readonly string[]).includes(v as string);
+export const isExtractionStatus = (v: unknown): v is ExtractionStatus =>
+  (EXTRACTION_STATUSES as readonly string[]).includes(v as string);
 
 // ── Pure helpers (no React dep) ────────────────────────────────────────────
 
@@ -231,8 +240,7 @@ export const assetAcceptsPhotoCategory = (type: AssetType): boolean =>
 export const assetProducesTableData = (type: AssetType): boolean =>
   (TABULAR_ASSET_TYPES as readonly string[]).includes(type);
 
-export const assetHasThumbnail = (type: AssetType): boolean =>
-  type === 'PHOTO' || type === 'VIDEO';
+export const assetHasThumbnail = (type: AssetType): boolean => type === "PHOTO" || type === "VIDEO";
 ```
 
 ---
@@ -279,11 +287,11 @@ interfaces or constants that exist in the shared package.
 
 `@venuemi/ui-types` follows semver:
 
-| Change | Bump |
-|---|---|
-| New optional field in `VenueMetadata` | patch |
-| New type or constant exported | minor |
-| New field in `FieldDefinition` | minor |
+| Change                                                  | Bump  |
+| ------------------------------------------------------- | ----- |
+| New optional field in `VenueMetadata`                   | patch |
+| New type or constant exported                           | minor |
+| New field in `FieldDefinition`                          | minor |
 | Breaking type change, field removed, enum value renamed | major |
 
 Adding a canonical metadata field is a **patch** — new optional key, all existing
@@ -293,17 +301,17 @@ consumers unaffected. Renaming `SEEDED` → `INITIAL` is **major** — all addon
 
 ## 5. What stays app-local
 
-| Code | Why app-local |
-|---|---|
-| `VENUE_FORM_SPEC` constant | Field labels, order, UI hints are app-specific concerns |
-| `VenueFormField` and all React components | React + Mantine dep, per-app customisation |
-| `entities/venue/types.ts` — `VenueSummary`, `VenueDetail` | DTO projections differ per app |
-| `entities/master-venue/types.ts` | Only in `foundation-ui-platform-admin` |
-| `entities/proposal/types.ts` | Only in `foundation-ui-app` |
-| `shared/api/*.ts` | Different base URLs, auth headers per app |
-| MSW handlers and fixtures | Only in `foundation-ui-blank` |
-| Auth guards, `FeatureGate`, `useEntitlements` | Only in production apps |
-| CSS theme token overrides (`--vmi-*`) | Per-app / per-skin |
+| Code                                                      | Why app-local                                           |
+| --------------------------------------------------------- | ------------------------------------------------------- |
+| `VENUE_FORM_SPEC` constant                                | Field labels, order, UI hints are app-specific concerns |
+| `VenueFormField` and all React components                 | React + Mantine dep, per-app customisation              |
+| `entities/venue/types.ts` — `VenueSummary`, `VenueDetail` | DTO projections differ per app                          |
+| `entities/master-venue/types.ts`                          | Only in `foundation-ui-platform-admin`                  |
+| `entities/proposal/types.ts`                              | Only in `foundation-ui-app`                             |
+| `shared/api/*.ts`                                         | Different base URLs, auth headers per app               |
+| MSW handlers and fixtures                                 | Only in `foundation-ui-blank`                           |
+| Auth guards, `FeatureGate`, `useEntitlements`             | Only in production apps                                 |
+| CSS theme token overrides (`--vmi-*`)                     | Per-app / per-skin                                      |
 
 ---
 
@@ -323,7 +331,7 @@ consumers unaffected. Renaming `SEEDED` → `INITIAL` is **major** — all addon
    `ownerId` to `null` or `undefined`. Owner can be reassigned but never unset.
    `ownerName` and `ownerEmail` are snapshot fields kept in sync on read from IAM.
 
-4. **Architecture test in each app** asserts:
+5. **Architecture test in each app** asserts:
    - No file in `src/` declares `interface VenueMetadata`
    - No file in `src/` declares `const PROFILE_STAGES`
    - `@venuemi/ui-types` is listed in `package.json` dependencies
@@ -400,21 +408,24 @@ not a copy.
 Triggered when prototypes are stable and the shared API is no longer changing daily.
 
 **Step 1 — build config** (no source changes):
+
 ```bash
 pnpm add -D tsup   # in packages/ui-types/
 ```
+
 ```ts
 // tsup.config.ts
-import { defineConfig } from 'tsup';
+import { defineConfig } from "tsup";
 export default defineConfig({
-  entry: ['src/index.ts'],
-  format: ['esm'],
+  entry: ["src/index.ts"],
+  format: ["esm"],
   dts: true,
   clean: true,
 });
 ```
 
 Update `package.json` exports:
+
 ```json
 {
   "exports": { ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" } },
@@ -423,15 +434,18 @@ Update `package.json` exports:
 ```
 
 **Step 2 — publish**:
+
 ```bash
 pnpm build
 npm publish --access public   # under @venuemi org on npmjs
 ```
 
 **Step 3 — update all consumers** (all three apps, same commit):
+
 ```json
 "@venuemi/ui-types": "^0.1.0"
 ```
+
 Remove `file:` entry and `paths` override from `tsconfig.json`.
 
 **Step 4 — architecture tests**: add assertions from §6.

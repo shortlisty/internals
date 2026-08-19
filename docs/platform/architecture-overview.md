@@ -20,7 +20,7 @@
 | [events.md](events.md)                           | RabbitMQ event contracts, plan entitlement mapping                                                   |
 | [observability.md](observability.md)             | Prometheus metrics, Grafana dashboards, security model                                               |
 | [roadmap-decisions.md](roadmap-decisions.md)     | Open decisions, pre-Sprint 1 tasks, Phase 2/3 design backlog                                         |
-| [ui-venue-management.md](ui-venue-management.md) | UI: venue CRUD form, list, form spec, component structure, themes/skins, addon placement        |
+| [ui-venue-management.md](ui-venue-management.md) | UI: venue CRUD form, list, form spec, component structure, themes/skins, addon placement             |
 | [ui-deal-workspace.md](ui-deal-workspace.md)     | UI: Deal Workspace — proposal assembly, client board, immutable history, approval snapshot           |
 | [ui-shared-packages.md](ui-shared-packages.md)   | UI: shared workspace packages (`@venuemi/ui-venue-core`, `@venuemi/ui-deal-core`) — drift prevention |
 
