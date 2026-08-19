@@ -22,7 +22,7 @@
 | [roadmap-decisions.md](roadmap-decisions.md)     | Open decisions, pre-Sprint 1 tasks, Phase 2/3 design backlog                                         |
 | [ui-venue-management.md](ui-venue-management.md) | UI: venue CRUD form, list, form spec, component structure, themes/skins, addon placement             |
 | [ui-deal-workspace.md](ui-deal-workspace.md)     | UI: Deal Workspace — proposal assembly, client board, immutable history, approval snapshot           |
-| [ui-shared-packages.md](ui-shared-packages.md)   | UI: shared workspace packages (`@venuemi/ui-venue-core`, `@venuemi/ui-deal-core`) — drift prevention |
+| [ui-shared-packages.md](ui-shared-packages.md)   | UI: shared npm package `@venuemi/ui-types` — types, constants, form spec; drift prevention, file: prototype path, npmjs promotion |
 
 ---
 
@@ -41,10 +41,12 @@ VenueMi Intelligence is a new product service built **on top of the iQ Key Value
 
 **New services introduced by VenueMi Intelligence:**
 
-- `mi-data-intelligence` — platform-level shared library (JAR). Domain-agnostic extraction pipeline contracts, metadata versioning mechanism, provenance model, event POJOs, and Liquibase migrations for infrastructure tables (`extraction_jobs`, `item_vectors`, `item_metadata_events`, `ai_cost_tracking`). No Spring beans, no business logic, no venue-specific fields. The domain-agnostic layer — reusable across verticals (venue, medical, agro, etc.). Imported by both services and by `mi-venue-model`.
-- `mi-venue-model` — venue-domain shared library (JAR). Venue-specific domain model (`Venue`, `VenueMetadata`, `MasterVenue`), canonical field set, venue metadata migrations, and Liquibase migrations for venue tables (`venues`, `venue_assets`, `master_venue`). Depends on `mi-data-intelligence`. Imported by both services.
-- `mi-venue-service` — core domain: venues, assets, metadata, search, plan enforcement, master catalog backdrop lookup. Synchronous request/response only.
-- `mi-venue-processing-worker` — async sidecar: document ETL for tenant uploads, embedding generation, metadata aggregation, scheduled maintenance jobs. Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers (`mi-mc-ingest-<source>-scraper`). Master Catalog population runs in `mi-mc-loader` (Spring Boot). No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `mi-venue-service`.
+- `mi-data-intelligence` — platform-level shared library (JAR). Domain-agnostic extraction pipeline contracts, metadata versioning mechanism, provenance model, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`), and Liquibase migrations for infrastructure tables (`extraction_jobs`, `item_vectors`, `item_metadata_events`, `ai_cost_tracking`). No Spring beans, no business logic, no venue-specific fields. The domain-agnostic layer — reusable across verticals (venue, medical, agro, etc.). Imported by both services and by `mi-venue-model`.
+- `mi-venue-model` — venue-domain shared library (JAR). Venue-specific domain model (`Venue`, `VenueMetadata`, `MasterVenue`), canonical field set, venue metadata migrations, and Liquibase migrations for venue tables (`venues`, `venue_assets`, `venue_annotations`, `master_venue`). Depends on `mi-data-intelligence`. Imported by both services.
+- `mi-venue-service` — core domain: venues, assets, annotations, metadata, proposals, search, plan enforcement, master catalog backdrop lookup. Synchronous request/response only.
+- `mi-venue-processing-worker` — async sidecar: document ETL for tenant uploads, table data parsing (CSV/XLSX), embedding generation, metadata aggregation, scheduled maintenance jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `mi-venue-service`.
+- `mi-mc-loader` — Spring Boot service. Runs master catalog import jobs triggered by `admin.master-catalog.import.*` RabbitMQ events. Applies reviewed scraper CSV/JSONL batches to `public.master_venue`. No tenant interaction.
+- Standalone scrapers (`mi-mc-ingest-<source>-scraper`) — Node.js. Produce CSV/JSONL output, upload to S3. Run on demand, not deployed as persistent services.
 
 **New infrastructure introduced by VenueMi Intelligence:**
 
@@ -348,38 +350,54 @@ Extend `foundation-ui-app` — do **not** fork. New VenueMi features live under:
 ```
 src/
 ├── addons/
-│   └── venue-management/              ← isolated addon: form spec + utils + CSS tokens
-│       ├── index.ts
-│       └── spec/
-│           ├── form-spec.types.ts
-│           ├── venue-form-spec.ts
-│           └── form-spec.utils.ts
+│   ├── venue-management/              ← isolated addon: form spec + utils + CSS tokens
+│   │   ├── index.ts
+│   │   └── spec/
+│   │       ├── form-spec.types.ts
+│   │       ├── venue-form-spec.ts
+│   │       └── form-spec.utils.ts
+│   └── deal-workspace/                ← isolated addon: proposal types, confidence utils
+│       └── index.ts
 ├── entities/
-│   └── venue/                         ← VenueSummary, VenueDetail, VenueMetadata, VenueAnnotation
+│   ├── venue/                         ← VenueSummary, VenueDetail, VenueAnnotation
+│   └── proposal/                      ← ProposalSummary, ProposalDetail
 ├── features/
 │   ├── create-venue/
 │   ├── edit-venue-metadata/           ← tabbed metadata form, driven by form spec
 │   ├── upload-venue-asset/
-│   └── venue-quick-fill/              ← inline SEEDED→ENRICHED nudge
+│   ├── venue-quick-fill/              ← inline SEEDED→ENRICHED nudge
+│   ├── create-proposal/
+│   ├── edit-proposal-venues/
+│   └── share-proposal/
 ├── widgets/
 │   ├── venue-list/                    ← list + filters + search bar
-│   └── venue-profile/                 ← header, tabs, asset gallery
+│   ├── venue-profile/                 ← header, tabs, asset gallery
+│   ├── proposal-list/
+│   └── proposal-board/                ← planner view of assembled board
 └── pages/
     ├── venues/                        ← /venues
-    └── venues_.$id/                   ← /venues/:id
+    ├── venues_.$id/                   ← /venues/:id
+    ├── proposals/                     ← /proposals
+    ├── proposals_.$id/                ← /proposals/:id
+    └── share_.$token/                 ← /share/:token  (public — no auth guard)
 ```
 
 New routes added to TanStack Router:
 
-| Path          | Auth   | Description         |
-| ------------- | ------ | ------------------- |
-| `/venues`     | Member | Venue list / search |
-| `/venues/new` | Member | Create venue        |
-| `/venues/:id` | Member | Venue profile       |
+| Path               | Auth        | Description                  |
+| ------------------ | ----------- | ---------------------------- |
+| `/venues`          | Member      | Venue list / search          |
+| `/venues/new`      | Member      | Create venue                 |
+| `/venues/:id`      | Member      | Venue profile                |
+| `/proposals`       | Member      | Proposal list                |
+| `/proposals/:id`   | Member      | Proposal board (planner)     |
+| `/share/:token`    | **none**    | Client board (public)        |
+
+Shared types (`AnyVenue`, `VenueMetadata`, `Proposal`, `ProposalEvent`, etc.) and the form spec live in `@venuemi/ui-types` — a shared npm package (referenced via `file:` during prototyping). See [ui-shared-packages.md](ui-shared-packages.md).
 
 Reuse without modification: auth flows, session management, token refresh, team management, billing/entitlements (`FeatureGate`, `useEntitlements`), notification bell.
 
-Full component structure, form spec, theme/skin pattern, and API integration: see [ui-venue-management.md](ui-venue-management.md).
+Prototype first in `foundation-ui-blank` (no auth, MSW mocks). Full component structure, form spec, theme/skin pattern, and API integration: see [ui-venue-management.md](ui-venue-management.md) and [ui-deal-workspace.md](ui-deal-workspace.md).
 
 ---
 
