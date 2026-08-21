@@ -10,7 +10,7 @@
 - [data-model.md](data-model.md) — index strategy (`IVFFlat`, `GIN`, `GIST`), `item_vectors` table, `venues.master_venue_id`
 - [services.md](services.md) — `mi-venue-service` owns the search API; cross-schema access rules for `public.master_venue`
 - [master-catalog.md](master-catalog.md) — MC_INHERIT provenance; `master_venue_id` populated at extraction time
-- [api.md](api.md) — `GET /api/v1/venues/` endpoint, `scope` query param, response DTOs
+- [api.md](api.md) — `GET /api/v1/venues/` endpoint, `scope` query param, response DTOs; `GET /api/v1/venues/master-venues` MEMBER search endpoint
 - [observability.md](observability.md) — `venuemi_search_requests_total`, `venuemi_search_latency_seconds`, `venuemi_search_failures_total`
 
 ---
@@ -47,7 +47,7 @@ All search is served by `mi-venue-service` querying PostgreSQL directly. No sepa
 
 ```
             ┌──────────────────────────────┐
-            │  GET /api/v1/venues/?scope=  │
+            │  GET /api/v1/venues?scope=  │
             │  BOTH | TENANT_ONLY          │
             │  | MASTER_CATALOG_ONLY       │
             │  (default: TENANT_ONLY)      │

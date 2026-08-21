@@ -938,7 +938,7 @@ VenueProfilePage  (/venues/:id  or  /master-venues/:id)
             accepts: image/*, .pdf, .docx, .csv, .xlsx, .dwg, .dxf, .mp4, .mov
             on drop: infers AssetType from MIME + extension
             if AssetType === 'PHOTO': prompts PhotoCategory selector before confirm
-            upload progress per file → fires POST /assets/initiate → PUT S3 → POST confirm
+            upload progress per file → fires POST /api/v1/venues/{id}/assets/initiate → PUT S3 → POST confirm
 
 VenueListPage  (/venues  or  /master-venues)
 ├── VenueListFilters            ← city, status/context-appropriate filters
@@ -1038,32 +1038,36 @@ The `data-skin` attribute is set by the parent layout (Sales Room, admin app, te
 // List — flat summary, no client JSONB
 GET  /api/v1/venues?city=&status=&profileStage=&page=&size=
 // Full detail
-GET  /api/v1/venues/:id
+GET  /api/v1/venues/{id}
 // Create
 POST /api/v1/venues
 // Patch one metadata field → triggers aggregation + stage recalc
-PATCH /api/v1/venues/:id/metadata   { fieldKey: string; value: unknown }
+PATCH /api/v1/venues/{id}/metadata   { fieldKey: string; value: unknown }
 // Annotations
-GET|POST        /api/v1/venues/:id/annotations
-PATCH|DELETE    /api/v1/venues/:id/annotations/:annotationId
+GET|POST        /api/v1/venues/{id}/annotations
+PATCH|DELETE    /api/v1/venues/{id}/annotations/{annotationId}
 // Assets — summary list (no tableData, fast for gallery render)
-GET    /api/v1/venues/:id/assets?type=&category=   → VenueAssetSummary[]
+GET    /api/v1/venues/{id}/assets?type=&category=   → VenueAssetSummary[]
 // Full asset (includes tableData — loaded on demand)
-GET    /api/v1/venues/:id/assets/:assetId          → VenueAsset
+GET    /api/v1/venues/{id}/assets/{assetId}          → VenueAsset
 // Two-phase upload
-POST   /api/v1/venues/:id/assets/initiate   { assetType, photoCategory?, fileName, contentType, sizeBytes }
+POST   /api/v1/venues/{id}/assets/initiate   { assetType, photoCategory?, fileName, contentType, sizeBytes }
 PUT    <presignedS3Url>                     direct from browser
-POST   /api/v1/venues/:id/assets/:assetId/confirm
+POST   /api/v1/venues/{id}/assets/{assetId}/confirm
 // Update label, photoCategory, displayOrder
-PATCH  /api/v1/venues/:id/assets/:assetId
-DELETE /api/v1/venues/:id/assets/:assetId
+PATCH  /api/v1/venues/{id}/assets/{assetId}
+DELETE /api/v1/venues/{id}/assets/{assetId}
 
 // src/shared/api/master-venue.ts  (admin app)
 
-GET  /api/v1/admin/master-venues?city=&page=&size=
-GET  /api/v1/admin/master-venues/:id
-POST /api/v1/admin/master-venues
-PUT  /api/v1/admin/master-venues/:id
+GET  /api/v1/venues/admin/master-venues?city=&page=&size=
+GET  /api/v1/venues/admin/master-venues/{id}
+POST /api/v1/venues/admin/master-venues
+PUT  /api/v1/venues/admin/master-venues/{id}
+
+// master-venue MEMBER read (tenant app — search + browse master catalog)
+GET  /api/v1/venues/master-venues?search=&city=&country_code=&capacity=&page=&size=
+GET  /api/v1/venues/master-venues/{id}
 ```
 
 ---
@@ -1166,12 +1170,12 @@ Handlers to implement for a working prototype:
 
 ```
 GET    /api/v1/venues              → VenueSummaryListResponse (10–20 fixtures)
-GET    /api/v1/venues/:id          → VenueDetail (full metadata + metadata_sources)
+GET    /api/v1/venues/{id}          → VenueDetail (full metadata + metadata_sources)
 POST   /api/v1/venues              → create, return new VenueDetail
-PATCH  /api/v1/venues/:id/metadata → update one field, recalculate profileStage
-GET    /api/v1/venues/:id/annotations
-POST   /api/v1/venues/:id/annotations
-DELETE /api/v1/venues/:id/annotations/:annotationId
+PATCH  /api/v1/venues/{id}/metadata → update one field, recalculate profileStage
+GET    /api/v1/venues/{id}/annotations
+POST   /api/v1/venues/{id}/annotations
+DELETE /api/v1/venues/{id}/annotations/{annotationId}
 ```
 
 Fixture data should cover all four `profileStage` values and both `context` variants

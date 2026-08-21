@@ -197,11 +197,11 @@ venuemi/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/6ba7b810
 
 - `{fileName}` is the original client-supplied file name, stripped of path separators, URL-encoded where necessary. Stored as-is after sanitisation — no UUID substitution — so the key stays human-readable.
 - `{venueId}` and `{assetId}` are UUIDs without hyphens (compact 32-char hex).
-- The `asset_id` is generated server-side at `POST /assets/initiate` and written to `venue_assets.id` before the presigned URL is issued. The S3 key is stored in `venue_assets.s3_key` — at confirm time no key re-computation happens.
+- The `asset_id` is generated server-side at `POST /api/v1/venues/{venueId}/assets/initiate` and written to `venue_assets.id` before the presigned URL is issued. The S3 key is stored in `venue_assets.s3_key` — at confirm time no key re-computation happens.
 
 #### Presigned URL Issuance
 
-`POST /assets/initiate` response:
+`POST /api/v1/venues/{venueId}/assets/initiate` response:
 
 ```json
 {
@@ -211,7 +211,7 @@ venuemi/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/6ba7b810
 }
 ```
 
-The presigned PUT URL is scoped to the exact key. The client uploads directly. The service never proxies the file body. Download presigned URLs (1h TTL) are generated on-demand at `GET /assets/{id}/download-url` — not stored.
+The presigned PUT URL is scoped to the exact key. The client uploads directly. The service never proxies the file body. Download presigned URLs (1h TTL) are generated on-demand at `GET /api/v1/venues/{venueId}/assets/{id}/download-url` — not stored.
 
 #### Master Catalog Import Files
 
@@ -239,7 +239,7 @@ venuemi/master-catalog/exports/{date}/{snapshot}.jsonl.gz
 | Master catalog import cleanup    | `venuemi/master-catalog/imports/processed/` | Delete after 30 days.                                                                                  |
 | Master catalog snapshot rotation | `venuemi/master-catalog/exports/`           | Keep last 14 daily snapshots; delete older.                                                            |
 
-Object tags set by `mi-venue-service` at `POST /assets/confirm`:
+Object tags set by `mi-venue-service` at `POST /api/v1/venues/{venueId}/assets/{id}/confirm`:
 
 | Tag key             | Values                                          | Set by                             |
 | ------------------- | ----------------------------------------------- | ---------------------------------- |
@@ -249,7 +249,7 @@ Object tags set by `mi-venue-service` at `POST /assets/confirm`:
 
 ### Deletion Cascade
 
-When a tenant deletes an asset (`DELETE /assets/{id}`) or when a tenant account is terminated:
+When a tenant deletes an asset (`DELETE /api/v1/venues/{venueId}/assets/{id}`) or when a tenant account is terminated:
 
 1. `mi-venue-service` deletes the `venue_assets` row (DB cascade drops extraction jobs and metadata events).
 2. `mi-venue-service` issues `s3:DeleteObject` for `venue_assets.s3_key`.

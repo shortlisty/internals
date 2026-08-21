@@ -11,7 +11,7 @@
 - [aggregation.md](aggregation.md) — `MetadataAggregationConsumer` listener container configuration (FIFO, MANUAL ack)
 - [etl-pipeline.md](etl-pipeline.md) — `AssetExtractionConsumer` triggered by `asset.uploaded`
 - [master-catalog.md](master-catalog.md) — `admin.master-catalog.import.*` events for scraper dry-run / apply
-- [api.md](api.md) — `asset.uploaded` published at `POST /assets/{id}/confirm`
+- [api.md](api.md) — `asset.uploaded` published at `POST /api/v1/venues/{venueId}/assets/{id}/confirm`
 - [observability.md](observability.md) — audit trail via passive `foundation-audit-service` binding
 
 ---

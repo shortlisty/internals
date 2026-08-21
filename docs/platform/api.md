@@ -105,19 +105,52 @@ VenueSummaryListResponse
 
 ## Master Venues (MEMBER read)
 
-Base: `/api/v1/master-venues`
+Base: `/api/v1/venues/master-venues`
 
 Read-only public projection for tenant members. Write/edit/delete lives under Platform Admin API.
 
 | Method | Path    | Authority | Status | Notes                                                                                      |
 | ------ | ------- | --------- | ------ | ------------------------------------------------------------------------------------------ |
+| `GET`  | `/`     | `MEMBER`  | 200    | Keyword search + structured filters + pagination. Safe projection only.                    |
 | `GET`  | `/{id}` | `MEMBER`  | 200    | Safe projection only — no confidence scores or admin fields. 404 if not found or ARCHIVED. |
 
+### Search parameters (`GET /`)
+
+| Parameter      | Type              | Description                                                       |
+| -------------- | ----------------- | ----------------------------------------------------------------- |
+| `search`       | string            | Keyword query against name, aliases, city, address (GIN tsvector) |
+| `city`         | string            | Exact city filter (btree index)                                   |
+| `country_code` | string (ISO 3166) | Two-letter country filter                                         |
+| `capacity`     | integer           | Minimum total capacity (`metadata.capacity.max_total`)            |
+| `lat`, `lng`   | decimal           | Centre point for geo-spatial search                               |
+| `radius_km`    | decimal           | Radius from lat/lng (requires both to be set)                     |
+| `amenities`    | string[]          | Required amenity codes (comma-separated)                          |
+| `catering`     | enum              | Catering policy filter                                            |
+| `page`         | integer (0-based) | Default: 0                                                        |
+| `size`         | integer           | Default: 20, max: 100                                             |
+| `sort`         | string            | `name,asc`, `city,asc`, `capacity,desc` (default: `name,asc`)     |
+
+No semantic search on master venues in MVP — keyword + structured + geo only. Semantic search over master catalog is Phase 2 (see [roadmap-decisions.md](roadmap-decisions.md)).
+
+### DTOs
+
 ```java
-MasterVenuePublicResponse
+MasterVenuePublicResponse        // single record — GET /{id}
   id, name, aliases[], address, city, country_code, location,
   metadata (safe projection), created_at, last_synced_at
+
+MasterVenueSummaryView           // list item — GET /
+  id, name, city, country_code, location,
+  capacity_max_total (int nullable),   // resolved server-side from metadata
+  catering_policy (string nullable),   // resolved server-side from metadata
+  aliases[],
+  created_at, last_synced_at
+
+MasterVenueSummaryListResponse
+  items: List<MasterVenueSummaryView>, totalElements: long
 ```
+
+Safe projection excludes: `confidence`, `quality_score`, `admin_notes`, `last_verified_at`, any internal dedup or scraper fields.
 
 ---
 
@@ -264,7 +297,7 @@ ExtractionJobResponse
 
 ## Proposals
 
-Base: `/api/v1/proposals`
+Base: `/api/v1/venues/proposals`
 
 Deal Workspace — planner assembles venue shortlists, sends to client for review and approval.
 
@@ -283,7 +316,7 @@ Deal Workspace — planner assembles venue shortlists, sends to client for revie
 
 ### Proposal Venues
 
-Base: `/api/v1/proposals/{proposalId}/venues`
+Base: `/api/v1/venues/proposals/{proposalId}/venues`
 
 | Method   | Path      | Authority | Status | Notes                                            |
 | -------- | --------- | --------- | ------ | ------------------------------------------------ |
@@ -293,7 +326,7 @@ Base: `/api/v1/proposals/{proposalId}/venues`
 
 ### Proposal Labels
 
-Base: `/api/v1/proposals/{proposalId}/labels`
+Base: `/api/v1/venues/proposals/{proposalId}/labels`
 
 | Method   | Path                                 | Authority | Status | Notes                                |
 | -------- | ------------------------------------ | --------- | ------ | ------------------------------------ |
@@ -358,7 +391,7 @@ ProposalEventResponse
 
 ## Client Board (Public — no auth)
 
-Base: `/api/v1/share/{token}`
+Base: `/api/v1/venues/share/{token}`
 
 No JWT required. Server resolves tenant from the share token. Exposes only `exposed_fields` per venue — server-enforced, not UI-only.
 
@@ -396,7 +429,7 @@ ClientApproveRequest
 
 ## Platform Admin API
 
-Base: `/api/v1/admin/master-venues`
+Base: `/api/v1/venues/admin/master-venues`
 
 **Authority required:** `PLATFORM_ADMIN` only.
 
@@ -414,7 +447,7 @@ Base: `/api/v1/admin/master-venues`
 
 ### Aliases
 
-Base: `/api/v1/admin/master-venues/{id}/aliases`
+Base: `/api/v1/venues/admin/master-venues/{id}/aliases`
 
 | Method   | Path         | Status | Notes        |
 | -------- | ------------ | ------ | ------------ |

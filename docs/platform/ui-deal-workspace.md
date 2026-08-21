@@ -486,55 +486,55 @@ Logo and custom domain replace VenueMi defaults. `"Powered by VenueMi"` footer i
 // src/shared/api/proposal.ts  (tenant app — planner side)
 
 // Proposals
-GET    /api/v1/proposals                      → ProposalListResponse
-POST   /api/v1/proposals                      → Proposal
-GET    /api/v1/proposals/:id                  → Proposal + ProposalVenue[]
-PATCH  /api/v1/proposals/:id                  → update title/clientName/eventDate
-POST   /api/v1/proposals/:id/share            → generate/refresh shareToken → shareUrl
-POST   /api/v1/proposals/:id/archive
+GET    /api/v1/venues/proposals                      → ProposalListResponse
+POST   /api/v1/venues/proposals                      → Proposal
+GET    /api/v1/venues/proposals/{id}                 → Proposal + ProposalVenue[]
+PATCH  /api/v1/venues/proposals/{id}                 → update title/clientName/eventDate
+POST   /api/v1/venues/proposals/{id}/share           → generate/refresh shareToken → shareUrl
+POST   /api/v1/venues/proposals/{id}/archive
 
 // Proposal venues
-POST   /api/v1/proposals/:id/venues           → add venue (venueId, order)
-DELETE /api/v1/proposals/:id/venues/:pvId
-PATCH  /api/v1/proposals/:id/venues/:pvId     → update order, exposedFields, plannerNote
-POST   /api/v1/proposals/:id/venues/:pvId/labels/:labelId
-DELETE /api/v1/proposals/:id/venues/:pvId/labels/:labelId
+POST   /api/v1/venues/proposals/{id}/venues          → add venue (venueId, order)
+DELETE /api/v1/venues/proposals/{id}/venues/{pvId}
+PATCH  /api/v1/venues/proposals/{id}/venues/{pvId}   → update order, exposedFields, plannerNote
+POST   /api/v1/venues/proposals/{id}/venues/{pvId}/labels/{labelId}
+DELETE /api/v1/venues/proposals/{id}/venues/{pvId}/labels/{labelId}
 
 // Labels
-GET    /api/v1/proposals/:id/labels
-POST   /api/v1/proposals/:id/labels
-PATCH  /api/v1/proposals/:id/labels/:labelId
-DELETE /api/v1/proposals/:id/labels/:labelId
+GET    /api/v1/venues/proposals/{id}/labels
+POST   /api/v1/venues/proposals/{id}/labels
+PATCH  /api/v1/venues/proposals/{id}/labels/{labelId}
+DELETE /api/v1/venues/proposals/{id}/labels/{labelId}
 
 // History
-GET    /api/v1/proposals/:id/events           → ProposalEvent[]
+GET    /api/v1/venues/proposals/{id}/events          → ProposalEvent[]
 
 // Snapshot
-GET    /api/v1/proposals/:id/snapshot         → ProposalSnapshot (only if APPROVED)
+GET    /api/v1/venues/proposals/{id}/snapshot        → ProposalSnapshot (only if APPROVED)
 
 // AI assist
-POST   /api/v1/proposals/:id/ai-assist        → AIAssistResponse
+POST   /api/v1/venues/proposals/{id}/ai-assist       → AIAssistResponse
 
 // src/shared/api/client-board.ts  (public — no auth)
 
-GET    /api/v1/share/:token                   → ClientBoardResponse (venues with exposedFields only)
-PATCH  /api/v1/share/:token/venues/:pvId/preference  → set ClientPreference
-POST   /api/v1/share/:token/venues/:pvId/notes       → ClientNote
-POST   /api/v1/share/:token/approve           → triggers PROPOSAL_APPROVED + snapshot
+GET    /api/v1/venues/share/{token}                              → ClientBoardResponse (venues with exposedFields only)
+PATCH  /api/v1/venues/share/{token}/venues/{pvId}/preference    → set ClientPreference
+POST   /api/v1/venues/share/{token}/venues/{pvId}/notes         → ClientNote
+POST   /api/v1/venues/share/{token}/approve                     → triggers PROPOSAL_APPROVED + snapshot
 ```
 
 ---
 
 ## 11. Routes
 
-| Path             | App    | Auth     | Component             |
-| ---------------- | ------ | -------- | --------------------- |
-| `/proposals`     | tenant | MEMBER+  | `ProposalListPage`    |
-| `/proposals/new` | tenant | MEMBER+  | `CreateProposalModal` |
-| `/proposals/:id` | tenant | MEMBER+  | `ProposalBoardPage`   |
-| `/share/:token`  | tenant | **none** | `ClientBoardPage`     |
+| Path                     | App    | Auth     | Component             |
+| ------------------------ | ------ | -------- | --------------------- |
+| `/venues/proposals`      | tenant | MEMBER+  | `ProposalListPage`    |
+| `/venues/proposals/new`  | tenant | MEMBER+  | `CreateProposalModal` |
+| `/venues/proposals/{id}` | tenant | MEMBER+  | `ProposalBoardPage`   |
+| `/venues/share/{token}`  | tenant | **none** | `ClientBoardPage`     |
 
-`/share/:token` is a public route — no `AuthGuard`, no `X-Tenant-ID` header. The server resolves
+`/venues/share/{token}` is a public route — no `AuthGuard`, no `X-Tenant-ID` header. The server resolves
 the tenant from the token.
 
 ---
@@ -593,14 +593,14 @@ foundation-ui-blank/src/
 ### MSW fixture scope for prototype
 
 ```
-GET  /api/v1/proposals             → 5–8 proposals across all statuses
-GET  /api/v1/proposals/:id         → full proposal with 3–5 venues, labels, events
-POST /api/v1/proposals             → create (echo back with id)
-PATCH /api/v1/proposals/:id/venues/:pvId  → update preference/note
-GET  /api/v1/share/:token          → client board response (2 fixture tokens)
-PATCH /api/v1/share/:token/venues/:pvId/preference
-POST /api/v1/share/:token/approve  → returns snapshot
-GET  /api/v1/proposals/:id/events  → 8–12 events across actorTypes
+GET  /api/v1/venues/proposals             → 5–8 proposals across all statuses
+GET  /api/v1/venues/proposals/{id}         → full proposal with 3–5 venues, labels, events
+POST /api/v1/venues/proposals             → create (echo back with id)
+PATCH /api/v1/venues/proposals/{id}/venues/{pvId}  → update preference/note
+GET  /api/v1/venues/share/{token}          → client board response (2 fixture tokens)
+PATCH /api/v1/venues/share/{token}/venues/{pvId}/preference
+POST /api/v1/venues/share/{token}/approve  → returns snapshot
+GET  /api/v1/venues/proposals/{id}/events  → 8–12 events across actorTypes
 ```
 
 Fixture data must include:

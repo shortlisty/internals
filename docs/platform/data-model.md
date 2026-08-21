@@ -171,9 +171,9 @@ flag in `extracted_text`.
 
 **Upload flow:** two-phase presigned URL (same pattern as IAM avatar upload).
 
-1. `POST /assets/initiate` → returns presigned S3 PUT URL + `asset_id`
+1. `POST /api/v1/venues/{venueId}/assets/initiate` → returns presigned S3 PUT URL + `asset_id`
 2. Client uploads directly to S3
-3. `POST /assets/{id}/confirm` → marks asset ready, publishes `asset.uploaded` event
+3. `POST /api/v1/venues/{venueId}/assets/{id}/confirm` → marks asset ready, publishes `asset.uploaded` event
 4. Worker picks up event → generates thumbnail (PHOTO/VIDEO), parses table data (CSV/XLSX),
    queues text extraction job (PDF/DOCX)
 
@@ -474,7 +474,7 @@ All code paths that produce or mutate `venues.metadata` call `migrator.ensureCur
 2. Sets `_schema_version = CURRENT_SCHEMA_VERSION`.
 3. Returns the node ready to be persisted.
 
-Write paths affected: `MetadataAggregationConsumer`, `PATCH /metadata/{field}` handler, bulk import job, MC_INHERIT merge, `CreateVenueRequest` default metadata initializer.
+Write paths affected: `MetadataAggregationConsumer`, `PATCH /api/v1/venues/{venueId}/metadata/{field}` handler, bulk import job, MC_INHERIT merge, `CreateVenueRequest` default metadata initializer.
 
 ### Read Path — Safe Deserialization
 
@@ -598,7 +598,7 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
       <column name="master_venue_id" type="UUID">
         <remarks>App-level FK to public.master_venue.id. No DB-level FK constraint
         (cross-schema FKs not supported in PostgreSQL across tenant schemas + public).
-        Populated on explicit promote (POST /venues/from-master-catalog/{id}) or on
+        Populated on explicit promote (POST /api/v1/venues/from-master-catalog/{id}) or on
         extraction-time MC_INHERIT unambiguous MATCH.</remarks>
       </column>
       <!-- analytics -->
