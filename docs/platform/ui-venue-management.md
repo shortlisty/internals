@@ -91,6 +91,52 @@ export interface AnyVenue {
 export type VenueStatus = "DRAFT" | "ACTIVE" | "ARCHIVED";
 export type ProfileStage = "SEEDED" | "ENRICHED" | "CURATED" | "READY";
 export type VenueSource = "MANUAL" | "FILE_IMPORT" | "MASTER_CATALOG" | "BULK_CSV";
+
+// ── Annotation ───────────────────────────────────────────────────────────────
+// Annotation types belong in the addon — they are part of the venue domain,
+// not app-specific projections.
+
+export type AnnotationType = "NOTE" | "TAG" | "RATING" | "BOOKMARK" | "INTERNAL_FLAG";
+
+export interface VenueAnnotation {
+  id: string;
+  venueId: string;
+  annotationType: AnnotationType;
+  textValue: string | null;
+  colorHex: string | null;
+  numericValue: number | null;
+  isPrivate: boolean;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ── Re-exports from @venuemi/ui-types ────────────────────────────────────────
+// Types and constants that are pure TS (no React) live in the shared package.
+// The addon imports them so consumers only need to import from the addon — never
+// from @venuemi/ui-types directly in app code.
+
+export type {
+  AnyVenue as _AnyVenueBase, // imported above; re-exported via index.ts as AnyVenue
+  VenueMetadata,
+  FieldProvenance,
+  CateringPolicy,
+  PROFILE_STAGES,
+  VENUE_STATUSES,
+  VENUE_SOURCES,
+  VENUE_CONTEXTS,
+  ANNOTATION_TYPES,
+  CATERING_POLICIES,
+  isProfileStage,
+  isVenueStatus,
+  isVenueContext,
+} from "@venuemi/ui-types";
+```
+
+> **Rule:** All `as const` arrays (`PROFILE_STAGES`, `VENUE_STATUSES`, etc.), type guards
+> (`isProfileStage`, …), and `VenueMetadata`/`FieldProvenance` live in `@venuemi/ui-types`.
+> The addon imports them and re-exports through `index.ts` so consuming app code never imports
+> directly from `@venuemi/ui-types` — it always imports from `@/addons/venue-management`.
 ```
 
 **Rule:** shared components (`VenueProfileHeader`, `VenueProfileTabs`, `VenueFormField`,
@@ -106,14 +152,17 @@ Tenant-only panels (`VenueAnnotationsPanel`, `VenueQuickFillBar`) are not render
 
 ```typescript
 // src/entities/venue/types.ts
+// App-specific projection shapes only. Domain types re-exported from the addon.
 
 export type {
-  VenueContext,
   AnyVenue,
+  AnnotationType,
+  VenueAnnotation,
+  VenueContext,
+  VenueSource,
   VenueStatus,
   ProfileStage,
-  VenueSource,
-} from "@/addons/venue-management/types";
+} from "@/addons/venue-management";
 
 export type {
   AssetType,
@@ -155,22 +204,13 @@ export interface VenueDetail extends VenueSummary, AnyVenue {
   metadataSources: Record<string, FieldProvenance>;
   metadataAggregatedAt: string | null;
 }
-
-export type AnnotationType = "NOTE" | "TAG" | "RATING" | "BOOKMARK" | "INTERNAL_FLAG";
-
-export interface VenueAnnotation {
-  id: string;
-  venueId: string;
-  annotationType: AnnotationType;
-  textValue: string | null;
-  colorHex: string | null;
-  numericValue: number | null;
-  isPrivate: boolean;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-}
 ```
+
+> **Rule:** `src/entities/venue/types.ts` contains only app-specific projection shapes
+> (`VenueSummary`, `VenueDetail`). All domain types — `AnyVenue`, `VenueMetadata`,
+> `FieldProvenance`, `VenueAnnotation`, constants, guards — live in
+> `src/addons/venue-management/` and are re-exported through its `index.ts`.
+> Entity files must never define types that exist in the addon or in `@venuemi/ui-types`.
 
 ### `MasterVenue`
 
@@ -1205,98 +1245,117 @@ Files to create. Contents are defined in §§ 2–8 above — this section is th
 
 ### `foundation-ui-blank` (prototype) → `foundation-ui-app` (production)
 
+The addon file layout is **identical** across prototype, tenant app, and admin app. No rewrites,
+no restructuring — only wiring changes (auth guards, feature gates, route registration).
+
 ```
 src/addons/venue-management/
-  types.ts                 AnyVenue, VenueContext, VenueMetadata, VenueMetadataContacts,
-                           FieldProvenance, ProfileStage, VenueStatus, VenueSource
-                           AnnotationType, VenueAnnotation
-                           PROFILE_STAGES, VENUE_STATUSES, VENUE_SOURCES  ← string literal
-                           constants, used in filters and type guards
+  index.ts                 PUBLIC BARREL — the only import path used by the rest of the app.
+                           Re-exports everything below. Nothing outside this directory imports
+                           addon internals directly.
+
+  types.ts                 AnyVenue, VenueContext, VenueMetadata, FieldProvenance,
+                           ProfileStage, VenueStatus, VenueSource, CateringPolicy,
+                           AnnotationType, VenueAnnotation.
+                           Imports base types/constants from @venuemi/ui-types;
+                           re-exports through index.ts so app code never imports
+                           @venuemi/ui-types directly.
 
   spec/
-    form-spec.types.ts  FieldType, FieldAction, EnumOption,
-                             FieldDefinition, SectionDefinition, TabDefinition,
-                             VenueFormSpec
+    form-spec.types.ts     FieldType, FieldAction, EnumOption, FieldDefinition,
+                           SectionDefinition, TabDefinition, VenueFormSpec.
+                           Imports ProfileStage from ./types (not from @venuemi/ui-types directly).
 
-    venue-form-spec.ts  VENUE_FORM_SPEC  ← the single source of truth
-                             for tabs, sections, and fields
+    venue-form-spec.ts     VENUE_FORM_SPEC — the single source of truth for
+                           tabs, sections, and fields.
 
-    form-spec.utils.ts        resolveFieldValue, setFieldValue,
-                             missingFieldsForStage, groupByTabAndSection
+    form-spec.utils.ts     resolveFieldValue, setFieldValue,
+                           missingFieldsForStage, groupByTabAndSection.
 
-  index.ts                 public barrel — re-exports everything above;
-                           nothing else in the project imports addon internals directly
+  components/              React + Mantine components. Never exported outside the addon
+                           as individual files — only through index.ts.
+    VenueFormField.tsx     Imports FieldDefinition, FieldType from ./spec/form-spec.types
+    VenueFormSection.tsx
+    VenueFormTabs.tsx
+    SourceBadge.tsx        Imports FieldProvenance from ./types
+    ProfileStagePill.tsx   Imports ProfileStage, PROFILE_STAGES from ./types
+```
 
+> **Addon rule (enforced from day one, including in the prototype):**
+> Every import into a page, widget, or feature that touches venue domain logic goes through
+> `@/addons/venue-management` — never through `@/addons/venue-management/types` or any
+> internal path. Architecture tests assert this.
+
+```
 src/entities/venue/
-  types.ts                 VenueSummary, VenueSummaryListResponse, VenueDetail
-                           (imports AnyVenue + VenueMetadata from addon)
-  index.ts                 re-exports types.ts
+  types.ts                 VenueSummary, VenueSummaryListResponse, VenueDetail.
+                           App-specific projection shapes only.
+                           Re-exports domain types from @/addons/venue-management.
+  index.ts                 Re-exports types.ts.
 
 src/shared/api/
-  venue.ts                 venueApi object (same shape as iamApi):
-                             list, getById, create, patchMetadata,
-                             listAnnotations, createAnnotation,
-                             updateAnnotation, deleteAnnotation
-                           ListVenuesParams interface
-                           PatchMetadataRequest interface
+  venue.ts                 venueApi object: list, getById, create, patchMetadata,
+                           listAnnotations, createAnnotation, updateAnnotation,
+                           deleteAnnotation, listAssets, getAsset,
+                           initiateUpload, confirmUpload, updateAsset, deleteAsset,
+                           listFromMasterCatalog, promoteFromMasterCatalog.
+                           ListVenuesParams, PatchMetadataRequest interfaces.
+                           Lives in shared/api/ by FSD convention (HTTP layer);
+                           the API shape is dictated by the addon's entity types.
 ```
 
 ### `foundation-ui-platform-admin`
 
 ```
 src/addons/venue-management/
-  ...                      identical copy of tenant app addon
-                           (or shared workspace package in future)
+  ...                      Identical copy of the tenant app addon — same index.ts,
+                           types.ts, spec/, and components/. The admin app passes
+                           context='master_catalog' to suppress tenant-only panels.
+                           No separate admin addon. No duplication.
 
 src/entities/master-venue/
   types.ts                 MasterVenueSummary, MasterVenueSummaryListResponse,
-                           MasterVenueDetail, MasterVenueAlias, MasterVenueExternal
-                           (imports AnyVenue + VenueMetadata from addon)
-  index.ts                 re-exports types.ts
+                           MasterVenueDetail, MasterVenueAlias, MasterVenueExternal.
+                           Re-exports AnyVenue + VenueMetadata from @/addons/venue-management.
+  index.ts                 Re-exports types.ts.
 
 src/shared/api/
   master-venue.ts          masterVenueApi object:
-                             list, getById, create, update, dedupCheck
-                           ListMasterVenuesParams interface
+                             list (MEMBER — search/filter/paginate),
+                             getById (MEMBER),
+                             adminList, adminGetById, adminCreate, adminUpdate,
+                             adminDelete, dedupCheck, bulkImport, merge.
+                           ListMasterVenuesParams, AdminListMasterVenuesParams interfaces.
 ```
 
 ### Constant anchors (prevent magic strings)
 
-These constants must be defined in `addon/types.ts` and imported wherever needed — no inline string literals in components or API calls:
+All `as const` arrays and derived types live in `@venuemi/ui-types`. The addon imports and
+re-exports them — app code never imports from `@venuemi/ui-types` directly.
 
 ```typescript
-export const PROFILE_STAGES = ["SEEDED", "ENRICHED", "CURATED", "READY"] as const;
-export const VENUE_STATUSES = ["DRAFT", "ACTIVE", "ARCHIVED"] as const;
-export const VENUE_SOURCES = ["MANUAL", "FILE_IMPORT", "MASTER_CATALOG", "BULK_CSV"] as const;
-export const VENUE_CONTEXTS = ["tenant", "master_catalog"] as const;
-export const ANNOTATION_TYPES = ["NOTE", "TAG", "RATING", "BOOKMARK", "INTERNAL_FLAG"] as const;
+// src/addons/venue-management/types.ts — re-export pattern
 
-export const CATERING_POLICIES = [
-  "in_house_exclusive",
-  "in_house_preferred",
-  "outside_allowed",
-  "no_catering",
-] as const;
+// From @venuemi/ui-types (single source of truth — do not redefine here)
+export {
+  PROFILE_STAGES, VENUE_STATUSES, VENUE_SOURCES, VENUE_CONTEXTS,
+  ANNOTATION_TYPES, CATERING_POLICIES, CATERING_POLICY_LABELS,
+  isProfileStage, isVenueStatus, isVenueContext, isCateringPolicy,
+} from "@venuemi/ui-types";
 
-// Derived types from constants — single source of truth, no enum drift
-export type ProfileStage = (typeof PROFILE_STAGES)[number];
-export type VenueStatus = (typeof VENUE_STATUSES)[number];
-export type VenueSource = (typeof VENUE_SOURCES)[number];
-export type VenueContext = (typeof VENUE_CONTEXTS)[number];
-export type AnnotationType = (typeof ANNOTATION_TYPES)[number];
-export type CateringPolicy = (typeof CATERING_POLICIES)[number];
+export type {
+  ProfileStage, VenueStatus, VenueSource, VenueContext,
+  AnnotationType, CateringPolicy,
+  AnyVenue, VenueMetadata, FieldProvenance,
+} from "@venuemi/ui-types";
 ```
 
-Type guards generated from the same constants — no manual maintenance:
-
-```typescript
-export const isProfileStage = (v: unknown): v is ProfileStage =>
-  PROFILE_STAGES.includes(v as ProfileStage);
-export const isVenueStatus = (v: unknown): v is VenueStatus =>
-  VENUE_STATUSES.includes(v as VenueStatus);
-export const isVenueContext = (v: unknown): v is VenueContext =>
-  VENUE_CONTEXTS.includes(v as VenueContext);
-```
+Architecture tests in each app assert:
+- No file in `src/` outside `src/addons/venue-management/` imports directly from `@venuemi/ui-types`.
+- No file in `src/` redefines `VenueMetadata`, `ProfileStage`, `PROFILE_STAGES`, or any other
+  type or constant that already exists in `@venuemi/ui-types`.
+- Every feature, widget, and page that uses venue types imports from `@/addons/venue-management`
+  or `@/entities/venue` — never from addon internals or from `@venuemi/ui-types` directly.
 
 ---
 

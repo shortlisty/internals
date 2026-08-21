@@ -58,8 +58,11 @@ export type ProposalStatus =
   | "IN_REVIEW" // client has opened and is actively commenting
   | "APPROVED" // client clicked Approve — snapshot locked
   | "ARCHIVED"; // closed without approval
+```
 
-export const PROPOSAL_STATUSES = ["DRAFT", "SHARED", "IN_REVIEW", "APPROVED", "ARCHIVED"] as const;
+> `PROPOSAL_STATUSES`, `PROPOSAL_EVENT_TYPES`, `CLIENT_PREFERENCES`, and `CONFIDENCE_THRESHOLDS`
+> are defined in `@venuemi/ui-types` and re-exported from `src/addons/deal-workspace/index.ts`.
+> They are not redefined in the addon — the addon imports and re-exports them.
 
 export interface Proposal {
   id: string;
@@ -185,24 +188,8 @@ export interface ProposalEvent {
   occurredAt: string;
 }
 
-export const PROPOSAL_EVENT_TYPES = [
-  "PROPOSAL_CREATED",
-  "PROPOSAL_SHARED",
-  "PROPOSAL_VENUE_ADDED",
-  "PROPOSAL_VENUE_REMOVED",
-  "PROPOSAL_VENUE_REORDERED",
-  "PROPOSAL_FIELD_VISIBILITY_CHANGED",
-  "CLIENT_OPENED",
-  "CLIENT_PREFERENCE_SET",
-  "CLIENT_NOTE_ADDED",
-  "CLIENT_NOTE_UPDATED",
-  "PLANNER_NOTE_ADDED",
-  "PLANNER_NOTE_UPDATED",
-  "PLANNER_RESPONSE_ADDED",
-  "AI_RESPONSE_SUGGESTED",
-  "PROPOSAL_APPROVED",
-  "SNAPSHOT_CREATED",
-] as const;
+> `ProposalEventType` and `PROPOSAL_EVENT_TYPES` are defined in `@venuemi/ui-types`.
+> Re-exported from `src/addons/deal-workspace/index.ts`.
 ```
 
 ### `ProposalSnapshot`
@@ -263,14 +250,11 @@ export interface DataConfidence {
   missingKeyFields: string[]; // field keys that are null but important for this proposal
   lowConfidenceFields: string[];
 }
-
-// Thresholds
-const CONFIDENCE_THRESHOLDS = {
-  HIGH: 0.8,
-  MEDIUM: 0.55,
-  LOW: 0.3,
-} as const;
 ```
+
+> `CONFIDENCE_THRESHOLDS` (`{ HIGH: 0.8, MEDIUM: 0.55, LOW: 0.3 }`) and
+> `computeDataConfidence()` are defined in `@venuemi/ui-types` and re-exported from
+> `src/addons/deal-workspace/index.ts`.
 
 Displayed as a small indicator on each venue card — both in planner view (with detail on hover)
 and in client view (simplified: just HIGH/MEDIUM, never LOW shown to client).
@@ -567,9 +551,25 @@ Same approach as `ui-venue-management.md` §11. Prototype in `foundation-ui-blan
 ```
 foundation-ui-blank/src/
 ├── addons/
-│   └── deal-workspace/
+│   └── deal-workspace/          ← the addon — develop here first, copy verbatim later
+│       ├── index.ts             ← PUBLIC BARREL — only import path for the rest of the app
+│       ├── types.ts             ← re-exports Proposal, ProposalVenue, ProposalEvent,
+│       │                           ProposalSnapshot, ProposalLabel, ProposalVenueLabel,
+│       │                           ClientPreference, ProposalStatus, ProposalEventType,
+│       │                           DataConfidence, DataConfidenceLevel,
+│       │                           AIAssistRequest, AIAssistResponse
+│       │                           from @venuemi/ui-types (no redefinition)
+│       ├── constants.ts         ← re-exports PROPOSAL_STATUSES, PROPOSAL_EVENT_TYPES,
+│       │                           CLIENT_PREFERENCES, CONFIDENCE_THRESHOLDS,
+│       │                           isProposalStatus, isClientPreference
+│       │                           from @venuemi/ui-types (no redefinition)
+│       └── confidence.ts        ← re-exports computeDataConfidence from @venuemi/ui-types
+│                                   (no redefinition; kept as a named re-export for
+│                                   discoverability within the addon)
 ├── entities/
 │   └── proposal/
+│       ├── index.ts
+│       └── types.ts             ← ProposalListResponse; re-exports from @/addons/deal-workspace
 ├── features/
 │   ├── create-proposal/
 │   ├── edit-proposal-venues/
@@ -578,16 +578,21 @@ foundation-ui-blank/src/
 │   ├── proposal-board/
 │   └── proposal-collaboration/
 ├── pages/
-│   ├── proposals/
-│   ├── proposals_.$id/
-│   └── share_.$token/             ← public client board, no auth guard
+│   ├── venues/
+│   │   ├── proposals/           ← /venues/proposals  (planner list)
+│   │   └── proposals_.$id/      ← /venues/proposals/:id  (planner board)
+│   └── venues/
+│       └── share_.$token/       ← /venues/share/:token  (client board — public, no auth guard)
+│           └── index.tsx        ← ClientBoardPage
+│                                   NOTE: this page CONSUMES the addon but is NOT part of it.
+│                                   ClientBoardPage lives in pages/, not in addons/deal-workspace/.
 └── shared/
     ├── api/
-    │   ├── proposal.ts
-    │   └── client-board.ts
+    │   ├── proposal.ts          ← proposalApi (planner-side, requires auth header)
+    │   └── client-board.ts      ← clientBoardApi (public, no auth header, no X-Tenant-ID)
     └── mocks/
         └── handlers/
-            └── proposal.ts        ← MSW handlers
+            └── proposal.ts
 ```
 
 ### MSW fixture scope for prototype
@@ -614,31 +619,53 @@ Fixture data must include:
 
 ## 13. File Contracts
 
+The addon file layout is **identical** across prototype, planner tenant app, and any future consumer. No rewrites on promotion — only wiring (auth guards, feature gates, route registration).
+
 ```
 src/addons/deal-workspace/
-  types.ts         Proposal, ProposalSummary, ProposalListResponse,
+  index.ts         PUBLIC BARREL — every import from outside the addon goes here.
+                   Never import from addons/deal-workspace/types or any internal path.
+
+  types.ts         Re-exports from @venuemi/ui-types:
+                   Proposal, ProposalSummary, ProposalListResponse,
                    ProposalVenue, ProposalVenueSnapshot,
                    ProposalEvent, ProposalSnapshot,
                    ProposalLabel, ProposalVenueLabel,
                    ClientPreference, ProposalStatus, ProposalEventType,
                    DataConfidence, DataConfidenceLevel,
-                   AIAssistRequest, AIAssistResponse
+                   AIAssistRequest, AIAssistResponse.
+                   No redefinitions — these types live in @venuemi/ui-types.
 
-  constants.ts     PROPOSAL_STATUSES, PROPOSAL_EVENT_TYPES,
-                   CLIENT_PREFERENCES, CONFIDENCE_THRESHOLDS
+  constants.ts     Re-exports from @venuemi/ui-types:
+                   PROPOSAL_STATUSES, PROPOSAL_EVENT_TYPES,
+                   CLIENT_PREFERENCES, CONFIDENCE_THRESHOLDS,
+                   isProposalStatus, isClientPreference, isProposalEventType.
+                   No redefinitions.
 
-  confidence.ts    computeDataConfidence(venue, metadataSources): DataConfidence
-
-  index.ts         public barrel — re-exports everything above
+  confidence.ts    Re-exports computeDataConfidence from @venuemi/ui-types.
+                   Kept as a named re-export for addon discoverability.
 
 src/entities/proposal/
-  types.ts         re-exports from addon (no additions)
-  index.ts         re-exports types.ts
+  types.ts         ProposalListResponse re-export; no other additions.
+                   Re-exports domain types from @/addons/deal-workspace.
+  index.ts         Re-exports types.ts.
 
 src/shared/api/
-  proposal.ts      proposalApi object — planner-side calls
-  client-board.ts  clientBoardApi object — public share calls (no auth header)
+  proposal.ts      proposalApi — planner-side calls (auth header required).
+  client-board.ts  clientBoardApi — public share calls (no auth header, no X-Tenant-ID).
+
+src/pages/
+  venues/proposals/        ← planner proposal list (auth guard)
+  venues/proposals_.$id/   ← planner board (auth guard)
+  venues/share_.$token/    ← client board (NO auth guard — public route)
+                             ClientBoardPage is a page that consumes the addon.
+                             It is NOT part of addons/deal-workspace/.
 ```
+
+Architecture tests assert:
+- No file outside `src/addons/deal-workspace/` imports from `@venuemi/ui-types` directly for deal types.
+- No file redefines `ProposalStatus`, `PROPOSAL_STATUSES`, or `CONFIDENCE_THRESHOLDS`.
+- `ClientBoardPage` lives in `src/pages/`, not in `src/addons/`.
 
 ---
 
