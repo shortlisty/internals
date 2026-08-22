@@ -140,6 +140,7 @@ export interface VenueAsset {
   extractionStatus: ExtractionStatus;
   uploadedBy: string;
   uploadedAt: string;
+  updatedAt: string;
 }
 
 /**

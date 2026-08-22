@@ -69,23 +69,28 @@ export interface AnyVenue {
   description: string | null;
   primaryPhotoUrl: string | null;
   metadata: VenueMetadata;
-  /** Present for 'tenant'. Absent (undefined) for 'master_catalog'. */
-  metadataSources?: Record<string, FieldProvenance>;
   createdAt: string;
   updatedAt: string;
 
   // ── Tenant-only fields (undefined on master_catalog) ──────────────
   displayName?: string | null;
   profileStage?: ProfileStage;
+  status?: VenueStatus;
   source?: VenueSource;
   masterVenueId?: string | null;
   lastUsedInSalesRoomAt?: string | null;
+  /** Per-field provenance map — keys are VenueMetadata dot-paths. */
+  metadataSources?: Record<string, FieldProvenance>;
+  metadataAggregatedAt?: string | null;
 
   // ── Master Catalog-only fields (undefined on tenant) ──────────────
-  /** Overall confidence score for master catalog record (0.0–1.0). */
+  /** Overall confidence score (0.0–1.0). Admin-facing — not shown to tenants. */
   confidence?: number;
-  /** Data source channel: 'platform_seed' | 'admin_import' | 'web_scrape'. */
+  /** Ingestion channel: 'platform_seed' | 'admin_import' | 'web_scrape'. */
   catalogSource?: string;
+  /** Known alternate names for this venue. */
+  aliases?: string[];
+  lastSyncedAt?: string | null;
 }
 
 export type VenueStatus = "DRAFT" | "ACTIVE" | "ARCHIVED";
@@ -437,7 +442,8 @@ export interface FieldDefinition {
   options?: EnumOption[];
   requiredForStage?: ProfileStage; // tenant only — drives completion nudge
   quickFill?: boolean;
-  sourceBadge?: boolean;
+  showSourceBadge?: boolean;       // show provenance badge next to this field
+  readOnly?: boolean;              // field cannot be edited (e.g. master catalog context)
   action?: FieldAction;
   min?: number;
   max?: number;
@@ -527,7 +533,7 @@ export const VENUE_FORM_SPEC: VenueFormSpec = {
       unit: "guests",
       requiredForStage: "ENRICHED",
       quickFill: true,
-      sourceBadge: true,
+      showSourceBadge: true,
     },
     {
       key: "capacity.configurations.banquet",
@@ -537,7 +543,7 @@ export const VENUE_FORM_SPEC: VenueFormSpec = {
       section: "capacity",
       order: 2,
       unit: "guests",
-      sourceBadge: true,
+      showSourceBadge: true,
     },
     {
       key: "capacity.configurations.theater",
@@ -547,7 +553,7 @@ export const VENUE_FORM_SPEC: VenueFormSpec = {
       section: "capacity",
       order: 3,
       unit: "guests",
-      sourceBadge: true,
+      showSourceBadge: true,
     },
     {
       key: "capacity.configurations.classroom",
@@ -592,7 +598,7 @@ export const VENUE_FORM_SPEC: VenueFormSpec = {
       ],
       requiredForStage: "ENRICHED",
       quickFill: true,
-      sourceBadge: true,
+      showSourceBadge: true,
     },
     {
       key: "catering.kosher_available",
@@ -678,7 +684,7 @@ export const VENUE_FORM_SPEC: VenueFormSpec = {
       section: "av",
       order: 2,
       unit: "lm",
-      sourceBadge: true,
+      showSourceBadge: true,
     },
     {
       key: "av_tech.screens",
@@ -704,7 +710,7 @@ export const VENUE_FORM_SPEC: VenueFormSpec = {
       section: "av",
       order: 5,
       unit: "Mbps",
-      sourceBadge: true,
+      showSourceBadge: true,
     },
     // ── Technical / Accessibility ─────────────────────────────────
     {
@@ -765,7 +771,7 @@ export const VENUE_FORM_SPEC: VenueFormSpec = {
       tab: "logistics",
       section: "setup",
       order: 3,
-      sourceBadge: true,
+      showSourceBadge: true,
     },
     {
       key: "logistics.load_in_access",
@@ -782,7 +788,7 @@ export const VENUE_FORM_SPEC: VenueFormSpec = {
       tab: "logistics",
       section: "setup",
       order: 5,
-      sourceBadge: true,
+      showSourceBadge: true,
     },
     // ── Logistics / Parking ───────────────────────────────────────
     {
@@ -809,7 +815,7 @@ export const VENUE_FORM_SPEC: VenueFormSpec = {
       tab: "details",
       section: "pricing",
       order: 1,
-      sourceBadge: true,
+      showSourceBadge: true,
     },
     {
       key: "pricing.minimum_spend",
@@ -818,7 +824,7 @@ export const VENUE_FORM_SPEC: VenueFormSpec = {
       tab: "details",
       section: "pricing",
       order: 2,
-      sourceBadge: true,
+      showSourceBadge: true,
     },
     {
       key: "pricing.currency",
@@ -858,7 +864,7 @@ export const VENUE_FORM_SPEC: VenueFormSpec = {
       order: 1,
       min: 0,
       max: 5,
-      sourceBadge: true,
+      showSourceBadge: true,
     },
     {
       key: "ratings.google_review_count",
@@ -867,7 +873,7 @@ export const VENUE_FORM_SPEC: VenueFormSpec = {
       tab: "details",
       section: "ratings",
       order: 2,
-      sourceBadge: true,
+      showSourceBadge: true,
     },
   ],
 };
@@ -1338,9 +1344,10 @@ re-exports them — app code never imports from `@venuemi/ui-types` directly.
 
 // From @venuemi/ui-types (single source of truth — do not redefine here)
 export {
-  PROFILE_STAGES, VENUE_STATUSES, VENUE_SOURCES, VENUE_CONTEXTS,
-  ANNOTATION_TYPES, CATERING_POLICIES, CATERING_POLICY_LABELS,
-  isProfileStage, isVenueStatus, isVenueContext, isCateringPolicy,
+  PROFILE_STAGES, VENUE_STATUSES, VENUE_SOURCES, VENUE_SOURCE_LABELS, VENUE_CONTEXTS,
+  ANNOTATION_TYPES, ANNOTATION_TYPE_LABELS, CATERING_POLICIES, CATERING_POLICY_LABELS,
+  PROFILE_STAGE_LABELS, VENUE_STATUS_LABELS,
+  isProfileStage, isVenueStatus, isVenueSource, isVenueContext, isCateringPolicy,
 } from "@venuemi/ui-types";
 
 export type {

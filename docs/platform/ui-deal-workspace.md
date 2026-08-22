@@ -66,7 +66,8 @@ export type ProposalStatus =
 
 export interface Proposal {
   id: string;
-  tenantId: string;
+  /** 8-char alphanumeric NanoID — matches X-Tenant-ID header. */
+  tenantKey: string;
   title: string;
   clientName: string;
   clientEmail: string | null;
@@ -210,6 +211,7 @@ export interface ProposalSnapshot {
   /** All ProposalEvents up to and including PROPOSAL_APPROVED */
   eventLog: ProposalEvent[];
   createdAt: string;
+  updatedAt: string;
 }
 ```
 
