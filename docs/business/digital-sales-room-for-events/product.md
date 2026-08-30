@@ -1,13 +1,13 @@
 # Product structure — Digital Sales Room for Events
 
 > **Audience:** Founders, team.
-> **Purpose:** Explain what VenueMi is made of in product terms — the two-layer architecture, capability pillars, UX concept, and positioning logic.
+> **Purpose:** Explain what Shortlisty is made of in product terms — the two-layer architecture, capability pillars, UX concept, and positioning logic.
 
 ---
 
 ## What the product is
 
-VenueMi is a client collaboration workspace for event agencies. Its job is to close the gap between "we know which venues work" and "the client has confirmed and we can proceed" — replacing scattered PDFs, email threads, and WhatsApp back-and-forth with a single interactive loop that ends in an approved, traceable specification.
+Shortlisty is a client collaboration workspace for event agencies. Its job is to close the gap between "we know which venues work" and "the client has confirmed and we can proceed" — replacing scattered PDFs, email threads, and WhatsApp back-and-forth with a single interactive loop that ends in an approved, traceable specification.
 
 The product has two sides: the **agency** (planner and team) who builds and manages the venue knowledge and assembles the pitch, and the **client** (event buyer) who reviews, provides input, and approves. The agency pays and works in the product daily. The client opens a link — no account, no setup, no training required.
 
@@ -115,13 +115,13 @@ The closing step.
 
 ## Positioning
 
-VenueMi occupies a gap between two categories that currently do not overlap.
+Shortlisty occupies a gap between two categories that currently do not overlap.
 
 **Venue discovery platforms** (Cvent, VenueScanner) — know venues that have self-submitted publicly. They do not know what is in the agency's own files, and they do not help close a deal with a specific client.
 
 **Generic proposal tools** (Qwilr, Pandadoc, Dock.us) — produce beautiful client-facing documents. They do not understand venue data, cannot extract from PDFs, and have no structured knowledge layer feeding the output.
 
-VenueMi combines the knowledge layer with the client-facing output in a single product built specifically for the event planning workflow. The catalog feeds the pitch. The pitch generates the approval. Neither exists without the other, and no existing tool provides both.
+Shortlisty combines the knowledge layer with the client-facing output in a single product built specifically for the event planning workflow. The catalog feeds the pitch. The pitch generates the approval. Neither exists without the other, and no existing tool provides both.
 
 ### Positioning analogy: Papermark for venues
 
@@ -129,13 +129,13 @@ A useful reference frame (brainstorm shorthand, not copy).
 
 Papermark won users away from DocSend not by building a broader product with more enterprise features, but by doing one thing better: frictionless delivery of pitch decks, with zero login friction, instant page render, and pleasant white-label branding. It focused on the narrow part of the sales loop that DocSend took for granted, and dominated that slice.
 
-VenueMi applies the same focus to the venue-selection loop inside event agencies. Planning Pod and Aisle Planner are broad, all-in-one operations platforms — they manage contracts, budgets, BEOs, seating charts, timelines, invoicing, vendor management, and client portals. VenueMi does not compete with any of that. It owns one narrower slice the all-in-ones do poorly:
+Shortlisty applies the same focus to the venue-selection loop inside event agencies. Planning Pod and Aisle Planner are broad, all-in-one operations platforms — they manage contracts, budgets, BEOs, seating charts, timelines, invoicing, vendor management, and client portals. Shortlisty does not compete with any of that. It owns one narrower slice the all-in-ones do poorly:
 
 > 1. Personal venue knowledge governance — AI extraction, provenance per field, progressive enrichment, searchable catalog nobody has to manually build and maintain.
 > 2. Frictionless client pitch delivery with shared trust history — no portal login, immutable venue-specific audit trail, bilateral preference capture, structured Approve snapshot.
 
-The approved venue snapshot then hands off into Planning Pod / Aisle Planner / HoneyBook for the downstream project work in one click. The planner keeps the stack they already use. VenueMi takes the painful two hours before the venue is confirmed and turns it into ten minutes. In the same way Papermark replaces "upload deck to Drive, attach to email, track opens manually" without trying to be a CRM, VenueMi turns your scattered venue PDFs and WhatsApp threads into (1) a smart personal venue catalog you can actually search, and (2) a one-click approval deal room — then hands the confirmed venue straight into your existing Planning Pod or Aisle Planner workflow.
+The approved venue snapshot then hands off into Planning Pod / Aisle Planner / HoneyBook for the downstream project work in one click. The planner keeps the stack they already use. Shortlisty takes the painful two hours before the venue is confirmed and turns it into ten minutes. In the same way Papermark replaces "upload deck to Drive, attach to email, track opens manually" without trying to be a CRM, Shortlisty turns your scattered venue PDFs and WhatsApp threads into (1) a smart personal venue catalog you can actually search, and (2) a one-click approval deal room — then hands the confirmed venue straight into your existing Planning Pod or Aisle Planner workflow.
 
 ---
 
-**Docs:** [What is VenueMi?](../../README.md) · [Business Proposal](proposal.md) · [Architecture](../../platform/README.md) · [Intelligence Layer](../../platform/intelligence.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is Shortlisty?](../../README.md) · [Business Proposal](proposal.md) · [Architecture](../../platform/README.md) · [Intelligence Layer](../../platform/intelligence.md) · [Vision](../../roadmap/vision.md)

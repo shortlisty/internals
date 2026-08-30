@@ -1,4 +1,4 @@
-# VenueMi — UI: Deal Workspace
+# Shortlisty — UI: Deal Workspace
 
 > **Audience:** Frontend engineers, designers.
 > **Purpose:** Component structure, data model, interaction patterns, and file placement for the
@@ -61,7 +61,7 @@ export type ProposalStatus =
 ```
 
 > `PROPOSAL_STATUSES`, `PROPOSAL_EVENT_TYPES`, `CLIENT_PREFERENCES`, and `CONFIDENCE_THRESHOLDS`
-> are defined in `@venuemi/ui-types` and re-exported from `src/addons/deal-workspace/index.ts`.
+> are defined in `@shortlisty/ui-types` and re-exported from `src/addons/deal-workspace/index.ts`.
 > They are not redefined in the addon — the addon imports and re-exports them.
 
 export interface Proposal {
@@ -189,7 +189,7 @@ export interface ProposalEvent {
   occurredAt: string;
 }
 
-> `ProposalEventType` and `PROPOSAL_EVENT_TYPES` are defined in `@venuemi/ui-types`.
+> `ProposalEventType` and `PROPOSAL_EVENT_TYPES` are defined in `@shortlisty/ui-types`.
 > Re-exported from `src/addons/deal-workspace/index.ts`.
 ```
 
@@ -255,7 +255,7 @@ export interface DataConfidence {
 ```
 
 > `CONFIDENCE_THRESHOLDS` (`{ HIGH: 0.8, MEDIUM: 0.55, LOW: 0.3 }`) and
-> `computeDataConfidence()` are defined in `@venuemi/ui-types` and re-exported from
+> `computeDataConfidence()` are defined in `@shortlisty/ui-types` and re-exported from
 > `src/addons/deal-workspace/index.ts`.
 
 Displayed as a small indicator on each venue card — both in planner view (with detail on hover)
@@ -358,7 +358,7 @@ ClientBoardPage  (/share/:token)
 │     "Approve [venue name]" → confirmation → PROPOSAL_APPROVED event + snapshot
 │
 └── ClientBoardFooter
-      "Powered by VenueMi" (free/pro tier)   ← removed on white_label plan
+      "Powered by Shortlisty" (free/pro tier)   ← removed on white_label plan
 ```
 
 ---
@@ -462,7 +462,7 @@ Same CSS token pattern as `ui-venue-management.md` §7. The client board uses
 ```
 
 White-label (Enterprise plan): `--brand-primary` is set from tenant branding config.
-Logo and custom domain replace VenueMi defaults. `"Powered by VenueMi"` footer is suppressed.
+Logo and custom domain replace Shortlisty defaults. `"Powered by Shortlisty"` footer is suppressed.
 
 ---
 
@@ -544,7 +544,7 @@ the tenant from the token.
 > confirmation, and the post-approve read-only state. Missing states are UX bugs — catch them
 > here, not after backend integration.
 
-Shared code (`@venuemi/ui-types`) is referenced via `file:` protocol pointing directly
+Shared code (`@shortlisty/ui-types`) is referenced via `file:` protocol pointing directly
 to TypeScript source — no build step, no publish. See
 [ui-shared-packages.md](ui-shared-packages.md) §7 for the exact setup.
 
@@ -560,12 +560,12 @@ foundation-ui-blank/src/
 │       │                           ClientPreference, ProposalStatus, ProposalEventType,
 │       │                           DataConfidence, DataConfidenceLevel,
 │       │                           AIAssistRequest, AIAssistResponse
-│       │                           from @venuemi/ui-types (no redefinition)
+│       │                           from @shortlisty/ui-types (no redefinition)
 │       ├── constants.ts         ← re-exports PROPOSAL_STATUSES, PROPOSAL_EVENT_TYPES,
 │       │                           CLIENT_PREFERENCES, CONFIDENCE_THRESHOLDS,
 │       │                           isProposalStatus, isClientPreference
-│       │                           from @venuemi/ui-types (no redefinition)
-│       └── confidence.ts        ← re-exports computeDataConfidence from @venuemi/ui-types
+│       │                           from @shortlisty/ui-types (no redefinition)
+│       └── confidence.ts        ← re-exports computeDataConfidence from @shortlisty/ui-types
 │                                   (no redefinition; kept as a named re-export for
 │                                   discoverability within the addon)
 ├── entities/
@@ -628,7 +628,7 @@ src/addons/deal-workspace/
   index.ts         PUBLIC BARREL — every import from outside the addon goes here.
                    Never import from addons/deal-workspace/types or any internal path.
 
-  types.ts         Re-exports from @venuemi/ui-types:
+  types.ts         Re-exports from @shortlisty/ui-types:
                    Proposal, ProposalSummary, ProposalListResponse,
                    ProposalVenue, ProposalVenueSnapshot,
                    ProposalEvent, ProposalSnapshot,
@@ -636,15 +636,15 @@ src/addons/deal-workspace/
                    ClientPreference, ProposalStatus, ProposalEventType,
                    DataConfidence, DataConfidenceLevel,
                    AIAssistRequest, AIAssistResponse.
-                   No redefinitions — these types live in @venuemi/ui-types.
+                   No redefinitions — these types live in @shortlisty/ui-types.
 
-  constants.ts     Re-exports from @venuemi/ui-types:
+  constants.ts     Re-exports from @shortlisty/ui-types:
                    PROPOSAL_STATUSES, PROPOSAL_EVENT_TYPES,
                    CLIENT_PREFERENCES, CONFIDENCE_THRESHOLDS,
                    isProposalStatus, isClientPreference, isProposalEventType.
                    No redefinitions.
 
-  confidence.ts    Re-exports computeDataConfidence from @venuemi/ui-types.
+  confidence.ts    Re-exports computeDataConfidence from @shortlisty/ui-types.
                    Kept as a named re-export for addon discoverability.
 
 src/entities/proposal/
@@ -665,7 +665,7 @@ src/pages/
 ```
 
 Architecture tests assert:
-- No file outside `src/addons/deal-workspace/` imports from `@venuemi/ui-types` directly for deal types.
+- No file outside `src/addons/deal-workspace/` imports from `@shortlisty/ui-types` directly for deal types.
 - No file redefines `ProposalStatus`, `PROPOSAL_STATUSES`, or `CONFIDENCE_THRESHOLDS`.
 - `ClientBoardPage` lives in `src/pages/`, not in `src/addons/`.
 

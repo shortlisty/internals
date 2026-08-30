@@ -1,4 +1,4 @@
-# VenueMi — Search Architecture
+# Shortlisty — Search Architecture
 
 > **Audience:** Engineers.
 > **Purpose:** All search modes, the cross-source orchestration pattern for merging tenant venues with the master catalog backdrop, and how the `scope` parameter controls what is returned.
@@ -11,7 +11,7 @@
 - [services.md](services.md) — `mi-venue-service` owns the search API; cross-schema access rules for `public.master_venue`
 - [master-catalog.md](master-catalog.md) — MC_INHERIT provenance; `master_venue_id` populated at extraction time
 - [api.md](api.md) — `GET /api/v1/venues/` endpoint, `scope` query param, response DTOs; `GET /api/v1/venues/master-venues` MEMBER search endpoint
-- [observability.md](observability.md) — `venuemi_search_requests_total`, `venuemi_search_latency_seconds`, `venuemi_search_failures_total`
+- [observability.md](observability.md) — `shortlisty_search_requests_total`, `shortlisty_search_latency_seconds`, `shortlisty_search_failures_total`
 
 ---
 
@@ -106,7 +106,7 @@ Branch B (master catalog backdrop) timeout or SQL exception → search does **no
 Warning: 299 - "Master catalog backdrop merge unavailable, results incomplete"
 ```
 
-response header and increments `venuemi_search_failures_total{branch="master_catalog"}`.
+response header and increments `shortlisty_search_failures_total{branch="master_catalog"}`.
 
 ### Search Parameters
 

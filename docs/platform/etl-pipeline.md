@@ -1,4 +1,4 @@
-# VenueMi — ETL Pipeline
+# Shortlisty — ETL Pipeline
 
 > **Audience:** Engineers.
 > **Purpose:** The full async document processing pipeline inside `mi-venue-processing-worker` — parse, transform, load stages, asset type routing, and processing SLAs.
@@ -101,7 +101,7 @@ public class AssetExtractionConsumer {
     private final VenueAssetRepository assetRepository;
     private final RabbitTemplate rabbitTemplate;
 
-    @RabbitListener(queues = "${venuemi.queues.asset-uploaded}")
+    @RabbitListener(queues = "${shortlisty.queues.asset-uploaded}")
     public void onAssetUploaded(AssetUploadedEvent event) {
         // 0. Table data (CSV/XLSX only) — fast parse, no AI, written before embedding
         if (tableDataParser.supports(event.assetType())) {

@@ -1,4 +1,4 @@
-# VenueMi — API Surface
+# Shortlisty — API Surface
 
 > **Audience:** Engineers.
 > **Purpose:** Full REST API for `mi-venue-service` — all endpoints, request/response DTOs, error responses, and platform conventions.

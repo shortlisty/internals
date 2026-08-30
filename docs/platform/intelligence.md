@@ -1,4 +1,4 @@
-# VenueMi — Intelligence Layer & ETL Pipeline
+# Shortlisty — Intelligence Layer & ETL Pipeline
 
 > **Audience:** Engineers, architects.
 > **Purpose:** Technical reference for the document intelligence ETL pipeline, the proprietary venue-specific extraction schema, the multi-source aggregation model, and the vertical-agnostic extension strategy.
@@ -20,7 +20,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 | Reader                       | Handles                                         | Notes                                                       |
 | ---------------------------- | ----------------------------------------------- | ----------------------------------------------------------- |
-| `TikaDocumentReader`         | PDF, DOCX, XLSX, PPTX, HTML, XML, 1000+ formats | Apache Tika under the hood. **Primary reader for VenueMi.** |
+| `TikaDocumentReader`         | PDF, DOCX, XLSX, PPTX, HTML, XML, 1000+ formats | Apache Tika under the hood. **Primary reader for Shortlisty.** |
 | `PagePdfDocumentReader`      | PDFs, page-by-page                              | Preserves page boundaries, useful for floor plans           |
 | `ParagraphPdfDocumentReader` | PDFs, paragraph-level                           | Better semantic chunking for venue decks                    |
 | `MarkdownDocumentReader`     | Markdown files                                  | Useful for structured venue specs                           |
@@ -45,7 +45,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 | `SimpleVectorStore`  | In-memory (testing/dev)                           |
 | `FileDocumentWriter` | Write to files (useful for debugging pipeline)    |
 
-### 1.2 VenueMi's Document Processing Pipeline
+### 1.2 Shortlisty's Document Processing Pipeline
 
 ```
                      S3 Asset Storage
@@ -165,7 +165,7 @@ public class AssetExtractionOrchestrator<M> {
 
 ### 1.4 Chunking Strategy
 
-Document chunking significantly impacts retrieval quality. VenueMi uses a hybrid strategy:
+Document chunking significantly impacts retrieval quality. Shortlisty uses a hybrid strategy:
 
 **For venue decks (PDFs):**
 
@@ -270,13 +270,13 @@ docling-service:
 
 ---
 
-## 2. The Intelligence Layer VenueMi Owns
+## 2. The Intelligence Layer Shortlisty Owns
 
-Everything above (Tika, Docling, Spring AI ETL) is infrastructure. VenueMi's proprietary intelligence sits on top:
+Everything above (Tika, Docling, Spring AI ETL) is infrastructure. Shortlisty's proprietary intelligence sits on top:
 
 ### 2.1 Venue-Specific Extraction Schema
 
-Generic document intelligence tools extract generic fields. VenueMi extracts fields that matter for event professionals.
+Generic document intelligence tools extract generic fields. Shortlisty extracts fields that matter for event professionals.
 
 This schema is the **venue canonical field set** — defined as `VenueMetadata` in `mi-venue-model` (see §2 of [Architecture](README.md)). It is the venue-domain's answer to the question "what does a structured document look like for this vertical?". The extraction prompt sent to GPT-4o is derived directly from this schema. If the platform pivots to a different vertical (medical, agro), the domain library is swapped — the extraction pipeline, embedding, and search infrastructure remain identical.
 
@@ -355,7 +355,7 @@ This schema is the **venue canonical field set** — defined as `VenueMetadata` 
 }
 ```
 
-This schema is what makes VenueMi a _venue intelligence platform_, not just a document storage system. Every competitor either has operational data (bookings, invoicing) or generic extraction. No one has this schema purpose-built for event planners.
+This schema is what makes Shortlisty a _venue intelligence platform_, not just a document storage system. Every competitor either has operational data (bookings, invoicing) or generic extraction. No one has this schema purpose-built for event planners.
 
 ### 2.2 Confidence-Sourced Metadata Model
 
@@ -494,7 +494,7 @@ public interface CuratedListMatchStrategy {
 public interface SearchBranchExecutor<R> {
     List<ScoredResult<R>> execute(SearchQuery query);
 
-    /** Branch label used in metrics (venuemi_search_latency_seconds{branch=...}). */
+    /** Branch label used in metrics (shortlisty_search_latency_seconds{branch=...}). */
     String branchName();
 }
 ```
@@ -630,7 +630,7 @@ Upload → S3 → AssetUploadedEvent → RabbitMQ → N consumers → Processing
 | 1M venues        | ~$1,000 | Auto-scaled, still manageable          |
 | 100M venues      | ~$100K  | Optimize with cheaper models + caching |
 
-At the $0.001/venue cost of GPT-4o extraction + embedding generation, VenueMi can process 1 million venues for approximately $1,000 in AI costs. This is not a cost problem.
+At the $0.001/venue cost of GPT-4o extraction + embedding generation, Shortlisty can process 1 million venues for approximately $1,000 in AI costs. This is not a cost problem.
 
 ### Vector Search Scaling
 
@@ -675,4 +675,4 @@ pgvector with IVFFlat index:
 
 ---
 
-**Docs:** [What is VenueMi?](../README.md) · [Business Proposal](../business/digital-sales-room-for-events/proposal.md) · [Competitive Landscape](../business/digital-sales-room-for-events/comparison.md) · [Architecture](README.md) · [Data Model](data-model.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is Shortlisty?](../README.md) · [Business Proposal](../business/digital-sales-room-for-events/proposal.md) · [Competitive Landscape](../business/digital-sales-room-for-events/comparison.md) · [Architecture](README.md) · [Data Model](data-model.md) · [Vision](../roadmap/vision.md)

@@ -26,7 +26,7 @@ Ask one question: "When a client calls with a specific brief, how do you find th
 
 Let them answer. Do not interrupt. The answer will be some version of: email search, shared drive, asking a colleague, memory. That is the problem.
 
-Transition: "That's exactly what we built VenueMi to fix."
+Transition: "That's exactly what we built Shortlisty to fix."
 
 ---
 
@@ -34,7 +34,7 @@ Transition: "That's exactly what we built VenueMi to fix."
 
 **Goal:** name the pain precisely so the prospect nods.
 
-> "The knowledge your team has built up over years — every venue you've visited, every deck you've received, every detail you've verified — it's all there. It's just buried in files. VenueMi gives it a brain. It's venue portfolio management, built for planners."
+> "The knowledge your team has built up over years — every venue you've visited, every deck you've received, every detail you've verified — it's all there. It's just buried in files. Shortlisty gives it a brain. It's venue portfolio management, built for planners."
 
 Do not over-explain. Two sentences, then move.
 
@@ -61,7 +61,7 @@ Pause after step 4 and ask: "Is that the kind of data you'd want on every venue 
 
 **Goal:** shift from individual value to organisational value. This is where the buying trigger lives.
 
-> "Right now, your venue portfolio exists in one person's head or one person's inbox. When they're on holiday, or when they leave, it's gone. VenueMi makes the portfolio shared and permanent — a single library every planner on your team can search, that grows with every new document you add. Every new hire starts with the full portfolio on day one."
+> "Right now, your venue portfolio exists in one person's head or one person's inbox. When they're on holiday, or when they leave, it's gone. Shortlisty makes the portfolio shared and permanent — a single library every planner on your team can search, that grows with every new document you add. Every new hire starts with the full portfolio on day one."
 
 If the prospect is an agency owner: lean on the knowledge-retention and portfolio-as-asset angle — they've invested years building those relationships and that intelligence should outlast any individual.
 If the prospect is a head of events at a corporate: lean on the "stop repeating the same research every event cycle" angle — the portfolio compounds, each event makes the next one cheaper to research.
@@ -95,4 +95,4 @@ If an objection comes up during the pitch, see [objections.md](objections.md) fo
 
 ---
 
-**Docs:** [What is VenueMi?](../../README.md) · [Business Proposal](../proposal.md) · [Competitive Landscape](../comparison.md) · [Battlecards](battlecards.md) · [Objections](objections.md)
+**Docs:** [What is Shortlisty?](../../README.md) · [Business Proposal](../proposal.md) · [Competitive Landscape](../comparison.md) · [Battlecards](battlecards.md) · [Objections](objections.md)

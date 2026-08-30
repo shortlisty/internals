@@ -1,12 +1,12 @@
-# VenueMi — System Design Documentation
+# Shortlisty — System Design Documentation
 
-> Pre-build design documentation for the VenueMi platform — built on the iQ Key Value open-source foundation.
+> Pre-build design documentation for the Shortlisty platform — built on the iQ Key Value open-source foundation.
 
 ---
 
-## What is VenueMi
+## What is Shortlisty
 
-VenueMi is a collaborative workspace for event agencies. It turns venue files into a structured library and that library into an interactive client pitch — ending with a timestamped, approved specification.
+Shortlisty is a collaborative workspace for event agencies. It turns venue files into a structured library and that library into an interactive client pitch — ending with a timestamped, approved specification.
 
 Two layers:
 
@@ -23,7 +23,7 @@ See [docs/README.md](docs/README.md) for the full plain-language overview.
 
 | Document                                    | Audience       | What it covers                                       |
 | ------------------------------------------- | -------------- | ---------------------------------------------------- |
-| [What is VenueMi?](docs/README.md)          | Anyone         | Problem, solution, how it works, pricing             |
+| [What is Shortlisty?](docs/README.md)          | Anyone         | Problem, solution, how it works, pricing             |
 | [Market Structure](docs/business/market.md) | Anyone         | Event chain, tool segmentation, the vacant slot      |
 | [Vision](docs/roadmap/vision.md)            | Founders, team | Product direction, strategic bets, north star metric |
 
@@ -68,13 +68,13 @@ Read [AGENTS.md](AGENTS.md) before adding or editing any document. It defines re
 
 ## Platform context
 
-VenueMi is built on top of the iQ Key Value open-source foundation. New services introduced:
+Shortlisty is built on top of the iQ Key Value open-source foundation. New services introduced:
 
 - **`mi-data-intelligence`** — domain-agnostic shared library (ETL contracts, provenance, vectors, cost tracking).
 - **`mi-venue-service`** — venue profiles, assets, metadata, search, plan enforcement
 - **`mi-venue-processing-worker`** — async sidecar: document ETL, AI extraction, embeddings
 - **`mi-venue-model`** — shared library: domain entities, event contracts, Liquibase migrations
-- **`mi-mc-ingest-tagvenue-scraper`** and **`mi-mc-loader`** — master catalog ingestion
+- **`mc-ingest-tagvenue-scraper`** and **`mi-mc-loader`** — master catalog ingestion
 
 **Stage:** v0.1 MVP in progress — Group A Platform Foundation complete, Master Venue Seeding Infrastructure in development, tenant venue features next.
 

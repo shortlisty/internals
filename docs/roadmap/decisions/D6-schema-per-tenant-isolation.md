@@ -1,13 +1,13 @@
 # D6 — Tenant isolation: schema-per-tenant vs. tenant_id column
 
 > **Audience:** Engineers, architects.
-> **Purpose:** Record why tenant data is isolated via PostgreSQL schema-per-tenant (`t_{tenantKey}` per organisation) rather than a shared `tenant_id` discriminator column in shared tables, and why this pattern extends to VenueMi's venue tables and vector tables.
+> **Purpose:** Record why tenant data is isolated via PostgreSQL schema-per-tenant (`t_{tenantKey}` per organisation) rather than a shared `tenant_id` discriminator column in shared tables, and why this pattern extends to Shortlisty's venue tables and vector tables.
 
 ---
 
 ## Context
 
-The iQ Key Value foundation platform serves multiple independent tenants (customer organisations). VenueMi inherits the foundation's multi-tenancy model but extends it to venue-specific tables (`venues`, `venue_assets`, `venue_groups`, `item_vectors`, `extraction_jobs`, etc.). The choice of isolation model was originally made in the foundation platform; this decision record documents the rationale explicitly for VenueMi's tables and justifies why any deviation in VenueMi-specific schema is rejected.
+The iQ Key Value foundation platform serves multiple independent tenants (customer organisations). Shortlisty inherits the foundation's multi-tenancy model but extends it to venue-specific tables (`venues`, `venue_assets`, `venue_groups`, `item_vectors`, `extraction_jobs`, etc.). The choice of isolation model was originally made in the foundation platform; this decision record documents the rationale explicitly for Shortlisty's tables and justifies why any deviation in Shortlisty-specific schema is rejected.
 
 ---
 
@@ -26,7 +26,7 @@ All tenants share one set of tables. Every row carries a `tenant_id UUID NOT NUL
 **Cons:**
 
 - **Isolation relies on query predicate correctness, not structure.** A `tenant_id` predicate is code; code has bugs. A developer writing a new mapper, a new report query, a new admin batch job, or a manual debug SQL statement that forgets `WHERE tenant_id = ?` leaks cross-tenant data silently. RLS mitigates but does not eliminate: RLS must be enabled per table, policies must be written per table, the bypassrls attribute on superusers/roles must be audited, and any role with BYPASSRLS or a session-level `SET app.current_tenant_id` mis-configuration silently overrides all protections. For event-planner tenant data (pricing, contacts, custom agency notes), a cross-tenant leak is a contract-terminating security incident.
-- **Index and planner quality degrade under wide tenant cardinality skew.** Tenant #1 has 10 venues. Tenant #2 has 50,000 venues. A `WHERE tenant_id = ? AND capacity.max_total >= 200` GIN index scan on JSONB that is optimal for tenant #2's 50K rows (index scan) may be catastrophically wrong for tenant #1's 10 rows (seq scan cheaper, but planner chooses index because shared statistics skew to tenant #2's distribution). PostgreSQL `ALTER TABLE ... SET (n_distinct = ...)` per-column tuning does not help because the skew is per-value-of-tenant_id, not per-column. VenueMi's JSONB metadata queries are particularly sensitive to planner mis-estimates because JSONB containment operators have loose selectivity estimates.
+- **Index and planner quality degrade under wide tenant cardinality skew.** Tenant #1 has 10 venues. Tenant #2 has 50,000 venues. A `WHERE tenant_id = ? AND capacity.max_total >= 200` GIN index scan on JSONB that is optimal for tenant #2's 50K rows (index scan) may be catastrophically wrong for tenant #1's 10 rows (seq scan cheaper, but planner chooses index because shared statistics skew to tenant #2's distribution). PostgreSQL `ALTER TABLE ... SET (n_distinct = ...)` per-column tuning does not help because the skew is per-value-of-tenant_id, not per-column. Shortlisty's JSONB metadata queries are particularly sensitive to planner mis-estimates because JSONB containment operators have loose selectivity estimates.
 - **pgvector per-tenant recall is structurally worse.** IVFFlat cluster centroids are computed on the shared `item_vectors` table. A 10-venue tenant's vectors are clustered alongside a 50,000-venue tenant's vectors; the 10-venue tenant gets worse cosine-distance recall because its clusters are polluted by the larger tenant's distribution. Per-tenant IVFFlat list tuning is impossible when all tenants share one index.
 - **Operational tenant actions require predicates, not DDL.** GDPR "right to erasure" for one tenant = `DELETE FROM venues WHERE tenant_id = ?` (and 8 other tables) with potentially millions of row deletions, table bloat, autovacuum storms, and replication lag. Tenant export requires WHERE-clause-scoped `pg_dump` (non-standard, requires custom tooling) rather than a standard `pg_dump -n t_acme0001`. Tenant restore from a PITR snapshot of a single tenant is impossible without a complex import/filter/restore procedure.
 - **Audit for cross-tenant access is code-level, not infrastructure-level.** When investigating a suspected leak, security auditors must review every query path in application code and every ad-hoc DB role grant. They cannot prove isolation via structural database inspection alone.
@@ -42,9 +42,9 @@ Every tenant gets its own PostgreSQL database with its own users, tables, and co
 
 **Cons:**
 
-- **Operationally prohibitive at the target scale.** VenueMi targets 100 paying agencies at sustainability and 1,000 at scale. 1,000 PostgreSQL databases = 1,000 connection pools × `pool_size=10` minimum = 10,000 persistent PostgreSQL backends. PostgreSQL process-per-connection architecture collapses at this scale without PgBouncer per-database (which adds a routing layer that itself becomes a failure domain). 1,000 separate WAL streams, 1,000 separate base backups, 1,000 separate failover targets. The ops cost per tenant would exceed tenant ACV at this price point.
+- **Operationally prohibitive at the target scale.** Shortlisty targets 100 paying agencies at sustainability and 1,000 at scale. 1,000 PostgreSQL databases = 1,000 connection pools × `pool_size=10` minimum = 10,000 persistent PostgreSQL backends. PostgreSQL process-per-connection architecture collapses at this scale without PgBouncer per-database (which adds a routing layer that itself becomes a failure domain). 1,000 separate WAL streams, 1,000 separate base backups, 1,000 separate failover targets. The ops cost per tenant would exceed tenant ACV at this price point.
 - **Cross-tenant admin queries (customer support, billing metrics, platform-wide observability) require federation.** Support agents cannot list a venue across all tenants to debug "where did this PDF come from?" without a cross-db query layer.
-- **Foundation platform compatibility break.** The existing foundation services (IAM, billing, gateway, audit) all run against a single PostgreSQL instance with schema-per-tenant. Introducing VenueMi as "separate database per tenant" means VenueMi is the first service in the platform with its own DB fleet topology, requiring dedicated provisioning, backup, failover, and SRE playbooks that do not exist.
+- **Foundation platform compatibility break.** The existing foundation services (IAM, billing, gateway, audit) all run against a single PostgreSQL instance with schema-per-tenant. Introducing Shortlisty as "separate database per tenant" means Shortlisty is the first service in the platform with its own DB fleet topology, requiring dedicated provisioning, backup, failover, and SRE playbooks that do not exist.
 
 ### Option C — Schema-per-tenant inside one shared PostgreSQL instance
 
@@ -56,11 +56,11 @@ Each tenant gets its own named schema `t_{tenantKey}`. Tables are created per-sc
 - **Per-tenant index statistics, planner estimates, and vector index quality.** `t_acme0001.venues` has planner statistics computed only on acme's 200 rows. JSONB GIN, tsvector GIN, PostGIS GIST, and pgvector IVFFlat indexes are all built on the 200-row distribution. A neighbouring tenant with 50,000 venues has its own `t_other02.venues` table with its own indexes, its own statistics, and its own IVFFlat cluster centroids. No cross-tenant statistics pollution.
 - **Operational tenant actions are DDL-level, not predicate-level.** GDPR tenant erasure: `DROP SCHEMA t_acme0001 CASCADE` → instant, zero row-deletion bloat, zero autovacuum impact. Tenant export: `pg_dump -n t_acme0001` → standard tooling, one command. Tenant restore from backup: `pg_restore -n t_acme0001` into a clean schema. Bulk tenant migration between PostgreSQL shards: export a schema and import it. All of these are standard PostgreSQL operations with existing platform playbooks.
 - **pgvector per-tenant tuning.** IVFFlat `lists` parameter depends on row count: `ceil(sqrt(N))`. Schema-per-tenant allows `ALTER INDEX t_acme0001.item_vectors_cosine_idx SET (lists = 14)` for tenant acme (200 venues × 20 chunks = 4,000 rows) while a larger tenant gets `lists = 224` for its 50,000-venue library. Shared-table Option A has one global `lists` value that is wrong for 90% of tenants.
-- **Foundation compatibility.** This is the existing pattern in foundation services (IAM, billing). `foundation-tenancy` library exposes `TenantContext.getCurrentTenant()`, `MyBatisSchemaInterceptor`, `TenantLiquibaseRunner` (runs per-tenant Liquibase changelogs on tenant onboarding). VenueMi reuses all of this verbatim with zero custom tenancy code.
+- **Foundation compatibility.** This is the existing pattern in foundation services (IAM, billing). `foundation-tenancy` library exposes `TenantContext.getCurrentTenant()`, `MyBatisSchemaInterceptor`, `TenantLiquibaseRunner` (runs per-tenant Liquibase changelogs on tenant onboarding). Shortlisty reuses all of this verbatim with zero custom tenancy code.
 
 **Cons:**
 
-- **Table count grows linearly with tenants.** 1,000 tenants × 8 VenueMi tables = 8,000 tables. PostgreSQL catalog tables (`pg_class`, `pg_attribute`) grow proportionally. PostgreSQL comfortably handles 100,000+ tables on modern hardware. A `VACUUM FREEZE` on a 1,000-tenant cluster is well-documented and operationally routine; the foundation already runs this pattern.
+- **Table count grows linearly with tenants.** 1,000 tenants × 8 Shortlisty tables = 8,000 tables. PostgreSQL catalog tables (`pg_class`, `pg_attribute`) grow proportionally. PostgreSQL comfortably handles 100,000+ tables on modern hardware. A `VACUUM FREEZE` on a 1,000-tenant cluster is well-documented and operationally routine; the foundation already runs this pattern.
 - **Liquibase changelog execution runs once per tenant on onboarding.** With 8 tables and ~20 changelog files, this is a ~500 ms one-shot cost per tenant. The platform already has `TenantLiquibaseRunner` with an async onboarding job that runs this outside the request/response cycle; no user-visible latency impact.
 - **Cross-tenant admin queries (customer support, billing metrics) require schema iteration.** An admin CTE or PL/pgSQL function enumerates schemas and unions results — ~30 lines of SQL for the "find venue across all tenants" support use case. This is an explicit, auditable code path (an admin-only function with `SECURITY DEFINER` and audit logging) rather than an implicit query predicate that can be omitted.
 
@@ -70,7 +70,7 @@ Each tenant gets its own named schema `t_{tenantKey}`. Tables are created per-sc
 
 **Option C: Schema-per-tenant inside one shared PostgreSQL instance.**
 
-VenueMi inherits the foundation's `foundation-tenancy` library unchanged. All VenueMi tenant-specific tables (`venues`, `venue_assets`, `venue_groups`, `extraction_jobs`, `item_vectors`, `venue_metadata_events`, `ai_cost_tracking`) are created inside `t_{tenantKey}`. The `master_venue` master catalog reference table lives in `public` and is read-only to tenant connections.
+Shortlisty inherits the foundation's `foundation-tenancy` library unchanged. All Shortlisty tenant-specific tables (`venues`, `venue_assets`, `venue_groups`, `extraction_jobs`, `item_vectors`, `venue_metadata_events`, `ai_cost_tracking`) are created inside `t_{tenantKey}`. The `master_venue` master catalog reference table lives in `public` and is read-only to tenant connections.
 
 Only one mapper (`MasterVenueQueryMapper`) may explicitly qualify `public.` in SQL. All other mappers rely on `search_path` set by `MyBatisSchemaInterceptor` and never reference schema names.
 
@@ -78,9 +78,9 @@ Only one mapper (`MasterVenueQueryMapper`) may explicitly qualify `public.` in S
 
 ## Rationale
 
-- **Event-planner data is sensitive and legally risky.** VenueMi stores per-venue custom agency pricing, contact names of venue coordinators, internal notes ("this venue manager is unreliable"), and client-approval snapshots. Cross-tenant data leakage is not a theoretical bug; it is an event that destroys customer trust, triggers GDPR notification obligations, and terminates contracts. Structural schema-grant-based isolation provides mathematically auditable proof that no query path can leak data absent explicit DBA-level grant tampering (which is itself auditable). Option A's predicate-based isolation, even with RLS, relies on correct code in every mapper, every report, every ad-hoc debug query — it is not provably correct in the presence of human error.
+- **Event-planner data is sensitive and legally risky.** Shortlisty stores per-venue custom agency pricing, contact names of venue coordinators, internal notes ("this venue manager is unreliable"), and client-approval snapshots. Cross-tenant data leakage is not a theoretical bug; it is an event that destroys customer trust, triggers GDPR notification obligations, and terminates contracts. Structural schema-grant-based isolation provides mathematically auditable proof that no query path can leak data absent explicit DBA-level grant tampering (which is itself auditable). Option A's predicate-based isolation, even with RLS, relies on correct code in every mapper, every report, every ad-hoc debug query — it is not provably correct in the presence of human error.
 - **Per-tenant vector and JSONB index quality is a real product requirement, not a premature optimisation.** IVFFlat recall quality depends on cluster centroids matching the query's vector distribution. A 10-venue event agency and a 50,000-venue enterprise AMC have fundamentally different vector distributions. One shared IVFFlat index serves both poorly. pgvector documentation explicitly recommends per-corpus tuning when corpora differ dramatically. Schema-per-tenant makes this tuning free (one ALTER INDEX per tenant).
-- **Foundation pattern reuse is the highest-leverage engineering choice.** `foundation-tenancy` already implements schema interceptor, per-tenant Liquibase runner, tenant context propagation, and cross-schema admin query helpers. Reusing this verbatim means VenueMi ships zero custom tenancy code, inherits all existing platform security audits and tenancy bug fixes, and is operationally identical to other foundation services from day one. Any other isolation model would require a platform-wide pattern exception and a dedicated tenancy implementation.
+- **Foundation pattern reuse is the highest-leverage engineering choice.** `foundation-tenancy` already implements schema interceptor, per-tenant Liquibase runner, tenant context propagation, and cross-schema admin query helpers. Reusing this verbatim means Shortlisty ships zero custom tenancy code, inherits all existing platform security audits and tenancy bug fixes, and is operationally identical to other foundation services from day one. Any other isolation model would require a platform-wide pattern exception and a dedicated tenancy implementation.
 
 ---
 
@@ -95,7 +95,7 @@ Only one mapper (`MasterVenueQueryMapper`) may explicitly qualify `public.` in S
 
 ## Status
 
-**Accepted.** Foundation platform invariant. VenueMi inherits without deviation.
+**Accepted.** Foundation platform invariant. Shortlisty inherits without deviation.
 
 ---
 

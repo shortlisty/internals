@@ -1,4 +1,4 @@
-# VenueMi — Service Architecture
+# Shortlisty — Service Architecture
 
 > **Audience:** Engineers, architects.
 > **Purpose:** Service decomposition, table ownership rules, shared library internals (`mi-venue-model`, `mi-data-intelligence`), and S3 storage layout.
@@ -47,8 +47,8 @@
                              │            └─────────────────────┘
                              │ read asset ┌─────────────────────┐
                              └───────────►│   S3 / MinIO         │◄── client (direct PUT)
-                                          │   venuemi/tenants/   │
-                                          │   venuemi/master-    │
+                                          │   shortlisty/tenants/   │
+                                          │   shortlisty/master-    │
                                           │   catalog/           │
                                           └─────────────────────┘
                                           ▲
@@ -63,7 +63,7 @@
 ### `mi-venue-service`
 
 - **Responsibilities:** venue CRUD, asset upload flow (presigned URL), metadata read/write, search API, plan entitlement enforcement, master catalog backdrop lookup
-- **Database:** owns the VenueMi PostgreSQL schema. Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`. Shared with `mi-venue-processing-worker` — no cross-service API calls for data.
+- **Database:** owns the Shortlisty PostgreSQL schema. Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`. Shared with `mi-venue-processing-worker` — no cross-service API calls for data.
 - **Exposes:** REST API at `/api/v1/venues` (see [api.md](api.md))
 - **Publishes:** `venue.created`, `venue.updated`, `asset.uploaded`, `asset.deleted` (RabbitMQ)
 - **Consumes:** `extraction.completed`, `extraction.failed` (RabbitMQ) — triggers metadata aggregation
@@ -156,13 +156,13 @@ mi-venue-model/
 
 ## 4b. S3 Storage Layout
 
-S3 (MinIO for local dev) is already in the iQ Key Value stack. VenueMi adds its own prefix namespace inside the shared bucket (`iqkv-files`).
+S3 (MinIO for local dev) is already in the iQ Key Value stack. Shortlisty adds its own prefix namespace inside the shared bucket (`iqkv-files`).
 
 ### Bucket Strategy
 
 | Environment | Bucket           | Notes                                                                                     |
 | ----------- | ---------------- | ----------------------------------------------------------------------------------------- |
-| Dev / CI    | `iqkv-files`     | Shared with foundation services, MinIO default. VIP objects live under `venuemi/` prefix. |
+| Dev / CI    | `iqkv-files`     | Shared with foundation services, MinIO default. VIP objects live under `shortlisty/` prefix. |
 | Staging     | `iqkv-files`     | Same shared bucket, same prefix scheme. Isolated by prefix only.                          |
 | Production  | `iqkv-vip-files` | Dedicated bucket. Separate IAM policy, separate lifecycle rules. Key structure identical. |
 
@@ -173,12 +173,12 @@ MinIO in local dev is configured in `docker-compose.yml` with `MINIO_DEFAULT_BUC
 #### Tenant Asset Files
 
 ```
-venuemi/tenants/{tenantKey}/venues/{venueId}/assets/{assetId}/{fileName}
+shortlisty/tenants/{tenantKey}/venues/{venueId}/assets/{assetId}/{fileName}
 ```
 
 | Segment       | Value                                         | Example                            |
 | ------------- | --------------------------------------------- | ---------------------------------- |
-| `venuemi/`    | VIP namespace                                 | (literal)                          |
+| `shortlisty/`    | VIP namespace                                 | (literal)                          |
 | `tenants/`    | Tenant subtree root                           | (literal)                          |
 | `{tenantKey}` | 8-char nanoid from JWT `tenant_id` claim      | `acme0001`                         |
 | `venues/`     | Venue subtree                                 | (literal)                          |
@@ -190,7 +190,7 @@ venuemi/tenants/{tenantKey}/venues/{venueId}/assets/{assetId}/{fileName}
 Full example:
 
 ```
-venuemi/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/6ba7b8109dad11d180b400c04fd430c8/grand-ballroom-deck.pdf
+shortlisty/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/6ba7b8109dad11d180b400c04fd430c8/grand-ballroom-deck.pdf
 ```
 
 **Key rules:**
@@ -206,7 +206,7 @@ venuemi/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/6ba7b810
 ```json
 {
   "asset_id": "<uuid>",
-  "upload_url": "https://minio.local/iqkv-files/venuemi/tenants/acme0001/venues/.../grand-ballroom-deck.pdf?X-Amz-Signature=...",
+  "upload_url": "https://minio.local/iqkv-files/shortlisty/tenants/acme0001/venues/.../grand-ballroom-deck.pdf?X-Amz-Signature=...",
   "expires_at": "2025-06-01T12:15:00Z"
 }
 ```
@@ -216,28 +216,28 @@ The presigned PUT URL is scoped to the exact key. The client uploads directly. T
 #### Master Catalog Import Files
 
 ```
-venuemi/master-catalog/imports/{importId}/{fileName}
-venuemi/master-catalog/exports/{date}/{snapshot}.jsonl.gz
+shortlisty/master-catalog/imports/{importId}/{fileName}
+shortlisty/master-catalog/exports/{date}/{snapshot}.jsonl.gz
 ```
 
 | Path                                         | Purpose                                                                           |
 | -------------------------------------------- | --------------------------------------------------------------------------------- |
-| `venuemi/master-catalog/imports/{importId}/` | One folder per import batch (admin-triggered). Contains raw CSV/JSON input files. |
-| `venuemi/master-catalog/exports/{date}/`     | Nightly compacted snapshots of `public.master_venue` for downstream consumers.    |
+| `shortlisty/master-catalog/imports/{importId}/` | One folder per import batch (admin-triggered). Contains raw CSV/JSON input files. |
+| `shortlisty/master-catalog/exports/{date}/`     | Nightly compacted snapshots of `public.master_venue` for downstream consumers.    |
 
 ### Tenant Isolation
 
-- All tenant objects scoped under `venuemi/tenants/{tenantKey}/`. Cross-tenant read is structurally impossible without knowing the other tenant's key.
-- The service account holds a single S3 IAM policy allowing `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on the full `venuemi/*` prefix. Presigned URLs are scoped to the exact object key.
-- Master catalog paths (`venuemi/master-catalog/*`) are not accessible via tenant-issued presigned URLs. Written only by the platform's internal job service account (`mi-mc-loader`).
+- All tenant objects scoped under `shortlisty/tenants/{tenantKey}/`. Cross-tenant read is structurally impossible without knowing the other tenant's key.
+- The service account holds a single S3 IAM policy allowing `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on the full `shortlisty/*` prefix. Presigned URLs are scoped to the exact object key.
+- Master catalog paths (`shortlisty/master-catalog/*`) are not accessible via tenant-issued presigned URLs. Written only by the platform's internal job service account (`mi-mc-loader`).
 
 ### Lifecycle Rules
 
 | Rule                             | Prefix                                      | Action                                                                                                 |
 | -------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Extraction artefact expiry       | `venuemi/tenants/*/venues/*/assets/*/`      | Transition to Glacier/IA after 90 days if `extraction_status = COMPLETED`. Managed via S3 object tags. |
-| Master catalog import cleanup    | `venuemi/master-catalog/imports/processed/` | Delete after 30 days.                                                                                  |
-| Master catalog snapshot rotation | `venuemi/master-catalog/exports/`           | Keep last 14 daily snapshots; delete older.                                                            |
+| Extraction artefact expiry       | `shortlisty/tenants/*/venues/*/assets/*/`      | Transition to Glacier/IA after 90 days if `extraction_status = COMPLETED`. Managed via S3 object tags. |
+| Master catalog import cleanup    | `shortlisty/master-catalog/imports/processed/` | Delete after 30 days.                                                                                  |
+| Master catalog snapshot rotation | `shortlisty/master-catalog/exports/`           | Keep last 14 daily snapshots; delete older.                                                            |
 
 Object tags set by `mi-venue-service` at `POST /api/v1/venues/{venueId}/assets/{id}/confirm`:
 
@@ -258,7 +258,7 @@ When a tenant deletes an asset (`DELETE /api/v1/venues/{venueId}/assets/{id}`) o
 For full tenant deletion (GDPR right to erasure):
 
 1. `DELETE FROM t_{tenantKey}.venues` cascades to all asset rows.
-2. A `tenant.deleted` event triggers a background S3 sweep: `s3:DeleteObjects` with all keys matching `venuemi/tenants/{tenantKey}/*` (batched in 1000-object chunks).
+2. A `tenant.deleted` event triggers a background S3 sweep: `s3:DeleteObjects` with all keys matching `shortlisty/tenants/{tenantKey}/*` (batched in 1000-object chunks).
 3. The pgvector sweep deletes all `item_vectors` rows for the tenant schema (schema drop handles this implicitly if the schema is dropped).
 
 ---

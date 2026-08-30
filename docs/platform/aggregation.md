@@ -1,4 +1,4 @@
-# VenueMi — Metadata Aggregation
+# Shortlisty — Metadata Aggregation
 
 > **Audience:** Engineers.
 > **Purpose:** How conflicting field values from multiple extraction sources are resolved into the single consolidated `venues.metadata` JSONB column, and how concurrent aggregation is serialised without distributed locks.
@@ -43,7 +43,7 @@ Aggregation runs (async, via RabbitMQ) when:
 - A user submits a manual override → immediate re-aggregation
 - A scheduled job catches stale venues (24h without re-aggregation)
 
-Aggregation is debounced (5s) to batch rapid successive events. The `venuemi_metadata_schema_version_seen_total` Micrometer metric (see [observability.md](observability.md)) records the pre-migration version on every aggregation pass — use it to monitor stale-document distribution and scheduled job catch-up rate.
+Aggregation is debounced (5s) to batch rapid successive events. The `shortlisty_metadata_schema_version_seen_total` Micrometer metric (see [observability.md](observability.md)) records the pre-migration version on every aggregation pass — use it to monitor stale-document distribution and scheduled job catch-up rate.
 
 ---
 
@@ -88,7 +88,7 @@ Two variants share the same conceptual model. Start with A1 for MVP; both use th
 
 | Aspect                | Specification                                                                                                                                                               |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Queue                 | Single queue `venuemi.metadata.aggregation`.                                                                                                                                |
+| Queue                 | Single queue `shortlisty.metadata.aggregation`.                                                                                                                                |
 | Publisher routing key | `extraction.completed` unchanged. No slot computation.                                                                                                                      |
 | Consumer              | `@RabbitListener` with `concurrency = 1`, `prefetchCount = 1`. Exactly one thread processes all aggregation events sequentially across all tenants and all venues.          |
 | Backlog envelope      | Aggregation per event is ~1 ms (merge + SQL `UPDATE`). Even 100 events/s sustained yields a 100 ms backlog, invisible to end users and well within the 5 s debounce window. |
@@ -98,7 +98,7 @@ Two variants share the same conceptual model. Start with A1 for MVP; both use th
 
 | Aspect               | Specification                                                                                                                                    |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Queues               | `venuemi.metadata.aggregation.0` through `venuemi.metadata.aggregation.15` (16 slots; configurable via `application.yml`).                       |
+| Queues               | `shortlisty.metadata.aggregation.0` through `shortlisty.metadata.aggregation.15` (16 slots; configurable via `application.yml`).                       |
 | Publisher routing    | Slot = `Math.abs(venueId.hashCode() % SLOT_COUNT)`. Same `venue_id` always maps to the same slot.                                                |
 | Consumer pool        | 16 consumer threads. Each thread binds to exactly one slot queue with `prefetchCount = 1`.                                                       |
 | Parallelism property | Different venues process in parallel across slots. Same venue always routes to the same slot → strict FIFO ordering per venue.                   |

@@ -7,7 +7,7 @@
 
 ## Context
 
-The VenueMi venue domain has two distinct workloads:
+The Shortlisty venue domain has two distinct workloads:
 
 1. **Synchronous user traffic** — venue CRUD, search, metadata reads, asset upload flow. These are user-facing HTTP requests that must respond quickly and fail independently.
 2. **Asynchronous document processing** — PDF parsing, text extraction, GPT-4o structured extraction calls, embedding generation, metadata aggregation, master catalog matching. These are CPU/IO-bound, external-API-dependent, and can take seconds to minutes per asset.
@@ -85,7 +85,7 @@ One synchronous service (`mi-venue-service`) for HTTP and one async sidecar (`mi
 - The deployment manifest ships two containers per environment (`mi-venue-service` + `mi-venue-processing-worker`). Helm chart has separate replica counts, HPA triggers, and resource quotas per service.
 - Table ownership is documented in README.md §4 and enforced at code review: processing-worker never issues `UPDATE venues`; mi-venue-service never writes to `extraction_jobs` or `item_vectors` directly.
 - Rolling deployments of `mi-venue-processing-worker` must use RabbitMQ `MANUAL` ack mode so in-flight messages are re-queued on consumer shutdown. No message loss is acceptable.
-- HPA for `mi-venue-processing-worker` scales on RabbitMQ queue depth (`venuemi.asset.uploaded` messages ready), not CPU. HPA for `mi-venue-service` scales on request rate + p95 latency.
+- HPA for `mi-venue-processing-worker` scales on RabbitMQ queue depth (`shortlisty.asset.uploaded` messages ready), not CPU. HPA for `mi-venue-service` scales on request rate + p95 latency.
 
 ---
 

@@ -1,4 +1,4 @@
-# VenueMi — UI: Venue Management
+# Shortlisty — UI: Venue Management
 
 > **Audience:** Frontend engineers, designers.
 > **Purpose:** Component structure, form spec pattern, shared entity abstraction, form layout
@@ -116,10 +116,10 @@ export interface VenueAnnotation {
   updatedAt: string;
 }
 
-// ── Re-exports from @venuemi/ui-types ────────────────────────────────────────
+// ── Re-exports from @shortlisty/ui-types ────────────────────────────────────────
 // Types and constants that are pure TS (no React) live in the shared package.
 // The addon imports them so consumers only need to import from the addon — never
-// from @venuemi/ui-types directly in app code.
+// from @shortlisty/ui-types directly in app code.
 
 export type {
   AnyVenue as _AnyVenueBase, // imported above; re-exported via index.ts as AnyVenue
@@ -135,13 +135,13 @@ export type {
   isProfileStage,
   isVenueStatus,
   isVenueContext,
-} from "@venuemi/ui-types";
+} from "@shortlisty/ui-types";
 ```
 
 > **Rule:** All `as const` arrays (`PROFILE_STAGES`, `VENUE_STATUSES`, etc.), type guards
-> (`isProfileStage`, …), and `VenueMetadata`/`FieldProvenance` live in `@venuemi/ui-types`.
+> (`isProfileStage`, …), and `VenueMetadata`/`FieldProvenance` live in `@shortlisty/ui-types`.
 > The addon imports them and re-exports through `index.ts` so consuming app code never imports
-> directly from `@venuemi/ui-types` — it always imports from `@/addons/venue-management`.
+> directly from `@shortlisty/ui-types` — it always imports from `@/addons/venue-management`.
 ```
 
 **Rule:** shared components (`VenueProfileHeader`, `VenueProfileTabs`, `VenueFormField`,
@@ -176,7 +176,7 @@ export type {
   AssetTableData,
   VenueAsset,
   VenueAssetSummary,
-} from "@venuemi/ui-types";
+} from "@shortlisty/ui-types";
 
 /** Flat projection for list view — server resolves photo URL and key metadata fields. */
 export interface VenueSummary {
@@ -215,7 +215,7 @@ export interface VenueDetail extends VenueSummary, AnyVenue {
 > (`VenueSummary`, `VenueDetail`). All domain types — `AnyVenue`, `VenueMetadata`,
 > `FieldProvenance`, `VenueAnnotation`, constants, guards — live in
 > `src/addons/venue-management/` and are re-exported through its `index.ts`.
-> Entity files must never define types that exist in the addon or in `@venuemi/ui-types`.
+> Entity files must never define types that exist in the addon or in `@shortlisty/ui-types`.
 
 ### `MasterVenue`
 
@@ -1164,7 +1164,7 @@ rewrite needed.
 > edited, and deleted. The only thing emulated is the API layer — all network calls are
 > intercepted by MSW handlers returning fixture data.
 >
-> Shared code (`@venuemi/ui-types`) is referenced via `file:` protocol pointing directly
+> Shared code (`@shortlisty/ui-types`) is referenced via `file:` protocol pointing directly
 > to TypeScript source — no build step, no publish. See
 > [ui-shared-packages.md](ui-shared-packages.md) §7 for the exact setup.
 
@@ -1263,14 +1263,14 @@ src/addons/venue-management/
   types.ts                 AnyVenue, VenueContext, VenueMetadata, FieldProvenance,
                            ProfileStage, VenueStatus, VenueSource, CateringPolicy,
                            AnnotationType, VenueAnnotation.
-                           Imports base types/constants from @venuemi/ui-types;
+                           Imports base types/constants from @shortlisty/ui-types;
                            re-exports through index.ts so app code never imports
-                           @venuemi/ui-types directly.
+                           @shortlisty/ui-types directly.
 
   spec/
     form-spec.types.ts     FieldType, FieldAction, EnumOption, FieldDefinition,
                            SectionDefinition, TabDefinition, VenueFormSpec.
-                           Imports ProfileStage from ./types (not from @venuemi/ui-types directly).
+                           Imports ProfileStage from ./types (not from @shortlisty/ui-types directly).
 
     venue-form-spec.ts     VENUE_FORM_SPEC — the single source of truth for
                            tabs, sections, and fields.
@@ -1336,33 +1336,33 @@ src/shared/api/
 
 ### Constant anchors (prevent magic strings)
 
-All `as const` arrays and derived types live in `@venuemi/ui-types`. The addon imports and
-re-exports them — app code never imports from `@venuemi/ui-types` directly.
+All `as const` arrays and derived types live in `@shortlisty/ui-types`. The addon imports and
+re-exports them — app code never imports from `@shortlisty/ui-types` directly.
 
 ```typescript
 // src/addons/venue-management/types.ts — re-export pattern
 
-// From @venuemi/ui-types (single source of truth — do not redefine here)
+// From @shortlisty/ui-types (single source of truth — do not redefine here)
 export {
   PROFILE_STAGES, VENUE_STATUSES, VENUE_SOURCES, VENUE_SOURCE_LABELS, VENUE_CONTEXTS,
   ANNOTATION_TYPES, ANNOTATION_TYPE_LABELS, CATERING_POLICIES, CATERING_POLICY_LABELS,
   PROFILE_STAGE_LABELS, VENUE_STATUS_LABELS,
   isProfileStage, isVenueStatus, isVenueSource, isVenueContext, isCateringPolicy,
-} from "@venuemi/ui-types";
+} from "@shortlisty/ui-types";
 
 export type {
   ProfileStage, VenueStatus, VenueSource, VenueContext,
   AnnotationType, CateringPolicy,
   AnyVenue, VenueMetadata, FieldProvenance,
-} from "@venuemi/ui-types";
+} from "@shortlisty/ui-types";
 ```
 
 Architecture tests in each app assert:
-- No file in `src/` outside `src/addons/venue-management/` imports directly from `@venuemi/ui-types`.
+- No file in `src/` outside `src/addons/venue-management/` imports directly from `@shortlisty/ui-types`.
 - No file in `src/` redefines `VenueMetadata`, `ProfileStage`, `PROFILE_STAGES`, or any other
-  type or constant that already exists in `@venuemi/ui-types`.
+  type or constant that already exists in `@shortlisty/ui-types`.
 - Every feature, widget, and page that uses venue types imports from `@/addons/venue-management`
-  or `@/entities/venue` — never from addon internals or from `@venuemi/ui-types` directly.
+  or `@/entities/venue` — never from addon internals or from `@shortlisty/ui-types` directly.
 
 ---
 

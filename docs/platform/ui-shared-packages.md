@@ -1,4 +1,4 @@
-# VenueMi — UI Shared npm Packages
+# Shortlisty — UI Shared npm Packages
 
 > **Audience:** Engineers, architects.
 > **Purpose:** Defines shared UI code published to npmjs as private scoped packages,
@@ -18,7 +18,7 @@
 ## 1. Context
 
 Three apps — separate repos, separate deploys, no monorepo. Shared UI code is published to
-npmjs under the `@venuemi` scope and consumed as regular versioned dependencies.
+npmjs under the `@shortlisty` scope and consumed as regular versioned dependencies.
 
 The split is **types first, components second**. The shared package contains zero React
 dependencies — it is pure TypeScript: interfaces, enums, constants, type guards, and pure
@@ -26,7 +26,7 @@ utility functions. Each app builds its own addon on top of the shared types. Com
 renderers, and form logic live in the app-level addons and are never shared directly.
 
 ```
-@venuemi/ui-types          ← pure TS: interfaces, constants, type guards, pure utils
+@shortlisty/ui-types          ← pure TS: interfaces, constants, type guards, pure utils
                                     no React, no Mantine, no build-time deps
         │
         ├── foundation-ui-blank/src/addons/venue-management/    ← components, registry
@@ -38,7 +38,7 @@ renderers, and form logic live in the app-level addons and are never shared dire
 
 ---
 
-## 2. Package: `@venuemi/ui-types`
+## 2. Package: `@shortlisty/ui-types`
 
 Single shared package. No React, no UI framework dependency. Can be imported anywhere —
 frontend apps, potential SSR layer, test utilities.
@@ -80,7 +80,7 @@ packages/ui-types/
 
 ```json
 {
-  "name": "@venuemi/ui-types",
+  "name": "@shortlisty/ui-types",
   "version": "0.1.0",
   "type": "module",
   "exports": { ".": "./src/index.ts" },
@@ -248,18 +248,18 @@ export const assetHasThumbnail = (type: AssetType): boolean => type === "PHOTO" 
 
 ## 3. App-level addons (not shared)
 
-Each app's addon imports from `@venuemi/ui-types` and builds React/Mantine components on top.
+Each app's addon imports from `@shortlisty/ui-types` and builds React/Mantine components on top.
 The addon is the app's private implementation — it is never published.
 
 ```
 src/addons/venue-management/          ← per-app, not shared
   spec/
     venue-form-spec.ts           VENUE_FORM_SPEC — imports FieldDefinition
-                                      from @venuemi/ui-types
+                                      from @shortlisty/ui-types
     form-spec.utils.ts                 resolveFieldValue, setFieldValue,
                                       missingFieldsForStage, groupByTabAndSection —
                                       imports VenueMetadata, FieldDefinition
-                                      from @venuemi/ui-types
+                                      from @shortlisty/ui-types
   components/
     VenueFormField.tsx                imports FieldDefinition, FieldType
     VenueFormSection.tsx
@@ -279,14 +279,14 @@ src/addons/deal-workspace/            ← foundation-ui-app only, not shared
   index.ts
 ```
 
-**Rule:** addons import types and constants from `@venuemi/ui-types`. They never redefine
+**Rule:** addons import types and constants from `@shortlisty/ui-types`. They never redefine
 interfaces or constants that exist in the shared package.
 
 ---
 
 ## 4. Versioning
 
-`@venuemi/ui-types` follows semver:
+`@shortlisty/ui-types` follows semver:
 
 | Change                                                  | Bump  |
 | ------------------------------------------------------- | ----- |
@@ -318,14 +318,14 @@ consumers unaffected. Renaming `SEEDED` → `INITIAL` is **major** — all addon
 
 ## 6. Drift prevention rules
 
-1. **Interfaces and constants live in `@venuemi/ui-types` only.** No addon or entity file
+1. **Interfaces and constants live in `@shortlisty/ui-types` only.** No addon or entity file
    redefines `VenueMetadata`, `ProfileStage`, `ProposalStatus`, or any other type that exists
    in the shared package. Architecture tests assert this.
 
-2. **String literal types derive from `as const` arrays** defined in `@venuemi/ui-types`.
+2. **String literal types derive from `as const` arrays** defined in `@shortlisty/ui-types`.
    Addons import the array and derive the type — never write a manual union.
 
-3. **`computeDataConfidence()` lives in `@venuemi/ui-types`** — pure function, no React,
+3. **`computeDataConfidence()` lives in `@shortlisty/ui-types`** — pure function, no React,
    same logic in all apps, testable in isolation without a DOM.
 
 4. **`Proposal.ownerId` is non-nullable** — architecture test asserts no code path sets
@@ -335,7 +335,7 @@ consumers unaffected. Renaming `SEEDED` → `INITIAL` is **major** — all addon
 5. **Architecture test in each app** asserts:
    - No file in `src/` declares `interface VenueMetadata`
    - No file in `src/` declares `const PROFILE_STAGES`
-   - `@venuemi/ui-types` is listed in `package.json` dependencies
+   - `@shortlisty/ui-types` is listed in `package.json` dependencies
 
 ---
 
@@ -364,7 +364,7 @@ IQKV/ms/
 
 ```json
 {
-  "name": "@venuemi/ui-types",
+  "name": "@shortlisty/ui-types",
   "version": "0.0.0",
   "private": true,
   "exports": { ".": "./src/index.ts" }
@@ -378,13 +378,13 @@ IQKV/ms/
 ```json
 {
   "dependencies": {
-    "@venuemi/ui-types": "file:../../packages/ui-types"
+    "@shortlisty/ui-types": "file:../../packages/ui-types"
   }
 }
 ```
 
 ```bash
-pnpm install   # symlinks packages/ui-types into node_modules/@venuemi/ui-types
+pnpm install   # symlinks packages/ui-types into node_modules/@shortlisty/ui-types
 ```
 
 Changes to `packages/ui-types/src/` are immediately visible — pnpm symlinks the directory,
@@ -396,7 +396,7 @@ not a copy.
 {
   "compilerOptions": {
     "paths": {
-      "@venuemi/ui-types": ["../../packages/ui-types/src/index.ts"]
+      "@shortlisty/ui-types": ["../../packages/ui-types/src/index.ts"]
     }
   }
 }
@@ -438,13 +438,13 @@ Update `package.json` exports:
 
 ```bash
 pnpm build
-npm publish --access public   # under @venuemi org on npmjs
+npm publish --access public   # under @shortlisty org on npmjs
 ```
 
 **Step 3 — update all consumers** (all three apps, same commit):
 
 ```json
-"@venuemi/ui-types": "^0.1.0"
+"@shortlisty/ui-types": "^0.1.0"
 ```
 
 Remove `file:` entry and `paths` override from `tsconfig.json`.

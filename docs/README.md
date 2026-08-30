@@ -1,7 +1,7 @@
-# What is VenueMi?
+# What is Shortlisty?
 
 > **Audience:** Anyone.
-> **Purpose:** Plain-language product overview — what VenueMi is, the problem it solves, and how it makes money. No technical background assumed.
+> **Purpose:** Plain-language product overview — what Shortlisty is, the problem it solves, and how it makes money. No technical background assumed.
 
 ---
 
@@ -13,11 +13,11 @@ Assembling that into something the client can review takes hours. What gets sent
 
 ---
 
-## What VenueMi does
+## What Shortlisty does
 
-VenueMi is a collaborative workspace for event agencies and their clients.
+Shortlisty is a collaborative workspace for event agencies and their clients.
 
-The agency builds a private venue library — uploading PDFs, floor plans, photos, and spec sheets. VenueMi reads them and extracts the details that matter: capacity in every configuration, catering policy, AV specs, restrictions, contacts, pricing indicators. The library becomes structured and searchable.
+The agency builds a private venue library — uploading PDFs, floor plans, photos, and spec sheets. Shortlisty reads them and extracts the details that matter: capacity in every configuration, catering policy, AV specs, restrictions, contacts, pricing indicators. The library becomes structured and searchable.
 
 When a client brief comes in, the planner picks venues from the library and generates an interactive pitch board — a private web page the client opens on any device. The client browses the options, asks questions, adjusts the spec, and approves. When they click Approve, the system locks a timestamped snapshot: an immutable record of exactly what was agreed.
 
@@ -48,7 +48,7 @@ Neither works without the other. The catalog feeds the pitch. The pitch generate
 ## How it works
 
 1. Connect your Drive, Notion, or email — or upload files directly
-2. VenueMi extracts and structures the venue data automatically
+2. Shortlisty extracts and structures the venue data automatically
 3. Verify key fields with one click where the AI needs a check
 4. Select venues for a brief, generate a pitch board, share a link
 5. Client reviews, adjusts, and approves — one click, any device
@@ -68,8 +68,8 @@ Neither works without the other. The catalog feeds the pitch. The pitch generate
 
 ## One sentence
 
-VenueMi turns venue files into a pitch and a pitch into an approved spec — so event agencies close client briefs in hours, not days.
+Shortlisty turns venue files into a pitch and a pitch into an approved spec — so event agencies close client briefs in hours, not days.
 
 ---
 
-**Docs:** [What is VenueMi?](README.md) · [Market Structure](business/market.md) · [Digital Sales Room](business/digital-sales-room-for-events/README.md) · [Competitive Landscape](business/digital-sales-room-for-events/comparison.md) · [Architecture](platform/README.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
+**Docs:** [What is Shortlisty?](README.md) · [Market Structure](business/market.md) · [Digital Sales Room](business/digital-sales-room-for-events/README.md) · [Competitive Landscape](business/digital-sales-room-for-events/comparison.md) · [Architecture](platform/README.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)

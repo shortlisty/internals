@@ -7,7 +7,7 @@
 
 ## Context
 
-VenueMi search must return results from two sources that live in different PostgreSQL schemas:
+Shortlisty search must return results from two sources that live in different PostgreSQL schemas:
 
 1. **Tenant venues** — `t_{tenantKey}.venues`. Full 5-mode search (keyword, semantic, structured, geo, hybrid). Schema-isolated, writable by the tenant.
 2. **Master catalog backdrop** — `public.master_venue`. 3-mode MVP search (keyword, structured, geo). Read-only to tenants, master catalog admin-writable only.
@@ -117,7 +117,7 @@ Branch A (tenant venues) uses implicit `search_path` with no schema qualificatio
 
 - `MasterVenueQueryMapper` is the **only** MyBatis mapper permitted to reference schema `public.` explicitly. Any other mapper containing the string `public.` in its SQL fails code review. A custom ArchUnit rule (or similar static analysis) in the mi-venue-service module enforces this pre-merge.
 - The search API contract explicitly documents `totalElements` as approximate for `scope=BOTH` (power-user only). Client-side pagination uses "Load more" buttons for the default `TENANT_ONLY` scope; exact-count pagination is available only for `TENANT_ONLY` and `MASTER_CATALOG_ONLY` scopes.
-- Branch B failure must not log at ERROR level. It logs WARN, increments `venuemi_search_failures_total{branch="master_catalog"}`, and attaches a `Warning` header per RFC 7807. Alerting thresholds trigger on sustained 5-minute rate of branch B failures, never on single-instance failures.
+- Branch B failure must not log at ERROR level. It logs WARN, increments `shortlisty_search_failures_total{branch="master_catalog"}`, and attaches a `Warning` header per RFC 7807. Alerting thresholds trigger on sustained 5-minute rate of branch B failures, never on single-instance failures.
 - Before Phase 2 master catalog semantic search, a separate decision record evaluates whether `public.master_venue_vectors` is added for shared embeddings or whether the per-tenant gap-fill pattern eliminates the need. The `MasterVenueQueryMapper` access rule (single point of `public.` access) remains in force regardless.
 
 ---

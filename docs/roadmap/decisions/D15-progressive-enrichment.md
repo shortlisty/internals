@@ -7,7 +7,7 @@
 
 ## Context
 
-VenueMi has a core adoption cliff. The problem: a planner uploads a venue deck. The conventional approach would be to run extraction, wait for full accuracy, show a form to "review all fields, and only then display the profile. That approach fails in user testing on two counts:
+Shortlisty has a core adoption cliff. The problem: a planner uploads a venue deck. The conventional approach would be to run extraction, wait for full accuracy, show a form to "review all fields, and only then display the profile. That approach fails in user testing on two counts:
 
 1. **The wow moment is delayed.** The user waits 30-90 seconds for extraction to complete and sees a loading spinner or a blank form. By then they have tabbed away.
 2. **The form feels like homework.** 40-60 fields of capacity, catering policy, AV specs, curfews, parking rules, contact names, payment terms. The user abandons.
@@ -87,8 +87,8 @@ The immediate profile must feel finished and polished within 5 seconds of upload
 
 2. **Enrichment suggestions surfaced three modes:
 
-- Confidence ≥ 0.85 → auto-applied with 1-second inline provenance badge "Updated catering policy from VenueMi" with undo option
-- 0.6 ≤ confidence < 0.85 → soft card suggestion "VenueMi suggests: capacity 120 guests. Accept? with undo?
+- Confidence ≥ 0.85 → auto-applied with 1-second inline provenance badge "Updated catering policy from Shortlisty" with undo option
+- 0.6 ≤ confidence < 0.85 → soft card suggestion "Shortlisty suggests: capacity 120 guests. Accept? with undo?
 - Confidence < 0.6 or conflict between sources → no auto-applied, visible only if the user opens the profile detail
 
 3. **In-context micro-prompts:
@@ -120,7 +120,7 @@ Distrust comes surprise. Not from progressive comes from hidden provenance + alw
 
 ### Why this matches the DIY-own knowledge playbook
 
-DIY stack: "Notion + Drive wins because it's zero friction to start. The user drops files into a folder and they are there. They are instantly usable, even if disorganized. VenueMi must match that zero-floor, even if disorganized. VenueMi must match that zero-friction instant-gradually adds structure and beauty, delight, then adds structure and accuracy without asking. This principle exactly.
+DIY stack: "Notion + Drive wins because it's zero friction to start. The user drops files into a folder and they are there. They are instantly usable, even if disorganized. Shortlisty must match that zero-floor, even if disorganized. Shortlisty must match that zero-friction instant-gradually adds structure and beauty, delight, then adds structure and accuracy without asking. This principle exactly.
 
 ## Consequences
 
@@ -142,7 +142,7 @@ DIY stack: "Notion + Drive wins because it's zero friction to start. The user dr
 
 | Risk                                                                                           | Mitigation                                                                                                                                                                                                                                                                                                                                                       |
 | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| User sees confidently wrong data in preview and loses trust                                    | Provenance badges on every preview field. Every auto-applied enrichment reads "From your files" (Stage 1) or "Suggested by VenueMi" (Stage 2) with one-click undo. Confidence thresholds are always on by Default Stage 1 only auto-applies Stage 2 ≥ 0.85. Confidence 0.85 and above auto-applies only                                                          |
+| User sees confidently wrong data in preview and loses trust                                    | Provenance badges on every preview field. Every auto-applied enrichment reads "From your files" (Stage 1) or "Suggested by Shortlisty" (Stage 2) with one-click undo. Confidence thresholds are always on by Default Stage 1 only auto-applies Stage 2 ≥ 0.85. Confidence 0.85 and above auto-applies only                                                          |
 | Enrichment suggests wrong venue from master catalog                                            | Dedup score threshold before match. Master catalog match must be ≥ 0.90 cosine sim + geo-distance check before auto-enrichment geo-distance threshold before match. Below that, dedup result marked as a suggestion, not auto-applied. User can disable per-venue disable enrichment per venue.                                                                  |
 | Chat-search hallucinates on thin Stage 1 data                                                  | Chat searches gated by data: on thin Stage 1 result on the result: venues with ≥ 50% or fewer fields populated marked as "Still learning about this venue — upload more docs for better results". Chat responds "not enough data here yet" with prompt user-facing caveat emptor: "Here's what I can see so far — want to upload more files or edit this venue?" |
 | Team loses discipline: teams sees a different enrichment: team one planner edits are not ready | team: sees different data at different stages                                                                                                                                                                                                                                                                                                                    | Provenance badges and consistent |

@@ -39,7 +39,7 @@ The Deal Room is a structured collaboration space. Every element carries provena
 
 1. **Append-only event log per Deal Room.** Every significant action (venue added/removed, metadata updated, comment posted, preference saved, Approve clicked) is written to an immutable table. No row updates. No deletes. "Edit" is a new entry with a pointer to the previous version.
 2. **Bilateral bounded control.** Planner controls venue selection, file visibility, internal-vs-client field scoping, and pitch branding. Client controls preferences, venue rankings, comments, and the final Approve action. Neither side can mutate the other's contributions.
-3. **Provenance-tagged pitch metadata.** Every field the client sees carries the same provenance badge the planner sees in the catalog: "From agency's files" / "Enriched by VenueMi" / "Confirmed by venue [date]". Provenance is not hidden behind an admin view.
+3. **Provenance-tagged pitch metadata.** Every field the client sees carries the same provenance badge the planner sees in the catalog: "From agency's files" / "Enriched by Shortlisty" / "Confirmed by venue [date]". Provenance is not hidden behind an admin view.
 4. **Transparent confidence scoring.** Each venue card shows a softly-styled completeness/confidence indicator: "Basic data — upload a venue deck for full details" / "Verified from agency documents + master catalog" / "Confirmed with venue July 2026". Three tiers only, no percentages.
 5. **Structured preference capture.** Client interactions are structured signals, not free text. Dynamic select boxes (contextual to the venues in this specific pitch) + colored labels (with a planner-editable legend) for rapid preference expression.
 6. **Single source of truth view.** A Timeline / History tab visible to both sides that lists every action in chronological order with actor, timestamp, and diff. The history is readable by non-technical users.
@@ -107,7 +107,7 @@ No `UPDATE` or `DELETE` permissions on this table. Ever. An "edit" inserts a new
 Every venue card in the client-facing view carries two small, unobtrusive visual elements:
 
 - **Confidence tier dot:** Grey = basic data only, Blue = agency + master catalog, Green = confirmed with venue. Hover tooltip explains the tier.
-- **Provenance badge (on-hover per field):** Hover "Capacity 120" → "From agency files (uploaded 2026-07-12)". Hover "Catering: external allowed" → "Enriched by VenueMi from master catalog".
+- **Provenance badge (on-hover per field):** Hover "Capacity 120" → "From agency files (uploaded 2026-07-12)". Hover "Catering: external allowed" → "Enriched by Shortlisty from master catalog".
 
 #### 4. Structured preference capture (colored labels + dynamic selects)
 
@@ -143,7 +143,7 @@ Plain-English chronological feed. Not a JSON dump, not a Git diff view:
 
 Qwilr, Papermark, DocSend, Dock, Notion pages — all solve "share a pretty link." None of them solve the event-specific problem of "both sides need to know exactly what was agreed about specific venues with specific metadata versions, and have a human-readable history." The DIY stack (Drive + Canva + WhatsApp) explicitly does not solve this. Cvent solves it for enterprise RFPs at 100x the price.
 
-This is the gap VenueMi occupies. The approval snapshot by itself is not enough. The snapshot sits at the end of a trust-building timeline — without that timeline, it is a marketing gimmick. With it, it is a credible record.
+This is the gap Shortlisty occupies. The approval snapshot by itself is not enough. The snapshot sits at the end of a trust-building timeline — without that timeline, it is a marketing gimmick. With it, it is a credible record.
 
 ### Why trust model is the real moat, not AI extraction
 

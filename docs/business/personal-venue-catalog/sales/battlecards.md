@@ -4,13 +4,13 @@
 > Personal Venue Catalog segment reference. Not the primary direction — see [Digital Sales Room](../../../digital-sales-room-for-events/README.md).
 
 > **Audience:** Founders, team.
-> **Purpose:** Per-competitor handling for live sales conversations. One card per competitor: what they are strong at, where they fall short for our buyer, and how to position VenueMi when a prospect brings them up.
+> **Purpose:** Per-competitor handling for live sales conversations. One card per competitor: what they are strong at, where they fall short for our buyer, and how to position Shortlisty when a prospect brings them up.
 
 ---
 
 ## How to use these
 
-A prospect will rarely say "I'm comparing you to Bynder." More often they say "we already use Google Drive" or "our agency uses Cvent" or "can't ChatGPT just do this?" These cards give you the framing to acknowledge their tool, validate it where it deserves it, and land VenueMi's differentiation without disparaging the competitor.
+A prospect will rarely say "I'm comparing you to Bynder." More often they say "we already use Google Drive" or "our agency uses Cvent" or "can't ChatGPT just do this?" These cards give you the framing to acknowledge their tool, validate it where it deserves it, and land Shortlisty's differentiation without disparaging the competitor.
 
 The verdict in each card is the one sentence to leave the prospect with.
 
@@ -28,9 +28,9 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "Cvent is great for discovering venues you haven't worked with yet. VenueMi Intelligence is venue portfolio management for the venues you already know and trust — the ones in your email, your shared drive, your colleagues' heads. They solve different problems. Some of our customers use both."
+> "Cvent is great for discovering venues you haven't worked with yet. Shortlisty Intelligence is venue portfolio management for the venues you already know and trust — the ones in your email, your shared drive, your colleagues' heads. They solve different problems. Some of our customers use both."
 
-**Win condition:** The prospect recognises that most of their searches are for venues they already have files on, not venues they are discovering for the first time. The framing that lands fastest: Cvent is discovery; VenueMi is portfolio management.
+**Win condition:** The prospect recognises that most of their searches are for venues they already have files on, not venues they are discovering for the first time. The framing that lands fastest: Cvent is discovery; Shortlisty is portfolio management.
 
 ---
 
@@ -42,7 +42,7 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "VenueScanner helps you find venues you don't know yet. VenueMi is venue portfolio management for the ones you already know. A planner who has worked in London for five years doesn't need to discover new venues — they need to find the right one from the hundred they already trust, pull its specs in seconds, and share that with their team. That's the gap we fill."
+> "VenueScanner helps you find venues you don't know yet. Shortlisty is venue portfolio management for the ones you already know. A planner who has worked in London for five years doesn't need to discover new venues — they need to find the right one from the hundred they already trust, pull its specs in seconds, and share that with their team. That's the gap we fill."
 
 **Win condition:** The prospect is a mid-career planner with an existing venue portfolio, not someone just starting out. The word "portfolio" usually lands well here — it signals professional credibility and the scale of what they're managing.
 
@@ -56,7 +56,7 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "VenueFindAI finds venues for you. VenueMi manages the portfolio of venues you've already found. Most experienced planners have a shortlist of trusted venues they return to — VenueMi makes all the intelligence from that portfolio searchable and shared with your team, so it doesn't live in one person's inbox."
+> "VenueFindAI finds venues for you. Shortlisty manages the portfolio of venues you've already found. Most experienced planners have a shortlist of trusted venues they return to — Shortlisty makes all the intelligence from that portfolio searchable and shared with your team, so it doesn't live in one person's inbox."
 
 **Win condition:** The prospect values their existing venue relationships over discovery of new ones. "Portfolio" resonates with planners who think of their venue relationships as a professional asset they've built over years.
 
@@ -72,7 +72,7 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "Tripleseat is what the venues you work with use to manage their side. VenueMi Intelligence is what you use to manage yours. They're on opposite sides of the same relationship."
+> "Tripleseat is what the venues you work with use to manage their side. Shortlisty Intelligence is what you use to manage yours. They're on opposite sides of the same relationship."
 
 **Win condition:** The prospect understands they are the buyer, not the venue. Usually instant.
 
@@ -86,9 +86,9 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "Planning Pod is what the venue coordinator on the other side of the table uses. VenueMi is what you use. They manage the venue's operations; you manage your portfolio of venues. Same relationship, different sides."
+> "Planning Pod is what the venue coordinator on the other side of the table uses. Shortlisty is what you use. They manage the venue's operations; you manage your portfolio of venues. Same relationship, different sides."
 
-**Win condition:** The prospect understands the buyer-side distinction. If they're confusing VenueMi with venue operations software, use this to clarify what VenueMi actually is — venue portfolio management for planners, not for operators.
+**Win condition:** The prospect understands the buyer-side distinction. If they're confusing Shortlisty with venue operations software, use this to clarify what Shortlisty actually is — venue portfolio management for planners, not for operators.
 
 ---
 
@@ -112,7 +112,7 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "Google Drive is where your files live. VenueMi is where your venue portfolio lives. You don't have to replace Drive — you upload to VenueMi the files that matter, and it reads them, structures them into venue profiles, and gives your whole team a searchable portfolio they can actually use."
+> "Google Drive is where your files live. Shortlisty is where your venue portfolio lives. You don't have to replace Drive — you upload to Shortlisty the files that matter, and it reads them, structures them into venue profiles, and gives your whole team a searchable portfolio they can actually use."
 
 **Win condition:** The prospect has ever spent more than ten minutes searching through Drive for a specific venue detail. Almost universal. A secondary trigger: they've lost venue knowledge when someone left and took their Drive folder organisation with them.
 
@@ -126,7 +126,7 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:** Unlikely for SMB agencies given the price point. If it comes up in a corporate context:
 
-> "Bynder is built for marketing asset management — logos, campaign images, brand documents. It has no concept of venue semantics. Their AI would tag a venue floor plan as 'building interior' and stop there. VenueMi extracts the capacity table, the room names, the AV specs, and makes them searchable."
+> "Bynder is built for marketing asset management — logos, campaign images, brand documents. It has no concept of venue semantics. Their AI would tag a venue floor plan as 'building interior' and stop there. Shortlisty extracts the capacity table, the room names, the AV specs, and makes them searchable."
 
 **Win condition:** The prospect has tried tagging venue documents in a generic DAM and found the results useless.
 
@@ -152,7 +152,7 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "ChatGPT can answer a question about one PDF right now. VenueMi remembers every document you've ever uploaded, extracts structured data your whole team can search, and tells you when two documents about the same venue disagree. It's the difference between a conversation and a knowledge base."
+> "ChatGPT can answer a question about one PDF right now. Shortlisty remembers every document you've ever uploaded, extracts structured data your whole team can search, and tells you when two documents about the same venue disagree. It's the difference between a conversation and a knowledge base."
 
 **Win condition:** The prospect has tried using ChatGPT for venue research and found it useful for one-off questions but frustrating for anything that requires memory or team access.
 
@@ -166,9 +166,9 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:**
 
-> "Spark helps you write faster. VenueMi helps you know more. They're complementary — use Spark to draft the RFP, use VenueMi to make sure the venue details in that RFP are accurate. Some of our target customers already use Spark."
+> "Spark helps you write faster. Shortlisty helps you know more. They're complementary — use Spark to draft the RFP, use Shortlisty to make sure the venue details in that RFP are accurate. Some of our target customers already use Spark."
 
-**Win condition:** The prospect sees the tools as additive. Position VenueMi as the knowledge layer that makes Spark's outputs more accurate and specific.
+**Win condition:** The prospect sees the tools as additive. Position Shortlisty as the knowledge layer that makes Spark's outputs more accurate and specific.
 
 ---
 
@@ -180,10 +180,10 @@ Full competitive analysis: [comparison.md](../comparison.md).
 
 **When a prospect brings them up:** They are probably a developer or technical buyer evaluating whether to build vs. buy.
 
-> "Unstructured.io is infrastructure — it handles document parsing at the API level. VenueMi Intelligence is the product built on top: the venue schema, the multi-source aggregation, the conflict resolution, the semantic search, the team collaboration layer. You could build VenueMi's extraction pipeline using Unstructured.io. We did it better and faster with Apache Tika and Spring AI, and we wrapped it in a product that planners can use without touching an API."
+> "Unstructured.io is infrastructure — it handles document parsing at the API level. Shortlisty Intelligence is the product built on top: the venue schema, the multi-source aggregation, the conflict resolution, the semantic search, the team collaboration layer. You could build Shortlisty's extraction pipeline using Unstructured.io. We did it better and faster with Apache Tika and Spring AI, and we wrapped it in a product that planners can use without touching an API."
 
 **Win condition:** The prospect is evaluating build vs. buy. The answer is almost always buy unless they have a team of ML engineers with nothing else to do.
 
 ---
 
-**Docs:** [What is VenueMi?](../../README.md) · [Business Proposal](../proposal.md) · [Competitive Landscape](../comparison.md) · [Pitch](pitch.md) · [Objections](objections.md)
+**Docs:** [What is Shortlisty?](../../README.md) · [Business Proposal](../proposal.md) · [Competitive Landscape](../comparison.md) · [Pitch](pitch.md) · [Objections](objections.md)

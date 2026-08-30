@@ -60,7 +60,7 @@ Smaller, tighter event market with strong luxury/wedding/conference agencies and
 ### What to avoid
 
 - Tier-1 cities (NYC, LA, Chicago, Las Vegas) — save for the demo pitch deck, not the Master Catalog seed dataset
-- Stadium, arena, and convention centre venues — too large, operator-side tools already cover them, not VenueMi's ICP
+- Stadium, arena, and convention centre venues — too large, operator-side tools already cover them, not Shortlisty's ICP
 - Chain hotel ballrooms (Marriott, Hilton, Hyatt branded) — their venue data is centralised and controlled, not publicly accessible per-property, and fuzzy dedup against chain names produces too many false-positives
 - Venues with no web presence or no downloadable spec materials — they are not useful for ETL testing, and the Master Catalog seed rows benefit most from having source documents to benchmark extraction against
 
@@ -75,7 +75,7 @@ A good seed venue is:
 - SMB-operated: independently owned or a small regional group (not a national chain)
 - Publicly marketed: has a website with event/venue information, ideally a downloadable spec sheet or floor plan
 - Actively hosting events: listed on Google Maps as an event venue, has reviews, has photos
-- Capacity range: 30–300 guests — the core VenueMi ICP brief range
+- Capacity range: 30–300 guests — the core Shortlisty ICP brief range
 - Data richness: multiple document types available (PDF deck, photos, floor plan, or at minimum a detailed website)
 
 ### Categories
@@ -163,7 +163,7 @@ Public venue pages include photos, reviews, and sometimes structured attributes 
 2. Confirm it meets the selection criteria above
 3. Download all publicly available documents from the venue's website (PDF decks, floor plans, menus)
 4. Save photo URLs or download photos from the venue's website and Google Maps
-5. Record the raw structured data as a **`MasterVenueRecord` JSON** entry — same field shape that `mi-mc-ingest-tagvenue-scraper` emits, so these manual entries are interchangeable with scraper entries and feed directly into the same `mi-mc-loader` pipeline later.
+5. Record the raw structured data as a **`MasterVenueRecord` JSON** entry — same field shape that `mc-ingest-tagvenue-scraper` emits, so these manual entries are interchangeable with scraper entries and feed directly into the same `mi-mc-loader` pipeline later.
 6. Submit the JSON through either the **admin MasterVenue CRUD API** or the `mi-mc-loader --file` CLI so it is inserted into `public.master_venue` with an associated `master_venue_external` row (`external_source='platform_seed'`). This is a live test of the importer UPSERT dedup pipeline.
 7. Run the same venue documents through the asset-ETL pipeline for a linked test tenant venue to test extraction quality end-to-end.
 8. Review extraction output, note failures, log confidence scores per field. If a seed entry has any fields that extraction missed but we verified manually on the venue website, update the `master_venue.metadata` row via admin edit as `MANUAL_OVERRIDE` (priority 10/10) — this tests the provenance priority chain because future scraper re-runs will not overwrite hand-verified seed data.
@@ -197,4 +197,4 @@ When these criteria are met, the platform is ready for the first concierge onboa
 
 ---
 
-**Docs:** [What is VenueMi?](../../README.md) · [Business Proposal](proposal.md) · [Market Structure](../market.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is Shortlisty?](../../README.md) · [Business Proposal](proposal.md) · [Market Structure](../market.md) · [Vision](../../roadmap/vision.md)

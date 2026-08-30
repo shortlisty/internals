@@ -1,4 +1,4 @@
-# VenueMi — Data Model
+# Shortlisty — Data Model
 
 > **Audience:** Engineers, architects.
 > **Purpose:** Domain model, canonical metadata field set, JSONB schema versioning strategy, and full database schema with index rationale.
@@ -13,7 +13,7 @@
 - [master-catalog.md](master-catalog.md) — `public.master_venue` tables and MC_INHERIT provenance
 - [etl-pipeline.md](etl-pipeline.md) — how extraction jobs produce `venue_metadata_events`
 - [ui-venue-management.md](ui-venue-management.md) — UI types, form spec, asset gallery components
-- [ui-shared-packages.md](ui-shared-packages.md) — `@venuemi/ui-types`: TypeScript mirrors of all entities here
+- [ui-shared-packages.md](ui-shared-packages.md) — `@shortlisty/ui-types`: TypeScript mirrors of all entities here
 
 ---
 
@@ -501,7 +501,7 @@ No scheduled backfill job, no downtime, no `ALTER TABLE` on JSONB. If all rows m
 
 ### Version Distribution Observability
 
-The migrator records the pre-migration version of every document it sees via Micrometer. See [observability.md](observability.md) for the `venuemi_metadata_schema_version_seen_total` metric.
+The migrator records the pre-migration version of every document it sees via Micrometer. See [observability.md](observability.md) for the `shortlisty_metadata_schema_version_seen_total` metric.
 
 ### Schema Version in Master Catalog Metadata
 

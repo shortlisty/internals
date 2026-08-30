@@ -7,7 +7,7 @@
 
 ## Context
 
-The VenueMi ingestion pipeline reads venue documents (PDF decks, floor plans, spec sheets, CAD files) and extracts structured metadata (capacity, catering policy, restrictions, etc.). Two production-grade document readers are available in the Java/self-hosted ecosystem:
+The Shortlisty ingestion pipeline reads venue documents (PDF decks, floor plans, spec sheets, CAD files) and extracts structured metadata (capacity, catering policy, restrictions, etc.). Two production-grade document readers are available in the Java/self-hosted ecosystem:
 
 - **Apache Tika** — battle-tested since 2007, ships as a first-class Spring AI `TikaDocumentReader`, supports 1000+ formats including DWG/AutoCAD, has forked-JVM isolation via Tika Pipes.
 - **IBM Docling** — newer layout-aware parser with state-of-the-art table extraction and multi-column PDF reconstruction. Runs as a self-hosted Docker container (MIT license, no per-page cost).

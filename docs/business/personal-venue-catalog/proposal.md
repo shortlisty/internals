@@ -4,7 +4,7 @@
 > This document was written for the **Personal Venue Catalog** segment — an internal knowledge-base tool for event agencies. It is a reference example for that positioning, not the primary product direction. The current product focus is the [Digital Sales Room for Events](../../digital-sales-room-for-events/README.md).
 
 > **Audience:** Founders, team.
-> **Purpose:** Full business case for VenueMi Intelligence — ICP, feature phases, monetization, go-to-market, risks, and open questions. US market first, platform-native for global expansion.
+> **Purpose:** Full business case for Shortlisty Intelligence — ICP, feature phases, monetization, go-to-market, risks, and open questions. US market first, platform-native for global expansion.
 
 ---
 
@@ -32,7 +32,7 @@ This happens multiple times a week at every agency. The cost is not just time �
 
 **Upload once. AI organises everything. Search finds any venue in seconds.**
 
-VenueMi turns fragmented venue documentation into a structured, searchable intelligence layer.
+Shortlisty turns fragmented venue documentation into a structured, searchable intelligence layer.
 
 Drop in a venue deck, a floor plan, a photo set, a spec sheet — the platform reads all of it automatically and extracts what matters: capacity in every room configuration, amenities, catering policy, AV specs, restrictions, contacts, pricing indicators. Every venue becomes a rich, queryable profile instead of a pile of files.
 
@@ -106,7 +106,7 @@ The long-horizon direction is a two-sided marketplace: event professionals manag
 
 **Event manager / account manager (agency)**
 
-- Uses VenueMi on every client brief — searches first, uploads new venues after site visits
+- Uses Shortlisty on every client brief — searches first, uploads new venues after site visits
 - Cares about: search speed, accurate extraction, mobile upload during site visits
 - Aha moment: types a client requirement and gets the right venue back in under ten seconds
 - Churn risk: if search results are inaccurate or extraction misses key fields, they stop trusting it and go back to email
@@ -149,7 +149,7 @@ The long-horizon direction is a two-sided marketplace: event professionals manag
 
 **Confidence.** Every data point is sourced. The system shows which document it came from, what page, and how confident it is. Event professionals can verify anything with one click.
 
-**Conflict resolution.** When two documents give different capacity numbers, VenueMi surfaces the conflict and lets the manager resolve it once — rather than discovering the discrepancy mid-proposal.
+**Conflict resolution.** When two documents give different capacity numbers, Shortlisty surfaces the conflict and lets the manager resolve it once — rather than discovering the discrepancy mid-proposal.
 
 ---
 
@@ -240,7 +240,7 @@ The long-horizon direction is a two-sided marketplace: event professionals manag
 
 **Long horizon — marketplace and client-facing features**
 
-Venues claiming profiles, planner-to-venue discovery across the full VenueMi network, venue subscriptions for enhanced visibility, and client-facing shareable views are long-horizon directions. They are not part of Phase 1, 2, or 3 planning. See [vision.md](../../roadmap/vision.md) for the long-horizon framing.
+Venues claiming profiles, planner-to-venue discovery across the full Shortlisty network, venue subscriptions for enhanced visibility, and client-facing shareable views are long-horizon directions. They are not part of Phase 1, 2, or 3 planning. See [vision.md](../../roadmap/vision.md) for the long-horizon framing.
 
 ---
 
@@ -322,22 +322,22 @@ The platform launches US-first to validate the core product. The architecture su
 
 The detailed competitive landscape analysis is in [comparison.md](comparison.md). Summary:
 
-**vs. Dropbox / Google Drive** — they store files. VenueMi understands them. A manager can ask a question and get an answer, not a list of files to open.
+**vs. Dropbox / Google Drive** — they store files. Shortlisty understands them. A manager can ask a question and get an answer, not a list of files to open.
 
-**vs. Airtable / Notion** — flexible general-purpose tools that require manual data entry. Every field someone types in is a field that goes out of date. VenueMi extracts from source documents automatically.
+**vs. Airtable / Notion** — flexible general-purpose tools that require manual data entry. Every field someone types in is a field that goes out of date. Shortlisty extracts from source documents automatically.
 
-**vs. Cvent / VenueScanner / VenueFindAI** — marketplace and discovery tools that know what venues self-submit publicly. VenueMi works with documents the manager already has, extracted into a private team-owned knowledge base. Complementary, not competing.
+**vs. Cvent / VenueScanner / VenueFindAI** — marketplace and discovery tools that know what venues self-submit publicly. Shortlisty works with documents the manager already has, extracted into a private team-owned knowledge base. Complementary, not competing.
 
 **vs. Bynder / Brandfolder** — store and tag files for brand teams. No venue-specific schema, no structured extraction, no understanding of capacity or catering policy.
 
-**vs. Spark (GEVME/PCMA)** — helps event professionals write faster. Does not help them know their venues better. VenueMi provides the venue intelligence that makes Spark's output accurate and specific.
+**vs. Spark (GEVME/PCMA)** — helps event professionals write faster. Does not help them know their venues better. Shortlisty provides the venue intelligence that makes Spark's output accurate and specific.
 
-**The gap VenueMi fills:** nobody provides document intelligence specifically for event professionals managing their own venue portfolio. The slot is unoccupied.
+**The gap Shortlisty fills:** nobody provides document intelligence specifically for event professionals managing their own venue portfolio. The slot is unoccupied.
 
-**VenueMi's durable edge:**
+**Shortlisty's durable edge:**
 
 - Venue-specific extraction schema — the exact fields event professionals use (capacity configurations, catering policy, curfew, rigging points, load-in access)
-- Multi-source aggregation with conflict resolution — when five documents disagree, VenueMi surfaces it and resolves it rather than silently picking one value
+- Multi-source aggregation with conflict resolution — when five documents disagree, Shortlisty surfaces it and resolves it rather than silently picking one value
 - Full provenance — every data point traces back to a source document and page
 - Global-ready from day one — architecture, not afterthought
 
@@ -359,7 +359,7 @@ Personal and direct. No paid acquisition yet.
 
 - Product Hunt launch
 - Industry press: BizBash, Skift Meetings, EventMB
-- Content marketing: "The state of venue research in 2026" — a short survey and report that surfaces the pain quantitatively, positions VenueMi as the authority, and generates inbound leads
+- Content marketing: "The state of venue research in 2026" — a short survey and report that surfaces the pain quantitatively, positions Shortlisty as the authority, and generates inbound leads
 - Demo video (two to three minutes): live AI extraction from a real venue PDF, no narration needed
 - PCMA and MPI partnership / sponsorship
 
@@ -382,7 +382,7 @@ Personal and direct. No paid acquisition yet.
 
 **AI extraction accuracy below expectations.** The core value proposition depends on extraction being good enough that event professionals trust the output. Real-world venue PDFs vary enormously. Mitigation: benchmark 50 real venue documents before launch and measure field-level accuracy. Show confidence scores always. Make manual override a first-class, one-click feature.
 
-**Empty platform problem (cold start).** A venue library with one venue in it is not useful. Mitigation: three layers. (1) **Concierge onboarding** gets early customers past the empty-state friction on day one. (2) **Master Catalog silent auto-populate**: before a planner uploads any document, if they create a venue whose name+city matches the internal pre-seeded Venue Master Catalog (50–200 tier-2 US/EU venues at launch: Austin, Nashville, Miami, Naples, etc.), 20–30 fields are filled in immediately from the hidden backdrop layer. (3) **Master Catalog enrichment via scrapers**: the `mi-mc-ingest-tagvenue-scraper` CronJob refreshes city-level data nightly so the backdrop grows before tenants do. For free-tier users, this means they rarely see a truly blank form — venues in the seed cities are pre-populated on creation.
+**Empty platform problem (cold start).** A venue library with one venue in it is not useful. Mitigation: three layers. (1) **Concierge onboarding** gets early customers past the empty-state friction on day one. (2) **Master Catalog silent auto-populate**: before a planner uploads any document, if they create a venue whose name+city matches the internal pre-seeded Venue Master Catalog (50–200 tier-2 US/EU venues at launch: Austin, Nashville, Miami, Naples, etc.), 20–30 fields are filled in immediately from the hidden backdrop layer. (3) **Master Catalog enrichment via scrapers**: the `mc-ingest-tagvenue-scraper` CronJob refreshes city-level data nightly so the backdrop grows before tenants do. For free-tier users, this means they rarely see a truly blank form — venues in the seed cities are pre-populated on creation.
 
 **Trust and data confidentiality.** Event professionals' venue portfolios contain proprietary relationships and pricing intelligence. Mitigation: schema-per-tenant isolation, encryption at rest and in transit, clear data handling policy, transparency about how OpenAI processes documents (enterprise option: Azure OpenAI for data residency). **Tenant data never flows back into the shared Master Catalog** to prevent information leakage. The Master Catalog is populated only from public sources (seed, admin imports, web scrapers) — one-way enrichment only.
 
@@ -402,4 +402,4 @@ Personal and direct. No paid acquisition yet.
 
 ---
 
-**Docs:** [What is VenueMi?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../../platform/README.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is Shortlisty?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../../platform/README.md) · [Vision](../../roadmap/vision.md)

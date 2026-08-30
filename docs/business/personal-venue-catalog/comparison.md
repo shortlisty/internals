@@ -4,7 +4,7 @@
 > This document was written for the **Personal Venue Catalog** segment — an internal knowledge-base tool for event agencies. It is a reference example for that positioning, not the primary product direction. The current product focus is the [Digital Sales Room for Events](../../digital-sales-room-for-events/README.md).
 
 > **Audience:** Founders, team.
-> **Purpose:** Strategic reference for the competitive positioning of VenueMi across the event tool ecosystem. Used as context for the more focused DSR competitive analysis in [digital-sales-room-for-events/comparison.md](../../digital-sales-room-for-events/comparison.md).
+> **Purpose:** Strategic reference for the competitive positioning of Shortlisty across the event tool ecosystem. Used as context for the more focused DSR competitive analysis in [digital-sales-room-for-events/comparison.md](../../digital-sales-room-for-events/comparison.md).
 
 ---
 
@@ -28,7 +28,7 @@
 
 ### Venue Discovery & Sourcing
 
-| Tool                 | Website                                                                                | Strength                                                                                                                          | Overlap with VenueMi                                                                                                  |
+| Tool                 | Website                                                                                | Strength                                                                                                                          | Overlap with Shortlisty                                                                                                  |
 | -------------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | VenueScanner         | [venuescanner.com](https://www.venuescanner.com)                                       | Largest UK marketplace (19K+ venues), free for planners, AI ranking                                                               | Discovery-only; no planner-side knowledge base                                                                        |
 | Lime Venue Portfolio | [limevenueportfolio.com](https://limevenueportfolio.com)                               | Largest UK/Ireland unique venue collection, AI search, single point of contact, sustainability focus                              | Venue-side network; no document intelligence for planners                                                             |
@@ -122,7 +122,7 @@ These are the established players. None of them are _document intelligence_ plat
 - Full event lifecycle: sourcing → registration → onsite → reporting
 - Global footprint, strong enterprise contracts
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Cvent is a _discovery and booking_ platform — it doesn't help you manage your own venue library
 - Venues in Cvent are self-submitted by venue owners, not extracted from your own documents
@@ -130,7 +130,7 @@ These are the established players. None of them are _document intelligence_ plat
 - No team-owned venue knowledge base
 - Enterprise pricing puts it out of reach for SMB agencies
 
-**Verdict:** Not a direct competitor. Cvent is a venue marketplace. VenueMi Intelligence is an intelligence layer for your own venue portfolio. They could be _complementary_ (import discovered venues from Cvent into VenueMi).
+**Verdict:** Not a direct competitor. Cvent is a venue marketplace. Shortlisty Intelligence is an intelligence layer for your own venue portfolio. They could be _complementary_ (import discovered venues from Cvent into Shortlisty).
 
 ---
 
@@ -145,14 +145,14 @@ These are the established players. None of them are _document intelligence_ plat
 - AI for: demand forecasting, F&B inventory recommendations, conversational analytics, peer benchmarking
 - Deeply embedded in hospitality operations
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Tripleseat is built _for venues_ to manage their events — not _for planners_ to manage their venue portfolio
 - Their AI runs on their own transactional data (bookings), not on unstructured documents
 - No document parsing, no cross-venue search for planners
 - No support for planner's own uploaded assets
 
-**Verdict:** Different side of the market. Tripleseat serves venues; VenueMi serves planners. The intelligence architectures are fundamentally different: Tripleseat mines structured operational data; VenueMi mines unstructured documents.
+**Verdict:** Different side of the market. Tripleseat serves venues; Shortlisty serves planners. The intelligence architectures are fundamentally different: Tripleseat mines structured operational data; Shortlisty mines unstructured documents.
 
 ---
 
@@ -167,14 +167,14 @@ These are the established players. None of them are _document intelligence_ plat
 - 20+ years of venue and event intelligence baked into their models
 - WeTrack product for safety/sustainability/risk management
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Heavy enterprise product, not accessible to SMB agencies
 - Focused on venue operators managing their own space, not planners curating a portfolio
 - No document intelligence or ETL pipeline
 - Implementation takes months, not minutes
 
-**Verdict:** Enterprise venue ops software. No overlap with VenueMi's document intelligence core.
+**Verdict:** Enterprise venue ops software. No overlap with Shortlisty's document intelligence core.
 
 ---
 
@@ -195,7 +195,7 @@ These are the established players. None of them are _document intelligence_ plat
 - Fully managed onboarding: account configuration, photo ingestion, schedule migration, and training at no cost
 - Cloud-based, mobile-optimised
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Serves _facility operators_ (schools, districts, cities) — not event managers or event planning agencies
 - No document intelligence: no PDF ingestion, no floor plan parsing, no spec sheet extraction
@@ -206,7 +206,7 @@ These are the established players. None of them are _document intelligence_ plat
 - No multi-source aggregation or conflict resolution
 - No team knowledge base for event professionals
 
-**Verdict:** Facilitron is a public-sector facility operations and community rental platform. It serves the venue operator side — helping schools and cities manage their own spaces and earn rental revenue from the community. It has no overlap with VenueMi's core use case. A school district using Facilitron to manage gym rentals is not an VenueMi customer; an event agency trying to find and brief that school's gym is.
+**Verdict:** Facilitron is a public-sector facility operations and community rental platform. It serves the venue operator side — helping schools and cities manage their own spaces and earn rental revenue from the community. It has no overlap with Shortlisty's core use case. A school district using Facilitron to manage gym rentals is not an Shortlisty customer; an event agency trying to find and brief that school's gym is.
 
 ---
 
@@ -227,7 +227,7 @@ These are the established players. None of them are _document intelligence_ plat
 - $45/month per editor, 30-day free trial, no setup fees, free onboarding
 - Explicitly privacy-first: no AI, no third-party data repurposing
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Production management tool for event _producers and producers' teams_ — not for event planning agencies managing a venue portfolio
 - No venue knowledge base: no venue profiles, no document ingestion, no extraction from venue-supplied PDFs or floor plans
@@ -237,7 +237,7 @@ These are the established players. None of them are _document intelligence_ plat
 - No multi-source data aggregation or conflict resolution
 - Narrow vertical: performing arts, live events, corporate production teams — not general event planning agencies managing third-party venues
 
-**Verdict:** Propared is production operations software for the teams _producing_ an event — stage managers, production managers, technical directors. VenueMi Intelligence is knowledge management software for event managers _finding and briefing_ venues. The workflows are adjacent but the users and the data are entirely different. A production manager at a theatre company uses Propared to schedule the load-in; the event agency that booked that theatre used VenueMi to find it.
+**Verdict:** Propared is production operations software for the teams _producing_ an event — stage managers, production managers, technical directors. Shortlisty Intelligence is knowledge management software for event managers _finding and briefing_ venues. The workflows are adjacent but the users and the data are entirely different. A production manager at a theatre company uses Propared to schedule the load-in; the event agency that booked that theatre used Shortlisty to find it.
 
 ---
 
@@ -249,7 +249,7 @@ These are the established players. None of them are _document intelligence_ plat
 
 **Gaps:** No AI, no document intelligence, no team venue library concept. More CRM than intelligence platform.
 
-**Verdict:** Irrelevant to VenueMi's positioning. Different price/feature tier entirely. Planning Pod (see above) is the more capable tool in this tier and has its own entry.
+**Verdict:** Irrelevant to Shortlisty's positioning. Different price/feature tier entirely. Planning Pod (see above) is the more capable tool in this tier and has its own entry.
 
 ---
 
@@ -268,7 +268,7 @@ These are the established players. None of them are _document intelligence_ plat
 - Verified property contact access at paid tiers — direct line to the right decision-maker at each venue
 - Analytics and supplier performance reporting
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Venue sourcing / RFP platform — built for _discovering and briefing_ venues, not for managing a portfolio of venues already known to the planner
 - No planner-side knowledge base: no venue profiles the planner owns, no document ingestion, no extraction from venue-supplied PDFs
@@ -277,7 +277,7 @@ These are the established players. None of them are _document intelligence_ plat
 - No document intelligence, no floor plan parsing, no spec sheet extraction
 - No multi-source aggregation or conflict resolution
 
-**Verdict:** Same sourcing/discovery quadrant as Cvent and VenueScanner, but lighter-weight and SMB-accessible. Ventur3 helps planners find and brief venues they haven't worked with — VenueMi manages the portfolio of venues they already know and trust. Complementary: a planner discovers a venue through Ventur3's RFP process, then ingests that venue's response documents into VenueMi to build a permanent, searchable profile.
+**Verdict:** Same sourcing/discovery quadrant as Cvent and VenueScanner, but lighter-weight and SMB-accessible. Ventur3 helps planners find and brief venues they haven't worked with — Shortlisty manages the portfolio of venues they already know and trust. Complementary: a planner discovers a venue through Ventur3's RFP process, then ingests that venue's response documents into Shortlisty to build a permanent, searchable profile.
 
 ---
 
@@ -295,7 +295,7 @@ These are the established players. None of them are _document intelligence_ plat
 - 25 years of institutional knowledge across corporate, incentive, and conference events
 - Personal relationships with venue decision-makers — faster and more credible than cold RFP distribution
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Agency services model — the intelligence is held by the Planner Hero team, not by the client's own organisation
 - No client-owned venue knowledge base: when a company stops using Planner Hero, the accumulated venue intelligence leaves with the agency
@@ -303,7 +303,7 @@ These are the established players. None of them are _document intelligence_ plat
 - No document intelligence, no PDF/floor plan ingestion from client-supplied files
 - Not self-serve SaaS — requires engagement with the Planner Hero team
 
-**Verdict:** Planner Hero is closer to an outsourced venue intelligence function than a software product. Its limitation from a VenueMi perspective is exactly the institutional knowledge problem VenueMi solves: the expertise lives in the agency, not in the client's own system. A company using Planner Hero for sourcing is paying for intelligence they don't own. VenueMi is what that company builds when they decide to own it themselves — or complement a services relationship with a persistent, searchable internal record of every venue they've sourced through any channel.
+**Verdict:** Planner Hero is closer to an outsourced venue intelligence function than a software product. Its limitation from a Shortlisty perspective is exactly the institutional knowledge problem Shortlisty solves: the expertise lives in the agency, not in the client's own system. A company using Planner Hero for sourcing is paying for intelligence they don't own. Shortlisty is what that company builds when they decide to own it themselves — or complement a services relationship with a persistent, searchable internal record of every venue they've sourced through any channel.
 
 ---
 
@@ -319,7 +319,7 @@ These are the established players. None of them are _document intelligence_ plat
 - AI-ranking algorithm boosts venues that respond quickly to enquiries
 - Expanding beyond UK into international markets
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Pure _discovery and booking_ marketplace — venues are listed by venue owners, not extracted from planner-owned documents
 - No planner-side venue library or knowledge base
@@ -327,7 +327,7 @@ These are the established players. None of them are _document intelligence_ plat
 - AI is limited to ranking and response-time scoring, not semantic extraction
 - No cross-venue comparison against a planner's own portfolio
 
-**Verdict:** VenueScanner is a consumer-grade venue search engine, not a planner intelligence tool. A planner who already knows their preferred venues gets nothing from VenueScanner — it only helps with first-pass discovery of venues they haven't worked with yet. Complementary to VenueMi, not competitive.
+**Verdict:** VenueScanner is a consumer-grade venue search engine, not a planner intelligence tool. A planner who already knows their preferred venues gets nothing from VenueScanner — it only helps with first-pass discovery of venues they haven't worked with yet. Complementary to Shortlisty, not competitive.
 
 ---
 
@@ -344,7 +344,7 @@ These are the established players. None of them are _document intelligence_ plat
 - Broad scope: corporate events and celebrations, suggesting a wide venue inventory or intent to build one
 - Straightforward positioning that's easy for non-technical buyers to understand
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Discovery platform: works from a database of venues that _have listed themselves_ — not from documents a planner already owns
 - No planner-side knowledge base — recommendations are ephemeral, not stored as a team asset
@@ -352,7 +352,7 @@ These are the established players. None of them are _document intelligence_ plat
 - Human concierge layer adds latency and doesn't scale to a planner's full portfolio of 50–100 known venues
 - AI recommendations are only as good as what venues have self-submitted — the moment a planner needs intelligence from their own files (a venue deck sent by email, a floor plan from 2019), VenueFindAI has nothing
 
-**Verdict:** Same quadrant as VenueScanner and Cvent — a venue marketplace/sourcing tool for _discovering_ new venues. VenueMi solves the adjacent and complementary problem: once you've found and worked with venues, how do you manage, extract intelligence from, and search across everything you already know about them. A planner could use VenueFindAI to discover a venue, then use VenueMi to ingest that venue's documents and build a permanent, searchable profile.
+**Verdict:** Same quadrant as VenueScanner and Cvent — a venue marketplace/sourcing tool for _discovering_ new venues. Shortlisty solves the adjacent and complementary problem: once you've found and worked with venues, how do you manage, extract intelligence from, and search across everything you already know about them. A planner could use VenueFindAI to discover a venue, then use Shortlisty to ingest that venue's documents and build a permanent, searchable profile.
 
 ---
 
@@ -369,14 +369,14 @@ These are the established players. None of them are _document intelligence_ plat
 - CRM with client data visibility and lead capture
 - Cloud-based, mid-market pricing
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Serves _venue operators_, not event planners — the same side-of-market distinction as Momentus and Tripleseat
 - No document intelligence, no PDF/floor plan ingestion, no ETL pipeline
 - No planner-facing portfolio management
 - Narrow vertical: performing arts centres and theatres, not the broader corporate/social events market
 
-**Verdict:** Niche venue operations software for a specific vertical (performing arts). No overlap with VenueMi's core use case. Closer to a lighter-weight Momentus than anything in VenueMi's competitive set.
+**Verdict:** Niche venue operations software for a specific vertical (performing arts). No overlap with Shortlisty's core use case. Closer to a lighter-weight Momentus than anything in Shortlisty's competitive set.
 
 ---
 
@@ -397,7 +397,7 @@ These are the established players. None of them are _document intelligence_ plat
 - Dedicated onboarding specialist and ongoing product specialist support — not self-serve helpdesk
 - Claims venues grow bookings by an average of 64% after switching; users save 62 hours/month
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Serves _venue operators_, not event planners — the same side-of-market distinction as Tripleseat, Momentus, and VenueArc
 - No document intelligence: no PDF ingestion, no spec sheet extraction, no floor plan parsing from uploaded files
@@ -406,13 +406,13 @@ These are the established players. None of them are _document intelligence_ plat
 - No semantic search across extracted venue attributes; search is limited to booking records and CRM data the venue has manually entered
 - No multi-source aggregation or conflict resolution across documents
 
-**Verdict:** Planning Pod is Tripleseat's most direct SMB/mid-market competitor — both serve venue operators, not planners. Planning Pod wins on pricing accessibility and modularity where Tripleseat wins on scale and depth of transactional data. Neither has anything to do with VenueMi's use case. The floor plan designer is the only surface-level overlap: Planning Pod lets a venue build and reuse floor plan layouts for BEOs; VenueMi parses floor plan documents uploaded by planners and extracts structured intelligence from them. Entirely different users, entirely different data flows.
+**Verdict:** Planning Pod is Tripleseat's most direct SMB/mid-market competitor — both serve venue operators, not planners. Planning Pod wins on pricing accessibility and modularity where Tripleseat wins on scale and depth of transactional data. Neither has anything to do with Shortlisty's use case. The floor plan designer is the only surface-level overlap: Planning Pod lets a venue build and reuse floor plan layouts for BEOs; Shortlisty parses floor plan documents uploaded by planners and extracts structured intelligence from them. Entirely different users, entirely different data flows.
 
 ---
 
 ### 1.2 Digital Asset Management (DAM) Platforms
 
-DAM platforms are the closest adjacent category to VenueMi Intelligence — they centralize, tag, search, and distribute digital files for marketing and brand teams. Unlike the booking/CRM tools above, DAMs do handle unstructured files (images, PDFs, videos). But their intelligence is built for brand governance, not venue intelligence.
+DAM platforms are the closest adjacent category to Shortlisty Intelligence — they centralize, tag, search, and distribute digital files for marketing and brand teams. Unlike the booking/CRM tools above, DAMs do handle unstructured files (images, PDFs, videos). But their intelligence is built for brand governance, not venue intelligence.
 
 ---
 
@@ -432,7 +432,7 @@ DAM platforms are the closest adjacent category to VenueMi Intelligence — they
 
 **Pricing:** Quote-only. Entry-level around $450/month; enterprise contracts average ~$41K/year based on procurement data.
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Built for _brand assets_ (logos, campaign images, marketing docs) — not venue intelligence
 - No venue-specific extraction schema (no capacity, amenities, room configurations, restrictions)
@@ -442,7 +442,7 @@ DAM platforms are the closest adjacent category to VenueMi Intelligence — they
 - No cross-document aggregation or conflict resolution
 - Priced for enterprise marketing teams, not event planning agencies
 
-**Verdict:** Bynder is a sophisticated content library, not an intelligence platform. If a planner stored venue PDFs in Bynder, they'd get organized storage and generic AI tags. They would _not_ get extracted capacity data, structured room configurations, or answers to "find me a venue with a freight elevator and kosher catering." The intelligence layer VenueMi provides simply doesn't exist in any DAM.
+**Verdict:** Bynder is a sophisticated content library, not an intelligence platform. If a planner stored venue PDFs in Bynder, they'd get organized storage and generic AI tags. They would _not_ get extracted capacity data, structured room configurations, or answers to "find me a venue with a freight elevator and kosher catering." The intelligence layer Shortlisty provides simply doesn't exist in any DAM.
 
 ---
 
@@ -463,7 +463,7 @@ DAM platforms are the closest adjacent category to VenueMi Intelligence — they
 
 **Pricing:** Custom, quote-based. Two tiers (Premium and Enterprise). Starting point reported around $1,600/month; median contracts around $24,700/year.
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Same fundamental limitation as Bynder: designed for _brand/marketing assets_, not venue intelligence
 - Brand Intelligence tags visual content generically — no understanding of venue-specific semantics
@@ -472,7 +472,7 @@ DAM platforms are the closest adjacent category to VenueMi Intelligence — they
 - No event planner workflow: no RFP support, no venue comparison, no sourcing history
 - Smartsheet integration helps with _work management_ (tasks, approvals) — not with venue knowledge
 
-**Verdict:** Brandfolder is Bynder's strongest mid-market competitor, with a cleaner UX and a stronger AI tagging story. Neither is a venue intelligence platform. A planner using Brandfolder gets a well-organized file library with good visual search — and nothing more. The gap VenueMi fills (venue-specific structured extraction, semantic search by venue attributes, multi-source reconciliation) is entirely absent from the DAM category.
+**Verdict:** Brandfolder is Bynder's strongest mid-market competitor, with a cleaner UX and a stronger AI tagging story. Neither is a venue intelligence platform. A planner using Brandfolder gets a well-organized file library with good visual search — and nothing more. The gap Shortlisty fills (venue-specific structured extraction, semantic search by venue attributes, multi-source reconciliation) is entirely absent from the DAM category.
 
 ---
 
@@ -497,7 +497,7 @@ A distinct emerging category: general-purpose AI assistants built specifically f
 - Free tier available; enterprise tier with SSO, custom integrations, and security controls
 - Spark Academy, Spark Excellence (team training), SparkU (student tier): education ecosystem building adoption
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Spark is a _content generation and workflow automation_ tool — it helps planners write faster, not know their venues better
 - No venue knowledge base: no venue profiles, no stored documents, no portfolio management
@@ -506,13 +506,13 @@ A distinct emerging category: general-purpose AI assistants built specifically f
 - No structured venue metadata schema — outputs are generated text, not queryable structured data
 - No multi-source aggregation or conflict resolution across documents
 
-**Verdict:** Spark is the closest thing to a purpose-built AI assistant for event planners, and it's well-adopted (14,500+ users). But it's a _writing and workflow_ tool, not a _knowledge_ tool. A planner using Spark can draft an RFP faster — but still has no structured, searchable record of what their 50 preferred venues actually offer. VenueMi and Spark are complementary: Spark generates the content; VenueMi supplies the venue intelligence that makes that content accurate and specific.
+**Verdict:** Spark is the closest thing to a purpose-built AI assistant for event planners, and it's well-adopted (14,500+ users). But it's a _writing and workflow_ tool, not a _knowledge_ tool. A planner using Spark can draft an RFP faster — but still has no structured, searchable record of what their 50 preferred venues actually offer. Shortlisty and Spark are complementary: Spark generates the content; Shortlisty supplies the venue intelligence that makes that content accurate and specific.
 
 ---
 
 ### 1.4 DIY Venue Management Stack
 
-The most common "competitor" isn't a product — it's a patchwork of 5–7 general-purpose tools that planners assemble themselves because no purpose-built alternative existed. Understanding this stack is critical: VenueMi's real displacement target is not Cvent or Bynder but the Google Drive folder, the Airtable base, and the Notion page that a planner has been maintaining by hand for three years.
+The most common "competitor" isn't a product — it's a patchwork of 5–7 general-purpose tools that planners assemble themselves because no purpose-built alternative existed. Understanding this stack is critical: Shortlisty's real displacement target is not Cvent or Bynder but the Google Drive folder, the Airtable base, and the Notion page that a planner has been maintaining by hand for three years.
 
 ---
 
@@ -530,7 +530,7 @@ The most common "competitor" isn't a product — it's a patchwork of 5–7 gener
 - No conflict resolution: three versions of the same venue deck coexist with no indication of which is current
 - Collaboration is file-sharing, not knowledge-sharing — a colleague gets the file, not the answer
 
-**The VenueMi displacement:** Google Drive is where files live. VenueMi is where venue knowledge lives. VenueMi does not replace Drive — it reads the files in Drive and makes their contents searchable.
+**The Shortlisty displacement:** Google Drive is where files live. Shortlisty is where venue knowledge lives. Shortlisty does not replace Drive — it reads the files in Drive and makes their contents searchable.
 
 ---
 
@@ -549,7 +549,7 @@ The most common "competitor" isn't a product — it's a patchwork of 5–7 gener
 - Knowledge is only as current and complete as whoever last updated it — often one person
 - No confidence scoring, no source citation — there is no way to know if a capacity figure came from a 2019 deck or a 2024 one
 
-**The VenueMi displacement:** Notion is what planners build when they want structure but can't afford the time to maintain it. VenueMi fills the same structural role — venue profiles with fields — but populated automatically from source documents rather than by hand.
+**The Shortlisty displacement:** Notion is what planners build when they want structure but can't afford the time to maintain it. Shortlisty fills the same structural role — venue profiles with fields — but populated automatically from source documents rather than by hand.
 
 ---
 
@@ -568,7 +568,7 @@ The most common "competitor" isn't a product — it's a patchwork of 5–7 gener
 - Multi-table relationships add complexity that most planners abandon after the initial build
 - One person typically maintains it; everyone else searches it with caution
 
-**The VenueMi displacement:** Airtable is the most sophisticated DIY alternative. Planners who use Airtable understand the value of structured venue data — they just shouldn't have to maintain the structure themselves. VenueMi is Airtable for venue intelligence, with the data entry handled by AI.
+**The Shortlisty displacement:** Airtable is the most sophisticated DIY alternative. Planners who use Airtable understand the value of structured venue data — they just shouldn't have to maintain the structure themselves. Shortlisty is Airtable for venue intelligence, with the data entry handled by AI.
 
 ---
 
@@ -586,7 +586,7 @@ The most common "competitor" isn't a product — it's a patchwork of 5–7 gener
 - Breaks when multiple people edit simultaneously
 - No version history for individual fields — impossible to know when a capacity figure was last verified
 
-**The VenueMi displacement:** The spreadsheet is the symptom VenueMi is treating. "Every planner has one. Nobody trusts it." — already in the homepage copy for good reason.
+**The Shortlisty displacement:** The spreadsheet is the symptom Shortlisty is treating. "Every planner has one. Nobody trusts it." — already in the homepage copy for good reason.
 
 ---
 
@@ -603,7 +603,7 @@ The most common "competitor" isn't a product — it's a patchwork of 5–7 gener
 - Attachments are buried in threads — finding the latest floor plan requires knowing when it was sent
 - When a planner leaves, their inbox goes with them — this is the most common form of institutional venue knowledge loss
 
-**The VenueMi displacement:** VenueMi is the extraction layer that should sit between "venue sends a PDF by email" and "team can search that PDF's contents." The inbox is the source; VenueMi is the destination.
+**The Shortlisty displacement:** Shortlisty is the extraction layer that should sit between "venue sends a PDF by email" and "team can search that PDF's contents." The inbox is the source; Shortlisty is the destination.
 
 ---
 
@@ -621,13 +621,13 @@ The most common "competitor" isn't a product — it's a patchwork of 5–7 gener
 - No multi-source aggregation — pasting three versions of a venue deck into ChatGPT gives three separate answers, not a reconciled profile
 - No confidence scoring or source citation — the model will answer confidently even when the document is ambiguous
 
-**The VenueMi displacement:** ChatGPT answers a question about one document right now. VenueMi remembers every document ever uploaded, extracts structured data the whole team can search, and flags when two documents about the same venue disagree. The difference between a conversation and a knowledge base.
+**The Shortlisty displacement:** ChatGPT answers a question about one document right now. Shortlisty remembers every document ever uploaded, extracts structured data the whole team can search, and flags when two documents about the same venue disagree. The difference between a conversation and a knowledge base.
 
 ---
 
 ### 1.5 Document Intelligence & ETL Platforms
 
-These are the infrastructure players. They are the technical substrate that VenueMi's pipeline either competes with or can leverage.
+These are the infrastructure players. They are the technical substrate that Shortlisty's pipeline either competes with or can leverage.
 
 ---
 
@@ -645,14 +645,14 @@ These are the infrastructure players. They are the technical substrate that Venu
 
 **Pricing:** Free tier (15K pages, no expiry). Pay-as-you-go (~$2.66/compute hour). Enterprise subscription.
 
-**Relevance to VenueMi Intelligence:**
+**Relevance to Shortlisty Intelligence:**
 
-- Unstructured.io is what VenueMi's ETL layer _could use as a backend_ rather than building from scratch
+- Unstructured.io is what Shortlisty's ETL layer _could use as a backend_ rather than building from scratch
 - Their open-source library (`unstructured`) can be self-hosted
 - Handles the hardest parsing problems (scanned PDFs, multi-column layouts, tables)
 - Not a product for end users — pure infrastructure/API
 
-**Strategic insight:** VenueMi doesn't need to reinvent document parsing. Unstructured.io (or Docling) handles the extraction layer. VenueMi's value add is the _venue-specific intelligence_ on top — the domain schema, the aggregation model, the search experience, the team collaboration.
+**Strategic insight:** Shortlisty doesn't need to reinvent document parsing. Unstructured.io (or Docling) handles the extraction layer. Shortlisty's value add is the _venue-specific intelligence_ on top — the domain schema, the aggregation model, the search experience, the team collaboration.
 
 ---
 
@@ -669,7 +669,7 @@ These are the infrastructure players. They are the technical substrate that Venu
 - Handles: PDFs, DOCX, PPTX, HTML, images
 - Runs locally, no cloud dependency, MIT license
 
-**Why it matters for VenueMi Intelligence:**
+**Why it matters for Shortlisty Intelligence:**
 
 - Free, open-source, no per-page pricing
 - Superior table and layout understanding vs. naive PDF parsing
@@ -677,7 +677,7 @@ These are the infrastructure players. They are the technical substrate that Venu
 - IBM Granite-Docling-258M: new ultra-compact VLM for document-to-structured-format conversion
 - Ideal for floor plan PDFs, spec sheets with tables, multi-column venue decks
 
-**Strategic decision for VenueMi Intelligence:** Use Docling as the primary document parsing layer. It handles the structural extraction (layout, tables, text) and Spring AI's ETL pipeline then handles chunking, embedding, and vector storage.
+**Strategic decision for Shortlisty Intelligence:** Use Docling as the primary document parsing layer. It handles the structural extraction (layout, tables, text) and Spring AI's ETL pipeline then handles chunking, embedding, and vector storage.
 
 ---
 
@@ -700,7 +700,7 @@ These are the infrastructure players. They are the technical substrate that Venu
 - Handles: PDFs, Word, Excel, PowerPoint transparently — same API regardless of file type
 - Used in production for: search engine indexing, content analysis, translation pipelines
 
-**Why it's the right choice for VenueMi Intelligence:**
+**Why it's the right choice for Shortlisty Intelligence:**
 
 - Battle-tested in enterprise Java for 15+ years
 - DWG/DXF support via Tika's AutoCAD parser (direct path for CAD files)
@@ -714,9 +714,9 @@ These are the infrastructure players. They are the technical substrate that Venu
 
 **What they are:** Python-first AI orchestration frameworks. LlamaIndex has strong document parsing (LlamaExtract, LlamaParse). LangChain has document loaders.
 
-**Relevance to VenueMi Intelligence:** These are Python-ecosystem tools. Since VenueMi Intelligence is Java/Spring Boot, they are not directly applicable. Spring AI is the Java equivalent and has caught up rapidly.
+**Relevance to Shortlisty Intelligence:** These are Python-ecosystem tools. Since Shortlisty Intelligence is Java/Spring Boot, they are not directly applicable. Spring AI is the Java equivalent and has caught up rapidly.
 
-**Note:** If VenueMi ever needs a Python microservice for specialized extraction (e.g., advanced floor plan analysis), LlamaIndex's LlamaParse is best-in-class for complex PDFs.
+**Note:** If Shortlisty ever needs a Python microservice for specialized extraction (e.g., advanced floor plan analysis), LlamaIndex's LlamaParse is best-in-class for complex PDFs.
 
 ---
 
@@ -728,13 +728,13 @@ Recent well-funded entrants in the document intelligence space:
 - **Raydocs** — Template-based extraction with confidence scores and source links.
 - **Retab** — Pre-seed $3.5M. Non-technical users building extraction templates.
 
-**Pattern:** All these companies are _horizontal_ document intelligence APIs. VenueMi's opportunity is to be _vertical_ — deeply specialized for venue documents (floor plans, venue decks, CAD files, spec sheets). Horizontal tools extract generic fields. VenueMi extracts venue-specific intelligence with a purpose-built schema.
+**Pattern:** All these companies are _horizontal_ document intelligence APIs. Shortlisty's opportunity is to be _vertical_ — deeply specialized for venue documents (floor plans, venue decks, CAD files, spec sheets). Horizontal tools extract generic fields. Shortlisty extracts venue-specific intelligence with a purpose-built schema.
 
 ---
 
 ### 1.6 Floor Plan Intelligence & Spatial Data Tools
 
-A distinct cluster of tools that deal with floor plan geometry, spatial extraction, or indoor location infrastructure. None of them are venue management or event planning platforms, but they are directly adjacent to VenueMi's document intelligence layer — specifically the CAD/floor plan ingestion pipeline. Understanding where they sit clarifies what VenueMi needs to build versus what it can leverage or ignore.
+A distinct cluster of tools that deal with floor plan geometry, spatial extraction, or indoor location infrastructure. None of them are venue management or event planning platforms, but they are directly adjacent to Shortlisty's document intelligence layer — specifically the CAD/floor plan ingestion pipeline. Understanding where they sit clarifies what Shortlisty needs to build versus what it can leverage or ignore.
 
 ---
 
@@ -752,7 +752,7 @@ A distinct cluster of tools that deal with floor plan geometry, spatial extracti
 - Reusable venue templates: build a room once, clone for every event
 - Covers the full seating workflow end-to-end: import → arrange → export (A3 PDF, Excel seat list, name cards)
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Seating chart tool, not a venue intelligence platform — manages guest-to-seat assignment, not venue knowledge
 - No venue knowledge base: no venue profiles, no document ingestion beyond floor plan layout import, no spec sheet extraction
@@ -761,7 +761,7 @@ A distinct cluster of tools that deal with floor plan geometry, spatial extracti
 - No multi-source aggregation: uploading three versions of a venue's deck doesn't reconcile data
 - No RFP support, no catering policy extraction, no AV spec parsing
 
-**Verdict:** SeatPlan.io solves the downstream problem — arranging guests in a space the planner has already chosen. VenueMi solves the upstream problem — knowing and comparing the spaces themselves. The AI floor plan import is the only genuine overlap: both tools ingest floor plan PDFs. But SeatPlan produces a seating layout; VenueMi extracts structured venue intelligence. Complementary: a planner uses VenueMi to decide which room to book, then SeatPlan.io to seat the guests.
+**Verdict:** SeatPlan.io solves the downstream problem — arranging guests in a space the planner has already chosen. Shortlisty solves the upstream problem — knowing and comparing the spaces themselves. The AI floor plan import is the only genuine overlap: both tools ingest floor plan PDFs. But SeatPlan produces a seating layout; Shortlisty extracts structured venue intelligence. Complementary: a planner uses Shortlisty to decide which room to book, then SeatPlan.io to seat the guests.
 
 ---
 
@@ -778,7 +778,7 @@ A distinct cluster of tools that deal with floor plan geometry, spatial extracti
 - Structured output with confidence scores and surface quantities — not just bounding boxes
 - Free tier with 30-day Pro trial, no credit card required
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Construction takeoff tool — built for quantity surveyors estimating material volumes, not event planners managing venue portfolios
 - No venue-specific extraction schema (no capacity configurations, catering policies, AV specs, access restrictions)
@@ -787,7 +787,7 @@ A distinct cluster of tools that deal with floor plan geometry, spatial extracti
 - No team knowledge base, no cross-venue search, no semantic query capability
 - Narrow vertical: construction estimation workflows in France/Europe — not broadly available
 
-**Verdict:** FloorScan.ai is a construction industry tool whose core capability — AI geometry extraction from PDF floor plans — is the same technical problem VenueMi faces for venue CAD files. It's not a competitor but a technical reference point: the accuracy benchmark (sub-30s analysis, confidence-scored element detection, DXF export) is the quality bar VenueMi's floor plan parsing pipeline should target. VenueMi's differentiation is what happens _after_ geometric extraction: mapping room dimensions to event configurations, seating capacities, and a searchable venue intelligence schema.
+**Verdict:** FloorScan.ai is a construction industry tool whose core capability — AI geometry extraction from PDF floor plans — is the same technical problem Shortlisty faces for venue CAD files. It's not a competitor but a technical reference point: the accuracy benchmark (sub-30s analysis, confidence-scored element detection, DXF export) is the quality bar Shortlisty's floor plan parsing pipeline should target. Shortlisty's differentiation is what happens _after_ geometric extraction: mapping room dimensions to event configurations, seating capacities, and a searchable venue intelligence schema.
 
 ---
 
@@ -801,17 +801,17 @@ A distinct cluster of tools that deal with floor plan geometry, spatial extracti
 - Output: pixel-aligned geometry (walls, doors, windows, measurements)
 - Does not: parse spec sheet text, extract venue metadata, handle mixed-content PDFs, provide a venue schema
 
-**Relevance to VenueMi Intelligence:**
+**Relevance to Shortlisty Intelligence:**
 
-- FloorPlan API is a potential _infrastructure component_ for VenueMi's floor plan pipeline — the same role Apache Tika plays for text extraction
+- FloorPlan API is a potential _infrastructure component_ for Shortlisty's floor plan pipeline — the same role Apache Tika plays for text extraction
 - It handles the hardest part of floor plan processing: geometric segmentation from raster images
 - The 85.31% Wall IoU benchmark on CubiCasa5k is a documented quality baseline
 - REST API integration is straightforward — fits into a Spring Boot ETL pipeline as a pre-processing step before venue schema enrichment
 - Per-call pricing ($0.29–$0.50/call at paid tiers) is viable for a venue intelligence platform processing hundreds of floor plans, not millions
 
-**Strategic decision for VenueMi Intelligence:** FloorPlan API (or an equivalent: CubiCasa, Archilogic, or an in-house Docling-based pipeline) handles geometric extraction from raster floor plans. VenueMi's proprietary layer is the venue intelligence schema mapped _onto_ that geometry — room identifiers, configuration capacities, sightlines, access points — none of which FloorPlan API provides.
+**Strategic decision for Shortlisty Intelligence:** FloorPlan API (or an equivalent: CubiCasa, Archilogic, or an in-house Docling-based pipeline) handles geometric extraction from raster floor plans. Shortlisty's proprietary layer is the venue intelligence schema mapped _onto_ that geometry — room identifiers, configuration capacities, sightlines, access points — none of which FloorPlan API provides.
 
-**Verdict:** Not a competitor. A candidate infrastructure vendor for the geometric extraction step of VenueMi's CAD/floor plan ingestion pipeline.
+**Verdict:** Not a competitor. A candidate infrastructure vendor for the geometric extraction step of Shortlisty's CAD/floor plan ingestion pipeline.
 
 ---
 
@@ -827,7 +827,7 @@ A distinct cluster of tools that deal with floor plan geometry, spatial extracti
 - Floor Plan Editor: browser-based tool for authoring vector geometry, routing paths, and zones aligned to IMDF
 - Designed for industrial/logistics use cases: asset tracking, workplace visibility, AI-assisted logistics
 
-**Gaps relevant to VenueMi Intelligence:**
+**Gaps relevant to Shortlisty Intelligence:**
 
 - Live asset tracking / RTLS middleware — designed for real-time position data, not document intelligence
 - No document ingestion, no PDF parsing, no spec sheet extraction
@@ -835,15 +835,15 @@ A distinct cluster of tools that deal with floor plan geometry, spatial extracti
 - No venue portfolio management, no semantic search, no RFP support
 - Requires physical RTLS hardware deployment — far outside the scope of a venue intelligence platform
 
-**Why it appears here:** The IMDF structured indoor map format is relevant to VenueMi's long-term architecture. IMDF is the OGC standard for portable venue maps — georeferenced vector geometry with named rooms, levels, and zones. If VenueMi ever moves beyond document extraction into interactive floor plan rendering (Phase 3+), IMDF is the output format to target. Open Location Stack's Floor Plan Editor demonstrates what a browser-based IMDF authoring tool looks like.
+**Why it appears here:** The IMDF structured indoor map format is relevant to Shortlisty's long-term architecture. IMDF is the OGC standard for portable venue maps — georeferenced vector geometry with named rooms, levels, and zones. If Shortlisty ever moves beyond document extraction into interactive floor plan rendering (Phase 3+), IMDF is the output format to target. Open Location Stack's Floor Plan Editor demonstrates what a browser-based IMDF authoring tool looks like.
 
-**Verdict:** No competitive overlap. Open Location Stack targets logistics and manufacturing RTLS deployments. VenueMi targets event planning knowledge management. The IMDF format is worth monitoring as a potential output standard for VenueMi's structured venue map layer.
+**Verdict:** No competitive overlap. Open Location Stack targets logistics and manufacturing RTLS deployments. Shortlisty targets event planning knowledge management. The IMDF format is worth monitoring as a potential output standard for Shortlisty's structured venue map layer.
 
 ---
 
 ### 1.7 Competitive Gap Summary
 
-| Capability                               | Cvent            | Tripleseat      | Momentus        | Facilitron         | Propared         | Planning Pod    | VenueScanner    | VenueFindAI     | Ventur3             | Planner Hero         | VenueArc        | Spark (GEVME/PCMA)    | Bynder            | Brandfolder         | Unstructured.io | G Drive / Dropbox | Notion / Airtable | Spreadsheets | Email (inbox) | ChatGPT / Claude    | SeatPlan.io           | FloorScan.ai      | FloorPlan API      | Open Location Stack | VenueMi             |
+| Capability                               | Cvent            | Tripleseat      | Momentus        | Facilitron         | Propared         | Planning Pod    | VenueScanner    | VenueFindAI     | Ventur3             | Planner Hero         | VenueArc        | Spark (GEVME/PCMA)    | Bynder            | Brandfolder         | Unstructured.io | G Drive / Dropbox | Notion / Airtable | Spreadsheets | Email (inbox) | ChatGPT / Claude    | SeatPlan.io           | FloorScan.ai      | FloorPlan API      | Open Location Stack | Shortlisty             |
 | ---------------------------------------- | ---------------- | --------------- | --------------- | ------------------ | ---------------- | --------------- | --------------- | --------------- | ------------------- | -------------------- | --------------- | --------------------- | ----------------- | ------------------- | --------------- | ----------------- | ----------------- | ------------ | ------------- | ------------------- | --------------------- | ----------------- | ------------------ | ------------------- | ------------------- |
 | Venue discovery (marketplace)            | ✅ Best-in-class | ⛔              | ⛔              | ✅ (public sector) | ⛔               | ⛔              | ✅ (UK-focused) | ✅ (AI + human) | ✅ (RFP-first)      | ✅ (agency + SW)     | ⛔              | Partial (DestinAItor) | ⛔                | ⛔                  | ⛔              | ⛔                | ⛔                | ⛔           | ⛔            | ⛔                  | ⛔                    | ⛔                | ⛔                 | ⛔                  | Phase 3             |
 | Planner's own venue library              | ⛔               | ⛔              | ⛔              | ⛔                 | ⛔               | ⛔              | ⛔              | ⛔              | ⛔                  | ⛔                   | ⛔              | ⛔                    | ⛔                | ⛔                  | ⛔              | ⛔                | Partial (manual)  | Partial      | ⛔            | ⛔                  | ⛔                    | ⛔                | ⛔                 | ⛔                  | ✅                  |
@@ -877,4 +877,4 @@ The document intelligence infrastructure, ETL pipeline architecture, venue-speci
 
 ---
 
-**Docs:** [What is VenueMi?](../../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Intelligence Layer](../../platform/intelligence.md) · [Architecture](../../platform/README.md)
+**Docs:** [What is Shortlisty?](../../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Intelligence Layer](../../platform/intelligence.md) · [Architecture](../../platform/README.md)

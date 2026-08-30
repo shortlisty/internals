@@ -1,4 +1,4 @@
-# VenueMi — Architecture Overview
+# Shortlisty — Architecture Overview
 
 > **Audience:** Engineers, architects.
 > **Purpose:** Platform context, technology decisions, and implementation patterns. Entry point for the full architecture reference.
@@ -22,24 +22,24 @@
 | [roadmap-decisions.md](roadmap-decisions.md)     | Open decisions, pre-Sprint 1 tasks, Phase 2/3 design backlog                                                                      |
 | [ui-venue-management.md](ui-venue-management.md) | UI: venue CRUD form, list, form spec, component structure, themes/skins, addon placement                                          |
 | [ui-deal-workspace.md](ui-deal-workspace.md)     | UI: Deal Workspace — proposal assembly, client board, immutable history, approval snapshot                                        |
-| [ui-shared-packages.md](ui-shared-packages.md)   | UI: shared npm package `@venuemi/ui-types` — types, constants, form spec; drift prevention, file: prototype path, npmjs promotion |
+| [ui-shared-packages.md](ui-shared-packages.md)   | UI: shared npm package `@shortlisty/ui-types` — types, constants, form spec; drift prevention, file: prototype path, npmjs promotion |
 
 ---
 
 ## 1. Platform Context
 
-VenueMi Intelligence is a new product service built **on top of the iQ Key Value foundation**. It does not replace or fork any existing service. It reuses:
+Shortlisty Intelligence is a new product service built **on top of the iQ Key Value foundation**. It does not replace or fork any existing service. It reuses:
 
-| Foundation service           | What VenueMi inherits                                                                   |
+| Foundation service           | What Shortlisty inherits                                                                   |
 | ---------------------------- | --------------------------------------------------------------------------------------- |
 | `foundation-gateway-service` | JWT validation, tenant routing, header propagation — no changes needed                  |
 | `foundation-iam-service`     | Auth, multi-tenancy, team invitations, SSO, presigned S3 upload pattern                 |
 | `foundation-billing-service` | Plan entitlements (`max_venues`, `ai_extraction_enabled`, etc.), subscription lifecycle |
-| `foundation-audit-service`   | Compliance log — consumes VenueMi events passively, no code changes                     |
+| `foundation-audit-service`   | Compliance log — consumes Shortlisty events passively, no code changes                     |
 | `foundation-ui-app`          | Extended (not forked) with new `/venues/*` routes under FSD architecture                |
 | `foundation-tenancy`         | Schema-per-tenant isolation library reused directly                                     |
 
-**New services introduced by VenueMi Intelligence:**
+**New services introduced by Shortlisty Intelligence:**
 
 - `mi-data-intelligence` — platform-level shared library (JAR). Domain-agnostic extraction pipeline contracts, metadata versioning mechanism, provenance model, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`), and Liquibase migrations for infrastructure tables (`extraction_jobs`, `item_vectors`, `item_metadata_events`, `ai_cost_tracking`). No Spring beans, no business logic, no venue-specific fields. The domain-agnostic layer — reusable across verticals (venue, medical, agro, etc.). Imported by both services and by `mi-venue-model`.
 - `mi-venue-model` — venue-domain shared library (JAR). Venue-specific domain model (`Venue`, `VenueMetadata`, `MasterVenue`), canonical field set, venue metadata migrations, and Liquibase migrations for venue tables (`venues`, `venue_assets`, `venue_annotations`, `master_venue`). Depends on `mi-data-intelligence`. Imported by both services.
@@ -48,7 +48,7 @@ VenueMi Intelligence is a new product service built **on top of the iQ Key Value
 - `mi-mc-loader` — Spring Boot service. Runs master catalog import jobs triggered by `admin.master-catalog.import.*` RabbitMQ events. Applies reviewed scraper CSV/JSONL batches to `public.master_venue`. No tenant interaction.
 - Standalone scrapers (`mi-mc-ingest-<source>-scraper`) — Node.js. Produce CSV/JSONL output, upload to S3. Run on demand, not deployed as persistent services.
 
-**New infrastructure introduced by VenueMi Intelligence:**
+**New infrastructure introduced by Shortlisty Intelligence:**
 
 - pgvector extension on existing PostgreSQL (not a new service)
 - PostGIS extension on existing PostgreSQL (not a new service)
@@ -78,7 +78,7 @@ Full rationale and competitor analysis: see [`../business/Digital_Sales_Room_for
 
 ## 16. Implementation Patterns
 
-This section records how core cross-cutting concerns are implemented in the existing foundation services. VenueMi must follow these patterns exactly — they are not aspirational, they are the actual running code.
+This section records how core cross-cutting concerns are implemented in the existing foundation services. Shortlisty must follow these patterns exactly — they are not aspirational, they are the actual running code.
 
 ### Stack
 
@@ -345,7 +345,7 @@ One `@RestControllerAdvice` per service. Every handler uses the same `problem(ty
 
 ## UI Integration (`foundation-ui-app`)
 
-Extend `foundation-ui-app` — do **not** fork. New VenueMi features live under:
+Extend `foundation-ui-app` — do **not** fork. New Shortlisty features live under:
 
 ```
 src/
@@ -393,7 +393,7 @@ New routes added to TanStack Router:
 | `/proposals/:id` | Member   | Proposal board (planner) |
 | `/share/:token`  | **none** | Client board (public)    |
 
-Shared types (`AnyVenue`, `VenueMetadata`, `Proposal`, `ProposalEvent`, etc.) and the form spec live in `@venuemi/ui-types` — a shared npm package (referenced via `file:` during prototyping). See [ui-shared-packages.md](ui-shared-packages.md).
+Shared types (`AnyVenue`, `VenueMetadata`, `Proposal`, `ProposalEvent`, etc.) and the form spec live in `@shortlisty/ui-types` — a shared npm package (referenced via `file:` during prototyping). See [ui-shared-packages.md](ui-shared-packages.md).
 
 Reuse without modification: auth flows, session management, token refresh, team management, billing/entitlements (`FeatureGate`, `useEntitlements`), notification bell.
 

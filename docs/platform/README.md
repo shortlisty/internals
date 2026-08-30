@@ -1,4 +1,4 @@
-# VenueMi — Architecture Reference
+# Shortlisty — Architecture Reference
 
 > **Audience:** Engineers, architects.
 > **Purpose:** Index and navigation hub for the full architecture documentation. Each section below links to its dedicated document.
@@ -24,7 +24,7 @@
 
 ---
 
-## New Services Introduced by VenueMi Intelligence
+## New Services Introduced by Shortlisty Intelligence
 
 ### Shared Libraries (compile-time JARs, no runtime process)
 
@@ -39,7 +39,7 @@
 | ------------------------------- | ------------------ | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `mi-venue-service`              | Java / Spring Boot | `Deployment` (HTTP, HPA on request rate + p95 latency) | Synchronous REST API — venue CRUD, asset upload flow (presigned URL), metadata read/write, search (all 5 modes), plan entitlement enforcement, master catalog backdrop lookup. Exposes `/api/v1/venues`. See [api.md](api.md).                                                                                                                                                                                                              |
 | `mi-venue-processing-worker`    | Java / Spring Boot | `Deployment` (HPA on RabbitMQ queue depth)             | Async sidecar — document ETL pipeline (Tika parse → chunk → GPT-4o extract → embed), extraction job lifecycle, `MasterVenueMatcher` MC_INHERIT merge, metadata aggregation consumer, scheduled maintenance jobs (stale re-aggregation, cost reporting). No inbound HTTP. Shares PostgreSQL schema with `mi-venue-service`. See [etl-pipeline.md](etl-pipeline.md).                                                                          |
-| `mi-mc-ingest-tagvenue-scraper` | Node.js (≥ 22.13)  | `CronJob` (nightly)                                    | Stateless CLI scraper for Tagvenue.com venue and room listings. Produces `MasterVenueRecord`-compatible CSV/JSONL files. No DB connections — uploads output to S3 `venuemi/master-catalog/imports/{importId}/` for `mi-mc-loader` to consume. Supports SSR-only and Playwright-browser modes. See [master-catalog.md](master-catalog.md).                                                                                                   |
+| `mc-ingest-tagvenue-scraper` | Node.js (≥ 22.13)  | `CronJob` (nightly)                                    | Stateless CLI scraper for Tagvenue.com venue and room listings. Produces `MasterVenueRecord`-compatible CSV/JSONL files. No DB connections — uploads output to S3 `shortlisty/master-catalog/imports/{importId}/` for `mi-mc-loader` to consume. Supports SSR-only and Playwright-browser modes. See [master-catalog.md](master-catalog.md).                                                                                                   |
 | `mi-mc-loader`                  | Java / Spring Boot | `Deployment` (event-driven, low replica count)         | Master Catalog population service — listens for `admin.master-catalog.import.dry-run` RabbitMQ event, runs `MasterCatalogImportOrchestrator` (dedup check, CSV audit report upload to S3), then applies reviewed actions on `admin.master-catalog.import.apply`. Writes to `public.master_venue`, `master_venue_alias`, `master_venue_external`. Never makes autonomous insert/merge decisions. See [master-catalog.md](master-catalog.md). |
 
 ### Dependency Graph
@@ -53,7 +53,7 @@ mi-venue-model        (venue-domain JAR — imports mi-data-intelligence)
         ├── mi-venue-service          (Spring Boot — synchronous API)
         └── mi-venue-processing-worker (Spring Boot — async ETL sidecar)
 
-mi-mc-ingest-tagvenue-scraper  (Node.js CronJob — no Java deps)
+mc-ingest-tagvenue-scraper  (Node.js CronJob — no Java deps)
         │ CSV/JSONL → S3
         ▼
 mi-mc-loader          (Spring Boot — master catalog apply, reads mi-venue-model)
@@ -91,4 +91,4 @@ public.master_venue / master_venue_alias / master_venue_external
 
 ---
 
-**Docs:** [What is VenueMi?](../README.md) · [Architecture Overview](architecture-overview.md) · [Data Model](data-model.md) · [Services](services.md) · [Aggregation](aggregation.md) · [Master Catalog](master-catalog.md) · [Intelligence](intelligence.md) · [ETL Pipeline](etl-pipeline.md) · [Search](search.md) · [API](api.md) · [Events](events.md) · [Observability](observability.md) · [Roadmap & Decisions](roadmap-decisions.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is Shortlisty?](../README.md) · [Architecture Overview](architecture-overview.md) · [Data Model](data-model.md) · [Services](services.md) · [Aggregation](aggregation.md) · [Master Catalog](master-catalog.md) · [Intelligence](intelligence.md) · [ETL Pipeline](etl-pipeline.md) · [Search](search.md) · [API](api.md) · [Events](events.md) · [Observability](observability.md) · [Roadmap & Decisions](roadmap-decisions.md) · [Vision](../roadmap/vision.md)

@@ -7,7 +7,7 @@
 
 ## Context
 
-VenueMi Intelligence is built first for the venue intelligence vertical (event planner venue catalogs). However, the platform founders explicitly designed the underlying intelligence infrastructure to be reusable across other verticals:
+Shortlisty Intelligence is built first for the venue intelligence vertical (event planner venue catalogs). However, the platform founders explicitly designed the underlying intelligence infrastructure to be reusable across other verticals:
 
 - Medical: structured extraction from medical records (patient intake forms, lab reports, imaging reports) with a curated drug compendium (instead of master venue catalog).
 - Agro: agricultural asset documents (soil analysis reports, satellite imagery metadata, crop yield certificates).

@@ -1,4 +1,4 @@
-# VenueMi — Event Contracts & Plan Entitlements
+# Shortlisty — Event Contracts & Plan Entitlements
 
 > **Audience:** Engineers.
 > **Purpose:** All RabbitMQ event contracts, queue topology, consumer configuration, and plan entitlement feature codes with enforcement points.
@@ -47,15 +47,15 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 
 | Routing key      | Queue                                      | Action                                |
 | ---------------- | ------------------------------------------ | ------------------------------------- |
-| `asset.uploaded` | `venuemi.extraction.priority` (Enterprise) | Trigger ETL pipeline immediately      |
-| `asset.uploaded` | `venuemi.extraction.standard` (Free/Pro)   | Trigger ETL pipeline (standard queue) |
+| `asset.uploaded` | `shortlisty.extraction.priority` (Enterprise) | Trigger ETL pipeline immediately      |
+| `asset.uploaded` | `shortlisty.extraction.standard` (Free/Pro)   | Trigger ETL pipeline (standard queue) |
 
 ### Consumed by `mi-venue-service`
 
 | Routing key            | Queue (MVP A1)                                | Queue (Scalable A2)                                                                                                | Action                                  |
 | ---------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | --------------------------------------- |
-| `extraction.completed` | `venuemi.metadata.aggregation` (single queue) | `venuemi.metadata.aggregation.0` … `venuemi.metadata.aggregation.15` (16 slots, slot-bound via routing key suffix) | Run metadata aggregation for venue      |
-| `extraction.failed`    | `venuemi.extraction.dlq`                      | `venuemi.extraction.dlq`                                                                                           | Mark asset `extraction_status = FAILED` |
+| `extraction.completed` | `shortlisty.metadata.aggregation` (single queue) | `shortlisty.metadata.aggregation.0` … `shortlisty.metadata.aggregation.15` (16 slots, slot-bound via routing key suffix) | Run metadata aggregation for venue      |
+| `extraction.failed`    | `shortlisty.extraction.dlq`                      | `shortlisty.extraction.dlq`                                                                                           | Mark asset `extraction_status = FAILED` |
 
 ### Consumed by `foundation-audit-service` (passive, no changes)
 
