@@ -18,14 +18,14 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 **DocumentReaders (Extract) — available out of the box:**
 
-| Reader                       | Handles                                         | Notes                                                       |
-| ---------------------------- | ----------------------------------------------- | ----------------------------------------------------------- |
+| Reader                       | Handles                                         | Notes                                                          |
+| ---------------------------- | ----------------------------------------------- | -------------------------------------------------------------- |
 | `TikaDocumentReader`         | PDF, DOCX, XLSX, PPTX, HTML, XML, 1000+ formats | Apache Tika under the hood. **Primary reader for Shortlisty.** |
-| `PagePdfDocumentReader`      | PDFs, page-by-page                              | Preserves page boundaries, useful for floor plans           |
-| `ParagraphPdfDocumentReader` | PDFs, paragraph-level                           | Better semantic chunking for venue decks                    |
-| `MarkdownDocumentReader`     | Markdown files                                  | Useful for structured venue specs                           |
-| `JsonMetadataReader`         | JSON with metadata                              | Useful for structured imports                               |
-| `JsoupDocumentReader`        | HTML pages                                      | Web scraping venue information                              |
+| `PagePdfDocumentReader`      | PDFs, page-by-page                              | Preserves page boundaries, useful for floor plans              |
+| `ParagraphPdfDocumentReader` | PDFs, paragraph-level                           | Better semantic chunking for venue decks                       |
+| `MarkdownDocumentReader`     | Markdown files                                  | Useful for structured venue specs                              |
+| `JsonMetadataReader`         | JSON with metadata                              | Useful for structured imports                                  |
+| `JsoupDocumentReader`        | HTML pages                                      | Web scraping venue information                                 |
 
 **DocumentTransformers (Transform):**
 

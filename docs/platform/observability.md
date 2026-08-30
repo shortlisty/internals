@@ -22,8 +22,8 @@ Both Shortlisty services follow foundation patterns exactly.
 
 ### Prometheus Metrics
 
-| Metric                                           | Labels                                  | Notes                                                                                                                                                                                                                                                                                                     |
-| ------------------------------------------------ | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Metric                                              | Labels                                  | Notes                                                                                                                                                                                                                                                                                                     |
+| --------------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `shortlisty_venues_total`                           | `tenant_id`, `status`                   | Venue count by state                                                                                                                                                                                                                                                                                      |
 | `shortlisty_assets_uploaded_total`                  | `tenant_id`, `asset_type`               | Upload volume                                                                                                                                                                                                                                                                                             |
 | `shortlisty_extractions_total`                      | `tenant_id`, `extractor_type`, `status` | Success/failure rates                                                                                                                                                                                                                                                                                     |
@@ -48,14 +48,14 @@ Added to `docker/grafana/provisioning/dashboards/VipService.json`.
 
 ## 13. Security
 
-| Concern                 | Approach                                                                                                                                                                |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Concern                 | Approach                                                                                                                                                                   |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Tenant data isolation   | Schema-per-tenant (PostgreSQL + pgvector); S3 key prefix `shortlisty/tenants/{tenantKey}/` per tenant — see [services.md § 4b](services.md) for full key layout            |
 | Asset access            | Presigned S3 URLs only (15 min upload, 1h download). No public bucket. Master catalog paths (`shortlisty/master-catalog/*`) inaccessible via tenant-issued presigned URLs. |
-| AI data handling        | Documents sent to OpenAI API per their data processing terms. Enterprise option: Azure OpenAI (data stays in tenant's region).                                          |
-| GDPR / right to erasure | `DELETE tenant` cascades to venues → assets → S3 objects → vector embeddings. Full cascade detail in [services.md § Deletion Cascade](services.md).                     |
-| Audit trail             | All `venue.*`, `asset.*`, `extraction.*` events passively consumed by `foundation-audit-service` (see [events.md](events.md)).                                          |
-| PII in documents        | Warn on upload. Do not log extracted text.                                                                                                                              |
+| AI data handling        | Documents sent to OpenAI API per their data processing terms. Enterprise option: Azure OpenAI (data stays in tenant's region).                                             |
+| GDPR / right to erasure | `DELETE tenant` cascades to venues → assets → S3 objects → vector embeddings. Full cascade detail in [services.md § Deletion Cascade](services.md).                        |
+| Audit trail             | All `venue.*`, `asset.*`, `extraction.*` events passively consumed by `foundation-audit-service` (see [events.md](events.md)).                                             |
+| PII in documents        | Warn on upload. Do not log extracted text.                                                                                                                                 |
 
 ### Security Config
 

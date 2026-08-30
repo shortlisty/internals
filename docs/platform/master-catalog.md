@@ -201,8 +201,8 @@ Before any production tenant has access, run a mandatory calibration pass:
 
 `MasterVenueMatcher` records Micrometer metrics on every extraction run (see [observability.md](observability.md)):
 
-| Metric                                       | Tags                            | Purpose                                                                                   |
-| -------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------- |
+| Metric                                          | Tags                            | Purpose                                                                                   |
+| ----------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------- |
 | `shortlisty_mc_match_total`                     | `stage="extraction"`, `outcome` | `matched` vs `no_match` vs `ambiguous` counts. Tracks how often master catalog is useful. |
 | `shortlisty_mc_match_confidence_seconds` (hist) | `stage="extraction"`            | Distribution of `combined` score across all runs. Calibrate thresholds from this.         |
 

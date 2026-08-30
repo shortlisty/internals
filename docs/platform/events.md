@@ -45,17 +45,17 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 
 ### Consumed by `mi-venue-processing-worker`
 
-| Routing key      | Queue                                      | Action                                |
-| ---------------- | ------------------------------------------ | ------------------------------------- |
+| Routing key      | Queue                                         | Action                                |
+| ---------------- | --------------------------------------------- | ------------------------------------- |
 | `asset.uploaded` | `shortlisty.extraction.priority` (Enterprise) | Trigger ETL pipeline immediately      |
 | `asset.uploaded` | `shortlisty.extraction.standard` (Free/Pro)   | Trigger ETL pipeline (standard queue) |
 
 ### Consumed by `mi-venue-service`
 
-| Routing key            | Queue (MVP A1)                                | Queue (Scalable A2)                                                                                                | Action                                  |
-| ---------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | --------------------------------------- |
+| Routing key            | Queue (MVP A1)                                   | Queue (Scalable A2)                                                                                                      | Action                                  |
+| ---------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- |
 | `extraction.completed` | `shortlisty.metadata.aggregation` (single queue) | `shortlisty.metadata.aggregation.0` … `shortlisty.metadata.aggregation.15` (16 slots, slot-bound via routing key suffix) | Run metadata aggregation for venue      |
-| `extraction.failed`    | `shortlisty.extraction.dlq`                      | `shortlisty.extraction.dlq`                                                                                           | Mark asset `extraction_status = FAILED` |
+| `extraction.failed`    | `shortlisty.extraction.dlq`                      | `shortlisty.extraction.dlq`                                                                                              | Mark asset `extraction_status = FAILED` |
 
 ### Consumed by `foundation-audit-service` (passive, no changes)
 

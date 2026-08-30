@@ -160,11 +160,11 @@ S3 (MinIO for local dev) is already in the iQ Key Value stack. Shortlisty adds i
 
 ### Bucket Strategy
 
-| Environment | Bucket           | Notes                                                                                     |
-| ----------- | ---------------- | ----------------------------------------------------------------------------------------- |
+| Environment | Bucket           | Notes                                                                                        |
+| ----------- | ---------------- | -------------------------------------------------------------------------------------------- |
 | Dev / CI    | `iqkv-files`     | Shared with foundation services, MinIO default. VIP objects live under `shortlisty/` prefix. |
-| Staging     | `iqkv-files`     | Same shared bucket, same prefix scheme. Isolated by prefix only.                          |
-| Production  | `iqkv-vip-files` | Dedicated bucket. Separate IAM policy, separate lifecycle rules. Key structure identical. |
+| Staging     | `iqkv-files`     | Same shared bucket, same prefix scheme. Isolated by prefix only.                             |
+| Production  | `iqkv-vip-files` | Dedicated bucket. Separate IAM policy, separate lifecycle rules. Key structure identical.    |
 
 MinIO in local dev is configured in `docker-compose.yml` with `MINIO_DEFAULT_BUCKETS=iqkv-files`.
 
@@ -178,7 +178,7 @@ shortlisty/tenants/{tenantKey}/venues/{venueId}/assets/{assetId}/{fileName}
 
 | Segment       | Value                                         | Example                            |
 | ------------- | --------------------------------------------- | ---------------------------------- |
-| `shortlisty/`    | VIP namespace                                 | (literal)                          |
+| `shortlisty/` | VIP namespace                                 | (literal)                          |
 | `tenants/`    | Tenant subtree root                           | (literal)                          |
 | `{tenantKey}` | 8-char nanoid from JWT `tenant_id` claim      | `acme0001`                         |
 | `venues/`     | Venue subtree                                 | (literal)                          |
@@ -220,8 +220,8 @@ shortlisty/master-catalog/imports/{importId}/{fileName}
 shortlisty/master-catalog/exports/{date}/{snapshot}.jsonl.gz
 ```
 
-| Path                                         | Purpose                                                                           |
-| -------------------------------------------- | --------------------------------------------------------------------------------- |
+| Path                                            | Purpose                                                                           |
+| ----------------------------------------------- | --------------------------------------------------------------------------------- |
 | `shortlisty/master-catalog/imports/{importId}/` | One folder per import batch (admin-triggered). Contains raw CSV/JSON input files. |
 | `shortlisty/master-catalog/exports/{date}/`     | Nightly compacted snapshots of `public.master_venue` for downstream consumers.    |
 
@@ -233,8 +233,8 @@ shortlisty/master-catalog/exports/{date}/{snapshot}.jsonl.gz
 
 ### Lifecycle Rules
 
-| Rule                             | Prefix                                      | Action                                                                                                 |
-| -------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Rule                             | Prefix                                         | Action                                                                                                 |
+| -------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | Extraction artefact expiry       | `shortlisty/tenants/*/venues/*/assets/*/`      | Transition to Glacier/IA after 90 days if `extraction_status = COMPLETED`. Managed via S3 object tags. |
 | Master catalog import cleanup    | `shortlisty/master-catalog/imports/processed/` | Delete after 30 days.                                                                                  |
 | Master catalog snapshot rotation | `shortlisty/master-catalog/exports/`           | Keep last 14 daily snapshots; delete older.                                                            |

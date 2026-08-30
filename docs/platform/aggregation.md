@@ -88,7 +88,7 @@ Two variants share the same conceptual model. Start with A1 for MVP; both use th
 
 | Aspect                | Specification                                                                                                                                                               |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Queue                 | Single queue `shortlisty.metadata.aggregation`.                                                                                                                                |
+| Queue                 | Single queue `shortlisty.metadata.aggregation`.                                                                                                                             |
 | Publisher routing key | `extraction.completed` unchanged. No slot computation.                                                                                                                      |
 | Consumer              | `@RabbitListener` with `concurrency = 1`, `prefetchCount = 1`. Exactly one thread processes all aggregation events sequentially across all tenants and all venues.          |
 | Backlog envelope      | Aggregation per event is ~1 ms (merge + SQL `UPDATE`). Even 100 events/s sustained yields a 100 ms backlog, invisible to end users and well within the 5 s debounce window. |
@@ -98,7 +98,7 @@ Two variants share the same conceptual model. Start with A1 for MVP; both use th
 
 | Aspect               | Specification                                                                                                                                    |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Queues               | `shortlisty.metadata.aggregation.0` through `shortlisty.metadata.aggregation.15` (16 slots; configurable via `application.yml`).                       |
+| Queues               | `shortlisty.metadata.aggregation.0` through `shortlisty.metadata.aggregation.15` (16 slots; configurable via `application.yml`).                 |
 | Publisher routing    | Slot = `Math.abs(venueId.hashCode() % SLOT_COUNT)`. Same `venue_id` always maps to the same slot.                                                |
 | Consumer pool        | 16 consumer threads. Each thread binds to exactly one slot queue with `prefetchCount = 1`.                                                       |
 | Parallelism property | Different venues process in parallel across slots. Same venue always routes to the same slot → strict FIFO ordering per venue.                   |

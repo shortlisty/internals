@@ -17,7 +17,7 @@ Every tool either helps agencies **find** venues they don't know yet, or helps v
 
 The closest overlap on the output side. These tools produce beautiful client-facing web pages or interactive documents. They have no understanding of venues, no extraction layer, no structured catalog feeding the output.
 
-| Tool                 | What it does                                       | Gap vs. Shortlisty                                                    |
+| Tool                 | What it does                                       | Gap vs. Shortlisty                                                 |
 | -------------------- | -------------------------------------------------- | ------------------------------------------------------------------ |
 | **Qwilr**            | Interactive web-based proposals, e-sign, analytics | No venue knowledge layer; planner manually enters all content      |
 | **Dock.us**          | Client portal with embedded content, tasks, links  | General-purpose; no venue schema, no extraction, no event context  |
@@ -34,7 +34,7 @@ The closest overlap on the output side. These tools produce beautiful client-fac
 
 These tools help planners find venues they haven't worked with yet. They operate on publicly submitted venue data, not on the agency's own documents. The moment a planner already knows which venues they trust, these platforms have little left to offer.
 
-| Tool             | What it does                                          | Gap vs. Shortlisty                                                     |
+| Tool             | What it does                                          | Gap vs. Shortlisty                                                  |
 | ---------------- | ----------------------------------------------------- | ------------------------------------------------------------------- |
 | **Cvent**        | Largest venue marketplace, RFP automation, enterprise | Discovery only; no planner-owned knowledge base; enterprise pricing |
 | **VenueScanner** | UK marketplace, free for planners, AI ranking         | Discovery only; no document intelligence; no client pitch output    |
@@ -51,7 +51,7 @@ These tools help planners find venues they haven't worked with yet. They operate
 
 These tools manage the agency's client relationships and project workflows. Some generate proposals or contracts, but they are business-management tools — not venue intelligence tools. Some include a client portal, but every portal requires the client to create a login and set a password before they can see anything.
 
-| Tool              | What it does                                                                  | Gap vs. Shortlisty                                                                                                                                                                                                                                                    |
+| Tool              | What it does                                                                  | Gap vs. Shortlisty                                                                                                                                                                                                                                                 |
 | ----------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **HoneyBook**     | Proposals, contracts, invoicing, payments for creative/event solopreneurs     | No venue library or extraction; proposals are manual templates. Client portal requires login.                                                                                                                                                                      |
 | **Aisle Planner** | Wedding-focused all-in-one: proposals, design boards, timelines, seating, BEO | No venue AI extraction or structured catalog. Planner enters every venue by hand. Client collaboration gated behind client account + password. Beautiful design tools but venue knowledge stays a manual layer.                                                    |
@@ -69,7 +69,7 @@ These tools manage the agency's client relationships and project workflows. Some
 
 Built for venue operators — helping them run their own space, manage bookings, and generate revenue. No relevance to the planner workflow.
 
-| Tool                      | What it does                             | Gap vs. Shortlisty                                  |
+| Tool                      | What it does                             | Gap vs. Shortlisty                               |
 | ------------------------- | ---------------------------------------- | ------------------------------------------------ |
 | **Perfect Venue**         | Lightweight venue ops, bookings, BEO     | Venue-side; no planner portfolio concept         |
 | **Event Temple**          | Venue CRM, bookings, contracts           | Same as Perfect Venue                            |
@@ -97,7 +97,7 @@ The most common "competitor" is not a product — it is the patchwork of general
 
 ## Capability matrix
 
-| Capability                                    |         Shortlisty         | Qwilr / Dock.us | Cvent / VenueScanner | HoneyBook / Aisle Planner / Dubsado / Planning Pod |     DIY stack      |
+| Capability                                    |       Shortlisty        | Qwilr / Dock.us | Cvent / VenueScanner | HoneyBook / Aisle Planner / Dubsado / Planning Pod |     DIY stack      |
 | --------------------------------------------- | :---------------------: | :-------------: | :------------------: | :------------------------------------------------: | :----------------: |
 | Planner-owned venue knowledge base            |           ✅            |       ⛔        |          ⛔          |                         ⛔                         |  Partial (manual)  |
 | AI extraction from agency's own docs          |           ✅            |       ⛔        |          ⛔          |                         ⛔                         |         ⛔         |

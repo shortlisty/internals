@@ -7,21 +7,21 @@
 
 ## Document Map
 
-| Document                                         | Contents                                                                                                                          |
-| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| **This file**                                    | Platform context, foundation reuse, tech stack decisions, implementation patterns                                                 |
-| [data-model.md](data-model.md)                   | Domain model, canonical field set, schema versioning, database schema & indexes                                                   |
-| [services.md](services.md)                       | Service decomposition, shared libraries (`mi-venue-model`, `mi-data-intelligence`), S3 layout                                     |
-| [aggregation.md](aggregation.md)                 | Metadata aggregation, conflict resolution, FIFO race-condition prevention                                                         |
-| [master-catalog.md](master-catalog.md)           | Master Venue Catalog — cold start, alias normalisation, MC_INHERIT merge algorithm                                                |
-| [etl-pipeline.md](etl-pipeline.md)               | ETL pipeline (parse → transform → load), Spring AI stages, processing SLAs                                                        |
-| [search.md](search.md)                           | Search architecture — keyword, semantic, geo, hybrid, cross-source orchestration                                                  |
-| [api.md](api.md)                                 | REST API surface — all endpoints, DTOs, error responses                                                                           |
-| [events.md](events.md)                           | RabbitMQ event contracts, plan entitlement mapping                                                                                |
-| [observability.md](observability.md)             | Prometheus metrics, Grafana dashboards, security model                                                                            |
-| [roadmap-decisions.md](roadmap-decisions.md)     | Open decisions, pre-Sprint 1 tasks, Phase 2/3 design backlog                                                                      |
-| [ui-venue-management.md](ui-venue-management.md) | UI: venue CRUD form, list, form spec, component structure, themes/skins, addon placement                                          |
-| [ui-deal-workspace.md](ui-deal-workspace.md)     | UI: Deal Workspace — proposal assembly, client board, immutable history, approval snapshot                                        |
+| Document                                         | Contents                                                                                                                             |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **This file**                                    | Platform context, foundation reuse, tech stack decisions, implementation patterns                                                    |
+| [data-model.md](data-model.md)                   | Domain model, canonical field set, schema versioning, database schema & indexes                                                      |
+| [services.md](services.md)                       | Service decomposition, shared libraries (`mi-venue-model`, `mi-data-intelligence`), S3 layout                                        |
+| [aggregation.md](aggregation.md)                 | Metadata aggregation, conflict resolution, FIFO race-condition prevention                                                            |
+| [master-catalog.md](master-catalog.md)           | Master Venue Catalog — cold start, alias normalisation, MC_INHERIT merge algorithm                                                   |
+| [etl-pipeline.md](etl-pipeline.md)               | ETL pipeline (parse → transform → load), Spring AI stages, processing SLAs                                                           |
+| [search.md](search.md)                           | Search architecture — keyword, semantic, geo, hybrid, cross-source orchestration                                                     |
+| [api.md](api.md)                                 | REST API surface — all endpoints, DTOs, error responses                                                                              |
+| [events.md](events.md)                           | RabbitMQ event contracts, plan entitlement mapping                                                                                   |
+| [observability.md](observability.md)             | Prometheus metrics, Grafana dashboards, security model                                                                               |
+| [roadmap-decisions.md](roadmap-decisions.md)     | Open decisions, pre-Sprint 1 tasks, Phase 2/3 design backlog                                                                         |
+| [ui-venue-management.md](ui-venue-management.md) | UI: venue CRUD form, list, form spec, component structure, themes/skins, addon placement                                             |
+| [ui-deal-workspace.md](ui-deal-workspace.md)     | UI: Deal Workspace — proposal assembly, client board, immutable history, approval snapshot                                           |
 | [ui-shared-packages.md](ui-shared-packages.md)   | UI: shared npm package `@shortlisty/ui-types` — types, constants, form spec; drift prevention, file: prototype path, npmjs promotion |
 
 ---
@@ -30,12 +30,12 @@
 
 Shortlisty Intelligence is a new product service built **on top of the iQ Key Value foundation**. It does not replace or fork any existing service. It reuses:
 
-| Foundation service           | What Shortlisty inherits                                                                   |
+| Foundation service           | What Shortlisty inherits                                                                |
 | ---------------------------- | --------------------------------------------------------------------------------------- |
 | `foundation-gateway-service` | JWT validation, tenant routing, header propagation — no changes needed                  |
 | `foundation-iam-service`     | Auth, multi-tenancy, team invitations, SSO, presigned S3 upload pattern                 |
 | `foundation-billing-service` | Plan entitlements (`max_venues`, `ai_extraction_enabled`, etc.), subscription lifecycle |
-| `foundation-audit-service`   | Compliance log — consumes Shortlisty events passively, no code changes                     |
+| `foundation-audit-service`   | Compliance log — consumes Shortlisty events passively, no code changes                  |
 | `foundation-ui-app`          | Extended (not forked) with new `/venues/*` routes under FSD architecture                |
 | `foundation-tenancy`         | Schema-per-tenant isolation library reused directly                                     |
 

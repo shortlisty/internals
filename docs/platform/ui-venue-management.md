@@ -142,7 +142,8 @@ export type {
 > (`isProfileStage`, …), and `VenueMetadata`/`FieldProvenance` live in `@shortlisty/ui-types`.
 > The addon imports them and re-exports through `index.ts` so consuming app code never imports
 > directly from `@shortlisty/ui-types` — it always imports from `@/addons/venue-management`.
-```
+
+````
 
 **Rule:** shared components (`VenueProfileHeader`, `VenueProfileTabs`, `VenueFormField`,
 `VenueListItem`) accept `AnyVenue` and branch on `context` only where rendering genuinely differs.
@@ -209,7 +210,7 @@ export interface VenueDetail extends VenueSummary, AnyVenue {
   metadataSources: Record<string, FieldProvenance>;
   metadataAggregatedAt: string | null;
 }
-```
+````
 
 > **Rule:** `src/entities/venue/types.ts` contains only app-specific projection shapes
 > (`VenueSummary`, `VenueDetail`). All domain types — `AnyVenue`, `VenueMetadata`,
@@ -442,8 +443,8 @@ export interface FieldDefinition {
   options?: EnumOption[];
   requiredForStage?: ProfileStage; // tenant only — drives completion nudge
   quickFill?: boolean;
-  showSourceBadge?: boolean;       // show provenance badge next to this field
-  readOnly?: boolean;              // field cannot be edited (e.g. master catalog context)
+  showSourceBadge?: boolean; // show provenance badge next to this field
+  readOnly?: boolean; // field cannot be edited (e.g. master catalog context)
   action?: FieldAction;
   min?: number;
   max?: number;
@@ -1344,20 +1345,39 @@ re-exports them — app code never imports from `@shortlisty/ui-types` directly.
 
 // From @shortlisty/ui-types (single source of truth — do not redefine here)
 export {
-  PROFILE_STAGES, VENUE_STATUSES, VENUE_SOURCES, VENUE_SOURCE_LABELS, VENUE_CONTEXTS,
-  ANNOTATION_TYPES, ANNOTATION_TYPE_LABELS, CATERING_POLICIES, CATERING_POLICY_LABELS,
-  PROFILE_STAGE_LABELS, VENUE_STATUS_LABELS,
-  isProfileStage, isVenueStatus, isVenueSource, isVenueContext, isCateringPolicy,
+  PROFILE_STAGES,
+  VENUE_STATUSES,
+  VENUE_SOURCES,
+  VENUE_SOURCE_LABELS,
+  VENUE_CONTEXTS,
+  ANNOTATION_TYPES,
+  ANNOTATION_TYPE_LABELS,
+  CATERING_POLICIES,
+  CATERING_POLICY_LABELS,
+  PROFILE_STAGE_LABELS,
+  VENUE_STATUS_LABELS,
+  isProfileStage,
+  isVenueStatus,
+  isVenueSource,
+  isVenueContext,
+  isCateringPolicy,
 } from "@shortlisty/ui-types";
 
 export type {
-  ProfileStage, VenueStatus, VenueSource, VenueContext,
-  AnnotationType, CateringPolicy,
-  AnyVenue, VenueMetadata, FieldProvenance,
+  ProfileStage,
+  VenueStatus,
+  VenueSource,
+  VenueContext,
+  AnnotationType,
+  CateringPolicy,
+  AnyVenue,
+  VenueMetadata,
+  FieldProvenance,
 } from "@shortlisty/ui-types";
 ```
 
 Architecture tests in each app assert:
+
 - No file in `src/` outside `src/addons/venue-management/` imports directly from `@shortlisty/ui-types`.
 - No file in `src/` redefines `VenueMetadata`, `ProfileStage`, `PROFILE_STAGES`, or any other
   type or constant that already exists in `@shortlisty/ui-types`.

@@ -65,23 +65,24 @@ export type ProposalStatus =
 > They are not redefined in the addon — the addon imports and re-exports them.
 
 export interface Proposal {
-  id: string;
-  /** 8-char alphanumeric NanoID — matches X-Tenant-ID header. */
-  tenantKey: string;
-  title: string;
-  clientName: string;
-  clientEmail: string | null;
-  status: ProposalStatus;
-  brandingEnabled: boolean; // plan gate: white_label
-  shareToken: string; // opaque token — part of public URL
-  shareUrl: string; // full URL sent to client
-  eventDate: string | null; // ISO date — drives retention policy
-  /**
-   * IAM user id of the agency member who owns this proposal.
-   * Mandatory — every proposal must have exactly one owner on the agency side.
-   * Shown to client as "Your contact", receives all client activity notifications.
-   * Can be reassigned by TENANT_OWNER but never unset.
-   */
+id: string;
+/** 8-char alphanumeric NanoID — matches X-Tenant-ID header. _/
+tenantKey: string;
+title: string;
+clientName: string;
+clientEmail: string | null;
+status: ProposalStatus;
+brandingEnabled: boolean; // plan gate: white_label
+shareToken: string; // opaque token — part of public URL
+shareUrl: string; // full URL sent to client
+eventDate: string | null; // ISO date — drives retention policy
+/_*
+
+- IAM user id of the agency member who owns this proposal.
+- Mandatory — every proposal must have exactly one owner on the agency side.
+- Shown to client as "Your contact", receives all client activity notifications.
+- Can be reassigned by TENANT_OWNER but never unset.
+  */
   ownerId: string;
   ownerName: string; // display name snapshot — kept in sync on read
   ownerEmail: string; // for client-facing "contact your planner" link
@@ -91,31 +92,33 @@ export interface Proposal {
   snapshotId: string | null; // set on APPROVED
   createdAt: string;
   updatedAt: string;
-}
+  }
 
 export interface ProposalSummary extends Pick<
-  Proposal,
-  | "id"
-  | "title"
-  | "clientName"
-  | "status"
-  | "shareUrl"
-  | "eventDate"
-  | "approvedAt"
-  | "ownerId"
-  | "ownerName"
-  | "createdAt"
-  | "updatedAt"
+Proposal,
+| "id"
+| "title"
+| "clientName"
+| "status"
+| "shareUrl"
+| "eventDate"
+| "approvedAt"
+| "ownerId"
+| "ownerName"
+| "createdAt"
+| "updatedAt"
+
 > {
-  venueCount: number;
-  lastClientActivityAt: string | null;
-}
+> venueCount: number;
+> lastClientActivityAt: string | null;
+> }
 
 export interface ProposalListResponse {
-  items: ProposalSummary[];
-  totalElements: number;
+items: ProposalSummary[];
+totalElements: number;
 }
-```
+
+````
 
 ### `ProposalVenue`
 
@@ -153,7 +156,7 @@ export interface ProposalVenueSnapshot {
   metadata: VenueMetadata; // canonical shape from ui-venue-management addon
   snapshotAt: string;
 }
-```
+````
 
 ### `ProposalEvent` — immutable history
 
@@ -665,6 +668,7 @@ src/pages/
 ```
 
 Architecture tests assert:
+
 - No file outside `src/addons/deal-workspace/` imports from `@shortlisty/ui-types` directly for deal types.
 - No file redefines `ProposalStatus`, `PROPOSAL_STATUSES`, or `CONFIDENCE_THRESHOLDS`.
 - `ClientBoardPage` lives in `src/pages/`, not in `src/addons/`.
