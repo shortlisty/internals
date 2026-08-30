@@ -39,18 +39,18 @@ One Spring Boot application handles both HTTP endpoints and async ETL processing
 
 Split into:
 
-- `mi-venue-service` — synchronous HTTP only. Owns `venues` and `venue_assets` writes.
-- `mi-venue-processing-worker` — async sidecar only. No inbound HTTP. Consumes RabbitMQ events, runs ETL pipeline, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`.
+- `shortlisty-catalog-service` — synchronous HTTP only. Owns `venues` and `venue_assets` writes.
+- `shortlisty-catalog-processing-worker` — async sidecar only. No inbound HTTP. Consumes RabbitMQ events, runs ETL pipeline, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`.
 
-Scraping and master catalog population are further decomposed into mi-mc-ingest-<source>-scraper (Node.js per provider) and mi-mc-loader (Spring Boot) — see architecture §4.
+Scraping and master catalog population are further decomposed into shortlisty-mc-ingest-<source>-scraper (Node.js per provider) and shortlisty-master-venue-loader (Spring Boot) — see architecture §4.
 
-Both services connect to the same PostgreSQL instance and share the tenant schema (`t_{tenantKey}`). They share the domain model via a common library (`mi-venue-model`) so table definitions agree.
+Both services connect to the same PostgreSQL instance and share the tenant schema (`t_{tenantKey}`). They share the domain model via a common library (`shortlisty-venue-model`) so table definitions agree.
 
 **Pros:**
 
-- Independent scaling: scale ingestion workers on queue depth, scale mi-venue-service on request rate
+- Independent scaling: scale ingestion workers on queue depth, scale shortlisty-catalog-service on request rate
 - Failure isolation: an LLM API outage or a malformed-PDF OOM kills only the ingestion worker; user search and CRUD continue
-- Resource isolation: dedicate CPU/memory profiles per service (ingestion gets larger pods with more memory for Tika Pipes forked JVMs; mi-venue-service gets smaller pods tuned for request concurrency)
+- Resource isolation: dedicate CPU/memory profiles per service (ingestion gets larger pods with more memory for Tika Pipes forked JVMs; shortlisty-catalog-service gets smaller pods tuned for request concurrency)
 - Clean separation of concerns: service team can reason about "reads/API" vs "processing pipeline" independently
 - Table ownership model (§4 of README.md) clarifies who writes what, preventing drift
 
@@ -66,7 +66,7 @@ Both services connect to the same PostgreSQL instance and share the tenant schem
 
 **Option B: Two services sharing one database schema.**
 
-One synchronous service (`mi-venue-service`) for HTTP and one async sidecar (`mi-venue-processing-worker`) for the ETL pipeline. Both share `mi-venue-model` (domain model + Liquibase changelogs) as a compile dependency.
+One synchronous service (`shortlisty-catalog-service`) for HTTP and one async sidecar (`shortlisty-catalog-processing-worker`) for the ETL pipeline. Both share `shortlisty-venue-model` (domain model + Liquibase changelogs) as a compile dependency.
 
 ---
 
@@ -74,7 +74,7 @@ One synchronous service (`mi-venue-service`) for HTTP and one async sidecar (`mi
 
 - **Event-processing workloads are bursty and failure-prone.** Document extraction calls external APIs (GPT-4o, text-embedding-3-small) with unpredictable latency and failure modes. Running this inside the same process as user-facing search guarantees that an upstream API incident degrades user-facing latency.
 - **Scaling profiles are opposites.** The ingestion worker is CPU/memory-heavy during parsing and embedding, and largely idle otherwise. The venue service is IO-bound (PostgreSQL queries) with flat steady-state concurrency. Independent pod sizing cuts infrastructure cost at any scale above MVP.
-- **The shared-model library removes the biggest cost of a split.** Because migrations, POJOs, metadata migrations, and the canonical field set live in `mi-venue-model`, there is zero risk of the two services drifting apart on schema shape. The table-ownership contract (venue-service owns `venues`, `venue_assets`; processing-worker owns extraction/vector tables) removes write-path ambiguity.
+- **The shared-model library removes the biggest cost of a split.** Because migrations, POJOs, metadata migrations, and the canonical field set live in `shortlisty-venue-model`, there is zero risk of the two services drifting apart on schema shape. The table-ownership contract (venue-service owns `venues`, `venue_assets`; processing-worker owns extraction/vector tables) removes write-path ambiguity.
 - **Cross-boundary reads are narrow and well-defined.** The only read processing-worker makes across the ownership boundary is `SELECT s3_key FROM venue_assets WHERE id = ?` — a foreign-key lookup delivered inside the RabbitMQ event payload. No business logic crosses.
 - **Pattern already validated in platform.** The iQ Key Value foundation already separates synchronous gateway/API services from async workers (billing event processors, audit log consumers). The ops team has tooling and runbooks for this topology.
 
@@ -82,10 +82,10 @@ One synchronous service (`mi-venue-service`) for HTTP and one async sidecar (`mi
 
 ## Consequences
 
-- The deployment manifest ships two containers per environment (`mi-venue-service` + `mi-venue-processing-worker`). Helm chart has separate replica counts, HPA triggers, and resource quotas per service.
-- Table ownership is documented in README.md §4 and enforced at code review: processing-worker never issues `UPDATE venues`; mi-venue-service never writes to `extraction_jobs` or `item_vectors` directly.
-- Rolling deployments of `mi-venue-processing-worker` must use RabbitMQ `MANUAL` ack mode so in-flight messages are re-queued on consumer shutdown. No message loss is acceptable.
-- HPA for `mi-venue-processing-worker` scales on RabbitMQ queue depth (`shortlisty.asset.uploaded` messages ready), not CPU. HPA for `mi-venue-service` scales on request rate + p95 latency.
+- The deployment manifest ships two containers per environment (`shortlisty-catalog-service` + `shortlisty-catalog-processing-worker`). Helm chart has separate replica counts, HPA triggers, and resource quotas per service.
+- Table ownership is documented in README.md §4 and enforced at code review: processing-worker never issues `UPDATE venues`; shortlisty-catalog-service never writes to `extraction_jobs` or `item_vectors` directly.
+- Rolling deployments of `shortlisty-catalog-processing-worker` must use RabbitMQ `MANUAL` ack mode so in-flight messages are re-queued on consumer shutdown. No message loss is acceptable.
+- HPA for `shortlisty-catalog-processing-worker` scales on RabbitMQ queue depth (`shortlisty.asset.uploaded` messages ready), not CPU. HPA for `shortlisty-catalog-service` scales on request rate + p95 latency.
 
 ---
 

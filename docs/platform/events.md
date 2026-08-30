@@ -20,7 +20,7 @@
 
 Exchange: `iqkv.events` (Topic) — same exchange used by all foundation services.
 
-### Published by `mi-venue-service`
+### Published by `shortlisty-catalog-service`
 
 | Routing key                | Payload fields                                                                                   | Description                             |
 | -------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------- |
@@ -33,7 +33,7 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 | `proposal.approved`        | proposal_id, tenant_id, owner_id, approved_by_client_name, snapshot_id                           | Client clicked Approve, snapshot locked |
 | `proposal.client_activity` | proposal_id, tenant_id, event_type (CLIENT_OPENED \| CLIENT_PREFERENCE_SET \| CLIENT_NOTE_ADDED) | Client interacted with the board        |
 
-### Published by `mi-venue-processing-worker`
+### Published by `shortlisty-catalog-processing-worker`
 
 | Routing key            | Payload fields                                | Description           |
 | ---------------------- | --------------------------------------------- | --------------------- |
@@ -43,14 +43,14 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 
 > For the scalable topology (Variant A2, see [aggregation.md](aggregation.md)), the publisher appends a hash-slot suffix to the `extraction.completed` routing key: `extraction.completed.{slot}` where `slot = Math.abs(venueId.hashCode() % SLOT_COUNT)`. Same `venue_id` always produces the same slot.
 
-### Consumed by `mi-venue-processing-worker`
+### Consumed by `shortlisty-catalog-processing-worker`
 
 | Routing key      | Queue                                         | Action                                |
 | ---------------- | --------------------------------------------- | ------------------------------------- |
 | `asset.uploaded` | `shortlisty.extraction.priority` (Enterprise) | Trigger ETL pipeline immediately      |
 | `asset.uploaded` | `shortlisty.extraction.standard` (Free/Pro)   | Trigger ETL pipeline (standard queue) |
 
-### Consumed by `mi-venue-service`
+### Consumed by `shortlisty-catalog-service`
 
 | Routing key            | Queue (MVP A1)                                   | Queue (Scalable A2)                                                                                                      | Action                                  |
 | ---------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- |
@@ -67,7 +67,7 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 
 ## Metadata Aggregation Queue — Consumer Configuration
 
-The `MetadataAggregationConsumer` listener container in `mi-venue-service` must be configured to serialise processing per queue so that per-venue events never execute concurrently:
+The `MetadataAggregationConsumer` listener container in `shortlisty-catalog-service` must be configured to serialise processing per queue so that per-venue events never execute concurrently:
 
 | Configuration    | Value (A1)                                          | Value (A2)  | Notes                                                                                           |
 | ---------------- | --------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------- |
@@ -84,19 +84,19 @@ The consumer listens either on one queue (A1) or on all 16 slot queues (A2) via 
 
 Feature codes used in `foundation-billing-service` plan config:
 
-| Feature code             | Free | Pro | Enterprise | Enforcement point                          |
-| ------------------------ | ---- | --- | ---------- | ------------------------------------------ |
-| `max_venues`             | 10   | 500 | unlimited  | `mi-venue-service`: before create          |
-| `max_assets_per_venue`   | 20   | 100 | unlimited  | `mi-venue-service`: before upload          |
-| `max_proposals`          | 3    | 50  | unlimited  | `mi-venue-service`: before proposal create |
-| `basic_extraction`       | ✅   | ✅  | ✅         | AI processing: PDF text only               |
-| `advanced_extraction`    | ⛔   | ✅  | ✅         | AI processing: all asset types             |
-| `video_support`          | ⛔   | ✅  | ✅         | `mi-venue-service`: reject VIDEO upload    |
-| `cad_support`            | ⛔   | ✅  | ✅         | `mi-venue-service`: reject DWG/DXF upload  |
-| `semantic_search`        | ⛔   | ✅  | ✅         | `mi-venue-service`: search endpoint        |
-| `priority_ai_processing` | ⛔   | ⛔  | ✅         | RabbitMQ: route to priority queue          |
-| `api_access`             | ⛔   | ✅  | ✅         | gateway: API key route                     |
-| `white_label`            | ⛔   | ⛔  | ✅         | `foundation-ui-app`: branding config       |
+| Feature code             | Free | Pro | Enterprise | Enforcement point                                    |
+| ------------------------ | ---- | --- | ---------- | ---------------------------------------------------- |
+| `max_venues`             | 10   | 500 | unlimited  | `shortlisty-catalog-service`: before create          |
+| `max_assets_per_venue`   | 20   | 100 | unlimited  | `shortlisty-catalog-service`: before upload          |
+| `max_proposals`          | 3    | 50  | unlimited  | `shortlisty-catalog-service`: before proposal create |
+| `basic_extraction`       | ✅   | ✅  | ✅         | AI processing: PDF text only                         |
+| `advanced_extraction`    | ⛔   | ✅  | ✅         | AI processing: all asset types                       |
+| `video_support`          | ⛔   | ✅  | ✅         | `shortlisty-catalog-service`: reject VIDEO upload    |
+| `cad_support`            | ⛔   | ✅  | ✅         | `shortlisty-catalog-service`: reject DWG/DXF upload  |
+| `semantic_search`        | ⛔   | ✅  | ✅         | `shortlisty-catalog-service`: search endpoint        |
+| `priority_ai_processing` | ⛔   | ⛔  | ✅         | RabbitMQ: route to priority queue                    |
+| `api_access`             | ⛔   | ✅  | ✅         | gateway: API key route                               |
+| `white_label`            | ⛔   | ⛔  | ✅         | `foundation-ui-app`: branding config                 |
 
 Enforcement via `PlanFeatureGuard` (same pattern as IAM service's existing implementation).
 

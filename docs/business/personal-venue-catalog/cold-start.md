@@ -163,12 +163,12 @@ Public venue pages include photos, reviews, and sometimes structured attributes 
 2. Confirm it meets the selection criteria above
 3. Download all publicly available documents from the venue's website (PDF decks, floor plans, menus)
 4. Save photo URLs or download photos from the venue's website and Google Maps
-5. Record the raw structured data as a **`MasterVenueRecord` JSON** entry — same field shape that `mc-ingest-tagvenue-scraper` emits, so these manual entries are interchangeable with scraper entries and feed directly into the same `mi-mc-loader` pipeline later.
-6. Submit the JSON through either the **admin MasterVenue CRUD API** or the `mi-mc-loader --file` CLI so it is inserted into `public.master_venue` with an associated `master_venue_external` row (`external_source='platform_seed'`). This is a live test of the importer UPSERT dedup pipeline.
+5. Record the raw structured data as a **`MasterVenueRecord` JSON** entry — same field shape that `mc-ingest-tagvenue-scraper` emits, so these manual entries are interchangeable with scraper entries and feed directly into the same `shortlisty-master-venue-loader` pipeline later.
+6. Submit the JSON through either the **admin MasterVenue CRUD API** or the `shortlisty-master-venue-loader --file` CLI so it is inserted into `public.master_venue` with an associated `master_venue_external` row (`external_source='platform_seed'`). This is a live test of the importer UPSERT dedup pipeline.
 7. Run the same venue documents through the asset-ETL pipeline for a linked test tenant venue to test extraction quality end-to-end.
 8. Review extraction output, note failures, log confidence scores per field. If a seed entry has any fields that extraction missed but we verified manually on the venue website, update the `master_venue.metadata` row via admin edit as `MANUAL_OVERRIDE` (priority 10/10) — this tests the provenance priority chain because future scraper re-runs will not overwrite hand-verified seed data.
 
-This process is simultaneously: (a) the 50-document extraction accuracy benchmark from the vision strategic bets, (b) the `mi-mc-loader` fuzzy dedup & merge integration test, (c) the concierge onboarding demo dataset for every future concierge pilot.
+This process is simultaneously: (a) the 50-document extraction accuracy benchmark from the vision strategic bets, (b) the `shortlisty-master-venue-loader` fuzzy dedup & merge integration test, (c) the concierge onboarding demo dataset for every future concierge pilot.
 
 ### Tracking
 

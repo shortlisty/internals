@@ -55,7 +55,7 @@ Each line follows this exact format:
 
 ### Group A — Master Venue Catalog Infrastructure (PLATFORM SERVICE - NEW PREREQUISITE)
 
-- [ ] Shared libraries foundation: mi-data-intelligence and mi-venue-model with domain contracts · Epic: E1-master-venue-catalog · Milestone: v0.1-mvp · Priority: P0
+- [ ] Shared libraries foundation: shortlisty-data-intelligence and shortlisty-venue-model with domain contracts · Epic: E1-master-venue-catalog · Milestone: v0.1-mvp · Priority: P0
 - [ ] Database schema and Liquibase migrations for platform master venue catalog (public schema) · Epic: E1-master-venue-catalog · Milestone: v0.1-mvp · Priority: P0
 - [ ] Master venue data model with JSONB metadata versioning system (platform-wide reference data) · Epic: E1-master-venue-catalog · Milestone: v0.1-mvp · Priority: P0
 - [ ] Platform admin CRUD API endpoints for master catalog management (full unrestricted access - create, read, update, delete all venue data) · Epic: E1-master-venue-catalog · Milestone: v0.1-mvp · Priority: P0

@@ -25,8 +25,8 @@ This means the following infrastructure must be in place before any tenant can c
 
 ### 1. Shared Libraries Foundation
 
-- `mi-data-intelligence` - Domain-agnostic extraction and metadata infrastructure
-- `mi-venue-model` - Venue-specific domain models, migrations, and contracts
+- `shortlisty-data-intelligence` - Domain-agnostic extraction and metadata infrastructure
+- `shortlisty-venue-model` - Venue-specific domain models, migrations, and contracts
 
 ### 2. Database Schema and Migrations
 

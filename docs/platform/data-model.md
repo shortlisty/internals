@@ -196,7 +196,7 @@ flag in `extracted_text`.
 | `completed_at`      | timestamp |                                               |
 | `error_message`     | text      | On failure                                    |
 
-Defined in `mi-data-intelligence`. Owned by `mi-venue-processing-worker`. See [services.md](services.md) §4c.
+Defined in `shortlisty-data-intelligence`. Owned by `shortlisty-catalog-processing-worker`. See [services.md](services.md) §4c.
 
 ---
 
@@ -383,13 +383,13 @@ Every `venues.metadata` JSONB document must carry an integer key `_schema_versio
 | Initial version     | `1` (matches the first canonical field set shipped in MVP)                                                   |
 | Absent key fallback | `0` (triggers full migration chain from v0)                                                                  |
 | Bump condition      | Any backwards-incompatible change to canonical fields, or any addition of a required nested field            |
-| Bump ownership      | `mi-venue-model` library — only the shared model may define `CURRENT_SCHEMA_VERSION`                         |
+| Bump ownership      | `shortlisty-venue-model` library — only the shared model may define `CURRENT_SCHEMA_VERSION`                 |
 | Write enforcement   | Every write path runs the migrator and sets `_schema_version = CURRENT_SCHEMA_VERSION` before persisting     |
 | Read enforcement    | `VenueMetadataMigrator.migrateToCurrent(JsonNode)` is called on **every read** via MyBatis ResultMap handler |
 
 ### Migration Pipeline — `VenueMetadataMigrator`
 
-Lives in `mi-venue-model` (shared library, zero Spring deps — pure Java). Both services use the **same** migrator instance.
+Lives in `shortlisty-venue-model` (shared library, zero Spring deps — pure Java). Both services use the **same** migrator instance.
 
 ```
                  ┌──────────────────────────────────┐
@@ -424,10 +424,10 @@ Lives in `mi-venue-model` (shared library, zero Spring deps — pure Java). Both
 
 ### Migration Classes
 
-Each `N → N+1` step is a single-responsibility class implementing `MetadataMigration` interface (defined in `mi-data-intelligence`). Migrations are registered in an ordered list inside `VenueMetadataMigrator` — the order is the source of truth.
+Each `N → N+1` step is a single-responsibility class implementing `MetadataMigration` interface (defined in `shortlisty-data-intelligence`). Migrations are registered in an ordered list inside `VenueMetadataMigrator` — the order is the source of truth.
 
 ```java
-// mi-venue-model: no Spring, no framework deps
+// shortlisty-venue-model: no Spring, no framework deps
 public interface MetadataMigration {
     int fromVersion();
     int toVersion();
@@ -511,7 +511,7 @@ The migrator records the pre-migration version of every document it sees via Mic
 
 ## 10. Database Schema
 
-Migrations live in `mi-venue-model` under `src/main/resources/db/changelog/tenant/`. Both services include the library on their classpath; `mi-venue-service` runs the migrations on startup (same pattern as IAM).
+Migrations live in `shortlisty-venue-model` under `src/main/resources/db/changelog/tenant/`. Both services include the library on their classpath; `shortlisty-catalog-service` runs the migrations on startup (same pattern as IAM).
 
 ### Naming and Format Conventions
 
@@ -836,15 +836,15 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 
 **Tenant schema `t_{tenantKey}` (tenant-owned):**
 
-| Table                   | Key columns                                                                                                                                                                                                                                                                                                                                                                                            | Owner                        |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------- |
-| `venues`                | `id` UUID PK, `name` VARCHAR(255), `display_name` VARCHAR(255), `city` VARCHAR(100), `country_code` CHAR(2), `website_url` VARCHAR(500), `primary_photo_asset_id` UUID, `status` VARCHAR(20), `profile_stage` VARCHAR(20), `source` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY, `master_venue_id` UUID nullable, `last_used_in_sales_room_at` TIMESTAMP | `mi-venue-service`           |
-| `venue_annotations`     | `id` UUID PK, `venue_id` UUID FK, `annotation_type` VARCHAR(20), `text_value` TEXT, `color_hex` VARCHAR(7), `numeric_value` NUMERIC(3,1), `is_private` BOOLEAN, `created_by` UUID                                                                                                                                                                                                                      | `mi-venue-service`           |
-| `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `photo_category` VARCHAR(30), `display_order` SMALLINT, `label` VARCHAR(255), `cdn_url` TEXT, `thumbnail_cdn_url` TEXT, `table_data` JSONB, `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536), `uploaded_at` TIMESTAMP, `updated_at` TIMESTAMP                                                                      | `mi-venue-service`           |
-| `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB                                                                                                                                                                                                                                                                | `mi-venue-processing-worker` |
-| `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                                                                                                                                                                                                                                                                                           | `mi-venue-service`           |
-| `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in `mi-data-intelligence` changelog.                                                                                                                                                                                                                                                 | `mi-venue-processing-worker` |
-| `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                                                                                                                                                                                                                                                                                            | `mi-venue-processing-worker` |
+| Table                   | Key columns                                                                                                                                                                                                                                                                                                                                                                                            | Owner                                  |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------- |
+| `venues`                | `id` UUID PK, `name` VARCHAR(255), `display_name` VARCHAR(255), `city` VARCHAR(100), `country_code` CHAR(2), `website_url` VARCHAR(500), `primary_photo_asset_id` UUID, `status` VARCHAR(20), `profile_stage` VARCHAR(20), `source` VARCHAR(20), `metadata` JSONB, `description_embedding` VECTOR(1536), `location` GEOGRAPHY, `master_venue_id` UUID nullable, `last_used_in_sales_room_at` TIMESTAMP | `shortlisty-catalog-service`           |
+| `venue_annotations`     | `id` UUID PK, `venue_id` UUID FK, `annotation_type` VARCHAR(20), `text_value` TEXT, `color_hex` VARCHAR(7), `numeric_value` NUMERIC(3,1), `is_private` BOOLEAN, `created_by` UUID                                                                                                                                                                                                                      | `shortlisty-catalog-service`           |
+| `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `photo_category` VARCHAR(30), `display_order` SMALLINT, `label` VARCHAR(255), `cdn_url` TEXT, `thumbnail_cdn_url` TEXT, `table_data` JSONB, `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536), `uploaded_at` TIMESTAMP, `updated_at` TIMESTAMP                                                                      | `shortlisty-catalog-service`           |
+| `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB                                                                                                                                                                                                                                                                | `shortlisty-catalog-processing-worker` |
+| `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                                                                                                                                                                                                                                                                                           | `shortlisty-catalog-service`           |
+| `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in `shortlisty-data-intelligence` changelog.                                                                                                                                                                                                                                         | `shortlisty-catalog-processing-worker` |
+| `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                                                                                                                                                                                                                                                                                            | `shortlisty-catalog-processing-worker` |
 
 ### Index Strategy
 
@@ -889,7 +889,7 @@ PostgreSQL schema-per-tenant means `public.master_venue` lives in a different sc
 
 3. **No cross-schema DDL-level FK constraints.** The `venues.master_venue_id → master_venue.id` reference is application-enforced only.
 
-4. **Role-level hardening (pre-production):** The `mi-venue-service` connection pool holds `SELECT` on `public.master_venue` / aliases / external. `INSERT / UPDATE / DELETE` on `public` tables is revoked; only the `master_catalog_admin` connection holds write grants.
+4. **Role-level hardening (pre-production):** The `shortlisty-catalog-service` connection pool holds `SELECT` on `public.master_venue` / aliases / external. `INSERT / UPDATE / DELETE` on `public` tables is revoked; only the `master_catalog_admin` connection holds write grants.
 
 ---
 

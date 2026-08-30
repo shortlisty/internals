@@ -1,7 +1,7 @@
 # Shortlisty — Service Architecture
 
 > **Audience:** Engineers, architects.
-> **Purpose:** Service decomposition, table ownership rules, shared library internals (`mi-venue-model`, `mi-data-intelligence`), and S3 storage layout.
+> **Purpose:** Service decomposition, table ownership rules, shared library internals (`shortlisty-venue-model`, `shortlisty-data-intelligence`), and S3 storage layout.
 
 ---
 
@@ -28,7 +28,7 @@
                     └────────┬─────────┘     └────────┬─────────┘
                              │                        │ plan entitlements
                     ┌────────▼────────────────────────▼─────────┐
-                    │            mi-venue-service                │
+                    │            shortlisty-catalog-service                │
                     │  venues · assets · metadata · search · api │
                     └────────┬──────────────┬──────────┬─────────┘
                              │ RabbitMQ     │ r/w       │ presigned URL
@@ -54,59 +54,59 @@
                                           ▲
                                           │ scraper output CSV/JSONL
                     ┌─────────────────────┤
-                    │ mi-mc-ingest-        │
-                    │ tagvenue-scraper     │──► mi-mc-loader ──► public.master_venue
+                    │ shortlisty-mc-ingest-        │
+                    │ tagvenue-scraper     │──► shortlisty-master-venue-loader ──► public.master_venue
                     │ (Node.js)            │     (Spring Boot)   master_venue_external
                     └─────────────────────┘
 ```
 
-### `mi-venue-service`
+### `shortlisty-catalog-service`
 
 - **Responsibilities:** venue CRUD, asset upload flow (presigned URL), metadata read/write, search API, plan entitlement enforcement, master catalog backdrop lookup
-- **Database:** owns the Shortlisty PostgreSQL schema. Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`. Shared with `mi-venue-processing-worker` — no cross-service API calls for data.
+- **Database:** owns the Shortlisty PostgreSQL schema. Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`. Shared with `shortlisty-catalog-processing-worker` — no cross-service API calls for data.
 - **Exposes:** REST API at `/api/v1/venues` (see [api.md](api.md))
 - **Publishes:** `venue.created`, `venue.updated`, `asset.uploaded`, `asset.deleted` (RabbitMQ)
 - **Consumes:** `extraction.completed`, `extraction.failed` (RabbitMQ) — triggers metadata aggregation
 
-### `mi-venue-processing-worker`
+### `shortlisty-catalog-processing-worker`
 
 - **Responsibilities:** document ETL pipeline (parse → chunk → extract → embed), extraction job lifecycle, master catalog match and MC_INHERIT merge, metadata aggregation, scheduled maintenance jobs (stale re-aggregation, cost reporting)
 - **Nature:** async sidecar — no inbound HTTP, no REST API, no service discovery entry. Event-driven only.
-- **Database:** shared PostgreSQL schema with `mi-venue-service`. Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.master_venue` for the master catalog match step.
+- **Database:** shared PostgreSQL schema with `shortlisty-catalog-service`. Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.master_venue` for the master catalog match step.
 - **Consumes:** `asset.uploaded` (RabbitMQ) — triggers ETL pipeline (see [etl-pipeline.md](etl-pipeline.md))
 - **Publishes:** `extraction.started`, `extraction.completed`, `extraction.failed` (RabbitMQ)
 - **External calls:** OpenAI API (GPT-4o, text-embedding-3-small), optionally Docling sidecar (Phase 2)
-- **Scaling:** replicas scaled independently based on RabbitMQ queue depth — no impact on `mi-venue-service`
+- **Scaling:** replicas scaled independently based on RabbitMQ queue depth — no impact on `shortlisty-catalog-service`
 
-> Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers: `mi-mc-ingest-<source>-scraper`. Master Catalog population runs in `mi-mc-loader` (Spring Boot). Full cold-start strategy in [master-catalog.md](master-catalog.md).
+> Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers: `shortlisty-mc-ingest-<source>-scraper`. Master Catalog population runs in `shortlisty-master-venue-loader` (Spring Boot). Full cold-start strategy in [master-catalog.md](master-catalog.md).
 
 ### Table Ownership
 
 Both services share one PostgreSQL schema. Ownership defines who may write to a table. Cross-boundary reads are permitted; cross-boundary writes are not.
 
-| Table                   | Owner                        | The other service may…                                                          |
-| ----------------------- | ---------------------------- | ------------------------------------------------------------------------------- |
-| `venues`                | `mi-venue-service`           | read (processing-worker: resolve venue_id only)                                 |
-| `venue_assets`          | `mi-venue-service`           | read (processing-worker: fetch asset for processing)                            |
-| `venue_metadata_events` | `mi-venue-service`           | write via event reaction (`extraction.completed` → mi-venue-service aggregates) |
-| `extraction_jobs`       | `mi-venue-processing-worker` | read (venue-service: expose job status to API)                                  |
-| `item_vectors`          | `mi-venue-processing-worker` | read (venue-service: vector search queries)                                     |
-| `ai_cost_tracking`      | `mi-venue-processing-worker` | read (venue-service: expose cost summary to API)                                |
+| Table                   | Owner                                  | The other service may…                                                                    |
+| ----------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `venues`                | `shortlisty-catalog-service`           | read (processing-worker: resolve venue_id only)                                           |
+| `venue_assets`          | `shortlisty-catalog-service`           | read (processing-worker: fetch asset for processing)                                      |
+| `venue_metadata_events` | `shortlisty-catalog-service`           | write via event reaction (`extraction.completed` → shortlisty-catalog-service aggregates) |
+| `extraction_jobs`       | `shortlisty-catalog-processing-worker` | read (venue-service: expose job status to API)                                            |
+| `item_vectors`          | `shortlisty-catalog-processing-worker` | read (venue-service: vector search queries)                                               |
+| `ai_cost_tracking`      | `shortlisty-catalog-processing-worker` | read (venue-service: expose cost summary to API)                                          |
 
-The single legitimate cross-boundary read from `mi-venue-processing-worker` is a `SELECT` on `venue_assets` by `asset_id` (delivered in the `asset.uploaded` event payload). This is a foreign key lookup, not business logic — acceptable and intentional.
+The single legitimate cross-boundary read from `shortlisty-catalog-processing-worker` is a `SELECT` on `venue_assets` by `asset_id` (delivered in the `asset.uploaded` event payload). This is a foreign key lookup, not business logic — acceptable and intentional.
 
 ---
 
-## 4a. Shared Library — `mi-venue-model`
+## 4a. Shared Library — `shortlisty-venue-model`
 
-`mi-venue-model` is a plain Java library (JAR, no Spring Boot). It is the **venue-domain layer** containing only venue-specific entities, field definitions, metadata migrations, and schema changelogs. Generic extraction infrastructure lives in `mi-data-intelligence` (§4c), which this library imports as a compile dependency.
+`shortlisty-venue-model` is a plain Java library (JAR, no Spring Boot). It is the **venue-domain layer** containing only venue-specific entities, field definitions, metadata migrations, and schema changelogs. Generic extraction infrastructure lives in `shortlisty-data-intelligence` (§4c), which this library imports as a compile dependency.
 
-Both `mi-venue-service` and `mi-venue-processing-worker` declare `mi-venue-model` as a compile dependency and receive `mi-data-intelligence` transitively.
+Both `shortlisty-catalog-service` and `shortlisty-catalog-processing-worker` declare `shortlisty-venue-model` as a compile dependency and receive `shortlisty-data-intelligence` transitively.
 
 **Contents:**
 
 ```
-mi-venue-model/
+shortlisty-venue-model/
 ├── venue/
 │   ├── Venue.java                       Plain POJO — aggregate root, no JPA annotations
 │   ├── VenueStatus.java                 enum: DRAFT, ACTIVE, ARCHIVED
@@ -116,11 +116,11 @@ mi-venue-model/
 │   ├── VenueCapacity.java               Capacity configurations value object
 │   ├── VenueMetadataSchemaVersion.java  Single source of truth: CURRENT_SCHEMA_VERSION = 1
 │   │                                    Extends MetadataSchemaVersion contract from
-│   │                                    mi-data-intelligence.
-│   ├── VenueMetadataMigrator.java       Extends MetadataMigrator (mi-data-intelligence):
+│   │                                    shortlisty-data-intelligence.
+│   ├── VenueMetadataMigrator.java       Extends MetadataMigrator (shortlisty-data-intelligence):
 │   │                                    supplies the ordered venue migration list and
 │   │                                    CURRENT_SCHEMA_VERSION.
-│   ├── VenueMetadataTypeHandler.java    Extends MetadataTypeHandler (mi-data-intelligence):
+│   ├── VenueMetadataTypeHandler.java    Extends MetadataTypeHandler (shortlisty-data-intelligence):
 │   │                                    wires VenueMetadataMigrator into MyBatis result maps.
 │   └── migrations/
 │       ├── VenueMetadataMigrationV0ToV1.java   bootstraps legacy pre-versioned docs → v1
@@ -135,13 +135,13 @@ mi-venue-model/
         │   ├── master.xml
         │   └── 20260901000000-create-master-venue.xml
         └── tenant/                      Tenant schema — venue domain tables only
-            ├── master.xml               includes mi-data-intelligence/intelligence/master.xml
+            ├── master.xml               includes shortlisty-data-intelligence/intelligence/master.xml
             │                            first, then venue-specific changesets
             ├── 20260901000001-create-venues.xml
             └── 20260901000002-create-venue-assets.xml
 ```
 
-> Infrastructure table changelogs (`extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`) live in `mi-data-intelligence/db/changelog/intelligence/` and are included via the `tenant/master.xml` reference. They must not be duplicated here.
+> Infrastructure table changelogs (`extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`) live in `shortlisty-data-intelligence/db/changelog/intelligence/` and are included via the `tenant/master.xml` reference. They must not be duplicated here.
 
 **Rules:**
 
@@ -150,7 +150,7 @@ mi-venue-model/
 - No JPA annotations. Plain POJOs only — the platform uses MyBatis.
 - `VenueMetadataSchemaVersion.CURRENT_SCHEMA_VERSION` is the **only** place the venue schema version number is hardcoded. No service may define its own copy.
 - Migration classes under `metadata/migrations/` are added, never removed or reordered.
-- Event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, etc.) come from `mi-data-intelligence`. Do not redefine or shadow them here.
+- Event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, etc.) come from `shortlisty-data-intelligence`. Do not redefine or shadow them here.
 
 ---
 
@@ -229,7 +229,7 @@ shortlisty/master-catalog/exports/{date}/{snapshot}.jsonl.gz
 
 - All tenant objects scoped under `shortlisty/tenants/{tenantKey}/`. Cross-tenant read is structurally impossible without knowing the other tenant's key.
 - The service account holds a single S3 IAM policy allowing `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on the full `shortlisty/*` prefix. Presigned URLs are scoped to the exact object key.
-- Master catalog paths (`shortlisty/master-catalog/*`) are not accessible via tenant-issued presigned URLs. Written only by the platform's internal job service account (`mi-mc-loader`).
+- Master catalog paths (`shortlisty/master-catalog/*`) are not accessible via tenant-issued presigned URLs. Written only by the platform's internal job service account (`shortlisty-master-venue-loader`).
 
 ### Lifecycle Rules
 
@@ -239,21 +239,21 @@ shortlisty/master-catalog/exports/{date}/{snapshot}.jsonl.gz
 | Master catalog import cleanup    | `shortlisty/master-catalog/imports/processed/` | Delete after 30 days.                                                                                  |
 | Master catalog snapshot rotation | `shortlisty/master-catalog/exports/`           | Keep last 14 daily snapshots; delete older.                                                            |
 
-Object tags set by `mi-venue-service` at `POST /api/v1/venues/{venueId}/assets/{id}/confirm`:
+Object tags set by `shortlisty-catalog-service` at `POST /api/v1/venues/{venueId}/assets/{id}/confirm`:
 
-| Tag key             | Values                                          | Set by                             |
-| ------------------- | ----------------------------------------------- | ---------------------------------- |
-| `extraction_status` | `pending`, `completed`, `failed`                | mi-venue-service at confirm/update |
-| `asset_type`        | `pdf_deck`, `floor_plan`, `photo`, `cad_file` … | mi-venue-service at initiate       |
-| `tenant_key`        | 8-char nanoid                                   | mi-venue-service at initiate       |
+| Tag key             | Values                                          | Set by                                       |
+| ------------------- | ----------------------------------------------- | -------------------------------------------- |
+| `extraction_status` | `pending`, `completed`, `failed`                | shortlisty-catalog-service at confirm/update |
+| `asset_type`        | `pdf_deck`, `floor_plan`, `photo`, `cad_file` … | shortlisty-catalog-service at initiate       |
+| `tenant_key`        | 8-char nanoid                                   | shortlisty-catalog-service at initiate       |
 
 ### Deletion Cascade
 
 When a tenant deletes an asset (`DELETE /api/v1/venues/{venueId}/assets/{id}`) or when a tenant account is terminated:
 
-1. `mi-venue-service` deletes the `venue_assets` row (DB cascade drops extraction jobs and metadata events).
-2. `mi-venue-service` issues `s3:DeleteObject` for `venue_assets.s3_key`.
-3. `asset.deleted` event published → `mi-venue-processing-worker` deletes all `item_vectors` rows where `metadata->>'asset_id' = :assetId`.
+1. `shortlisty-catalog-service` deletes the `venue_assets` row (DB cascade drops extraction jobs and metadata events).
+2. `shortlisty-catalog-service` issues `s3:DeleteObject` for `venue_assets.s3_key`.
+3. `asset.deleted` event published → `shortlisty-catalog-processing-worker` deletes all `item_vectors` rows where `metadata->>'asset_id' = :assetId`.
 
 For full tenant deletion (GDPR right to erasure):
 
@@ -263,14 +263,14 @@ For full tenant deletion (GDPR right to erasure):
 
 ---
 
-## 4c. Shared Library — `mi-data-intelligence`
+## 4c. Shared Library — `shortlisty-data-intelligence`
 
-`mi-data-intelligence` is a plain Java library (JAR, no Spring Boot). It is the **domain-agnostic, vertical-independent layer** — containing everything that would be reused verbatim if the platform were applied to a different vertical (medical records, agro assets, legal documents, etc.). Neither venue-specific fields nor venue-specific migration logic belong here.
+`shortlisty-data-intelligence` is a plain Java library (JAR, no Spring Boot). It is the **domain-agnostic, vertical-independent layer** — containing everything that would be reused verbatim if the platform were applied to a different vertical (medical records, agro assets, legal documents, etc.). Neither venue-specific fields nor venue-specific migration logic belong here.
 
 **Contents:**
 
 ```
-mi-data-intelligence/
+shortlisty-data-intelligence/
 ├── extraction/
 │   ├── ExtractionJob.java          Plain POJO — AI processing job record
 │   ├── ExtractionStatus.java       enum: QUEUED, PROCESSING, COMPLETED, FAILED
@@ -303,7 +303,7 @@ mi-data-intelligence/
 **Rules:**
 
 - No `@Service`, `@Repository`, `@Component`, or any Spring bean annotation.
-- No domain-specific field names. `MetadataSource` stores field names as plain `String` keys — the canonical field set is defined in `mi-venue-model`.
+- No domain-specific field names. `MetadataSource` stores field names as plain `String` keys — the canonical field set is defined in `shortlisty-venue-model`.
 - No venue, medical, agro, or any other vertical concept. If a class name contains a vertical noun, it does not belong here.
 - `MetadataMigrator` (the chain runner) is here. Concrete `MetadataMigrationV{N}ToV{N+1}` classes are in the domain library.
 - `MetadataTypeHandler` is an abstract base class. Domain libraries extend it once, passing their concrete migrator and target POJO class.
@@ -314,7 +314,7 @@ mi-data-intelligence/
 
 | Tempting addition                             | Why it does not belong                              |
 | --------------------------------------------- | --------------------------------------------------- |
-| `VenueMetadata` or any domain POJO            | Venue-specific — lives in `mi-venue-model`          |
+| `VenueMetadata` or any domain POJO            | Venue-specific — lives in `shortlisty-venue-model`  |
 | `CURRENT_SCHEMA_VERSION = 1` constant         | Domain-version-specific — lives in domain library   |
 | `MetadataMigrationV0ToV1`                     | Venue field renames — domain migration, not generic |
 | `MasterVenue`                                 | Field shape is venue-specific — domain library      |
@@ -324,18 +324,18 @@ mi-data-intelligence/
 ### Dependency Graph
 
 ```
-mi-data-intelligence   (platform library, no runtime, no vertical deps)
+shortlisty-data-intelligence   (platform library, no runtime, no vertical deps)
       │
       ▼
-mi-venue-model         (venue-domain library, imports mi-data-intelligence)
+shortlisty-venue-model         (venue-domain library, imports shortlisty-data-intelligence)
       │
-      ├── mi-venue-service          (Spring Boot)
-      └── mi-venue-processing-worker (Spring Boot)
+      ├── shortlisty-catalog-service          (Spring Boot)
+      └── shortlisty-catalog-processing-worker (Spring Boot)
 
 
 Future vertical example:
 
-mi-data-intelligence
+shortlisty-data-intelligence
       │
       ▼
 mi-med-model           (medical-domain library)
