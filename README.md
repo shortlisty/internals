@@ -74,7 +74,7 @@ Shortlisty is built on top of the iQ Key Value open-source foundation. New servi
 - **`shortlisty-catalog-service`** — venue profiles, assets, metadata, search, plan enforcement
 - **`shortlisty-catalog-processing-worker`** — async sidecar: document ETL, AI extraction, embeddings
 - **`shortlisty-venue-model`** — shared library: domain entities, event contracts, Liquibase migrations
-- **`mc-ingest-tagvenue-scraper`** and **`shortlisty-master-venue-loader`** — master catalog ingestion
+- **`shortlisty-mc-ingest-tagvenue-scraper`** and **`shortlisty-master-venue-loader`** — master catalog ingestion
 
 **Stage:** v0.1 MVP in progress — Group A Platform Foundation complete, Master Venue Seeding Infrastructure in development, tenant venue features next.
 
