@@ -112,6 +112,41 @@ Gives the planner enough signal to follow up at the right moment without being i
 
 ---
 
+## AI assistance layer
+
+The pitch board is not just a display layer for catalog data — it is an active workspace where AI helps the planner produce a stronger, more honest pitch faster.
+
+### AI as a sparring partner
+
+The most useful thing AI can do during pitch assembly is disagree. A planner who has worked with a venue many times may unconsciously present it more favourably than the data supports. The AI assist layer is designed to surface that tension, not smooth it over.
+
+When the planner generates a draft board, the AI reviews the venue cards against the brief and flags:
+
+- Fields in the card that do not match the brief requirements (e.g. capacity stated as 300 but brief asks for 350)
+- Missing data that a client is likely to ask about (no catering policy shown, no curfew stated)
+- Contradictions between venues on the same board (venue A listed as "exclusive use", venue B not addressed)
+- Confidence gaps — fields displayed prominently that carry low extraction confidence and have not been verified
+
+The goal is a pitch the planner is proud to send, not just a fast one.
+
+### AI as a narrative coach
+
+The event spec panel and the intro text on a pitch board carry the planner's voice. AI can tighten that narrative — not by writing it, but by checking it:
+
+- Does the intro text actually reference the client's brief requirements?
+- Is the spec panel internally consistent (date range, format, and guest count agree)?
+- Are all the key requirements from the brief represented somewhere on the board?
+
+The planner remains the author. AI surfaces gaps so the human can decide whether to fill them.
+
+### AI-assisted client responses
+
+When a client leaves a question on a venue card — "can we extend setup time to four hours?" — the planner can ask the AI: "what does the catalog say about setup hours at this venue?" The answer is pulled from source documents, cited by page, and presented to the planner before they respond. The planner sends the answer; the AI found it.
+
+This pattern keeps the human in the loop on every client-facing message while dramatically reducing the time spent re-reading PDFs to answer questions the catalog already knows.
+
+---
+
 ## Approval and snapshot
 
 When the client clicks **Approve**:

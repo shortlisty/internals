@@ -51,8 +51,9 @@ Neither works without the other. The catalog feeds the pitch. The pitch generate
 2. Shortlisty extracts and structures the venue data automatically
 3. Verify key fields with one click where the AI needs a check
 4. Select venues for a brief, generate a pitch board, share a link
-5. Client reviews, adjusts, and approves — one click, any device
-6. The approved spec is locked with a timestamp and source citations
+5. AI reviews the draft board against the brief — flags missing data, capacity mismatches, and low-confidence fields before it goes to the client
+6. Client reviews, adjusts, and approves — one click, any device
+7. The approved spec is locked with a timestamp and source citations
 
 ---
 

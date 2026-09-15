@@ -377,7 +377,29 @@ Each field carries full provenance:
 
 No existing venue tool surfaces this level of data provenance. Users see not just the value but _why_ the system believes it.
 
-### 2.3 Multi-Source Aggregation (The Hard Problem Nobody Solves)
+### 2.3 Semantic Layer and Versioned Event Mappings
+
+Raw venue documents use inconsistent field names across sources and across time. A marketing deck from 2023 may call it "maximum occupancy"; a 2026 spec sheet calls it "standing capacity." Both map to the same canonical field `capacity.max_total`. Shortlisty solves this with a **semantic layer**: a set of canonical business definitions that remain stable regardless of how raw source documents phrase or rename the underlying data.
+
+**Canonical event contracts.** The venue extraction schema in §2.1 defines canonical field names that never change from the application's perspective. Every extraction call, every aggregation step, and every search query operates against these canonical names — not against the raw phrasing found in documents.
+
+**Versioned mappings, not in-place updates.** When a source document uses a new phrasing or a new vendor introduces a different field naming convention, a versioned mapping is added — not an in-place mutation of the existing definition. This preserves historical accuracy: a query run against past extractions still returns the same result because the mapping at the time of extraction is recorded alongside the extracted value.
+
+```json
+"capacity.max_total": {
+  "value": 500,
+  "source_raw_field": "maximum_occupancy",   // what the document said
+  "mapping_version": "v2",                   // which mapping resolved it
+  "extraction_model": "gpt-4o-2024-08-06",
+  "confidence": 0.94
+}
+```
+
+**Schema versioning as the enforcement mechanism.** The `_schema_version` field on every venue metadata record (see D7) is the runtime contract between the canonical definitions and the stored data. When a canonical field set evolves — a new sub-field is added, a field is split — the migration chain increments the version and upgrades existing records lazily on read, eagerly on write. No historical record is silently corrupted by a definition change.
+
+**Why this matters for AI-generated insights.** An AI layer querying venue data — whether for search ranking, anomaly detection, or pattern extraction — can only produce deterministic, auditable results if the underlying field definitions are stable and versioned. Without this, a model trained or prompted on `capacity.max_total` today may silently return different results next year because a mapping changed without a version bump. The semantic layer and versioned mapping pattern guarantee that insight queries are reproducible.
+
+### 2.4 Multi-Source Aggregation (The Hard Problem Nobody Solves)
 
 Documents arrive for the same item in multiple formats — a marketing deck, a floor plan PDF, a technical spec sheet, a photo set. Each source may have conflicting or complementary data.
 
