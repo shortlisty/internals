@@ -120,6 +120,16 @@ Follow-up: "What's your current policy for storing venue PDFs? Most teams have t
 
 ---
 
+**"We sign NDAs with our clients. What happens if venue information leaks from your platform?"**
+
+Underlying concern: _An NDA creates a legal obligation — a data breach is not just embarrassing, it is potentially a breach of contract with real consequences._
+
+Response: The concern is legitimate and we take it seriously. Venue files are encrypted at rest and in transit, processed in isolated tenant schemas — no cross-tenant access is architecturally possible — and extracted data never leaves your account. AI extraction calls go to OpenAI's API under their enterprise data processing terms, which explicitly exclude customer data from model training. For agencies with explicit NDA obligations, the Enterprise tier includes Azure OpenAI processing with a signed Data Processing Agreement and defined data residency, so you can demonstrate to a client exactly where their information is processed and confirm it is not used outside your account.
+
+Follow-up: "What does your NDA actually require? Is it data residency, a signed DPA, or just the ability to say data is not shared or used for training? Let's match the right tier to your legal obligations."
+
+---
+
 **"What does the AI do with our documents?"**
 
 Underlying concern: _Our documents are being used to train a model we don't control._
@@ -127,6 +137,26 @@ Underlying concern: _Our documents are being used to train a model we don't cont
 Response: Documents are sent to OpenAI's API for extraction. Under OpenAI's data processing terms for API customers, data submitted via the API is not used to train their models by default. We do not store the raw API payloads beyond processing. The extracted structured data lives in your account only. Enterprise customers can opt for Azure OpenAI processing for explicit data residency guarantees.
 
 Follow-up: "I can send you our data processing summary if you want to share it with your legal or compliance team."
+
+---
+
+**"What if AI platforms like this get replaced by something bigger — Claude, GPT — tomorrow? Why build a workflow around a tool that might disappear?"**
+
+Underlying concern: _I've seen tools get wiped out overnight by a new AI release. I don't want to depend on something that fragile._
+
+Response: The AI is the extraction engine — it reads venue PDFs and pulls out structured fields. The product is the structured knowledge base, the shared team library, the pitch board, and the approval record. Those things have value regardless of which model does the extraction. If a better model ships tomorrow, we swap in the better model and your venue library gets more accurate — nothing breaks, nothing disappears. The risk is not "Claude replaces event management platforms." The risk is building your workflow on tools that are only useful if AI stays exactly as it is today. Shortlisty is designed the other way: AI improves, and the product gets better with it.
+
+Follow-up: "What's the actual workflow you'd lose if you had to stop using Shortlisty tomorrow? That's the question to stress-test — is the value in the AI, or in the structured venue knowledge and the client approval record you've built up?"
+
+---
+
+**"We need a personal touch with clients, especially for high-value events. AI makes things feel impersonal."**
+
+Underlying concern: _My clients — especially wedding clients — chose me because they trust me as a person, not because I have the best software. I don't want a tool that makes me feel like a machine._
+
+Response: Nothing in Shortlisty sends anything to your client automatically. Every message the client receives is written and sent by you. What the AI does is invisible to the client — it reads your PDFs and structures the data so you have everything at your fingertips when you sit down to write that personal note or pick up the phone. The pitch board the client receives is branded with your agency, written in your voice, and represents your judgment about which venues fit their event. The personal touch is not just present — it is sharper, because you spent ten minutes on the brief instead of forty-five digging through files.
+
+Follow-up: "Think about your last high-value brief. How much time did you spend finding and assembling the venue information versus actually thinking about what was right for that client? Which part do you want more time for?"
 
 ---
 

@@ -29,13 +29,13 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 **DocumentTransformers (Transform):**
 
-| Transformer                | What it does                                                                                                                                                                                                                                                  |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `TokenTextSplitter`        | Splits large documents into chunks respecting token limits                                                                                                                                                                                                    |
-| `ContentFormatTransformer` | Normalizes text format                                                                                                                                                                                                                                        |
-| `SummaryMetadataEnricher`  | Generates document summary using LLM, stored as metadata                                                                                                                                                                                                      |
-| `KeywordMetadataEnricher`  | Extracts keywords using LLM, stored as metadata                                                                                                                                                                                                               |
-| `VenueMetadataEnricher`    | **Venue-domain-specific** (`shortlisty-venue-model`): extracts capacity, amenities, contacts via structured GPT-4o call against the venue canonical field set. The only non-generic component in the pipeline — everything else is reusable across verticals. |
+| Transformer                | What it does                                                                                                                                                                                                                                                                                                                                                 |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `TokenTextSplitter`        | Splits large documents into chunks respecting token limits                                                                                                                                                                                                                                                                                                   |
+| `ContentFormatTransformer` | Normalizes text format                                                                                                                                                                                                                                                                                                                                       |
+| `SummaryMetadataEnricher`  | Generates document summary using LLM, stored as metadata                                                                                                                                                                                                                                                                                                     |
+| `KeywordMetadataEnricher`  | Extracts keywords using LLM, stored as metadata                                                                                                                                                                                                                                                                                                              |
+| `VenueMetadataEnricher`    | **Venue-domain-specific** (`shortlisty-venue-model`): extracts capacity, amenities, contacts via structured call against the venue canonical field set. Runs against a self-hosted OpenAI-compatible endpoint (Phi-4 / Qwen2.5 via Ollama or vLLM — see D18). The only non-generic component in the pipeline — everything else is reusable across verticals. |
 
 **DocumentWriters (Load):**
 
@@ -66,14 +66,15 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
                           │  List<Document> (chunks)
                           ▼
                ┌─────────────────────┐
-               │  VenueMetadata      │  GPT-4o structured output         [venue-specific — shortlisty-venue-model]
-               │  Enricher           │  → capacity, amenities, contacts
+               │  VenueMetadata      │  Self-hosted LLM structured output    [venue-specific — shortlisty-venue-model]
+               │  Enricher           │  Phi-4 / Qwen2.5 via Ollama or vLLM
+               │                     │  → capacity, amenities, contacts
                └──────────┬──────────┘
                           │  List<Document> + venue metadata
                           ▼
                ┌─────────────────────┐
-               │  EmbeddingModel     │  text-embedding-3-small           [generic — shortlisty-data-intelligence]
-               │                     │  (1536 dimensions per chunk)
+               │  EmbeddingModel     │  BGE-M3 (self-hosted) or              [generic — shortlisty-data-intelligence]
+               │                     │  text-embedding-3-small (fallback)
                └──────────┬──────────┘
                           │  List<Document> + float[] embeddings
                           ▼
@@ -129,6 +130,7 @@ public class AssetExtractionOrchestrator<M> {
     var chunks = splitter.apply(taggedDocs);
 
     // 4. Domain-specific: extract structured metadata (strategy supplies prompt + output type)
+    //    Runs against self-hosted OpenAI-compatible endpoint (Phi-4 / Qwen2.5 — see D18)
     var result = extractionStrategy.extract(chunks, ExtractionContext.of(asset));
 
     // 5. Embed + write to item_vectors
@@ -278,7 +280,9 @@ Everything above (Tika, Docling, Spring AI ETL) is infrastructure. Shortlisty's 
 
 Generic document intelligence tools extract generic fields. Shortlisty extracts fields that matter for event professionals.
 
-This schema is the **venue canonical field set** — defined as `VenueMetadata` in `shortlisty-venue-model` (see §2 of [Architecture](README.md)). It is the venue-domain's answer to the question "what does a structured document look like for this vertical?". The extraction prompt sent to GPT-4o is derived directly from this schema. If the platform pivots to a different vertical (medical, agro), the domain library is swapped — the extraction pipeline, embedding, and search infrastructure remain identical.
+This schema is the **venue canonical field set** — defined as `VenueMetadata` in `shortlisty-venue-model` (see §2 of [Architecture](README.md)). It is the venue-domain's answer to the question "what does a structured document look like for this vertical?". The extraction prompt sent to the inference endpoint is derived directly from this schema. If the platform pivots to a different vertical (medical, agro), the domain library is swapped — the extraction pipeline, embedding, and search infrastructure remain identical.
+
+> **Inference stack:** Extraction calls run against a self-hosted OpenAI-compatible endpoint — Phi-4 (Microsoft, 14B) or Qwen2.5 (Alibaba, 7B–72B) served via Ollama or vLLM on own VPS/server infrastructure. Spring AI's `ChatModel` abstraction makes the endpoint a configuration value, not a code dependency. See [D18](../roadmap/decisions/D18-self-hosted-inference-stack.md) for the full rationale.
 
 ```json
 {
@@ -367,7 +371,7 @@ Each field carries full provenance:
   "confidence": 0.94,
   "source_type": "PDF_DECK",
   "source_page": 4,
-  "extraction_model": "gpt-4o-2024-08-06",
+  "extraction_model": "phi-4",
   "alternatives": [
     { "value": 480, "confidence": 0.72, "source_type": "FLOOR_PLAN" }
   ],
@@ -390,7 +394,7 @@ Raw venue documents use inconsistent field names across sources and across time.
   "value": 500,
   "source_raw_field": "maximum_occupancy",   // what the document said
   "mapping_version": "v2",                   // which mapping resolved it
-  "extraction_model": "gpt-4o-2024-08-06",
+  "extraction_model": "phi-4",
   "confidence": 0.94
 }
 ```

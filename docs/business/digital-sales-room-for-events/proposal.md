@@ -231,6 +231,12 @@ If the client needs to create an account, download an app, or ask the agency how
 **Snapshot legal weight.**
 Agencies will rely on the approval snapshot to resolve disputes. Mitigation: be explicit that the snapshot is an operational record, not a legally binding contract. It reduces disputes but does not replace a signed contract. Do not overstate this in marketing.
 
+**Data security and NDA obligations are a real adoption barrier.**
+Event agencies regularly sign NDAs that create legal obligations around client information. Any platform that processes or stores that information — including AI extraction — is part of that obligation. Mitigation: tenant isolation, encryption at rest and in transit, and explicit exclusion of customer data from model training are table-stakes, not differentiators. The Enterprise tier must offer a signed DPA and Azure OpenAI processing with defined data residency before targeting agencies with enterprise clients or formal procurement processes. Never downplay this concern in a sales conversation — acknowledge it fully and map the prospect to the right tier.
+
+**The personal touch is a real concern, especially in wedding and high-value event segments.**
+Some agency owners and clients — particularly in the wedding market — see AI tooling as incompatible with the trust-based, relationship-driven nature of their work. Mitigation: nothing in Shortlisty communicates with the client on the agency's behalf. The AI is invisible to the client. The pitch board is agency-branded, agency-written, and agency-curated. The personal touch is not removed — it is freed up. Position this explicitly: Shortlisty removes the 45 minutes of file-hunting so the planner can spend 45 more minutes on the part that only a human can do.
+
 ---
 
 ## Open questions
