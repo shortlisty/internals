@@ -15,13 +15,13 @@ Assembling that into something the client can review takes hours. What gets sent
 
 ## What Shortlisty does
 
-Shortlisty is a collaborative workspace for event agencies and their clients.
+Shortlisty combines robust venue data management with a client-facing presentation layer — replacing the separate shared drives, CRMs, and pitch tools agencies currently stitch together.
 
 The agency builds a private venue library — uploading PDFs, floor plans, photos, and spec sheets. Shortlisty reads them and extracts the details that matter: capacity in every configuration, catering policy, AV specs, restrictions, contacts, pricing indicators. The library becomes structured and searchable.
 
 When a client brief comes in, the planner picks venues from the library and generates an interactive pitch board — a private web page the client opens on any device. The client browses the options, asks questions, adjusts the spec, and approves. When they click Approve, the system locks a timestamped snapshot: an immutable record of exactly what was agreed.
 
-The loop closes: brief in, approved spec out, everything sourced and traceable.
+The brief arrives. The pitch goes out in minutes. The client approves the same day.
 
 ---
 
@@ -68,7 +68,7 @@ Neither works without the other. The catalog feeds the pitch. The pitch generate
 
 ## One sentence
 
-Shortlisty turns venue files into a pitch and a pitch into an approved spec — so event agencies close client briefs in hours, not days.
+From venue files to client sign-off in one tool — so event agencies close briefs in hours, not days.
 
 ---
 
