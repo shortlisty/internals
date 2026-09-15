@@ -183,6 +183,17 @@ These questions are phrased to match natural search queries. Used verbatim in th
 | The only venue portfolio management platform built for event planning teams — not for venue operators.                                                                | Candidate | Competitive framing. Strong for SEO and comparison pages.           |
 | Shortlisty is venue portfolio management for planners: every venue your team has ever worked with, structured and searchable.                                         | Candidate | Pairs well with competitive positioning against Cvent/VenueScanner. |
 
+### DSR workflow positioning
+
+Full-loop statements that cover both the catalog (data layer) and the pitch board (output layer). Use when the audience already understands the problem and you need to convey the end-to-end value.
+
+| Copy                                                                                                                                                                                          | Status    | Notes                                                                                                                                                       |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shortlisty combines robust venue data management with a client-facing presentation layer — replacing the separate CRMs, shared drives, and presentation tools agencies currently stitch together. | Candidate | Full-loop positioning statement. Good for investor decks, press, and "how is this different" responses. Not a homepage H1 — too dense for a cold audience. |
+| From venue files to client sign-off in one tool.                                                                                                                                              | Candidate | Ultra-compressed loop statement. Test as a hero subheading under a pain-first H1.                                                                           |
+| The brief arrives. The pitch goes out in minutes. The client approves the same day.                                                                                                           | Candidate | Narrative loop — three beats, no jargon. Strong for demo intros and cold outreach openers.                                                                  |
+| Venue catalog + client pitch board. One product. No stitching.                                                                                                                                | Candidate | Anti-stack positioning. Use when the prospect currently juggles Drive + Notion + Canva/Pitch + email.                                                       |
+
 ---
 
 ## AI presence rule
