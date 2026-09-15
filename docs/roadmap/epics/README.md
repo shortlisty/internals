@@ -109,10 +109,14 @@ Client-facing pitch boards and the approval loop. Layer 2 of the product archite
 
 Beyond the v1.0 platform launch. Scaling and deeper capabilities.
 
-| ID  | File                                     | Title        | Target milestone(s) | Dependencies | Status      |
-| --- | ---------------------------------------- | ------------ | ------------------- | ------------ | ----------- |
-| E9  | [E9-integrations.md](E9-integrations.md) | Integrations | — (post-v1.0)       | E2, E8       | Not started |
-| E10 | [E10-marketplace.md](E10-marketplace.md) | Marketplace  | — (post-v1.0)       | E2, E4, E8   | Not started |
+| ID  | File                                                       | Title                | Target milestone(s)        | Dependencies | Status      |
+| --- | ---------------------------------------------------------- | -------------------- | -------------------------- | ------------ | ----------- |
+| E9  | [E9-integrations.md](E9-integrations.md)                   | Integrations         | — (post-v1.0)              | E2, E8       | Not started |
+| E10 | [E10-marketplace.md](E10-marketplace.md)                   | Marketplace          | — (post-v1.0)              | E2, E4, E8   | Not started |
+| E11 | [E11-sop-library.md](E11-sop-library.md)                   | SOP library          | v1.1-agency-knowledge-base | E2, E8       | Not started |
+| E12 | [E12-event-retrospectives.md](E12-event-retrospectives.md) | Event retrospectives | v1.1-agency-knowledge-base | E2, E8, E11  | Not started |
+| E13 | [E13-template-library.md](E13-template-library.md)         | Template library     | v1.1-agency-knowledge-base | E2, E8, E11  | Not started |
+| E14 | [E14-vendor-registry.md](E14-vendor-registry.md)           | Vendor registry      | v1.1-agency-knowledge-base | E2, E12      | Not started |
 
 > **Note on the current index:** This table is the **pre-implementation standardisation snapshot**. Before any epic file is created, review whether the grouping, target milestone assignments, and dependency chains above are final. The act of writing E1 should validate whether the Group A / Group B boundary is correct — if not, update this index first, then create the file.
 

@@ -74,6 +74,8 @@ Personal Venue Catalog  →  data layer  (ingestion, ETL, metadata, search)
 Digital Sales Room      →  output layer (pitch board, client portal, snapshot)
 ```
 
+The knowledge base layer (SOPs, retrospectives, templates, vendor registry) is a secondary reinforcement layer — it makes the catalog richer and the pitch faster, but it is never the primary reason an agency adopts Shortlisty.
+
 ---
 
 ## Strategic bets
@@ -115,9 +117,11 @@ An approved board means the product completed its job: the agency got sign-off, 
 
 ## Long horizon
 
-Once the pitch-to-approval loop is proven and trusted, the platform can grow in two directions.
+Once the pitch-to-approval loop is proven and trusted, the platform can grow in three directions.
 
 **Upward:** deeper collaboration features — inline comments, version history, multi-stakeholder voting on the client side, integration with calendar and booking tools to bridge the gap between approval and execution.
+
+**Inward:** the agency's operational knowledge base. Event agencies accumulate institutional knowledge that lives in people's heads and scattered files — how to run a client intake, what went wrong at a particular venue last June, which AV supplier to call at midnight, which email template reliably moves a hesitant client to approval. Once the catalog and pitch board are trusted daily tools, Shortlisty becomes the natural home for that knowledge too: standard operating procedures attached as live checklists to Deal Rooms, structured post-event retrospectives that enrich venue profiles with real experience, reusable brief and communication templates, and a curated vendor registry with performance notes. The more operational knowledge an agency stores, the more the platform becomes irreplaceable — and the better the next pitch gets. This is the direction that turns Shortlisty from a productivity tool into the agency's long-term institutional memory.
 
 **Outward:** a two-sided layer where venues pay to maintain a verified public profile that agencies can pull into pitches directly, without manual ingestion. That turns Shortlisty into a marketplace — but only after the agency-side workflow is embedded and trusted. The venue side is years away. Nothing in near-term planning is designed to serve venues.
 

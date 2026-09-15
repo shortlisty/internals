@@ -10,6 +10,20 @@
 
 ### Added
 
+- `docs/roadmap/epics/E11-sop-library.md` — New epic: SOP library (Group D, post-v1.0). Agency can create, categorise, and search standard operating procedures; attach them as live checklists to Deal Rooms.
+- `docs/roadmap/epics/E12-event-retrospectives.md` — New epic: Event retrospectives (Group D, post-v1.0). Structured post-event debriefs linked to venues and Deal Rooms; enriches venue profiles with real operational experience.
+- `docs/roadmap/epics/E13-template-library.md` — New epic: Template library (Group D, post-v1.0). Reusable Brief, Deal Room, and Communication scaffolds; copy-on-apply so originals stay intact; built-in starter templates for every new tenant.
+- `docs/roadmap/epics/E14-vendor-registry.md` — New epic: Vendor registry (Group D, post-v1.0). Preferred supplier list with service categories, ratings, status, and performance notes linked to retrospectives and venue profiles.
+- `docs/roadmap/milestones/v1.1-agency-knowledge-base.md` — New milestone: Agency knowledge base (Planned). Delivers E11–E14 as a single post-v1.0 increment; includes 19 feature checkboxes and 6 acceptance criteria.
+- `docs/roadmap/decisions/D17-knowledge-base-scope-expansion.md` — New ADR: formalises the decision to extend Shortlisty into operational agency knowledge (SOPs, retrospectives, templates, vendor registry) and defers that scope to post-v1.0 (v1.1). Documents three options considered and rationale for deferral.
+
+### Changed
+
+- `docs/roadmap/epics/README.md` — Group D extended with four new rows (E11–E14) targeting milestone v1.1.
+- `docs/roadmap/milestones/README.md` — Post-v1.0 section populated with first committed milestone: v1.1 agency knowledge base row (was previously empty with a placeholder note).
+- `docs/roadmap/decisions/README.md` — D17 row added; table restructured to include `ID` and `Domain` columns and `Superseded by` column for all rows; entries ordered newest-first.
+- `docs/roadmap/feature-checklist.md` — P3 block expanded with a new "Group D — Agency knowledge base (E11–E14)" section: 11 checkbox lines covering SOP creation and Deal Room attachment, retrospective capture and venue enrichment, template application, and vendor registry management.
+
 - `docs/roadmap/decisions/D15-progressive-enrichment.md` — New ADR formalising the progressive-enrichment UX principle: instant beautiful profile preview (<5s from upload) using first-pass extracted data, followed by background deep extraction + master catalog enrichment surfaced as soft non-blocking suggestions, with in-context micro-prompts replacing any "review all fields" screen. Defines provenance UI contract and pipeline SLAs.
 - `docs/roadmap/decisions/D16-deal-room-trust-model.md` — New ADR defining the Deal Room as a shared trust space rather than a pretty link. Six architectural pillars: append-only event log per room, bilateral bounded control (planner vs. client permissions), provenance-tagged pitch metadata visible to both sides, transparent 3-tier confidence badges, structured preference capture via colored labels + dynamic context selects, and a plain-English History Timeline view. Deferred: e-sign, PDF audit export, multi-approver weighted voting.
 

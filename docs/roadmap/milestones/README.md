@@ -94,7 +94,9 @@ Before creating a new milestone file, verify all 8 sections against this checkli
 
 ### Post-v1.0 — Scaling and deeper capabilities
 
-No milestones committed here yet. Add v1.1+ when v1.0 reaches `In progress`. Candidates are in the backlog candidates table at the bottom of this file.
+| Version | File                                                           | Title                 | Goal sentence                                                                                                                                                   | Included epic groups | Included epics     | Status  |
+| ------- | -------------------------------------------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ------------------ | ------- |
+| v1.1    | [v1.1-agency-knowledge-base.md](v1.1-agency-knowledge-base.md) | Agency knowledge base | An agency can capture and reuse its operational knowledge — SOPs, event retrospectives, reusable templates, and a vendor registry — without leaving Shortlisty. | D (Knowledge layer)  | E11, E12, E13, E14 | Planned |
 
 > **Note on the current index:** This table is the **pre-implementation standardisation snapshot**. Before creating any milestone file, review whether the goal sentences above, epic-to-milestone assignments, and layer progression boundaries are correct. The act of writing `v0.1-mvp.md` should validate that the v0.1 scope is genuinely demoable end-to-end — if not, update this index first, then create the file.
 
