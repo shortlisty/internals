@@ -63,7 +63,7 @@
 ### `venueintelligence-catalog-service`
 
 - **Responsibilities:** venue CRUD, asset upload flow (presigned URL), metadata read/write, search API, plan entitlement enforcement, master catalog backdrop lookup
-- **Database:** owns the Shortlisty PostgreSQL schema. Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`. Shared with `venueintelligence-catalog-processing-worker` — no cross-service API calls for data.
+- **Database:** shares the venueintelligence PostgreSQL instance with `venueintelligence-catalog-processing-worker` — this is a deliberate architectural decision, not an exception (see [D19](../roadmap/decisions/D19-shared-database-per-product.md)). Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`.
 - **Exposes:** REST API at `/api/v1/venues` (see [api.md](api.md))
 - **Publishes:** `venue.created`, `venue.updated`, `asset.uploaded`, `asset.deleted` (RabbitMQ)
 - **Consumes:** `extraction.completed`, `extraction.failed` (RabbitMQ) — triggers metadata aggregation
@@ -71,11 +71,11 @@
 ### `venueintelligence-catalog-processing-worker`
 
 - **Responsibilities:** document ETL pipeline (parse → chunk → extract → embed), extraction job lifecycle, master catalog match and MC_INHERIT merge, metadata aggregation, scheduled maintenance jobs (stale re-aggregation, cost reporting)
-- **Nature:** async sidecar — no inbound HTTP, no REST API, no service discovery entry. Event-driven only.
-- **Database:** shared PostgreSQL schema with `venueintelligence-catalog-service`. Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.master_venue` for the master catalog match step.
+- **Nature:** async background worker — no inbound HTTP, no REST API, no service discovery entry. Event-driven only.
+- **Database:** shares the venueintelligence PostgreSQL instance with `venueintelligence-catalog-service` (see [D19](../roadmap/decisions/D19-shared-database-per-product.md)). Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.master_venue` for the master catalog match step.
 - **Consumes:** `asset.uploaded` (RabbitMQ) — triggers ETL pipeline (see [etl-pipeline.md](etl-pipeline.md))
 - **Publishes:** `extraction.started`, `extraction.completed`, `extraction.failed` (RabbitMQ)
-- **External calls:** OpenAI API (GPT-4o, text-embedding-3-small), optionally Docling sidecar (Phase 2)
+- **External calls:** self-hosted LLM inference endpoint (Phi-4 / Qwen2.5 via Ollama or vLLM), optionally Docling sidecar (Phase 2) — see [D18](../roadmap/decisions/D18-self-hosted-inference-stack.md)
 - **Scaling:** replicas scaled independently based on RabbitMQ queue depth — no impact on `venueintelligence-catalog-service`
 
 > Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers: `venueintelligence-mc-ingest-<source>-scraper`. Master Catalog population runs in `venueintelligence-master-venue-loader` (Spring Boot). Full cold-start strategy in [master-catalog.md](master-catalog.md).
@@ -84,14 +84,14 @@
 
 Both services share one PostgreSQL schema. Ownership defines who may write to a table. Cross-boundary reads are permitted; cross-boundary writes are not.
 
-| Table                   | Owner                                  | The other service may…                                                                    |
-| ----------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `venues`                | `venueintelligence-catalog-service`           | read (processing-worker: resolve venue_id only)                                           |
-| `venue_assets`          | `venueintelligence-catalog-service`           | read (processing-worker: fetch asset for processing)                                      |
+| Table                   | Owner                                         | The other service may…                                                                           |
+| ----------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `venues`                | `venueintelligence-catalog-service`           | read (processing-worker: resolve venue_id only)                                                  |
+| `venue_assets`          | `venueintelligence-catalog-service`           | read (processing-worker: fetch asset for processing)                                             |
 | `venue_metadata_events` | `venueintelligence-catalog-service`           | write via event reaction (`extraction.completed` → venueintelligence-catalog-service aggregates) |
-| `extraction_jobs`       | `venueintelligence-catalog-processing-worker` | read (venue-service: expose job status to API)                                            |
-| `item_vectors`          | `venueintelligence-catalog-processing-worker` | read (venue-service: vector search queries)                                               |
-| `ai_cost_tracking`      | `venueintelligence-catalog-processing-worker` | read (venue-service: expose cost summary to API)                                          |
+| `extraction_jobs`       | `venueintelligence-catalog-processing-worker` | read (venue-service: expose job status to API)                                                   |
+| `item_vectors`          | `venueintelligence-catalog-processing-worker` | read (venue-service: vector search queries)                                                      |
+| `ai_cost_tracking`      | `venueintelligence-catalog-processing-worker` | read (venue-service: expose cost summary to API)                                                 |
 
 The single legitimate cross-boundary read from `venueintelligence-catalog-processing-worker` is a `SELECT` on `venue_assets` by `asset_id` (delivered in the `asset.uploaded` event payload). This is a foreign key lookup, not business logic — acceptable and intentional.
 
@@ -241,8 +241,8 @@ shortlisty/master-catalog/exports/{date}/{snapshot}.jsonl.gz
 
 Object tags set by `venueintelligence-catalog-service` at `POST /api/v1/venues/{venueId}/assets/{id}/confirm`:
 
-| Tag key             | Values                                          | Set by                                       |
-| ------------------- | ----------------------------------------------- | -------------------------------------------- |
+| Tag key             | Values                                          | Set by                                              |
+| ------------------- | ----------------------------------------------- | --------------------------------------------------- |
 | `extraction_status` | `pending`, `completed`, `failed`                | venueintelligence-catalog-service at confirm/update |
 | `asset_type`        | `pdf_deck`, `floor_plan`, `photo`, `cad_file` … | venueintelligence-catalog-service at initiate       |
 | `tenant_key`        | 8-char nanoid                                   | venueintelligence-catalog-service at initiate       |
@@ -314,7 +314,7 @@ venueintelligence-process/
 
 | Tempting addition                             | Why it does not belong                              |
 | --------------------------------------------- | --------------------------------------------------- |
-| `VenueMetadata` or any domain POJO            | Venue-specific — lives in `venueintelligence-model`  |
+| `VenueMetadata` or any domain POJO            | Venue-specific — lives in `venueintelligence-model` |
 | `CURRENT_SCHEMA_VERSION = 1` constant         | Domain-version-specific — lives in domain library   |
 | `MetadataMigrationV0ToV1`                     | Venue field renames — domain migration, not generic |
 | `MasterVenue`                                 | Field shape is venue-specific — domain library      |

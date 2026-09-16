@@ -84,19 +84,19 @@ The consumer listens either on one queue (A1) or on all 16 slot queues (A2) via 
 
 Feature codes used in `foundation-billing-service` plan config:
 
-| Feature code             | Free | Pro | Enterprise | Enforcement point                                    |
-| ------------------------ | ---- | --- | ---------- | ---------------------------------------------------- |
+| Feature code             | Free | Pro | Enterprise | Enforcement point                                           |
+| ------------------------ | ---- | --- | ---------- | ----------------------------------------------------------- |
 | `max_venues`             | 10   | 500 | unlimited  | `venueintelligence-catalog-service`: before create          |
 | `max_assets_per_venue`   | 20   | 100 | unlimited  | `venueintelligence-catalog-service`: before upload          |
 | `max_proposals`          | 3    | 50  | unlimited  | `venueintelligence-catalog-service`: before proposal create |
-| `basic_extraction`       | ✅   | ✅  | ✅         | AI processing: PDF text only                         |
-| `advanced_extraction`    | ⛔   | ✅  | ✅         | AI processing: all asset types                       |
+| `basic_extraction`       | ✅   | ✅  | ✅         | AI processing: PDF text only                                |
+| `advanced_extraction`    | ⛔   | ✅  | ✅         | AI processing: all asset types                              |
 | `video_support`          | ⛔   | ✅  | ✅         | `venueintelligence-catalog-service`: reject VIDEO upload    |
 | `cad_support`            | ⛔   | ✅  | ✅         | `venueintelligence-catalog-service`: reject DWG/DXF upload  |
 | `semantic_search`        | ⛔   | ✅  | ✅         | `venueintelligence-catalog-service`: search endpoint        |
-| `priority_ai_processing` | ⛔   | ⛔  | ✅         | RabbitMQ: route to priority queue                    |
-| `api_access`             | ⛔   | ✅  | ✅         | gateway: API key route                               |
-| `white_label`            | ⛔   | ⛔  | ✅         | `foundation-ui-app`: branding config                 |
+| `priority_ai_processing` | ⛔   | ⛔  | ✅         | RabbitMQ: route to priority queue                           |
+| `api_access`             | ⛔   | ✅  | ✅         | gateway: API key route                                      |
+| `white_label`            | ⛔   | ⛔  | ✅         | `foundation-ui-app`: branding config                        |
 
 Enforcement via `PlanFeatureGuard` (same pattern as IAM service's existing implementation).
 

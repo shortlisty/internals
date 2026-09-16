@@ -11,7 +11,7 @@
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
 | **This file**                                    | Platform context, foundation reuse, tech stack decisions, implementation patterns                                                    |
 | [data-model.md](data-model.md)                   | Domain model, canonical field set, schema versioning, database schema & indexes                                                      |
-| [services.md](services.md)                       | Service decomposition, shared libraries (`venueintelligence-model`, `venueintelligence-process`), S3 layout                        |
+| [services.md](services.md)                       | Service decomposition, shared libraries (`venueintelligence-model`, `venueintelligence-process`), S3 layout                          |
 | [aggregation.md](aggregation.md)                 | Metadata aggregation, conflict resolution, FIFO race-condition prevention                                                            |
 | [master-catalog.md](master-catalog.md)           | Master Venue Catalog — cold start, alias normalisation, MC_INHERIT merge algorithm                                                   |
 | [etl-pipeline.md](etl-pipeline.md)               | ETL pipeline (parse → transform → load), Spring AI stages, processing SLAs                                                           |
@@ -58,18 +58,18 @@ Shortlisty Intelligence is a new product service built **on top of the iQ Key Va
 
 ## 14. Technology Decisions
 
-| Concern              | Decision                                                                             | Rationale                                                                                                                 |
-| -------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
-| Document parsing     | Apache Tika via Spring AI `TikaDocumentReader`                                       | 1000+ formats, DWG support, fault-tolerant Tika Pipes, zero extra infra                                                   |
-| PDF layout / tables  | IBM Docling (Phase 2, self-hosted)                                                   | State-of-the-art table reconstruction, MIT license, zero per-page cost                                                    |
-| AI framework         | Spring AI 1.0                                                                        | Java-native, provider-agnostic, ETL pipeline built-in, Micrometer integration                                             |
-| LLM (extraction)     | OpenAI GPT-4o                                                                        | Best structured output + multimodal (vision for images/floor plans)                                                       |
-| Embeddings           | OpenAI text-embedding-3-small                                                        | 1536 dims, $0.02/1M tokens, good quality/cost ratio                                                                       |
-| Vector store         | pgvector (PostgreSQL extension)                                                      | No new service, transactional, tenant-isolated via schema                                                                 |
-| Full-text search     | PostgreSQL tsvector                                                                  | Unified with relational data, no new service                                                                              |
-| Geo search           | PostGIS (PostgreSQL extension)                                                       | No new service                                                                                                            |
-| Async processing     | RabbitMQ (existing foundation)                                                       | Priority queues, DLQ, already in platform                                                                                 |
-| File storage         | S3 / MinIO (existing foundation)                                                     | Presigned URL pattern already proven in IAM                                                                               |
+| Concern              | Decision                                                                           | Rationale                                                                                                                 |
+| -------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Document parsing     | Apache Tika via Spring AI `TikaDocumentReader`                                     | 1000+ formats, DWG support, fault-tolerant Tika Pipes, zero extra infra                                                   |
+| PDF layout / tables  | IBM Docling (Phase 2, self-hosted)                                                 | State-of-the-art table reconstruction, MIT license, zero per-page cost                                                    |
+| AI framework         | Spring AI 1.0                                                                      | Java-native, provider-agnostic, ETL pipeline built-in, Micrometer integration                                             |
+| LLM (extraction)     | OpenAI GPT-4o                                                                      | Best structured output + multimodal (vision for images/floor plans)                                                       |
+| Embeddings           | OpenAI text-embedding-3-small                                                      | 1536 dims, $0.02/1M tokens, good quality/cost ratio                                                                       |
+| Vector store         | pgvector (PostgreSQL extension)                                                    | No new service, transactional, tenant-isolated via schema                                                                 |
+| Full-text search     | PostgreSQL tsvector                                                                | Unified with relational data, no new service                                                                              |
+| Geo search           | PostGIS (PostgreSQL extension)                                                     | No new service                                                                                                            |
+| Async processing     | RabbitMQ (existing foundation)                                                     | Priority queues, DLQ, already in platform                                                                                 |
+| File storage         | S3 / MinIO (existing foundation)                                                   | Presigned URL pattern already proven in IAM                                                                               |
 | Shared library split | `venueintelligence-process` (generic) + `venueintelligence-model` (venue-specific) | Enables pivot to other verticals without refactoring infrastructure contracts. Full design in [services.md](services.md). |
 
 Full rationale and competitor analysis: see [`../business/Digital_Sales_Room_for_Events/comparison.md`](../business/Digital_Sales_Room_for_Events/comparison.md).
