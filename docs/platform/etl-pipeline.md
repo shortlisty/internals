@@ -1,13 +1,13 @@
 # Shortlisty — ETL Pipeline
 
 > **Audience:** Engineers.
-> **Purpose:** The full async document processing pipeline inside `shortlisty-catalog-processing-worker` — parse, transform, load stages, asset type routing, and processing SLAs.
+> **Purpose:** The full async document processing pipeline inside `venueintelligence-catalog-processing-worker` — parse, transform, load stages, asset type routing, and processing SLAs.
 
 ---
 
 ## Related Documents
 
-- [services.md](services.md) — service responsibilities, table ownership, `shortlisty-data-intelligence` library
+- [services.md](services.md) — service responsibilities, table ownership, `venueintelligence-process` library
 - [data-model.md](data-model.md) — `ExtractionJob`, `VenueAsset`, `item_vectors` table definitions
 - [aggregation.md](aggregation.md) — what happens after `ExtractionCompletedEvent` is published
 - [master-catalog.md](master-catalog.md) — Stage 3 MC_INHERIT merge (MasterVenueMatcher)
@@ -16,7 +16,7 @@
 
 ---
 
-## 5. ETL Pipeline (`shortlisty-catalog-processing-worker`)
+## 5. ETL Pipeline (`venueintelligence-catalog-processing-worker`)
 
 Built on **Spring AI's ETL framework**. Three composable stages:
 
@@ -25,7 +25,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
   (parse)            (chunk + enrich)        (embed + store)
 ```
 
-The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`, `AssetType`, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`) — are defined in `shortlisty-data-intelligence` (see [services.md § 4c](services.md)). The venue-specific enricher (`VenueMetadataEnricher`) and its output type (`VenueMetadata`) come from `shortlisty-venue-model` (see [services.md § 4a](services.md)).
+The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`, `AssetType`, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`) — are defined in `venueintelligence-process` (see [services.md § 4c](services.md)). The venue-specific enricher (`VenueMetadataEnricher`) and its output type (`VenueMetadata`) come from `venueintelligence-model` (see [services.md § 4a](services.md)).
 
 ---
 
@@ -56,16 +56,16 @@ The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`,
 
 1. **Chunk** — `TokenTextSplitter` (512 tokens, 50-token overlap). Spec-sheet tables use 256-token chunks to preserve row precision.
 2. **Tag** — attach `venue_id`, `asset_id`, `asset_type`, `tenant_id` as Document metadata.
-3. **Extract** — `VenueMetadataEnricher` (custom `DocumentTransformer`, venue-specific, from `shortlisty-venue-model`): calls GPT-4o with structured output schema matching the venue canonical field set (see [data-model.md § Canonical Field Set](data-model.md)), returns `VenueMetadata` POJO with confidence scores per field. The enricher is the **only venue-specific component** in the pipeline — all surrounding plumbing is generic.
+3. **Extract** — `VenueMetadataEnricher` (custom `DocumentTransformer`, venue-specific, from `venueintelligence-model`): calls GPT-4o with structured output schema matching the venue canonical field set (see [data-model.md § Canonical Field Set](data-model.md)), returns `VenueMetadata` POJO with confidence scores per field. The enricher is the **only venue-specific component** in the pipeline — all surrounding plumbing is generic.
 
 ---
 
 ### Stage 3 — Load
 
-1. **Embed** — `EmbeddingModel` (`text-embedding-3-small`, 1536 dims). Generic — from `shortlisty-data-intelligence`. Skipped for `DATA_TABLE` and `PRICE_LIST` (CSV/XLSX) — `table_data` is already populated; only metadata stored in `item_vectors`.
-2. **Store** — `TenantAwarePgVectorStore` writes chunks + embeddings to `item_vectors` table in the tenant's schema. Table defined in `shortlisty-data-intelligence` changelog (see [services.md § 4c](services.md)).
+1. **Embed** — `EmbeddingModel` (`text-embedding-3-small`, 1536 dims). Generic — from `venueintelligence-process`. Skipped for `DATA_TABLE` and `PRICE_LIST` (CSV/XLSX) — `table_data` is already populated; only metadata stored in `item_vectors`.
+2. **Store** — `TenantAwarePgVectorStore` writes chunks + embeddings to `item_vectors` table in the tenant's schema. Table defined in `venueintelligence-process` changelog (see [services.md § 4c](services.md)).
 3. **Master catalog match** — `MasterVenueMatcher` runs the full MC_INHERIT merge algorithm (trigram name similarity via `pg_trgm` GIN index on `master_venue_alias`, PostGIS `ST_DWithin` 200m radius, combined confidence formula, thresholds 0.75 with geo / 0.90 name-only, ambiguity delta guard ≥ 0.08). No LLM calls. Full algorithm, thresholds, and field-copy semantics in [master-catalog.md](master-catalog.md).
-4. **Aggregate** — publishes `ExtractionCompletedEvent` (from `shortlisty-data-intelligence`) → `MetadataAggregationConsumer` in `shortlisty-catalog-service` updates `venues.metadata` via `VenueMetadataMigrator.ensureCurrent()` (from `shortlisty-venue-model`) and recalculates `profile_stage` (`SEEDED → ENRICHED → CURATED → READY`) in the same DB transaction. Full aggregation design including `profile_stage` transition rules in [aggregation.md](aggregation.md).
+4. **Aggregate** — publishes `ExtractionCompletedEvent` (from `venueintelligence-process`) → `MetadataAggregationConsumer` in `venueintelligence-catalog-service` updates `venues.metadata` via `VenueMetadataMigrator.ensureCurrent()` (from `venueintelligence-model`) and recalculates `profile_stage` (`SEEDED → ENRICHED → CURATED → READY`) in the same DB transaction. Full aggregation design including `profile_stage` transition rules in [aggregation.md](aggregation.md).
 
 ---
 
@@ -79,27 +79,49 @@ The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`,
 | CAD files               | < 2 min        |                              |
 | Video                   | Phase 2        |                              |
 
-Retry on failure: 3 attempts with exponential backoff. After 3 failures → `ExtractionFailedEvent` (from `shortlisty-data-intelligence`) → user notification.
+Retry on failure: 3 attempts with exponential backoff. After 3 failures → `ExtractionFailedEvent` (from `venueintelligence-process`) → user notification.
 
 ---
 
 ### Spring Wiring — Worker Entry Point
 
 ```java
-// shortlisty-catalog-processing-worker — Spring wiring only, no domain logic here
+package com.iqkv.venueintelligence.catalog.processing;
+
+// venueintelligence-catalog-processing-worker — Spring wiring only, no domain logic here
 @Service
-@RequiredArgsConstructor
 public class AssetExtractionConsumer {
 
     private final DocumentReader tikaReader;
     private final TokenTextSplitter splitter;
-    private final VenueMetadataEnricher enricher;   // from shortlisty-venue-model
-    private final TableDataParser tableDataParser;  // from shortlisty-data-intelligence
+    private final VenueMetadataEnricher enricher;   // from venueintelligence-model
+    private final TableDataParser tableDataParser;  // from venueintelligence-process
     private final EmbeddingModel embeddingModel;
     private final TenantAwarePgVectorStore vectorStore;
     private final MasterVenueMatcher masterVenueMatcher;
     private final VenueAssetRepository assetRepository;
     private final RabbitTemplate rabbitTemplate;
+
+    public AssetExtractionConsumer(
+            DocumentReader tikaReader,
+            TokenTextSplitter splitter,
+            VenueMetadataEnricher enricher,
+            TableDataParser tableDataParser,
+            EmbeddingModel embeddingModel,
+            TenantAwarePgVectorStore vectorStore,
+            MasterVenueMatcher masterVenueMatcher,
+            VenueAssetRepository assetRepository,
+            RabbitTemplate rabbitTemplate) {
+        this.tikaReader = tikaReader;
+        this.splitter = splitter;
+        this.enricher = enricher;
+        this.tableDataParser = tableDataParser;
+        this.embeddingModel = embeddingModel;
+        this.vectorStore = vectorStore;
+        this.masterVenueMatcher = masterVenueMatcher;
+        this.assetRepository = assetRepository;
+        this.rabbitTemplate = rabbitTemplate;
+    }
 
     @RabbitListener(queues = "${shortlisty.queues.asset-uploaded}")
     public void onAssetUploaded(AssetUploadedEvent event) {
@@ -140,7 +162,7 @@ public class AssetExtractionConsumer {
 }
 ```
 
-**Rule:** if a class in `shortlisty-catalog-processing-worker` or `shortlisty-catalog-service` contains the word `venue` in its business logic (not just in a tag string), ask whether it belongs in `shortlisty-venue-model` instead. The worker and service should contain Spring wiring, `@Bean` registrations, and `@RabbitListener` configuration — not domain decisions.
+**Rule:** if a class in `venueintelligence-catalog-processing-worker` or `venueintelligence-catalog-service` contains the word `venue` in its business logic (not just in a tag string), ask whether it belongs in `venueintelligence-model` instead. The worker and service should contain Spring wiring, `@Bean` registrations, and `@RabbitListener` configuration — not domain decisions.
 
 ---
 

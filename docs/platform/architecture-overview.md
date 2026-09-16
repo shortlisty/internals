@@ -11,7 +11,7 @@
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
 | **This file**                                    | Platform context, foundation reuse, tech stack decisions, implementation patterns                                                    |
 | [data-model.md](data-model.md)                   | Domain model, canonical field set, schema versioning, database schema & indexes                                                      |
-| [services.md](services.md)                       | Service decomposition, shared libraries (`shortlisty-venue-model`, `shortlisty-data-intelligence`), S3 layout                        |
+| [services.md](services.md)                       | Service decomposition, shared libraries (`venueintelligence-model`, `venueintelligence-process`), S3 layout                        |
 | [aggregation.md](aggregation.md)                 | Metadata aggregation, conflict resolution, FIFO race-condition prevention                                                            |
 | [master-catalog.md](master-catalog.md)           | Master Venue Catalog — cold start, alias normalisation, MC_INHERIT merge algorithm                                                   |
 | [etl-pipeline.md](etl-pipeline.md)               | ETL pipeline (parse → transform → load), Spring AI stages, processing SLAs                                                           |
@@ -41,12 +41,12 @@ Shortlisty Intelligence is a new product service built **on top of the iQ Key Va
 
 **New services introduced by Shortlisty Intelligence:**
 
-- `shortlisty-data-intelligence` — platform-level shared library (JAR). Domain-agnostic extraction pipeline contracts, metadata versioning mechanism, provenance model, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`), and Liquibase migrations for infrastructure tables (`extraction_jobs`, `item_vectors`, `item_metadata_events`, `ai_cost_tracking`). No Spring beans, no business logic, no venue-specific fields. The domain-agnostic layer — reusable across verticals (venue, medical, agro, etc.). Imported by both services and by `shortlisty-venue-model`.
-- `shortlisty-venue-model` — venue-domain shared library (JAR). Venue-specific domain model (`Venue`, `VenueMetadata`, `MasterVenue`), canonical field set, venue metadata migrations, and Liquibase migrations for venue tables (`venues`, `venue_assets`, `venue_annotations`, `master_venue`). Depends on `shortlisty-data-intelligence`. Imported by both services.
-- `shortlisty-catalog-service` — core domain: venues, assets, annotations, metadata, proposals, search, plan enforcement, master catalog backdrop lookup. Synchronous request/response only.
-- `shortlisty-catalog-processing-worker` — async sidecar: document ETL for tenant uploads, table data parsing (CSV/XLSX), embedding generation, metadata aggregation, scheduled maintenance jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `shortlisty-catalog-service`.
-- `shortlisty-master-venue-loader` — Spring Boot service. Runs master catalog import jobs triggered by `admin.master-catalog.import.*` RabbitMQ events. Applies reviewed scraper CSV/JSONL batches to `public.master_venue`. No tenant interaction.
-- Standalone scrapers (`shortlisty-mc-ingest-<source>-scraper`) — Node.js. Produce CSV/JSONL output, upload to S3. Run on demand, not deployed as persistent services.
+- `venueintelligence-process` — platform-level shared library (JAR). Domain-agnostic extraction pipeline contracts, metadata versioning mechanism, provenance model, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`), and Liquibase migrations for infrastructure tables (`extraction_jobs`, `item_vectors`, `item_metadata_events`, `ai_cost_tracking`). No Spring beans, no business logic, no venue-specific fields. The domain-agnostic layer — reusable across verticals (venue, medical, agro, etc.). Imported by both services and by `venueintelligence-model`.
+- `venueintelligence-model` — venue-domain shared library (JAR). Venue-specific domain model (`Venue`, `VenueMetadata`, `MasterVenue`), canonical field set, venue metadata migrations, and Liquibase migrations for venue tables (`venues`, `venue_assets`, `venue_annotations`, `master_venue`). Depends on `venueintelligence-process`. Imported by both services.
+- `venueintelligence-catalog-service` — core domain: venues, assets, annotations, metadata, proposals, search, plan enforcement, master catalog backdrop lookup. Synchronous request/response only.
+- `venueintelligence-catalog-processing-worker` — async sidecar: document ETL for tenant uploads, table data parsing (CSV/XLSX), embedding generation, metadata aggregation, scheduled maintenance jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `venueintelligence-catalog-service`.
+- `venueintelligence-master-venue-loader` — Spring Boot service. Runs master catalog import jobs triggered by `admin.master-catalog.import.*` RabbitMQ events. Applies reviewed scraper CSV/JSONL batches to `public.master_venue`. No tenant interaction.
+- Standalone scrapers (`venueintelligence-mc-ingest-<source>-scraper`) — Node.js. Produce CSV/JSONL output, upload to S3. Run on demand, not deployed as persistent services.
 
 **New infrastructure introduced by Shortlisty Intelligence:**
 
@@ -70,7 +70,7 @@ Shortlisty Intelligence is a new product service built **on top of the iQ Key Va
 | Geo search           | PostGIS (PostgreSQL extension)                                                       | No new service                                                                                                            |
 | Async processing     | RabbitMQ (existing foundation)                                                       | Priority queues, DLQ, already in platform                                                                                 |
 | File storage         | S3 / MinIO (existing foundation)                                                     | Presigned URL pattern already proven in IAM                                                                               |
-| Shared library split | `shortlisty-data-intelligence` (generic) + `shortlisty-venue-model` (venue-specific) | Enables pivot to other verticals without refactoring infrastructure contracts. Full design in [services.md](services.md). |
+| Shared library split | `venueintelligence-process` (generic) + `venueintelligence-model` (venue-specific) | Enables pivot to other verticals without refactoring infrastructure contracts. Full design in [services.md](services.md). |
 
 Full rationale and competitor analysis: see [`../business/Digital_Sales_Room_for_Events/comparison.md`](../business/Digital_Sales_Room_for_Events/comparison.md).
 
@@ -149,6 +149,8 @@ try {
 **`SecurityConfig` pattern** (identical structure in every consumer service):
 
 ```java
+package com.iqkv.venueintelligence.catalog.api.security;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -240,6 +242,8 @@ Key points:
 **Pattern 1 — Tenant-scoped (standard).** Controller at `/api/v1/venues/**`. `TenantExtractionFilter` sets `TenantContext` from JWT before the request hits the controller. No tenant path variable.
 
 ```java
+package com.iqkv.venueintelligence.catalog.api.rest;
+
 @RestController
 @RequestMapping("/api/v1/venues")
 @Tag(name = "Venues", description = "Venue management")
@@ -266,6 +270,8 @@ public class VenueRestResource {
 **Pattern 2 — Admin cross-tenant.** Controller at `/api/v1/venues/admin/venues/{tenantKey}/**`. `TenantExtractionFilter` excluded for `/admin/` paths. Controller sets `TenantContext` manually in try/finally.
 
 ```java
+package com.iqkv.venueintelligence.catalog.api.rest;
+
 @RestController
 @RequestMapping("/api/v1/venues/admin/venues/{tenantKey}")
 @PreAuthorize("hasAuthority('PLATFORM_ADMIN')")
@@ -293,6 +299,8 @@ public class AdminVenueRestResource {
 All DTOs are Java **records**, grouped in a single `{Domain}Dtos.java` container class. Response wrappers for lists include `items` and `totalElements` — no Spring `Page<T>` in API responses.
 
 ```java
+package com.iqkv.venueintelligence.catalog.api.dto;
+
 public final class VenueDtos {
     private VenueDtos() {}
 
@@ -321,6 +329,8 @@ public final class VenueDtos {
 ### MyBatis Mapper Pattern
 
 ```java
+package com.iqkv.venueintelligence.catalog.persistence;
+
 @Mapper
 public interface VenueMapper {
     Optional<Venue> findById(UUID id);
