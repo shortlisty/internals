@@ -68,13 +68,21 @@ Read [AGENTS.md](AGENTS.md) before adding or editing any document. It defines re
 
 ## Platform context
 
-Shortlisty is built on top of the iQ Key Value open-source foundation. New services introduced:
+Shortlisty is built on top of the iQ Key Value open-source foundation (`com.iqkv.foundation`). New services introduced under `com.iqkv.venueintelligence`:
 
-- **`shortlisty-data-intelligence`** — domain-agnostic shared library (ETL contracts, provenance, vectors, cost tracking).
-- **`shortlisty-catalog-service`** — venue profiles, assets, metadata, search, plan enforcement
-- **`shortlisty-catalog-processing-worker`** — async sidecar: document ETL, AI extraction, embeddings
-- **`shortlisty-venue-model`** — shared library: domain entities, event contracts, Liquibase migrations
-- **`shortlisty-mc-ingest-tagvenue-scraper`** and **`shortlisty-master-venue-loader`** — master catalog ingestion
+**Shared libraries (compile-time JARs):**
+
+- **`venueintelligence-process`** — domain-agnostic processing layer: ETL contracts, extraction interfaces, aggregation strategies, provenance model, vector and cost tracking infrastructure.
+- **`venueintelligence-model`** — venue domain layer: entities, canonical field set, metadata migrations, Liquibase changelogs.
+
+**Runtime services:**
+
+- **`venueintelligence-catalog-service`** — single REST API for all venue management operations (tenant and platform admin). Uses `venueintelligence-process` and `venueintelligence-model`.
+- **`venueintelligence-catalog-processing-worker`** — complex async background worker: handles tenant document files through the full ETL pipeline, runs self-hosted LLM inference (Phi-4 / Qwen2.5), maps master catalog records to tenant venues. Uses `venueintelligence-process` and `venueintelligence-model`.
+- **`venueintelligence-mc-ingest-tagvenue-scraper`** — lightweight standalone CLI (Node.js, cron): fetches venue listings from Tagvenue, saves to JSONL on S3.
+- **`venueintelligence-master-venue-loader`** — simple standalone background worker: picks up JSONL files from S3, loads records into the master catalog database.
+
+All services share a single PostgreSQL instance — `public` schema for the master catalog, `t_{tenantKey}` schemas for tenant data. Database decomposition is a named future target once scale justifies it (see D19).
 
 **Stage:** v0.1 MVP in progress — Group A Platform Foundation complete, Master Venue Seeding Infrastructure in development, tenant venue features next.
 
