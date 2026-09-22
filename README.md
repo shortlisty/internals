@@ -36,7 +36,7 @@ See [docs/README.md](docs/README.md) for the full plain-language overview.
 | [Business Proposal](docs/business/digital-sales-room-for-events/proposal.md)       | Founders, team | ICP, feature phases, pricing, GTM, risks                       |
 | [Pitch Mechanics](docs/business/digital-sales-room-for-events/pitch-mechanics.md)  | Founders, team | Micro-site structure, collaboration layer, approval snapshot   |
 | [Cold Start Strategy](docs/business/digital-sales-room-for-events/cold-start.md)   | Founders, team | Seed catalog, concierge onboarding, city-by-city expansion     |
-| [Competitive Landscape](docs/business/digital-sales-room-for-events/comparison.md) | Founders, team | DSR vs. proposal tools, venue discovery, agency CRM, DIY stack |
+| [Competitive Landscape](docs/business/comparison.md)                               | Founders, team | All competitive categories: DSR/proposal tools, venue discovery, agency CRM, DAM, AI productivity, ETL infra, floor plan tools |
 
 ### Personal Venue Catalog (segment reference)
 
@@ -47,7 +47,6 @@ See [docs/README.md](docs/README.md) for the full plain-language overview.
 | --------------------------------------------------------------------------- | ------------------------------------------ |
 | [Product Structure](docs/business/personal-venue-catalog/product.md)        | Tenant app, capability pillars, UI concept |
 | [Business Proposal](docs/business/personal-venue-catalog/proposal.md)       | ICP, monetisation, GTM, risks              |
-| [Competitive Landscape](docs/business/personal-venue-catalog/comparison.md) | Competitor analysis and gap matrix         |
 | [Cold Start Strategy](docs/business/personal-venue-catalog/cold-start.md)   | Seeding the library before launch          |
 | [Sales materials](docs/business/personal-venue-catalog/sales/)              | Pitch, battlecards, objections, messaging  |
 
