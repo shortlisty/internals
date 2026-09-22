@@ -29,17 +29,16 @@ system-design-documentation/
     ├── README.md                      ← Plain-language product overview (any audience)
     ├── business/
     │   ├── market.md                  ← Event chain, market structure, the vacant slot
+    │   ├── comparison.md              ← Competitive landscape and gap matrix (both catalog + DSR)
     │   ├── digital-sales-room-for-events/   ← Primary product direction
     │   │   ├── README.md              ← Concept overview and document index
     │   │   ├── product.md             ← Two-layer architecture, capability pillars, UX
     │   │   ├── proposal.md            ← ICP, monetisation, GTM, risks
     │   │   ├── pitch-mechanics.md     ← Micro-site structure, collaboration, approval snapshot
-    │   │   ├── cold-start.md          ← Seed catalog, concierge onboarding, city expansion
-    │   │   └── comparison.md          ← Competitive landscape and gap matrix
+    │   │   └── cold-start.md          ← Seed catalog, concierge onboarding, city expansion
     │   └── personal-venue-catalog/    ← Segment reference — catalog data-layer docs
     │       ├── product.md             ← Tenant app, capability pillars (catalog positioning)
     │       ├── proposal.md            ← ICP, monetisation, GTM (catalog positioning)
-    │       ├── comparison.md          ← Competitive analysis (catalog positioning)
     │       ├── cold-start.md          ← Seed strategy (catalog positioning)
     │       └── sales/
     │           ├── pitch.md           ← Demo and intro call narrative flow
@@ -178,13 +177,13 @@ Do not invent new audience tags. If a document genuinely serves two separate aud
 - Link to epic files for each pillar rather than re-listing their scope.
 - The `personal-venue-catalog/product.md` is a segment reference document — it describes the catalog subsystem in its original standalone positioning. It carries a `[!NOTE]` callout and must not be treated as the primary product definition.
 
-### 4.9 Competitive landscape (`docs/business/digital-sales-room-for-events/comparison.md`)
+### 4.9 Competitive landscape (`docs/business/comparison.md`)
 
-- Structured as: category sections (one per competitor group), each with a per-tool table, followed by a unified capability matrix.
+- Covers both product angles: Personal Venue Catalog and Digital Sales Room for Events.
+- Structured as: category sections (one per competitor group), each with a per-tool table, followed by capability matrices.
 - Each per-tool table row has exactly: Tool, What it does, Gap vs. Shortlisty.
-- The capability matrix is a Markdown table with Shortlisty in the first column and competitor groups as subsequent columns.
+- The capability matrices are Markdown tables with Shortlisty in the first column and competitor groups as subsequent columns.
 - A "Shortlisty's durable edge" section explains why key capabilities cannot be quickly replicated.
-- The `personal-venue-catalog/comparison.md` is a segment reference document with a `[!NOTE]` callout. New competitive analysis belongs in the DSR comparison file.
 
 ### 4.10 Roadmap index README files (`docs/roadmap/{epics,milestones,decisions}/README.md`)
 

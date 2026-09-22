@@ -73,4 +73,4 @@ From venue files to client sign-off in one tool — so event agencies close brie
 
 ---
 
-**Docs:** [What is Shortlisty?](README.md) · [Market Structure](business/market.md) · [Digital Sales Room](business/digital-sales-room-for-events/README.md) · [Competitive Landscape](business/digital-sales-room-for-events/comparison.md) · [Architecture](platform/README.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
+**Docs:** [What is Shortlisty?](README.md) · [Market Structure](business/market.md) · [Digital Sales Room](business/digital-sales-room-for-events/README.md) · [Competitive Landscape](business/comparison.md) · [Architecture](platform/README.md) · [Intelligence Layer](platform/intelligence.md) · [Vision](roadmap/vision.md)
