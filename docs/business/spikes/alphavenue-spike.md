@@ -22,6 +22,7 @@ It does not compete with Shortlisty. But it is the most sophisticated venue-side
 AlphaVenue is an all-in-one AI operations platform for wedding and event venues. Its central character is **Ella** — a named, venue-branded AI agent that the venue owner configures with their own pricing, packages, policies, floor plans, FAQs, availability, and brand voice. Once configured, Ella runs autonomously across sales, planning, and client support.
 
 The platform is positioned explicitly against:
+
 - Generic chatbots (FAQ widgets)
 - Lead generation marketplaces (WeddingWire, The Knot)
 - Marketing agencies
@@ -40,6 +41,7 @@ The platform is positioned explicitly against:
 The core, and where most of the marketing emphasis sits.
 
 **What it does:**
+
 - Responds to new leads in seconds across **text, email, website chat, voice, and video** — all channels simultaneously
 - Handles inbound from **WeddingWire, The Knot, website forms, Google, Instagram, Facebook**
 - Sends personalised replies with available dates, venue info, sneak-peek video links, catering details
@@ -64,6 +66,7 @@ The architectural foundation behind Ella. This is the most strategically interes
 **What it is:** A centralised venue knowledge base — a single source of truth that Ella draws from across every channel and interaction.
 
 **What goes into it:**
+
 - Pricing and packages
 - Menus, amenities, venue details
 - Policies, contracts, FAQs
@@ -79,7 +82,7 @@ The architectural foundation behind Ella. This is the most strategically interes
 
 **Security:** Data encryption, secure servers, access controls mentioned — no detail on certifications or compliance frameworks.
 
-**Shortlisty parallel:** Shortlisty builds a structured venue knowledge base from documents the *planner* owns (venue decks, PDFs, floor plans sent by the venue). AlphaVenue builds a structured venue knowledge base from documents the *venue* owns. Same infrastructure problem, opposite direction of the data flow.
+**Shortlisty parallel:** Shortlisty builds a structured venue knowledge base from documents the _planner_ owns (venue decks, PDFs, floor plans sent by the venue). AlphaVenue builds a structured venue knowledge base from documents the _venue_ owns. Same infrastructure problem, opposite direction of the data flow.
 
 ---
 
@@ -88,6 +91,7 @@ The architectural foundation behind Ella. This is the most strategically interes
 A distinct capability layer beyond sales — Ella hosts actual planning meetings.
 
 **What it does:**
+
 - Conducts planning conversations with booked couples around the clock
 - Covers: finalising event details, answering planning questions, managing client communication, sending reminders
 - "Expert knowledge, human warmth, your venue's unique voice"
@@ -104,12 +108,13 @@ This is materially different from VenueX/Mikla/NurturePro, which stop at inquiry
 **Who uses it:** The UI copy suggests couples do the configuration work themselves ("so your couples do the work for you"), with venue-defined parameters and room setups as the base.
 
 **What's notable:**
+
 - 2D and 3D rendering in one tool — this is the most capable floor plan feature in any of the venue AI platforms surveyed
 - The context is event layout (tables, head table, rounds, linens) — not architectural extraction
 - No mention of CAD/DXF import or PDF floor plan parsing — this appears to be a layout builder, not a document extraction tool
 - The example shown: "Grand Ballroom · cap. 200 / 10 rounds and a head table · 90 seats / Linen"
 
-**Shortlisty parallel:** Shortlisty extracts structured venue data *from* floor plan PDFs (ETL/parsing). AlphaVenue creates floor plan *layouts* for events in real time. Adjacent capability, different direction. AlphaVenue's floor plan creator is downstream (layout for a confirmed booking); Shortlisty's floor plan intelligence is upstream (extraction for portfolio intelligence before booking).
+**Shortlisty parallel:** Shortlisty extracts structured venue data _from_ floor plan PDFs (ETL/parsing). AlphaVenue creates floor plan _layouts_ for events in real time. Adjacent capability, different direction. AlphaVenue's floor plan creator is downstream (layout for a confirmed booking); Shortlisty's floor plan intelligence is upstream (extraction for portfolio intelligence before booking).
 
 ---
 
@@ -118,6 +123,7 @@ This is materially different from VenueX/Mikla/NurturePro, which stop at inquiry
 A self-service tool for couples to manage their own seating chart.
 
 **What it does:**
+
 - Couples manage guest placement and table assignments directly
 - Reduces venue team involvement in seating logistics
 - Tracks seating progress (example shown: "9 of 14 seated")
@@ -127,6 +133,7 @@ A self-service tool for couples to manage their own seating chart.
 ### 2.6 Guest Meal Choice Selector
 
 **What it does:**
+
 - Collects and organises guest meal selections in one place
 - Tracks choices per guest (example shown: Beef 4 / Fish 3 / Garden 2)
 - Eliminates the scattered email/spreadsheet approach for meal counts
@@ -136,6 +143,7 @@ A self-service tool for couples to manage their own seating chart.
 ### 2.7 Tour and Meeting Scheduling
 
 **What it does:**
+
 - Availability calendar with real-time visibility for couples ("Available dates: instant visibility so couples can decide faster")
 - Tour scheduling with availability rules, confirmations, and reminders — no back-and-forth
 - Meeting scheduling for planning consultations — same flow
@@ -145,6 +153,7 @@ A self-service tool for couples to manage their own seating chart.
 ### 2.8 Contracts and Payments
 
 **What it does:**
+
 - Send and e-sign contracts digitally within the platform
 - Card processing: deposits, invoices, event payments
 
@@ -179,7 +188,7 @@ This is structurally identical to Shortlisty's core bet: the catalog (the struct
 AlphaVenue is the only venue-side AI platform that spans the complete venue-client lifecycle:
 
 ```
-Inquiry → Lead qualification → Tour booking → Proposal → Contract → 
+Inquiry → Lead qualification → Tour booking → Proposal → Contract →
 Deposit → Planning meetings → Seating → Meal choices → Event execution
 ```
 
@@ -197,17 +206,17 @@ Quote-based, ~$33,588/year for the full platform. This is a significant price po
 
 ## 4. What AlphaVenue does NOT do
 
-| Capability                                       | AlphaVenue |
-| ------------------------------------------------ | ---------- |
-| Planner-owned venue portfolio management         | ⛔          |
-| Document extraction from planner-supplied files  | ⛔          |
-| Cross-venue search and comparison for planners   | ⛔          |
-| Client-facing pitch/shortlist for planner's client | ⛔        |
-| Approval → immutable snapshot (SSOT)             | ⛔          |
-| Multi-source aggregation / conflict resolution   | ⛔          |
-| Semantic search across extracted venue metadata  | ⛔          |
-| Provenance-tagged metadata with confidence tiers | ⛔          |
-| Planner-side audit trail of what was agreed      | ⛔          |
+| Capability                                         | AlphaVenue |
+| -------------------------------------------------- | ---------- |
+| Planner-owned venue portfolio management           | ⛔         |
+| Document extraction from planner-supplied files    | ⛔         |
+| Cross-venue search and comparison for planners     | ⛔         |
+| Client-facing pitch/shortlist for planner's client | ⛔         |
+| Approval → immutable snapshot (SSOT)               | ⛔         |
+| Multi-source aggregation / conflict resolution     | ⛔         |
+| Semantic search across extracted venue metadata    | ⛔         |
+| Provenance-tagged metadata with confidence tiers   | ⛔         |
+| Planner-side audit trail of what was agreed        | ⛔         |
 
 None of these are gaps in AlphaVenue's product — they are simply out of scope because AlphaVenue serves venue operators, not event planners.
 
@@ -229,14 +238,14 @@ The planner workflow: planner sends inquiry → AlphaVenue (Ella) responds with 
 
 Both products solve the same underlying problem (scattered, document-bound, person-dependent venue knowledge) for different users. AlphaVenue solves it for the venue; Shortlisty solves it for the planner. The parallel is precise:
 
-| AlphaVenue                                        | Shortlisty                                          |
-| ------------------------------------------------- | --------------------------------------------------- |
-| Venue's own pricing/packages/policies → knowledge base | Venue's PDFs/decks/floor plans → planner's catalog |
+| AlphaVenue                                              | Shortlisty                                         |
+| ------------------------------------------------------- | -------------------------------------------------- |
+| Venue's own pricing/packages/policies → knowledge base  | Venue's PDFs/decks/floor plans → planner's catalog |
 | Ella answers planner inquiries from that knowledge base | Planner searches catalog to build client pitches   |
-| Same answer across text/email/voice/video         | Same venue data across brief → pitch → approval    |
-| Reduces "ask the owner" dependency                | Reduces "where's that venue deck" dependency        |
-| AI team trainer: staff get answers from KB        | Planner team searches shared catalog                |
-| Proprietary to the venue                          | Proprietary to the agency                           |
+| Same answer across text/email/voice/video               | Same venue data across brief → pitch → approval    |
+| Reduces "ask the owner" dependency                      | Reduces "where's that venue deck" dependency       |
+| AI team trainer: staff get answers from KB              | Planner team searches shared catalog               |
+| Proprietary to the venue                                | Proprietary to the agency                          |
 
 ---
 
