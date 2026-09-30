@@ -512,4 +512,4 @@ Quota limits: status `402`.
 
 ---
 
-**Docs:** [Architecture Index](README.md) · [Architecture Overview](architecture-overview.md) · [Search](search.md) · [Services](services.md) · [Events](events.md) · [Data Model](data-model.md) · [UI: Venue Management](ui-venue-management.md) · [UI: Deal Workspace](ui-deal-workspace.md)
+**Docs:** [Architecture Index](README.md) · [Search](search.md) · [Events](events.md) · [Services](services.md)

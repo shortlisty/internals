@@ -95,4 +95,4 @@ One synchronous service (`venueintelligence-catalog-service`) for HTTP and one a
 
 ---
 
-**Docs:** [Vision](../vision.md) · [Architecture](../../platform/README.md) · [Epics](../epics/README.md) · [Milestones](../milestones/README.md)
+**Docs:** [Decisions index](README.md) · [Architecture](../../platform/README.md) · [Epics](../epics/README.md)

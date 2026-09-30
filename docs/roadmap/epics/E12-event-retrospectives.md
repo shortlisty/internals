@@ -63,4 +63,4 @@ When an event ends, the knowledge of what worked, what failed, and what the venu
 
 ---
 
-**Docs:** [Epics index](README.md) · [v1.1 milestone](../milestones/v1.1-agency-knowledge-base.md) · [Vision](../vision.md) · [D17 decision](../decisions/D17-knowledge-base-scope-expansion.md)
+**Docs:** [Epics index](README.md) · [v1.1 milestone](../milestones/v1.1-agency-knowledge-base.md) · [Vision](../vision.md)

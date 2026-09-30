@@ -123,4 +123,4 @@ The investment pays dividends as soon as tenant venue management features are im
 
 ---
 
-**Docs:** [Architecture](../../platform/README.md) · [Data Model](../../platform/data-model.md) · [Master Catalog](../../platform/master-catalog.md) · [Feature Checklist](../feature-checklist.md) · [Milestones](../milestones/README.md)
+**Docs:** [Decisions index](README.md) · [Architecture](../../platform/README.md) · [Master Catalog](../../platform/master-catalog.md)

@@ -106,4 +106,4 @@
 
 ---
 
-**Docs:** [Architecture Index](README.md) · [Architecture Overview](architecture-overview.md) · [Data Model](data-model.md) · [Services](services.md) · [Aggregation](aggregation.md) · [Master Catalog](master-catalog.md) · [ETL Pipeline](etl-pipeline.md) · [Search](search.md) · [API](api.md) · [Events](events.md) · [Observability](observability.md)
+**Docs:** [Architecture Index](README.md) · [Vision](../roadmap/vision.md) · [Decisions](../roadmap/decisions/README.md)

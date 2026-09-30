@@ -179,4 +179,4 @@ Do not let this table grow beyond 10 rows. Review it monthly: promote candidates
 
 ---
 
-**Docs:** [Vision](../vision.md) · [Milestones](../milestones/README.md) · [Decisions](../decisions/README.md) · [Architecture](../../platform/README.md) · [Intelligence Layer](../../platform/intelligence.md)
+**Docs:** [Vision](../vision.md) · [Milestones](../milestones/README.md) · [Decisions](../decisions/README.md) · [Feature Checklist](../feature-checklist.md)

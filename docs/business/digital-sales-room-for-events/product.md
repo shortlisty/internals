@@ -138,4 +138,4 @@ The approved venue snapshot then hands off into Planning Pod / Aisle Planner / H
 
 ---
 
-**Docs:** [What is Shortlisty?](../../README.md) · [Business Proposal](proposal.md) · [Architecture](../../platform/README.md) · [Intelligence Layer](../../platform/intelligence.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [Digital Sales Room](README.md) · [Proposal](proposal.md) · [Pitch Mechanics](pitch-mechanics.md) · [Vision](../../roadmap/vision.md)

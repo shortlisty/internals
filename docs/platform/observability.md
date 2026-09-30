@@ -72,4 +72,4 @@ Summary of authority strings for Shortlisty endpoints:
 
 ---
 
-**Docs:** [Architecture Index](README.md) · [Architecture Overview](architecture-overview.md) · [Services](services.md) · [Data Model](data-model.md) · [Search](search.md) · [Master Catalog](master-catalog.md) · [Roadmap & Decisions](roadmap-decisions.md)
+**Docs:** [Architecture Index](README.md) · [Architecture Overview](architecture-overview.md) · [Services](services.md)

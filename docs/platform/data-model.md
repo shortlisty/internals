@@ -895,4 +895,4 @@ PostgreSQL schema-per-tenant means `public.master_venue` lives in a different sc
 
 ---
 
-**Docs:** [Architecture Index](README.md) · [Architecture Overview](architecture-overview.md) · [Services](services.md) · [Aggregation](aggregation.md) · [Master Catalog](master-catalog.md) · [ETL Pipeline](etl-pipeline.md) · [Search](search.md)
+**Docs:** [Architecture Index](README.md) · [Architecture Overview](architecture-overview.md) · [Services](services.md) · [Aggregation](aggregation.md)

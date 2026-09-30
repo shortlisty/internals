@@ -34,4 +34,4 @@ Each decision file follows the template in [AGENTS.md § 4.6](../../../AGENTS.md
 
 ---
 
-**Docs:** [Vision](../vision.md) · [Epics](../epics/README.md) · [Milestones](../milestones/README.md)
+**Docs:** [Vision](../vision.md) · [Epics](../epics/README.md) · [Milestones](../milestones/README.md) · [Architecture](../../platform/README.md)

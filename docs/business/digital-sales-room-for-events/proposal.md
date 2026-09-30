@@ -249,4 +249,4 @@ Some agency owners and clients — particularly in the wedding market — see AI
 
 ---
 
-**Docs:** [What is Shortlisty?](../../README.md) · [Product Structure](product.md) · [Market Structure](../market.md) · [Architecture](../../platform/README.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [Digital Sales Room](README.md) · [Product Structure](product.md) · [Pitch Mechanics](pitch-mechanics.md)

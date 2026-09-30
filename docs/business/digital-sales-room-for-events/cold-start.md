@@ -254,4 +254,4 @@ The pattern across all tiers is consistent: Shortlisty is a venue knowledge + pi
 
 ---
 
-**Docs:** [What is Shortlisty?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Vision](../../roadmap/vision.md) · [Competitive Landscape](comparison.md)
+**Docs:** [Digital Sales Room](README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md)

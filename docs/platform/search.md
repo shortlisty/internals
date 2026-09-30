@@ -135,4 +135,4 @@ Power user/admin explicitly promotes a master catalog entry → client calls `PO
 
 ---
 
-**Docs:** [Architecture Index](README.md) · [Data Model](data-model.md) · [Services](services.md) · [Master Catalog](master-catalog.md) · [API](api.md) · [Observability](observability.md)
+**Docs:** [Architecture Index](README.md) · [API](api.md) · [Data Model](data-model.md)

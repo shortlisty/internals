@@ -153,4 +153,4 @@ Accepted.
 
 ---
 
-**Docs:** [Architecture](../../platform/README.md) · [Intelligence Layer](../../platform/intelligence.md) · [Master Catalog](../../platform/master-catalog.md) · [Data Quality Epic](../epics/E7-data-quality.md) · [Feature Checklist](../feature-checklist.md)
+**Docs:** [Decisions index](README.md) · [Architecture](../../platform/README.md) · [E7 Data Quality](../epics/E7-data-quality.md)

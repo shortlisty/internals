@@ -197,4 +197,4 @@ When these criteria are met, the platform is ready for the first concierge onboa
 
 ---
 
-**Docs:** [What is Shortlisty?](../../README.md) · [Business Proposal](proposal.md) · [Market Structure](../market.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [Personal Venue Catalog](product.md) · [Business Proposal](proposal.md) · [Market Structure](../market.md)

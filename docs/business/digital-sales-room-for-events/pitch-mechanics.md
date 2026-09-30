@@ -189,4 +189,4 @@ From the client's perspective, Pro already looks like an agency-branded microsit
 
 ---
 
-**Docs:** [What is Shortlisty?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [Digital Sales Room](README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md)

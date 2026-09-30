@@ -731,4 +731,4 @@ pgvector with IVFFlat index:
 
 ---
 
-**Docs:** [What is Shortlisty?](../README.md) · [Business Proposal](../business/digital-sales-room-for-events/proposal.md) · [Competitive Landscape](../business/digital-sales-room-for-events/comparison.md) · [Architecture](README.md) · [Data Model](data-model.md) · [Vision](../roadmap/vision.md)
+**Docs:** [Architecture Index](README.md) · [ETL Pipeline](etl-pipeline.md) · [Search](search.md) · [Data Model](data-model.md)

@@ -411,4 +411,4 @@ Prototype first in `foundation-ui-blank` (no auth, MSW mocks). Full component st
 
 ---
 
-**Docs:** [Architecture Index](README.md) · [Data Model](data-model.md) · [Services](services.md) · [Aggregation](aggregation.md) · [Master Catalog](master-catalog.md) · [ETL Pipeline](etl-pipeline.md) · [Search](search.md) · [API](api.md) · [Events](events.md) · [Observability](observability.md) · [Roadmap & Decisions](roadmap-decisions.md)
+**Docs:** [Architecture Index](README.md) · [Data Model](data-model.md) · [Services](services.md) · [Observability](observability.md)

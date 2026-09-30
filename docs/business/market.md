@@ -167,4 +167,4 @@ For the business case: [digital-sales-room-for-events/proposal.md](digital-sales
 
 ---
 
-**Docs:** [What is Shortlisty?](../README.md) · [Product Structure](digital-sales-room-for-events/product.md) · [Business Proposal](digital-sales-room-for-events/proposal.md) · [Competitive Landscape](digital-sales-room-for-events/comparison.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is Shortlisty?](../README.md) · [Product Structure](digital-sales-room-for-events/product.md) · [Business Proposal](digital-sales-room-for-events/proposal.md) · [Competitive Landscape](digital-sales-room-for-events/comparison.md)

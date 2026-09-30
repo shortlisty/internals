@@ -210,4 +210,4 @@ The scraper dry-run report CSV is retained in S3 for 90 days as an audit trail o
 
 ---
 
-**Docs:** [Architecture Index](README.md) · [Data Model](data-model.md) · [Services](services.md) · [ETL Pipeline](etl-pipeline.md) · [Aggregation](aggregation.md) · [Search](search.md) · [Observability](observability.md)
+**Docs:** [Architecture Index](README.md) · [Data Model](data-model.md) · [ETL Pipeline](etl-pipeline.md) · [Services](services.md)

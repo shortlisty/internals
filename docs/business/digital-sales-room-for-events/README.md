@@ -34,4 +34,4 @@ Digital Sales Room      →  output layer (pitch board, client portal, snapshot)
 
 ---
 
-**Docs:** [What is Shortlisty?](../../README.md) · [Market Structure](../market.md) · [Personal Venue Catalog](../personal-venue-catalog/product.md) · [Architecture](../../platform/README.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is Shortlisty?](../../README.md) · [Product](product.md) · [Proposal](proposal.md) · [Personal Venue Catalog](../personal-venue-catalog/product.md)

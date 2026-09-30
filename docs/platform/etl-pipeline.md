@@ -166,4 +166,4 @@ public class AssetExtractionConsumer {
 
 ---
 
-**Docs:** [Architecture Index](README.md) · [Services](services.md) · [Data Model](data-model.md) · [Aggregation](aggregation.md) · [Master Catalog](master-catalog.md) · [Events](events.md) · [Observability](observability.md)
+**Docs:** [Architecture Index](README.md) · [Intelligence](intelligence.md) · [Services](services.md) · [Aggregation](aggregation.md)

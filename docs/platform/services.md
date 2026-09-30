@@ -346,4 +346,4 @@ mi-med-model           (medical-domain library)
 
 ---
 
-**Docs:** [Architecture Index](README.md) · [Architecture Overview](architecture-overview.md) · [Data Model](data-model.md) · [ETL Pipeline](etl-pipeline.md) · [Events](events.md) · [Aggregation](aggregation.md) · [Master Catalog](master-catalog.md)
+**Docs:** [Architecture Index](README.md) · [Architecture Overview](architecture-overview.md) · [Data Model](data-model.md) · [ETL Pipeline](etl-pipeline.md)

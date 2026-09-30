@@ -402,4 +402,4 @@ Personal and direct. No paid acquisition yet.
 
 ---
 
-**Docs:** [What is Shortlisty?](../../README.md) · [Product Structure](product.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../../platform/README.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [Personal Venue Catalog](product.md) · [Cold Start](cold-start.md) · [Digital Sales Room](../digital-sales-room-for-events/product.md)

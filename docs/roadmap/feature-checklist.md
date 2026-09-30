@@ -172,4 +172,4 @@ Each line follows this exact format:
 
 ---
 
-**Docs:** [Vision](vision.md) · [Epics](epics/README.md) · [Milestones](milestones/README.md) · [Decisions](decisions/README.md) · [Architecture](../platform/README.md) · [Intelligence Layer](../platform/intelligence.md)
+**Docs:** [Vision](vision.md) · [Epics](epics/README.md) · [Milestones](milestones/README.md)

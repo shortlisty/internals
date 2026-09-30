@@ -127,4 +127,4 @@ Once the pitch-to-approval loop is proven and trusted, the platform can grow in 
 
 ---
 
-**Docs:** [What is Shortlisty?](../README.md) · [Personal Venue Catalog](../business/personal-venue-catalog/product.md) · [Digital Sales Room](../business/digital-sales-room-for-events/README.md) · [Market Structure](../business/market.md) · [Architecture](../platform/README.md)
+**Docs:** [What is Shortlisty?](../README.md) · [Digital Sales Room](../business/digital-sales-room-for-events/README.md) · [Feature Checklist](feature-checklist.md) · [Architecture](../platform/README.md)

@@ -159,4 +159,4 @@ See [events.md](events.md) for the full RabbitMQ queue and listener container co
 
 ---
 
-**Docs:** [Architecture Index](README.md) · [Data Model](data-model.md) · [Services](services.md) · [ETL Pipeline](etl-pipeline.md) · [Events](events.md) · [Master Catalog](master-catalog.md) · [Observability](observability.md)
+**Docs:** [Architecture Index](README.md) · [Data Model](data-model.md) · [Services](services.md) · [ETL Pipeline](etl-pipeline.md)

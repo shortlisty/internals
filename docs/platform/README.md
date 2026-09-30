@@ -91,4 +91,4 @@ public.master_venue / master_venue_alias / master_venue_external
 
 ---
 
-**Docs:** [What is Shortlisty?](../README.md) · [Architecture Overview](architecture-overview.md) · [Data Model](data-model.md) · [Services](services.md) · [Aggregation](aggregation.md) · [Master Catalog](master-catalog.md) · [Intelligence](intelligence.md) · [ETL Pipeline](etl-pipeline.md) · [Search](search.md) · [API](api.md) · [Events](events.md) · [Observability](observability.md) · [Roadmap & Decisions](roadmap-decisions.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is Shortlisty?](../README.md) · [Vision](../roadmap/vision.md) · [Feature Checklist](../roadmap/feature-checklist.md)

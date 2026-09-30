@@ -91,4 +91,4 @@ Shortlisty combines ETL, PIM, DAM, and search in a single tenant app focused spe
 
 ---
 
-**Docs:** [What is Shortlisty?](../../README.md) · [Business Proposal](proposal.md) · [Competitive Landscape](comparison.md) · [Architecture](../../platform/README.md) · [Vision](../../roadmap/vision.md)
+**Docs:** [What is Shortlisty?](../../README.md) · [Business Proposal](proposal.md) · [Digital Sales Room](../digital-sales-room-for-events/product.md)

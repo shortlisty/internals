@@ -229,4 +229,4 @@ Four things that would require a competitor to build from scratch:
 
 ---
 
-**Docs:** [What is Shortlisty?](../../README.md) · [Product — Personal Venue Catalog](personal-venue-catalog/product.md) · [Product — Digital Sales Room](digital-sales-room-for-events/product.md) · [Business Proposal — DSR](digital-sales-room-for-events/proposal.md) · [Intelligence Layer](../platform/intelligence.md) · [Vision](../roadmap/vision.md)
+**Docs:** [What is Shortlisty?](../../README.md) · [Product — Digital Sales Room](digital-sales-room-for-events/product.md) · [Product — Personal Venue Catalog](personal-venue-catalog/product.md) · [Vision](../roadmap/vision.md)
