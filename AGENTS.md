@@ -345,13 +345,48 @@ Rules:
 
 ---
 
-## 8. Enforcement
+## 8. Working agreement
+
+- Follow through on actionable requests within their authorized scope. A plan is a checkpoint, not completion.
+- Read the relevant existing document before editing it. Understand its current state, audience, and cross-references before proposing any change.
+- Resolve routine, reversible choices with reasonable assumptions. Ask only about consequential decisions — scope changes, new document types, cross-reference restructuring.
+- After two attempts to satisfy a constraint without new evidence or a changed approach, stop and surface the conflict rather than trying a third time.
+- Lead with the result. State what changed and why in one sentence; omit narration of steps taken.
+- If a user instruction conflicts with a rule in this file, surface the conflict explicitly rather than silently violating the rule or silently ignoring the instruction.
+
+## 9. Execution discipline
+
+- Read the affected file and its cross-references before editing. Do not assume current state from memory.
+- Fix the real source of a problem. If a document has drifted from its cross-references, fix the drift at both ends — do not patch one side only.
+- No speculative content additions. Add content only when it is directly required by the request. Filling in gaps, expanding scope, or pre-writing future sections without being asked are prohibited.
+- Index-first rule applies to agents as well as humans (§4.4, §4.5, §4.6). Never create a leaf document without first updating its index.
+- After completing a change, verify: audience blockquote present, navigation footer intact, cross-references bidirectional, no dates written in Planned milestone files.
+
+## 10. Commit standards
+
+Format: `type(scope): subject`
+
+- Subject: imperative, lowercase, no trailing period, ≤ 72 chars
+- Types: `docs`, `feat`, `fix`, `refactor`, `chore`
+- Scope: the affected document area (e.g., `epics`, `vision`, `battlecards`, `platform`, `agents`)
+- For `fix`: describe what was wrong, not what line was changed
+  - ✅ `fix(epics): restore missing bidirectional link to v0.2 milestone`
+  - ❌ `fix(epics): add link in milestone references section`
+- Stage only the files directly involved in the change. Do not batch unrelated edits.
+
+## 11. Security
+
+- Keep sensitive business data out of commits and document content: unconfirmed pricing, named prospect details, investor terms, personal contact information.
+- Mark uncertain commercial figures with `(TBC)` per §4.7 rather than omitting them or inventing a number.
+- Do not commit credentials, API keys, or internal tool URLs to any file in this repository.
+
+## 12. Enforcement
 
 These rules are enforced by:
 
 1. **Pre-commit hook** — Prettier formats all Markdown files on commit. Config: `.prettierrc`.
 2. **PR review** — All PRs that touch `docs/` must be reviewed against this file before merge.
-3. **Agent instructions** — Any AI agent generating or modifying documentation in this repository must load this file first and treat it as the highest-priority constraint. If a user instruction conflicts with a rule in this file, surface the conflict rather than silently violating the rule.
+3. **Agent instructions** — Any AI agent generating or modifying documentation in this repository must load this file first and treat it as the highest-priority constraint. If a user instruction conflicts with a rule in this file, surface the conflict rather than silently violating the rule (per §8).
 
 If a rule in this file is wrong or needs updating, change this file first, then apply the change. Do not establish ad-hoc exceptions.
 
