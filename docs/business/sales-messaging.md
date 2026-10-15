@@ -7,74 +7,63 @@
 
 ## How to use this file
 
-Add copy ideas as `Candidate`. Discuss, test, and promote to `Approved` or move to `Retired` / `Superseded` with a one-line note.
-
-| Status       | Meaning                                                                                   |
-| ------------ | ----------------------------------------------------------------------------------------- |
-| `Candidate`  | Under consideration — not yet approved for external use                                   |
-| `Approved`   | Cleared for external-facing materials (landing page, pitch deck, outreach)                |
-| `Retired`    | Dropped with no direct replacement                                                        |
-| `Superseded` | Replaced by a newer entry — must link to the replacement; entry stays in file permanently |
-
-Only `Approved` copy goes on a landing page, pitch deck, or external communication. Never delete `Retired` or `Superseded` entries.
+Each copy variant is a named block. Status is in the heading — icon for quick scan, word for searchability. Only `Approved` copy goes on a landing page, pitch deck, or external communication. See legend at the bottom of this file.
 
 ---
 
 ## Primary tagline
 
-| Copy | Status | Notes |
-| ---- | ------ | ----- |
-|      |        |       |
+_The one line that leads everywhere — homepage H1, pitch deck cover, outreach subject line._
+
+---
+
+## Secondary / supporting taglines
+
+_Supporting lines used in subheadings, section intros, and outreach copy._
+
+### 🔵 Candidate — full-loop bridge
+
+> **Venue intelligence that closes deals.**
+
+**Notes:** Bridges both layers: "intelligence" = catalog, "closes deals" = DSR output. Strong for corporate event agency segment. Test against wedding planners where "closes deals" may feel too transactional.
 
 ---
 
 ## Positioning statements
 
+_One or two sentences that define what Shortlisty is and who it is for. Used in About sections, press, investor decks, and "how is this different" responses._
+
 ### Full-loop (catalog + pitch + approval)
 
-| Copy | Status | Notes |
-| ---- | ------ | ----- |
-|      |        |       |
+---
 
 ### Segment-specific
-
-| Segment | Copy | Status | Notes |
-| ------- | ---- | ------ | ----- |
-|         |      |        |       |
 
 ---
 
 ## Hero section copy
 
-### Current version
+_Homepage hero: eyebrow + H1 + subheading + CTA. Each version is a complete block._
 
-**Status:** `Candidate`
+### 🔵 Candidate — A
 
-```
-[Eyebrow / product category]
+> **Know your venues. Win your clients.**
+>
+> Turn the files you already have into a living venue library — then into an interactive pitch board the client can approve the same day.
+>
+> _Try it on your next brief_
 
-[H1 — outcome-first headline]
-
-[Subheading — one sentence expanding the H1]
-
-[Body — 2–3 sentences: the problem, the solution, the aha moment]
-```
-
-**Notes:** _Describe intent and audience signal for this version._
-
----
+**Notes:** H1 uses parallel imperative (Know / Win) — rhythm lands as both command and promise. "Files you already have" removes cold-start fear. Sub names both layers without naming them: living venue library = catalog, interactive pitch board = DSR. CTA is specific and low-stakes — ICP thinks of the brief on their desk right now. Caveat: "the same day" is a delivery promise — verify pitch board generation is genuinely that fast before this goes live.
 
 ## Value pillars
 
-| Pillar | Headline | Description | Status | Notes |
-| ------ | -------- | ----------- | ------ | ----- |
-|        |          |             |        |       |
+_3–5 pillars used in the "why Shortlisty" section. Each pillar has a headline and a one-sentence description._
 
 ---
 
 ## ICP-specific openers
 
-One opener per segment. Used in cold outreach, LinkedIn messages, and demo intros.
+_Cold outreach, LinkedIn messages, and demo intro lines. One opener per segment._
 
 | Segment                   | Opener | Status | Notes |
 | ------------------------- | ------ | ------ | ----- |
@@ -88,7 +77,7 @@ One opener per segment. Used in cold outreach, LinkedIn messages, and demo intro
 
 ## Workaround strip
 
-Short lines for the "replaces your current tools" section. One line per tool.
+_Short lines for the "replaces your current tools" section. One line per tool._
 
 | Tool                   | Copy | Status | Notes |
 | ---------------------- | ---- | ------ | ----- |
@@ -113,7 +102,7 @@ AI must appear in copy — but as a _how_, not the headline.
 
 ## Naming and branding notes
 
-_Record decisions about product name, category labels, and approved aliases here. Update when a naming decision is made or changed._
+_Decisions about product name, category labels, and approved aliases. Update when a naming decision is made or changed._
 
 | Term | Approved usage | Notes |
 | ---- | -------------- | ----- |
@@ -122,3 +111,7 @@ _Record decisions about product name, category labels, and approved aliases here
 ---
 
 **Docs:** [What is Shortlisty?](../README.md) · [Market structure](market.md) · [Competitive landscape](comparison.md) · [Product — DSR](digital-sales-room-for-events/product.md) · [Proposal — DSR](digital-sales-room-for-events/proposal.md)
+
+---
+
+_Legend: ✅ Approved · 🔵 Candidate · ❌ Retired · 🔄 Superseded_
