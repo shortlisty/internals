@@ -82,6 +82,7 @@ Infrastructure prerequisites. No direct end-user value. All later epics depend o
 
 | ID | File | Title | Target milestone(s) | Dependencies | Status |
 | --- | --- | --- | --- | --- | --- |
+| E1 | [E1-master-venue-catalog.md](E1-master-venue-catalog.md) | Master Venue Catalog | [v0.1-foundation-catalog-core](../milestones/v0.1-foundation-catalog-core.md) | — | Not started |
 
 ### Group B — Personal Venue Catalog (Data Layer)
 
@@ -89,6 +90,8 @@ The agency's private knowledge base. Layer 1 of the product architecture.
 
 | ID | File | Title | Target milestone(s) | Dependencies | Status |
 | --- | --- | --- | --- | --- | --- |
+| E2 | [E2-tenant-venue-profiles.md](E2-tenant-venue-profiles.md) | Tenant Venue Profiles | [v0.1-foundation-catalog-core](../milestones/v0.1-foundation-catalog-core.md) | E1 | Not started |
+| E3 | [E3-document-intelligence.md](E3-document-intelligence.md) | Document Intelligence (Basic) | [v0.1-foundation-catalog-core](../milestones/v0.1-foundation-catalog-core.md) | E2 | Not started |
 
 ### Group C — Digital Sales Room (Output Layer)
 
@@ -105,8 +108,6 @@ Beyond the v1.0 platform launch. Scaling and deeper capabilities.
 | --- | --- | --- | --- | --- | --- |
 
 > The four agency knowledge-base capabilities (SOP library, event retrospectives, template library, vendor registry) previously tracked as E11–E14 have been demoted to [ideas](../ideas/README.md) pending v1.0 usage signal. They are not currently committed epics.
-
-> **Note on the current index:** This table is the **pre-implementation standardisation snapshot**. Before any epic file is created, review whether the grouping, target milestone assignments, and dependency chains above are final. The act of writing E1 should validate whether the Group A / Group B boundary is correct — if not, update this index first, then create the file.
 
 ---
 

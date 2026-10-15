@@ -1,7 +1,7 @@
 # Master venue catalog
 
 > **Audience:** Product, engineering.
-> **Status:** Draft
+> **Status:** Promoted to [E1 Master Venue Catalog](../epics/E1-master-venue-catalog.md)
 
 ---
 
@@ -78,7 +78,7 @@ Tasks are ordered by dependency. Each is sized for 2–3 h including tests and C
 
 ## Status
 
-**Status:** Draft
+**Status:** Promoted to [E1 Master Venue Catalog](../epics/E1-master-venue-catalog.md)
 
 ---
 

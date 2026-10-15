@@ -1,7 +1,7 @@
 # Tenant venue profiles
 
 > **Audience:** Product, engineering.
-> **Status:** Draft
+> **Status:** Promoted to [E2 Tenant Venue Profiles](../epics/E2-tenant-venue-profiles.md)
 
 ---
 
@@ -52,7 +52,7 @@ Tasks are ordered by dependency. Each is sized for 2–3 h including tests and C
 
 ## Status
 
-**Status:** Draft
+**Status:** Promoted to [E2 Tenant Venue Profiles](../epics/E2-tenant-venue-profiles.md)
 
 ---
 

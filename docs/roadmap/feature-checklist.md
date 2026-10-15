@@ -49,20 +49,21 @@ Each line follows this exact format:
 
 ### Group A — Platform Foundation (master catalog)
 
-- [ ] Platform admin can list, create, view, edit, and delete master venue entries through the platform admin UI · Epic: E1-master-venue-catalog · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
-- [ ] Master catalog is seeded with a curated set of venues for autocomplete suggestions · Epic: E1-master-venue-catalog · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Platform admin can list, create, view, edit, and delete master venue entries through the platform admin UI · Epic: [E1-master-venue-catalog](epics/E1-master-venue-catalog.md) · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Master catalog is seeded with a curated set of venues for autocomplete suggestions · Epic: [E1-master-venue-catalog](epics/E1-master-venue-catalog.md) · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
 
 ### Group B — Personal Venue Catalog (data layer)
 
-- [ ] Planner can create a venue with core fields: name, address, city, capacity, venue category, and one-paragraph visible summary through the tenant app UI · Epic: E2-tenant-venue-profiles · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
-- [ ] Venue creation suggests matching master venues and supports one-click promotion into the tenant catalog · Epic: E2-tenant-venue-profiles · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
-- [ ] Planner can view a venue profile page with all core fields rendered through the tenant app UI · Epic: E2-tenant-venue-profiles · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
-- [ ] Planner can edit the core fields of a venue they own through the tenant app UI · Epic: E2-tenant-venue-profiles · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
-- [ ] Planner can delete a venue they own and confirm it no longer appears in any list through the tenant app UI · Epic: E2-tenant-venue-profiles · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
-- [ ] Planner can upload documents (PDF, DOCX, images) to a venue and see them listed on the venue profile through the tenant app UI · Epic: E3-document-intelligence · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
-- [ ] PDFs uploaded to a venue run through the extraction pipeline and extracted text is stored on the venue record · Epic: E3-document-intelligence · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
-- [ ] DOCX and plain-text documents run through extraction alongside PDFs · Epic: E3-document-intelligence · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
-- [ ] Field-specific extraction: capacity, full address, venue category, contact name, and contact email are populated from uploaded documents · Epic: E3-document-intelligence · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Planner can create a venue with core fields: name, address, city, capacity, venue category, and one-paragraph visible summary through the tenant app UI · Epic: [E2-tenant-venue-profiles](epics/E2-tenant-venue-profiles.md) · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Venue creation suggests matching master venues and supports one-click promotion into the tenant catalog · Epic: [E2-tenant-venue-profiles](epics/E2-tenant-venue-profiles.md) · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Planner can view a venue profile page with all core fields rendered through the tenant app UI · Epic: [E2-tenant-venue-profiles](epics/E2-tenant-venue-profiles.md) · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Planner can edit the core fields of a venue they own through the tenant app UI · Epic: [E2-tenant-venue-profiles](epics/E2-tenant-venue-profiles.md) · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Planner can delete a venue they own and confirm it no longer appears in any list through the tenant app UI · Epic: [E2-tenant-venue-profiles](epics/E2-tenant-venue-profiles.md) · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Planner can upload documents (PDF, DOCX, images) to a venue and see them listed on the venue profile through the tenant app UI · Epic: [E2-tenant-venue-profiles](epics/E2-tenant-venue-profiles.md) · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] PDFs uploaded to a venue run through the extraction pipeline and extracted text is stored on the venue record · Epic: [E3-document-intelligence](epics/E3-document-intelligence.md) · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] DOCX and plain-text documents run through extraction alongside PDFs · Epic: [E3-document-intelligence](epics/E3-document-intelligence.md) · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Field-specific extraction: capacity, full address, venue category, contact name, and contact email are populated from uploaded documents · Epic: [E3-document-intelligence](epics/E3-document-intelligence.md) · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Extraction confidence score per field is visible alongside each extracted field value on the venue profile · Epic: [E3-document-intelligence](epics/E3-document-intelligence.md) · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
 
 ---
 
@@ -77,12 +78,11 @@ Each line follows this exact format:
 
 ### Group B — Personal Venue Catalog (Data Layer)
 
-- [ ] Extraction confidence score per field is visible alongside each extracted field value · Epic: E3-document-intelligence · Milestone: v0.2-intelligence-layer · Priority: P1
-- [ ] Venue images and floor plan files are stored as assets; venue profile page renders a photo gallery thumbnail strip · Epic: E3-document-intelligence · Milestone: v0.2-intelligence-layer · Priority: P1
+- [ ] Venue images and floor plan files are stored as assets; venue profile page renders a photo gallery thumbnail strip · Epic: [E3-document-intelligence](epics/E3-document-intelligence.md) · Milestone: v0.2-intelligence-layer · Priority: P1
 - [ ] Keyword search across venue name, core fields, and extracted document text returns matching venues · Epic: E4-search · Milestone: v0.2-intelligence-layer · Priority: P1
 - [ ] Semantic search over venue descriptions and extracted document chunks returns conceptually-matching venues via pgvector embeddings · Epic: E4-search · Milestone: v0.2-intelligence-layer · Priority: P1
 - [ ] Search filters: planner can filter results by capacity range, venue category, and city · Epic: E4-search · Milestone: v0.2-intelligence-layer · Priority: P1
-- [ ] Planner can add or remove custom tags on a venue (e.g. "outdoor", "rooftop", "wedding-ready") for later filtering · Epic: E2-venue-profiles · Milestone: v0.2-intelligence-layer · Priority: P1
+- [ ] Planner can add or remove custom tags on a venue (e.g. "outdoor", "rooftop", "wedding-ready") for later filtering · Epic: [E2-tenant-venue-profiles](epics/E2-tenant-venue-profiles.md) · Milestone: v0.2-intelligence-layer · Priority: P1
 - [ ] Low-confidence extracted fields are visually highlighted on the venue profile as "needs human review" · Epic: E7-data-quality · Milestone: v0.3-data-quality · Priority: P1
 - [ ] Planner can resolve a field-level conflict (document A says 250 pax, document B says 300) by picking a source or typing an override value · Epic: E7-data-quality · Milestone: v0.3-data-quality · Priority: P1
 
@@ -102,11 +102,11 @@ Each line follows this exact format:
 
 - [ ] Account settings page shows current plan usage: venues used / cap, GB uploaded / cap · Epic: E6-plan-enforcement · Milestone: v1.0-platform · Priority: P2
 - [ ] When a tenant hits their venue-count or upload-GB limit, the UI blocks the action and shows an upgrade CTA with tier pricing · Epic: E6-plan-enforcement · Milestone: v1.0-platform · Priority: P2
-- [ ] Soft-deleted venues can be restored within 30 days via a recycle-bin view · Epic: E2-venue-profiles · Milestone: v1.0-platform · Priority: P2
+- [ ] Soft-deleted venues can be restored within 30 days via a recycle-bin view · Epic: [E2-tenant-venue-profiles](epics/E2-tenant-venue-profiles.md) · Milestone: v1.0-platform · Priority: P2
 
 ### Group B — Personal Venue Catalog (Data Layer)
 
-- [ ] Each extracted field value shows its source provenance badge ("From: floorplan_v3.pdf p.2") when clicked · Epic: E3-document-intelligence · Milestone: v0.3-data-quality · Priority: P2
+- [ ] Each extracted field value shows its source provenance badge ("From: floorplan_v3.pdf p.2") when clicked · Epic: [E3-document-intelligence](epics/E3-document-intelligence.md) · Milestone: v0.3-data-quality · Priority: P2
 - [ ] Keyword + semantic results are blended with Reciprocal Rank Fusion (RRF) and deduplicated · Epic: E4-search · Milestone: v0.3-data-quality · Priority: P2
 - [ ] Search results display a "matched in snippet" preview highlight for the top matching fragment per venue · Epic: E4-search · Milestone: v0.3-data-quality · Priority: P2
 - [ ] Data completeness score per venue (% of recommended fields populated with non-null, non-low-confidence values) · Epic: E7-data-quality · Milestone: v0.3-data-quality · Priority: P2
@@ -125,8 +125,8 @@ Each line follows this exact format:
 
 ### Group B — Personal Venue Catalog (Data Layer)
 
-- [ ] CAD/DWG floor plan file → PNG conversion → layout-aware amenity extraction via vision model · Epic: E3-document-intelligence · Milestone: — (post-v1.0) · Priority: P3
-- [ ] Venue walkthrough videos: keyframe extraction + Whisper transcription → scene-level amenity tagging · Epic: E3-document-intelligence · Milestone: — (post-v1.0) · Priority: P3
+- [ ] CAD/DWG floor plan file → PNG conversion → layout-aware amenity extraction via vision model · Epic: [E3-document-intelligence](epics/E3-document-intelligence.md) · Milestone: — (post-v1.0) · Priority: P3
+- [ ] Venue walkthrough videos: keyframe extraction + Whisper transcription → scene-level amenity tagging · Epic: [E3-document-intelligence](epics/E3-document-intelligence.md) · Milestone: — (post-v1.0) · Priority: P3
 - [ ] Saved search presets: planner saves a "wedding 150 pax + outdoor" query as a reusable filter · Epic: E4-search · Milestone: — (post-v1.0) · Priority: P3
 - [ ] New-venue alerting: weekly email when a new venue matching a saved search preset appears in the catalogue or via master catalog backdrop new-record signal · Epic: E4-search · Milestone: — (post-v1.0) · Priority: P3
 - [ ] Tenant-wide metadata-schema versioning UI: view `_schema_version` state and run forced-convergence admin actions per venue · Epic: E7-data-quality · Milestone: — (post-v1.0) · Priority: P3

@@ -29,8 +29,8 @@ ideas/{slug}.md  (worked pitch, status: Draft)
 
 | File                              | Title                  | Likely landing                     | Status | Notes                                                    |
 | --------------------------------- | ---------------------- | ---------------------------------- | ------ | -------------------------------------------------------- |
-| [00-master-venue-catalog.md](00-master-venue-catalog.md) | Master venue catalog | Epic TBD / milestone TBD | Draft | Carried from the removed v0.1-mvp milestone (was E1). Platform-wide reference dataset + shared libraries + admin tooling. |
-| [00-tenant-venue-profiles.md](00-tenant-venue-profiles.md) | Tenant venue profiles | Epic TBD / milestone TBD | Draft | Carried from the removed v0.1-mvp milestone (was E2 + E6 partial). Tenant-facing venue CRUD + plan enforcement at venue creation. |
+| [00-master-venue-catalog.md](00-master-venue-catalog.md) | Master venue catalog | [E1 Master Venue Catalog](../epics/E1-master-venue-catalog.md) / [v0.1](../milestones/v0.1-foundation-catalog-core.md) | Promoted to E1 | Carried from the removed v0.1-mvp milestone. Platform-wide reference dataset + shared libraries + admin tooling. |
+| [00-tenant-venue-profiles.md](00-tenant-venue-profiles.md) | Tenant venue profiles | [E2 Tenant Venue Profiles](../epics/E2-tenant-venue-profiles.md) / [v0.1](../milestones/v0.1-foundation-catalog-core.md) | Promoted to E2 | Carried from the removed v0.1-mvp milestone. Tenant-facing venue CRUD + document upload. |
 | [sop-library.md](sop-library.md)  | SOP library            | Post-v1.0 epic (was E11) / v1.1    | Draft  | Demoted from E11 epic to idea pending v1.0 usage signal. |
 | [event-retrospectives.md](event-retrospectives.md) | Event retrospectives | Post-v1.0 epic (was E12) / v1.1 | Draft | Demoted from E12 epic to idea pending v1.0 usage signal. |
 | [template-library.md](template-library.md) | Template library | Post-v1.0 epic (was E13) / v1.1 | Draft | Demoted from E13 epic to idea pending v1.0 usage signal. |
