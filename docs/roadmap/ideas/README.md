@@ -29,6 +29,8 @@ ideas/{slug}.md  (worked pitch, status: Draft)
 
 | File                              | Title                  | Likely landing                     | Status | Notes                                                    |
 | --------------------------------- | ---------------------- | ---------------------------------- | ------ | -------------------------------------------------------- |
+| [00-master-venue-catalog.md](00-master-venue-catalog.md) | Master venue catalog | Epic TBD / milestone TBD | Draft | Carried from the removed v0.1-mvp milestone (was E1). Platform-wide reference dataset + shared libraries + admin tooling. |
+| [00-tenant-venue-profiles.md](00-tenant-venue-profiles.md) | Tenant venue profiles | Epic TBD / milestone TBD | Draft | Carried from the removed v0.1-mvp milestone (was E2 + E6 partial). Tenant-facing venue CRUD + plan enforcement at venue creation. |
 | [sop-library.md](sop-library.md)  | SOP library            | Post-v1.0 epic (was E11) / v1.1    | Draft  | Demoted from E11 epic to idea pending v1.0 usage signal. |
 | [event-retrospectives.md](event-retrospectives.md) | Event retrospectives | Post-v1.0 epic (was E12) / v1.1 | Draft | Demoted from E12 epic to idea pending v1.0 usage signal. |
 | [template-library.md](template-library.md) | Template library | Post-v1.0 epic (was E13) / v1.1 | Draft | Demoted from E13 epic to idea pending v1.0 usage signal. |

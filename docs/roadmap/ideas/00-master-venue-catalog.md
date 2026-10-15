@@ -1,31 +1,36 @@
-# v0.1 — MVP Foundations
+# Master venue catalog
 
 > **Audience:** Product, engineering.
-
-**Goal:** An event planner can create a venue, upload documents, and see extracted metadata in a basic profile view.
-
-**Status:** In progress
-
-**Epics included:** E1-master-venue-catalog · E2-venue-profiles · E6-plan-enforcement (partial)
+> **Status:** Draft
 
 ---
 
-## Task Backlog
+## Summary
+
+The master venue catalog is a platform-wide reference dataset of venues that powers autocomplete suggestions, deduplication assistance, and metadata gap-filling when a tenant creates a venue. It is not tenant-facing — it is a platform service layer that every tenant venue creation draws from. Building it establishes the shared libraries, database schema, admin tooling, and seed data that tenant venue profiles depend on.
+
+## Why it matters
+
+Without a curated master catalog, every tenant retypes the same venue data from scratch and duplicate venue records proliferate across tenants. A platform-maintained reference set lets a planner pick a known venue in one click, inherit verified base fields, and focus on their agency-specific notes instead of re-keying an address. The catalog's shared libraries and schema contracts are also the foundation that the document intelligence and search layers build on.
+
+## Where it could land
+
+- Likely epic: TBD (was E1 in the removed v0.1 milestone)
+- Likely milestone: TBD
+- Related decisions: [D7 — JSONB schema versioning](../decisions/D7-jsonb-schema-versioning.md), [D9 — Master venue seeding infrastructure first](../decisions/D9-master-venue-seeding-infrastructure-first.md)
+
+## In scope
 
 Scope markers: `[shared-lib]` `[venueintelligence-catalog-service]` `[admin-ui]` `[tenant-ui]` `[infra]`
 
 Tasks are ordered by dependency. Each is sized for 2–3 h including tests and CI/CD to UAT.
 
----
-
-### E1 — Master Venue Catalog (Platform Foundation)
-
-#### Shared Libraries
+### Shared Libraries
 
 - [ ] `[shared-lib]` Create `venueintelligence-process` Maven module: `MetadataMigration`, `MetadataMigrator`, `MetadataTypeHandler`, `MetadataSchemaVersion`, `MetadataSource`, `MetadataEventType`, enums (`ExtractionStatus`, `ExtractorType`, `AssetType`), event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`). No Spring beans. Unit tests for migrator chain.
 - [ ] `[shared-lib]` Create `venueintelligence-model` Maven module depending on `venueintelligence-process`: `Venue`, `VenueStatus`, `VenueAsset`, `VenueMetadata`, `VenueCapacity`, `VenueMetadataSchemaVersion` (`CURRENT_SCHEMA_VERSION = 1`), `VenueMetadataMigrator`, `VenueMetadataTypeHandler`, `VenueMetadataMigrationV0ToV1`. `MasterVenue`, `MasterVenueAlias`, `MasterVenueExternal` POJOs. Unit tests for V0→V1 migration.
 
-#### Database Schema
+### Database Schema
 
 - [ ] `[shared-lib]` Liquibase `system/20260901000000-create-master-venue.xml`: tables `master_venue`, `master_venue_alias`, `master_venue_external` in `public` schema. pg_trgm extension. GIN trigram index on `master_venue_alias.alias`. Full rollback block.
 - [ ] `[shared-lib]` Liquibase `tenant/20260901000001-create-venues.xml`: `venues` table with pgvector + PostGIS extensions, IVFFlat/GIN/GIST/btree indexes, `trg_venues_tsvector` trigger. Full rollback block.
@@ -33,12 +38,12 @@ Tasks are ordered by dependency. Each is sized for 2–3 h including tests and C
 - [ ] `[shared-lib]` Liquibase `intelligence/` changesets in `venueintelligence-process`: `extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`. Included via `tenant/master.xml`. Full rollback blocks.
 - [ ] `[shared-lib]` Seed migration `system/20260901000001-seed-master-venues.xml`: 50 curated venues as `<insert>` changesets, `source = platform_seed`, `metadata._schema_version = 1`. Covers top convention centres and hotel venues in 3 target launch cities.
 
-#### venueintelligence-catalog-service Bootstrap
+### venueintelligence-catalog-service Bootstrap
 
 - [ ] `[venueintelligence-catalog-service]` Scaffold Spring Boot service: Maven parent `boot-parent-pom`, deps (`venueintelligence-model`, `foundation-tenancy`, MyBatis, Spring Security OAuth2 RS, RabbitMQ, MinIO, Micrometer). `SecurityConfig` (RS256, JWKS URI, bare authority strings). `TenantExtractionFilter`. `GlobalExceptionHandler` (RFC 7807). Actuator + Swagger UI. Passes CI.
 - [ ] `[venueintelligence-catalog-service]` `MyBatisSchemaInterceptor` wired from `foundation-tenancy`. `TenantLiquibaseRunner` applying `system/master.xml` then `tenant/master.xml` on startup. Integration test: startup against Testcontainers Postgres verifies all tables created in correct schemas.
 
-#### Master Venue Admin API
+### Master Venue Admin API
 
 - [ ] `[venueintelligence-catalog-service]` `MasterCatalogAdminMapper` (MyBatis, `public.` qualified): `insert`, `findById`, `findAll` (paginated), `update`, `delete`, `findAliasesById`, `insertAlias`, `updateAlias`, `deleteAlias`. Mapper XML + `MasterVenueDtos` records. Unit tests.
 - [ ] `[venueintelligence-catalog-service]` `MasterVenueNormalizer` utility: 6-step normalize function (trim → strip articles → lowercase → strip non-alphanumeric → collapse whitespace → trim). `MasterVenueDeduplicator`: pg_trgm similarity + `ST_Distance` query, returns top-5 candidates with `name_sim`, `geo_distance_m`, `action_recommendation`. Unit tests for normalizer. Integration test for dedup query.
@@ -47,55 +52,34 @@ Tasks are ordered by dependency. Each is sized for 2–3 h including tests and C
 - [ ] `[venueintelligence-catalog-service]` `AdminMasterVenueAliasRestResource` (`/api/v1/admin/master-venues/{id}/aliases`, `PLATFORM_ADMIN`): `GET /`, `POST /`, `GET /{aliasId}`, `PUT /{aliasId}`, `DELETE /{aliasId}`. Integration tests. 404 when parent `master_venue` not found.
 - [ ] `[venueintelligence-catalog-service]` `POST /bulk-import` (`PLATFORM_ADMIN`, status 202): accepts `BulkImportRequest` (S3 key + force_mode), enqueues `admin.master-catalog.import.apply` RabbitMQ event, returns `BulkImportJobResponse`. Integration test verifies event published.
 
-#### Master Venue Public Read
+### Master Venue Public Read
 
 - [ ] `[venueintelligence-catalog-service]` `MasterVenueQueryMapper`: `findById` returning safe projection. `MasterVenueRestResource` (`/api/v1/master-venues`, `MEMBER`): `GET /{id}` → `MasterVenuePublicResponse` (no admin-only fields). 404 if `status = ARCHIVED`. Integration test.
 
-#### Admin UI
+### Admin UI
 
 - [ ] `[admin-ui]` Master venue list page (`/admin/master-venues`): paginated table — name, city, confidence, source, last verified. Search by name. `PLATFORM_ADMIN` guard.
 - [ ] `[admin-ui]` Master venue detail/edit page (`/admin/master-venues/:id`): display all fields including `admin_notes`, `quality_score`. Inline `PUT`/`PATCH`. Delete with confirmation. Alias list with add/remove/edit.
 - [ ] `[admin-ui]` Create master venue form + dedup-check flow: on name/address input call `POST /dedup-check`, display candidate list with similarity scores and action recommendation. Admin confirms Insert or Merge. E2E test.
 
----
+## Out of scope
 
-### E2 — Tenant Venue Profiles
+- Document upload and extraction pipeline (`venueintelligence-catalog-processing-worker`) — deferred.
+- Semantic search (pgvector embeddings) — deferred.
+- Full-text keyword search — deferred.
+- MC_INHERIT merge on extraction completion — deferred.
+- `venueintelligence-master-venue-loader` bulk import processor — deferred.
+- Tenant-facing venue creation UI (covered by the tenant venue profiles idea).
 
-- [ ] `[venueintelligence-catalog-service]` `VenueMapper` (MyBatis): `insert`, `findById`, `findAll` (paginated + filters), `update`, `archive`. `VenueDtos` records. `VenueMetadataTypeHandler` wired in ResultMap. Integration tests against Testcontainers.
-- [ ] `[venueintelligence-catalog-service]` `VenueRestResource` (`/api/v1/venues`, `MEMBER`): `POST /` (201, enforces `max_venues` plan limit → 402), `GET /` (200, `VenueSummaryListResponse`), `GET /{id}` (200), `PATCH /{id}` (200), `DELETE /{id}` (204, soft-archive, `TENANT_OWNER`/`ADMIN` only). Integration tests per endpoint.
-- [ ] `[venueintelligence-catalog-service]` `POST /venues/from-master-catalog/{masterVenueId}` (`MEMBER`, 201): clone master venue fields into new tenant `venues` row with `MC_INHERIT` provenance in `metadata_sources`. Idempotent — re-promote returns existing row. Integration test.
-- [ ] `[tenant-ui]` Venue list page (`/venues`): card grid — name, city, status badge, asset count. Empty state. `MEMBER` access.
-- [ ] `[tenant-ui]` Create venue form (`/venues/new`): name, address, city, capacity, category, description. On name input call master venue suggest (debounced `GET /api/v1/master-venues?q=`). One-click promote from suggestion. Submit → `POST /venues`.
-- [ ] `[tenant-ui]` Venue detail page (`/venues/:id`): render all core fields + metadata panel. Document list (assets). Edit inline via `PATCH`. Archive via `DELETE`. Status badge.
+## Open questions
 
----
+- [ ] Which 3 target launch cities does the 50-venue seed set cover?
+- [ ] Does the bulk-import processor (`venueintelligence-master-venue-loader`) ship in the same increment as the admin API, or as a follow-up?
 
-### E6 — Plan Enforcement (partial)
+## Status
 
-- [ ] `[venueintelligence-catalog-service]` `PlanResolver` (non-reactive, `RestTemplate`, 10-min cache): fetches entitlements from `foundation-billing-service /internal/plans`. `PlanFeatureGuard` checks `max_venues` at `POST /venues`. Returns 402 `ProblemDetail` with `featureCode = max_venues` when limit reached. Integration test with mocked billing response.
-
----
-
-## Acceptance Criteria
-
-- [ ] All tables exist in correct schemas after fresh startup against empty Postgres
-- [ ] 50+ seed venues present in `public.master_venue` on first startup
-- [ ] `PLATFORM_ADMIN` can perform full CRUD on master venues and aliases via API
-- [ ] Dedup check returns candidates with similarity scores and non-binding recommendation
-- [ ] `MEMBER` cannot access admin endpoints (403)
-- [ ] Tenant A cannot see Tenant B venues (schema isolation verified by test)
-- [ ] Tenant venue creation blocked at plan limit (402)
-- [ ] All endpoints return RFC 7807 `ProblemDetail` on error with `correlationId`
-- [ ] CI pipeline green; UAT deployment successful
-
-## Deferred to v0.2
-
-- Document upload and extraction pipeline (`venueintelligence-catalog-processing-worker`)
-- Semantic search (pgvector embeddings)
-- Full-text keyword search
-- MC_INHERIT merge on extraction completion
-- `venueintelligence-master-venue-loader` bulk import processor
+**Status:** Draft
 
 ---
 
-**Docs:** [Milestones index](README.md) · [Epics](../epics/README.md) · [Feature Checklist](../feature-checklist.md)
+**Docs:** [Ideas index](README.md) · [Vision](../vision.md)

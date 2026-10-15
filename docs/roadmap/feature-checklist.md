@@ -3,7 +3,7 @@
 > **Audience:** Product, engineering.
 > **Purpose:** Mid-level prioritised checkbox list of every user-visible feature, cutting across epics and milestones so the next thing to build is visible in under 60 seconds.
 
-> **⚠️ CURRENT STATUS (August 2026):** Group A Platform Foundation is COMPLETE. Master Venue Seeding Infrastructure is the immediate prerequisite before proceeding to Group B Personal Venue Catalog features. The master venue catalog is a **platform-wide service entity** (not tenant-facing) that provides autocomplete suggestions, deduplication assistance, and metadata gap-filling during tenant venue creation. All platform service infrastructure must be in place to support tenant venue profile creation and document processing.
+> **Status:** P0 features map to the committed [v0.1 — Foundation + Catalog Core](milestones/v0.1-foundation-catalog-core.md) milestone. P1–P3 features reference future milestones that have not been formalised as files or index rows yet; their identifiers are plain-text placeholders and should be validated against the [milestones index](milestones/README.md) before implementation.
 
 ---
 
@@ -24,7 +24,7 @@ Priority is version-bound — it is not a free-ranked "1–5" or "high/medium/lo
 
 | Tier | Label                | Meaning                                                                                                          |
 | ---- | -------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| P0   | Highly prioritized   | Cannot ship **v0.1 MVP** without these. Implementation begins day one.                                           |
+| P0   | Highly prioritized   | Cannot ship **v0.1 Foundation + Catalog Core** without these. Implementation begins day one. |
 | P1   | Well prioritized     | Cannot ship **v1.0 commercial launch** without these. Implementation begins after P0 or when blocked on P0 work. |
 | P2   | Mid priority         | Nice-to-have for v1.0. Can be cut to v1.1 if scope pressure demands.                                             |
 | P3   | Post-v1.0 candidates | Committed idea, not committed to v1.0 timeline. Promoted only when v1.0 reaches `In progress`.                   |
@@ -45,32 +45,24 @@ Each line follows this exact format:
 
 ---
 
-## P0 — Highly prioritized (cannot ship v0.1 MVP without)
+## P0 — Highly prioritized (cannot ship v0.1 Foundation + Catalog Core without)
 
-### Group A — Platform Foundation ✅ COMPLETED
+### Group A — Platform Foundation (master catalog)
 
-- [x] Agency owner can sign up and create a tenant account (email + password; tenant isolation bootstrap) · Epic: E5-plan-enforcement · Milestone: v0.1-mvp · Priority: P0
-- [x] Tenant isolation at login: users from one agency cannot see venues or documents from another agency · Epic: E5-plan-enforcement · Milestone: v0.1-mvp · Priority: P0
-- [x] Account settings page shows tenant name, user role (owner), and plan tier · Epic: E5-plan-enforcement · Milestone: v0.1-mvp · Priority: P0
+- [ ] Platform admin can list, create, view, edit, and delete master venue entries through the platform admin UI · Epic: E1-master-venue-catalog · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Master catalog is seeded with a curated set of venues for autocomplete suggestions · Epic: E1-master-venue-catalog · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
 
-### Group A — Master Venue Catalog Infrastructure (PLATFORM SERVICE - NEW PREREQUISITE)
+### Group B — Personal Venue Catalog (data layer)
 
-- [ ] Shared libraries foundation: venueintelligence-process and venueintelligence-model with domain contracts · Epic: E1-master-venue-catalog · Milestone: v0.1-mvp · Priority: P0
-- [ ] Database schema and Liquibase migrations for platform master venue catalog (public schema) · Epic: E1-master-venue-catalog · Milestone: v0.1-mvp · Priority: P0
-- [ ] Master venue data model with JSONB metadata versioning system (platform-wide reference data) · Epic: E1-master-venue-catalog · Milestone: v0.1-mvp · Priority: P0
-- [ ] Platform admin CRUD API endpoints for master catalog management (full unrestricted access - create, read, update, delete all venue data) · Epic: E1-master-venue-catalog · Milestone: v0.1-mvp · Priority: P0
-- [ ] Seeding infrastructure for pre-provisioned venues (platform_seed source for UI autocomplete/suggestions) · Epic: E1-master-venue-catalog · Milestone: v0.1-mvp · Priority: P0
-- [ ] Alias normalization and deduplication system using pg_trgm and PostGIS (prevents duplicate venue creation) · Epic: E1-master-venue-catalog · Milestone: v0.1-mvp · Priority: P0
-- [ ] Master venue consistency verification endpoints for platform data quality (full admin tooling with override capabilities) · Epic: E1-master-venue-catalog · Milestone: v0.1-mvp · Priority: P0
-- [ ] S3 storage structure and policies for master catalog and tenant isolation (platform service layer) · Epic: E1-master-venue-catalog · Milestone: v0.1-mvp · Priority: P0
-
-### Group B — Personal Venue Catalog (Data Layer)
-
-- [ ] Event planner can create a venue with core fields: name, address, city, capacity, venue category, and one-paragraph visible summary · Epic: E2-venue-profiles · Milestone: v0.1-mvp · Priority: P0
-- [ ] Event planner can upload documents (PDF, DOCX, images) to a venue and see them listed on the venue profile page · Epic: E2-venue-profiles · Milestone: v0.1-mvp · Priority: P0
-- [ ] Event planner can view a venue profile page with all core fields rendered + a list of attached documents (basic profile view) · Epic: E2-venue-profiles · Milestone: v0.1-mvp · Priority: P0
-- [ ] Event planner can edit the core fields of a venue they own (override or correct the typed data) · Epic: E2-venue-profiles · Milestone: v0.1-mvp · Priority: P0
-- [ ] Event planner can delete a venue they own and confirm it no longer appears in any list · Epic: E2-venue-profiles · Milestone: v0.1-mvp · Priority: P0
+- [ ] Planner can create a venue with core fields: name, address, city, capacity, venue category, and one-paragraph visible summary through the tenant app UI · Epic: E2-tenant-venue-profiles · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Venue creation suggests matching master venues and supports one-click promotion into the tenant catalog · Epic: E2-tenant-venue-profiles · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Planner can view a venue profile page with all core fields rendered through the tenant app UI · Epic: E2-tenant-venue-profiles · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Planner can edit the core fields of a venue they own through the tenant app UI · Epic: E2-tenant-venue-profiles · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Planner can delete a venue they own and confirm it no longer appears in any list through the tenant app UI · Epic: E2-tenant-venue-profiles · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Planner can upload documents (PDF, DOCX, images) to a venue and see them listed on the venue profile through the tenant app UI · Epic: E3-document-intelligence · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] PDFs uploaded to a venue run through the extraction pipeline and extracted text is stored on the venue record · Epic: E3-document-intelligence · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] DOCX and plain-text documents run through extraction alongside PDFs · Epic: E3-document-intelligence · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
+- [ ] Field-specific extraction: capacity, full address, venue category, contact name, and contact email are populated from uploaded documents · Epic: E3-document-intelligence · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
 
 ---
 
@@ -85,9 +77,6 @@ Each line follows this exact format:
 
 ### Group B — Personal Venue Catalog (Data Layer)
 
-- [ ] PDFs uploaded to a venue run through the extraction pipeline and extracted text is stored on the venue record · Epic: E3-document-intelligence · Milestone: v0.2-intelligence-layer · Priority: P1
-- [ ] DOCX and plain-text documents run through extraction alongside PDFs · Epic: E3-document-intelligence · Milestone: v0.2-intelligence-layer · Priority: P1
-- [ ] Field-specific extraction: capacity, full address, venue category, contact name, and contact email are populated from uploaded documents · Epic: E3-document-intelligence · Milestone: v0.2-intelligence-layer · Priority: P1
 - [ ] Extraction confidence score per field is visible alongside each extracted field value · Epic: E3-document-intelligence · Milestone: v0.2-intelligence-layer · Priority: P1
 - [ ] Venue images and floor plan files are stored as assets; venue profile page renders a photo gallery thumbnail strip · Epic: E3-document-intelligence · Milestone: v0.2-intelligence-layer · Priority: P1
 - [ ] Keyword search across venue name, core fields, and extracted document text returns matching venues · Epic: E4-search · Milestone: v0.2-intelligence-layer · Priority: P1

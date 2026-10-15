@@ -112,7 +112,7 @@ Master venue seeding infrastructure is complete when:
 
 ## Impact on Timeline
 
-This infrastructure-first approach adds approximately **2-3 weeks** to the v0.1 MVP timeline but provides:
+This infrastructure-first approach adds approximately **2-3 weeks** to the MVP timeline but provides:
 
 - **Transparent tenant UX improvements**: Autocomplete, deduplication, metadata enrichment without complexity
 - **Stable platform service architecture**: Backend foundation supports tenant features seamlessly

@@ -77,24 +77,18 @@ Before creating a new milestone file, verify all 8 sections against this checkli
 
 ## Milestones index
 
-### v0.x — Pre-product-market-fit (building the layers)
+### v0.1 — Foundation + Catalog Core
 
-| Version | File                                                         | Title                    | Goal sentence                                                                                                         | Included epic groups                   | Included epics       | Status      |
-| ------- | ------------------------------------------------------------ | ------------------------ | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | -------------------- | ----------- |
-| v0.1    | [v0.1-mvp.md](v0.1-mvp.md)                                   | MVP foundations          | An event planner can create a venue, upload documents, and see extracted metadata in a basic profile view.            | A (Foundation), B1 (PVC core profiles) | E1, E2, E6 (partial) | In progress |
-| v0.2    | [v0.2-intelligence-layer.md](v0.2-intelligence-layer.md)     | Intelligence layer       | Uploaded documents run through the full ETL pipeline and extracted fields power semantic + structured search.         | A (Foundation), B2 (PVC intelligence)  | E3, E4, E6 (full)    | Planned     |
-| v0.3    | [v0.3-data-quality.md](v0.3-data-quality.md)                 | Data quality             | A planner can verify, override, and see provenance for every extracted field; conflicts surface for human resolution. | B3 (PVC quality)                       | E7                   | Planned     |
-| v0.4    | [v0.4-export-collaboration.md](v0.4-export-collaboration.md) | Export and collaboration | A planner can share a venue shortlist with teammates and export a static proposal document for a client.              | B4 (PVC team), C1 (DSR basic sharing)  | E5, E8               | Planned     |
+| Version | File                         | Title                  | Goal sentence                                                                                          | Included epic groups            | Included epics | Status  |
+| ------- | ---------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------- | -------------- | ------- |
+| v0.1    | [v0.1-foundation-catalog-core.md](v0.1-foundation-catalog-core.md) | Foundation + Catalog Core | A planner can create a venue, upload documents, and see a basic profile with extracted fields. | A (Foundation), B (PVC data layer) | Master catalog infrastructure, tenant venue CRUD, document upload, basic extraction | Planned |
 
-### v1.0 — Commercially viable (complete loop)
+**What's included:**
 
-| Version | File                                 | Title           | Goal sentence                                                                                                                                      | Included epic groups           | Included epics     | Status  |
-| ------- | ------------------------------------ | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ | ------------------ | ------- |
-| v1.0    | [v1.0-platform.md](v1.0-platform.md) | Platform launch | An agency can build a venue library, assemble a pitch board, send it to a client, and receive an approved snapshot with a timestamped audit trail. | A + B full + C2 (DSR approval) | E1–E8 all included | Planned |
-
-### Post-v1.0 — Scaling and deeper capabilities
-
-> No post-v1.0 milestones are committed yet. The four agency knowledge-base ideas (SOP library, event retrospectives, template library, vendor registry) are tracked in [ideas](../ideas/README.md) and will be promoted to a milestone when v1.0 usage validates the need.
+- Master catalog infrastructure (shared libraries, DB schema, admin API, seed data)
+- Tenant venue CRUD (create, view, edit, delete; promote from master catalog)
+- Document upload (PDF, DOCX, images attached to a venue)
+- Basic extraction (text + a small set of core fields surfaced on the venue profile)
 
 ---
 
@@ -108,7 +102,7 @@ Follow this procedure in order. Do not create the file until step 4 is complete.
 
 2. **Assign version number and confirm layer position.**
    - Which stage is it in? (v0.x pre-PMF / v1.0 launch / v1.x post-launch / v2.0 major shift.)
-   - Use the **next available minor version** within the current stage. Do not skip numbers. If the last v0.x is v0.4, the next is v0.5.
+   - Use the **next available minor version** within the current stage. Do not skip numbers. If the last v0.x is v0.1, the next is v0.2.
    - Confirm the progression: you cannot create a C-group (DSR) milestone before all B-group prerequisites are at least in a previous milestone.
 
 3. **Map included epics, update the index, then create the file.**
@@ -143,10 +137,10 @@ Milestone-level ideas that have not been formalised yet. Capture them so they ar
 
 | Candidate milestone        | Proposed version | Why it matters                                                                                                                                                                        | Blocked by                                                                                             |
 | -------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Database decomposition     | v1.2+            | Split shared PostgreSQL into catalog_db and pitch_db when read/write patterns diverge or operational pressure demands it. See [D14](../decisions/D14-shared-database-per-product.md). | v1.0 `Completed`; operational signal (query contention or schema coupling cost) must justify the split |
-| Advanced search & filters  | v1.1             | Saved searches, filter presets, alerting on new venues matching a saved query.                                                                                                        | v0.2 at least `In progress`                                                                            |
-| Multi-tenant admin tooling | v1.2             | Platform admin dashboards, per-tenant usage metrics, support tooling for "find this venue across all tenants" queries.                                                                | v0.1 `Completed`, billing integration epic at least `Not started`                                      |
-| Docling full rollout       | v1.0 or v1.1     | High-fidelity table + layout PDF parsing replacing Tika for floor plans and spec sheets. Decision D2 anchors this at Phase 2.                                                         | v0.2 `Completed` with Tika baseline accuracy measured                                                  |
+| Database decomposition     | Post-v1.0        | Split shared PostgreSQL into catalog_db and pitch_db when read/write patterns diverge or operational pressure demands it. See [D14](../decisions/D14-shared-database-per-product.md). | v1.0 `Completed`; operational signal (query contention or schema coupling cost) must justify the split |
+| Advanced search & filters  | v0.2+            | Saved searches, filter presets, alerting on new venues matching a saved query.                                                                                                        | v0.1 `Completed`                                                                                       |
+| Multi-tenant admin tooling | Post-v1.0        | Platform admin dashboards, per-tenant usage metrics, support tooling for "find this venue across all tenants" queries.                                                                | v1.0 `Completed`, billing integration epic at least `Not started`                                      |
+| Docling full rollout       | v0.2+            | High-fidelity table + layout PDF parsing replacing Tika for floor plans and spec sheets. Decision D2 anchors this at Phase 2.                                                         | v0.1 `Completed` with Tika baseline accuracy measured                                                  |
 
 Do not let this table grow beyond 8 rows. Review it when any milestone transitions to `Completed`: promote one or two candidates to real next-milestone entries, or delete them with a one-line reason recorded in [CHANGELOG.md](../../../CHANGELOG.md).
 
