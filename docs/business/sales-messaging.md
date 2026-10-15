@@ -9,12 +9,12 @@
 
 Add copy ideas as `Candidate`. Discuss, test, and promote to `Approved` or move to `Retired` / `Superseded` with a one-line note.
 
-| Status      | Meaning                                                                                    |
-| ----------- | ------------------------------------------------------------------------------------------ |
-| `Candidate` | Under consideration — not yet approved for external use                                    |
-| `Approved`  | Cleared for external-facing materials (landing page, pitch deck, outreach)                 |
-| `Retired`   | Dropped with no direct replacement                                                         |
-| `Superseded`| Replaced by a newer entry — must link to the replacement; entry stays in file permanently  |
+| Status       | Meaning                                                                                   |
+| ------------ | ----------------------------------------------------------------------------------------- |
+| `Candidate`  | Under consideration — not yet approved for external use                                   |
+| `Approved`   | Cleared for external-facing materials (landing page, pitch deck, outreach)                |
+| `Retired`    | Dropped with no direct replacement                                                        |
+| `Superseded` | Replaced by a newer entry — must link to the replacement; entry stays in file permanently |
 
 Only `Approved` copy goes on a landing page, pitch deck, or external communication. Never delete `Retired` or `Superseded` entries.
 
@@ -76,13 +76,13 @@ Only `Approved` copy goes on a landing page, pitch deck, or external communicati
 
 One opener per segment. Used in cold outreach, LinkedIn messages, and demo intros.
 
-| Segment | Opener | Status | Notes |
-| ------- | ------ | ------ | ----- |
-| Solo wedding planner      | | | |
-| Small event agency (2–8)  | | | |
-| Mid event agency (10–50)  | | | |
-| In-house corporate events | | | |
-| DMC                       | | | |
+| Segment                   | Opener | Status | Notes |
+| ------------------------- | ------ | ------ | ----- |
+| Solo wedding planner      |        |        |       |
+| Small event agency (2–8)  |        |        |       |
+| Mid event agency (10–50)  |        |        |       |
+| In-house corporate events |        |        |       |
+| DMC                       |        |        |       |
 
 ---
 
@@ -90,13 +90,13 @@ One opener per segment. Used in cold outreach, LinkedIn messages, and demo intro
 
 Short lines for the "replaces your current tools" section. One line per tool.
 
-| Tool | Copy | Status | Notes |
-| ---- | ---- | ------ | ----- |
-| Google Drive / Dropbox | | | |
-| Notion / Airtable      | | | |
-| Spreadsheets           | | | |
-| Email + WhatsApp       | | | |
-| Canva / Google Slides  | | | |
+| Tool                   | Copy | Status | Notes |
+| ---------------------- | ---- | ------ | ----- |
+| Google Drive / Dropbox |      |        |       |
+| Notion / Airtable      |      |        |       |
+| Spreadsheets           |      |        |       |
+| Email + WhatsApp       |      |        |       |
+| Canva / Google Slides  |      |        |       |
 
 ---
 

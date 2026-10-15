@@ -48,7 +48,7 @@ You cannot ship the Digital Sales Room (output layer) before the Personal Venue 
 | `v0.1 – v0.5` | Pre-product-market-fit increments. Each adds one major capability block. Not yet commercially viable.                       |
 | `v1.0`        | First commercially viable release. All three layers (Foundation / PVC / DSR) work end-to-end. Pitch boards can be approved. |
 | `v1.1, v1.2…` | Post-launch enhancements. Integrations, deeper collaboration, performance.                                                  |
-| `v2.0`        | Major architectural shift (e.g., platform decomposition, new product domains).                                                       |
+| `v2.0`        | Major architectural shift (e.g., platform decomposition, new product domains).                                              |
 
 ### File naming
 
@@ -79,8 +79,8 @@ Before creating a new milestone file, verify all 8 sections against this checkli
 
 ### v0.1 — Foundation + Catalog Core
 
-| Version | File                         | Title                  | Goal sentence                                                                                          | Included epic groups            | Included epics | Status  |
-| ------- | ---------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------- | -------------- | ------- |
+| Version | File                                                               | Title                     | Goal sentence                                                                                  | Included epic groups               | Included epics                                                                      | Status  |
+| ------- | ------------------------------------------------------------------ | ------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------- | ------- |
 | v0.1    | [v0.1-foundation-catalog-core.md](v0.1-foundation-catalog-core.md) | Foundation + Catalog Core | A planner can create a venue, upload documents, and see a basic profile with extracted fields. | A (Foundation), B (PVC data layer) | Master catalog infrastructure, tenant venue CRUD, document upload, basic extraction | Planned |
 
 **What's included:**

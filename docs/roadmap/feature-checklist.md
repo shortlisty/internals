@@ -24,7 +24,7 @@ Priority is version-bound — it is not a free-ranked "1–5" or "high/medium/lo
 
 | Tier | Label                | Meaning                                                                                                          |
 | ---- | -------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| P0   | Highly prioritized   | Cannot ship **v0.1 Foundation + Catalog Core** without these. Implementation begins day one. |
+| P0   | Highly prioritized   | Cannot ship **v0.1 Foundation + Catalog Core** without these. Implementation begins day one.                     |
 | P1   | Well prioritized     | Cannot ship **v1.0 commercial launch** without these. Implementation begins after P0 or when blocked on P0 work. |
 | P2   | Mid priority         | Nice-to-have for v1.0. Can be cut to v1.1 if scope pressure demands.                                             |
 | P3   | Post-v1.0 candidates | Committed idea, not committed to v1.0 timeline. Promoted only when v1.0 reaches `In progress`.                   |

@@ -40,7 +40,7 @@ Epics are grouped by the product layer they belong to, matching the two-layer ar
 | **A. Platform Foundation**                 | Infrastructure that must exist before any user-facing capability runs. Tenancy, shared libraries, schema contracts, master catalog. No end-user value on its own — everything depends on it. |
 | **B. Personal Venue Catalog (Data Layer)** | The agency's private library: venue profiles, document ingestion, extraction, metadata, search, data quality. Layer 1 per the vision statement.                                              |
 | **C. Digital Sales Room (Output Layer)**   | Client-facing pitch boards, the approval loop, snapshots. Layer 2 per the vision statement. The buying trigger — agencies pay because this layer exists.                                     |
-| **D. Post-v1.0 Enhancements**              | Scaling features, deeper collaboration, integrations. Not part of the v1.0 launch scope.                                                                    |
+| **D. Post-v1.0 Enhancements**              | Scaling features, deeper collaboration, integrations. Not part of the v1.0 launch scope.                                                                                                     |
 
 ### Numbering and ordering
 
@@ -80,32 +80,32 @@ Before creating a new epic file, verify all 9 sections against this checklist.
 
 Infrastructure prerequisites. No direct end-user value. All later epics depend on these.
 
-| ID | File | Title | Target milestone(s) | Dependencies | Status |
-| --- | --- | --- | --- | --- | --- |
-| E1 | [E1-master-venue-catalog.md](E1-master-venue-catalog.md) | Master Venue Catalog | [v0.1-foundation-catalog-core](../milestones/v0.1-foundation-catalog-core.md) | — | Not started |
+| ID  | File                                                     | Title                | Target milestone(s)                                                           | Dependencies | Status      |
+| --- | -------------------------------------------------------- | -------------------- | ----------------------------------------------------------------------------- | ------------ | ----------- |
+| E1  | [E1-master-venue-catalog.md](E1-master-venue-catalog.md) | Master Venue Catalog | [v0.1-foundation-catalog-core](../milestones/v0.1-foundation-catalog-core.md) | —            | Not started |
 
 ### Group B — Personal Venue Catalog (Data Layer)
 
 The agency's private knowledge base. Layer 1 of the product architecture.
 
-| ID | File | Title | Target milestone(s) | Dependencies | Status |
-| --- | --- | --- | --- | --- | --- |
-| E2 | [E2-tenant-venue-profiles.md](E2-tenant-venue-profiles.md) | Tenant Venue Profiles | [v0.1-foundation-catalog-core](../milestones/v0.1-foundation-catalog-core.md) | E1 | Not started |
-| E3 | [E3-document-intelligence.md](E3-document-intelligence.md) | Document Intelligence (Basic) | [v0.1-foundation-catalog-core](../milestones/v0.1-foundation-catalog-core.md) | E2 | Not started |
+| ID  | File                                                       | Title                         | Target milestone(s)                                                           | Dependencies | Status      |
+| --- | ---------------------------------------------------------- | ----------------------------- | ----------------------------------------------------------------------------- | ------------ | ----------- |
+| E2  | [E2-tenant-venue-profiles.md](E2-tenant-venue-profiles.md) | Tenant Venue Profiles         | [v0.1-foundation-catalog-core](../milestones/v0.1-foundation-catalog-core.md) | E1           | Not started |
+| E3  | [E3-document-intelligence.md](E3-document-intelligence.md) | Document Intelligence (Basic) | [v0.1-foundation-catalog-core](../milestones/v0.1-foundation-catalog-core.md) | E2           | Not started |
 
 ### Group C — Digital Sales Room (Output Layer)
 
 Client-facing pitch boards and the approval loop. Layer 2 of the product architecture — the buying trigger.
 
-| ID | File | Title | Target milestone(s) | Dependencies | Status |
-| --- | --- | --- | --- | --- | --- |
+| ID  | File | Title | Target milestone(s) | Dependencies | Status |
+| --- | ---- | ----- | ------------------- | ------------ | ------ |
 
 ### Group D — Post-v1.0 Enhancements
 
 Beyond the v1.0 platform launch. Scaling and deeper capabilities.
 
-| ID | File | Title | Target milestone(s) | Dependencies | Status |
-| --- | --- | --- | --- | --- | --- |
+| ID  | File | Title | Target milestone(s) | Dependencies | Status |
+| --- | ---- | ----- | ------------------- | ------------ | ------ |
 
 > The four agency knowledge-base capabilities (SOP library, event retrospectives, template library, vendor registry) previously tracked as E11–E14 have been demoted to [ideas](../ideas/README.md) pending v1.0 usage signal. They are not currently committed epics.
 
@@ -151,18 +151,18 @@ Follow this procedure in order. Do not create the file until step 4 is complete.
 
 Ideas that have not been formalised into epics yet. Capture them here so they are not lost. Promote a candidate to a real epic by: (1) moving its row out of this table, (2) creating the `E{N}` file following the procedure above, (3) updating the epics index.
 
-| Candidate name                                    | Proposed group | Why it matters                                                                                                                                                                                                                                                          | Blocked by                                           |
-| ------------------------------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| Provenance & confidence badge pitch renderer      | C (DSR)        | Deal Room client-facing trust model requires provenance badges and 3-tier confidence dots on every venue card, visible to both planner and client per D10.                                                                                                              | E8 at Done, D10 ADR accepted                         |
-| Colored label system + legend builder             | C (DSR)        | Planner-configurable color legend (Recommended / Good fit / Caveats / Backup) + per-venue label selection inside Deal Room; legend is client-visible and editable per pitch.                                                                                            | E8 In progress, D10 ADR accepted                     |
-| Dynamic context-aware select boxes in Deal Room   | C (DSR)        | Planner-configures contextual questions per pitch ("Which date?" "Preferred format?" "AV required?") whose options are drawn only from the proposal's actual venues and event context. Client responses are structured events, not free text.                           | E8 In progress, D10 ADR accepted                     |
-| Deal Room Timeline / immutable history viewer     | C (DSR)        | Plain-English chronological activity feed (both sides see the same log) per D10 append-only event log. Plain sentences only — no JSON dumps, no database ids.                                                                                                           | E8 at Done, D10 ADR accepted                         |
+| Candidate name                                    | Proposed group | Why it matters                                                                                                                                                                                                                                                          | Blocked by                                          |
+| ------------------------------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Provenance & confidence badge pitch renderer      | C (DSR)        | Deal Room client-facing trust model requires provenance badges and 3-tier confidence dots on every venue card, visible to both planner and client per D10.                                                                                                              | E8 at Done, D10 ADR accepted                        |
+| Colored label system + legend builder             | C (DSR)        | Planner-configurable color legend (Recommended / Good fit / Caveats / Backup) + per-venue label selection inside Deal Room; legend is client-visible and editable per pitch.                                                                                            | E8 In progress, D10 ADR accepted                    |
+| Dynamic context-aware select boxes in Deal Room   | C (DSR)        | Planner-configures contextual questions per pitch ("Which date?" "Preferred format?" "AV required?") whose options are drawn only from the proposal's actual venues and event context. Client responses are structured events, not free text.                           | E8 In progress, D10 ADR accepted                    |
+| Deal Room Timeline / immutable history viewer     | C (DSR)        | Plain-English chronological activity feed (both sides see the same log) per D10 append-only event log. Plain sentences only — no JSON dumps, no database ids.                                                                                                           | E8 at Done, D10 ADR accepted                        |
 | Mood-board / vision-card context for chat-search  | B (PVC)        | Planner or client drops 20–30 mood-board reference images (style, lighting, vibe) into a pitch context card; chat-search and venue recommendations use visual-similarity + keyword signals to surface venues matching the vibe. Inspired by Planning Pod Vision Boards. | D9 extraction at In progress, image-embedding model |
-| Aisle Planner sync (proposal + timeline + assets) | D (Post-v1.0)  | Tier-2 integration: pull brief questionnaire answers + style tags; push approved venue as proposal seed, timeline anchor milestone, and design-board asset library sync.                                                                                                | E9 promoted, Tier-1 integrations at Done             |
-| Planning Pod sync (BEO seed + floor-plan bi-sync) | D (Post-v1.0)  | Tier-3 integration: pull questionnaires/briefs/budgets; push approved venue as BEO seed, budget line items; bi-directional PDF floor-plan asset sync between Shortlisty catalog and Planning Pod layout tool.                                                           | E9 promoted, Tier-2 at In progress                   |
-| Tier-1 storage integrations                       | D (Post-v1.0)  | Google Drive + Dropbox OAuth connect → one-click folder import directly into extraction pipeline. Replaces concierge-model manual download-upload.                                                                                                                      | E9 integrations epic promoted to real E{N}           |
-| Metadata schema versioning UI                     | B (PVC)        | Users viewing and managing `_schema_version` state for their own venues; forced-convergence admin actions.                                                                                                                                                              | E3, E7 written first                                 |
-| CAD file visual processing                        | B (PVC)        | DWG/DXF → PNG conversion → GPT-4o vision for floor plan layout understanding. Currently "metadata only" per architecture §5.                                                                                                                                            | E3 at Done, Docling D2 Phase 2 decision              |
+| Aisle Planner sync (proposal + timeline + assets) | D (Post-v1.0)  | Tier-2 integration: pull brief questionnaire answers + style tags; push approved venue as proposal seed, timeline anchor milestone, and design-board asset library sync.                                                                                                | E9 promoted, Tier-1 integrations at Done            |
+| Planning Pod sync (BEO seed + floor-plan bi-sync) | D (Post-v1.0)  | Tier-3 integration: pull questionnaires/briefs/budgets; push approved venue as BEO seed, budget line items; bi-directional PDF floor-plan asset sync between Shortlisty catalog and Planning Pod layout tool.                                                           | E9 promoted, Tier-2 at In progress                  |
+| Tier-1 storage integrations                       | D (Post-v1.0)  | Google Drive + Dropbox OAuth connect → one-click folder import directly into extraction pipeline. Replaces concierge-model manual download-upload.                                                                                                                      | E9 integrations epic promoted to real E{N}          |
+| Metadata schema versioning UI                     | B (PVC)        | Users viewing and managing `_schema_version` state for their own venues; forced-convergence admin actions.                                                                                                                                                              | E3, E7 written first                                |
+| CAD file visual processing                        | B (PVC)        | DWG/DXF → PNG conversion → GPT-4o vision for floor plan layout understanding. Currently "metadata only" per architecture §5.                                                                                                                                            | E3 at Done, Docling D2 Phase 2 decision             |
 
 Do not let this table grow beyond 10 rows. Review it monthly: promote candidates to real epics, or delete them with a one-line reason recorded in [CHANGELOG.md](../../../CHANGELOG.md). Removed in this round: `Tier-2 CRM/workflow integrations` split into Aisle Planner sync as its own candidate; `Tier-3 project tool integrations` split into Planning Pod sync as its own candidate; `Multi-stakeholder voting` deferred — revisit only after DSR multi-approver pattern stabilises.
 
