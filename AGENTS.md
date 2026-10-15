@@ -51,6 +51,9 @@ system-design-documentation/
     ├── roadmap/
     │   ├── vision.md                  ← Product direction and strategic bets (not a changelog)
     │   ├── feature-checklist.md       ← Mid-level prioritized product feature checklist (P0–P3)
+    │   ├── ideas/                     ← Speculative product/architecture pitches before they become epics/milestones/decisions
+    │   │   ├── README.md
+    │   │   └── {slug}.md
     │   ├── epics/
     │   │   ├── README.md
     │   │   └── E{N}-{slug}.md
@@ -249,6 +252,32 @@ The feature checklist is the **mid-level planning document** that sits between e
 - **Feature descriptions write in user-visible terms, not implementation terms.** "Event planner can upload a PDF floor plan" (good), not "Implement Tika PDF parser with spatial OCR" (implementation — that belongs in README.md).
 - **No dates, no assignees, no percentages.** Checkboxes only. No `40%` markers. Tick `- [x]` only when the feature is fully demoable end-to-end to a real user in its target milestone environment. An engineer's "works on my machine" does not qualify.
 - **No additional sections beyond:** 1) Title + audience, 2) What this document is, 3) Priority tier definitions, 4) How to read each feature line (legend for the metadata format), 5) P0 block, 6) P1 block, 7) P2 block, 8) P3 block, 9) Navigation footer. No other sections.
+
+### 4.12 Ideas (`docs/roadmap/ideas/`)
+
+The ideas folder holds speculative product or architecture pitches that are substantial enough to outgrow the backlog-candidates table but not yet formalised as an epic, milestone, or decision.
+
+**Purpose:** capture a worked-through idea (summary, why it matters, where it could land, open questions) so it is not lost, without committing to the heavier epic/milestone anatomy. An idea is a proposal, not a commitment.
+
+**File naming:** lowercase, hyphen-separated (`sop-library.md`). No numeric prefix — ideas are not numbered. Use a descriptive slug.
+
+**Anatomy (required sections, in order):**
+
+1. Title + audience blockquote (`Product, engineering`) with a `**Status:**` line
+2. Summary (2–3 sentences)
+3. Why it matters (user pain or opportunity)
+4. Where it could land — likely epic / milestone / related decision, each as a bullet or `TBD`
+5. In scope (what the idea covers)
+6. Out of scope (what it explicitly does not cover)
+7. Open questions (checkboxes, resolved `- [x]` inline)
+8. Status — one of: `Draft` | `Promoted to E{N}` | `Promoted to v{X}.{Y}` | `Promoted to D{N}` | `Retired`
+9. Navigation footer
+
+**Status transitions are forward-only.** `Draft` → `Promoted` or `Retired`. A promoted idea file stays in place with a link to the epic/milestone/decision it became; it is not deleted. A retired idea keeps a one-line note explaining why.
+
+**Index rule:** every `{slug}.md` in `ideas/` must have a row in `ideas/README.md`. The README index columns are: `File | Title | Likely landing | Status | Notes`.
+
+**Lifecycle:** backlog-candidates table (one-liner, ≤10 rows) → `ideas/{slug}.md` (worked pitch) → promote to epic / milestone / decision, or retire.
 
 ---
 

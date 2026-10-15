@@ -10,19 +10,21 @@
 
 ### Added
 
-- `docs/roadmap/epics/E11-sop-library.md` — New epic: SOP library (Group D, post-v1.0). Agency can create, categorise, and search standard operating procedures; attach them as live checklists to Deal Rooms.
-- `docs/roadmap/epics/E12-event-retrospectives.md` — New epic: Event retrospectives (Group D, post-v1.0). Structured post-event debriefs linked to venues and Deal Rooms; enriches venue profiles with real operational experience.
-- `docs/roadmap/epics/E13-template-library.md` — New epic: Template library (Group D, post-v1.0). Reusable Brief, Deal Room, and Communication scaffolds; copy-on-apply so originals stay intact; built-in starter templates for every new tenant.
-- `docs/roadmap/epics/E14-vendor-registry.md` — New epic: Vendor registry (Group D, post-v1.0). Preferred supplier list with service categories, ratings, status, and performance notes linked to retrospectives and venue profiles.
-- `docs/roadmap/milestones/v1.1-agency-knowledge-base.md` — New milestone: Agency knowledge base (Planned). Delivers E11–E14 as a single post-v1.0 increment; includes 19 feature checkboxes and 6 acceptance criteria.
+- `docs/roadmap/ideas/sop-library.md` — New idea (demoted from E11 epic): SOP library. Agency can create, categorise, and search standard operating procedures; attach them as live checklists to Deal Rooms. Tracked as an idea until v1.0 usage validates the need.
+- `docs/roadmap/ideas/event-retrospectives.md` — New idea (demoted from E12 epic): Event retrospectives. Structured post-event debriefs linked to venues and Deal Rooms; enriches venue profiles with real operational experience.
+- `docs/roadmap/ideas/template-library.md` — New idea (demoted from E13 epic): Template library. Reusable Brief, Deal Room, and Communication scaffolds; copy-on-apply so originals stay intact; built-in starter templates for every new tenant.
+- `docs/roadmap/ideas/vendor-registry.md` — New idea (demoted from E14 epic): Vendor registry. Preferred supplier list with service categories, ratings, status, and performance notes linked to retrospectives and venue profiles.
+- `docs/roadmap/milestones/v1.1-agency-knowledge-base.md` — New milestone: Agency knowledge base (Planned). Scope is draft, derived from the four ideas above; to be finalised when the ideas are promoted to epics. Includes 19 draft feature checkboxes and 6 acceptance criteria.
 - `docs/roadmap/decisions/D12-knowledge-base-scope-expansion.md` — New ADR: formalises the decision to extend Shortlisty into operational agency knowledge (SOPs, retrospectives, templates, vendor registry) and defers that scope to post-v1.0 (v1.1). Documents three options considered and rationale for deferral.
 
 ### Changed
 
-- `docs/roadmap/epics/README.md` — Group D extended with four new rows (E11–E14) targeting milestone v1.1.
-- `docs/roadmap/milestones/README.md` — Post-v1.0 section populated with first committed milestone: v1.1 agency knowledge base row (was previously empty with a placeholder note).
+- `docs/roadmap/epics/README.md` — Group D E11–E14 rows removed (demoted to ideas). Added a note pointing to the ideas folder.
+- `docs/roadmap/milestones/README.md` — Post-v1.0 section populated with first committed milestone: v1.1 agency knowledge base row. "Included epics" column updated to reference the four ideas.
 - `docs/roadmap/decisions/README.md` — D12 row added; table restructured to include `ID` and `Domain` columns and `Superseded by` column for all rows; entries ordered newest-first.
-- `docs/roadmap/feature-checklist.md` — P3 block expanded with a new "Group D — Agency knowledge base (E11–E14)" section: 11 checkbox lines covering SOP creation and Deal Room attachment, retrospective capture and venue enrichment, template application, and vendor registry management.
+- `docs/roadmap/feature-checklist.md` — P3 "Group D — Agency knowledge base" section (11 checkbox lines) removed: those features are now ideas, not committed epics. Replaced with a note pointing to the ideas folder and the v1.1 draft checklist.
+- `docs/roadmap/decisions/D12-knowledge-base-scope-expansion.md` — Updated to reference the four ideas (not epics E11–E14). Consequences reworded to reflect idea status. Navigation footer links to idea files.
+- `docs/roadmap/milestones/v1.1-agency-knowledge-base.md` — "Epics included" renamed to "Ideas feeding this milestone". Feature checklist marked as draft with `Idea:` links instead of `Epic:` links.
 
 - `docs/roadmap/decisions/D10-progressive-enrichment.md` — New ADR formalising the progressive-enrichment UX principle: instant beautiful profile preview (<5s from upload) using first-pass extracted data, followed by background deep extraction + master catalog enrichment surfaced as soft non-blocking suggestions, with in-context micro-prompts replacing any "review all fields" screen. Defines provenance UI contract and pipeline SLAs.
 - `docs/roadmap/decisions/D11-deal-room-trust-model.md` — New ADR defining the Deal Room as a shared trust space rather than a pretty link. Six architectural pillars: append-only event log per room, bilateral bounded control (planner vs. client permissions), provenance-tagged pitch metadata visible to both sides, transparent 3-tier confidence badges, structured preference capture via colored labels + dynamic context selects, and a plain-English History Timeline view. Deferred: e-sign, PDF audit export, multi-approver weighted voting.
@@ -38,6 +40,8 @@
 
 ### Restructured
 
+- `docs/roadmap/ideas/` — New folder for speculative pitches that outgrow the backlog-candidates table but are not yet formalised as epics, milestones, or decisions. AGENTS.md §2 structure tree and new §4.12 define the anatomy (Summary, Why it matters, Where it could land, In scope, Out of scope, Open questions, Status) and lifecycle (Draft → Promoted / Retired). Created with an index README and four initial idea files.
+- `docs/roadmap/epics/E11-sop-library.md`, `E12-event-retrospectives.md`, `E13-template-library.md`, `E14-vendor-registry.md` → demoted to `docs/roadmap/ideas/{slug}.md`. The four agency knowledge-base capabilities are no longer committed epics; they are tracked as ideas pending v1.0 usage signal. Removed from epics index, feature-checklist P3 block, and D12 / v1.1 references updated. The v1.1 milestone file keeps a draft feature checklist derived from the ideas.
 - `docs/business/personal-venue-catalog/sales/` → `docs/business/personal-venue-catalog/superseded-sales-materials/`. Folder renamed to mark the four sales docs (pitch, battlecards, objections, messaging) as superseded reference material kept for history, not the active sales position. AGENTS.md §2 structure tree, §4.7 heading path, and README.md index updated to the new path. The four files keep their `[!NOTE]` callouts pointing at the DSR direction; dated CHANGELOG entries that reference the old `docs/business/sales/` path are left as-is because they accurately describe the state at the time.
 - `AGENTS.md` §4.7 — messaging.md status field extended from three values (`Candidate`, `Approved`, `Retired`) to four: added `Superseded`. `Retired` now means "dropped with no direct replacement"; `Superseded` means "replaced by a newer entry" and must link to that replacement. Mirrors the existing `Superseded` status for decision docs (§4.6).
 

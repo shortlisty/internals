@@ -36,7 +36,7 @@ Extend the v1.0 scope to include SOPs, retrospectives, templates, and the vendor
 
 Ship v1.0 with venue catalog and Deal Room. Add the knowledge-base layer in v1.1 after v1.0 reaches `Completed`.
 
-**Pros:** Maintains focus and launch speed for v1.0. Knowledge-base features are informed by real agency usage patterns from v1.0 (which SOPs matter, which event types generate retrospectives, which vendor categories are most common). Lower launch risk. Each knowledge-base epic (E11–E14) is independently deliverable within a single milestone (v1.1).
+**Pros:** Maintains focus and launch speed for v1.0. Knowledge-base features are informed by real agency usage patterns from v1.0 (which SOPs matter, which event types generate retrospectives, which vendor categories are most common). Lower launch risk. Each knowledge-base idea is independently deliverable within a single milestone (v1.1).
 
 **Cons:** Agencies with an immediate need for SOP or template management must wait or use a secondary tool in the interim. Some early-adopter agencies may not renew if they expected a broader platform sooner.
 
@@ -54,7 +54,7 @@ Spin up a distinct product ("Shortlisty Ops" or similar) rather than extending t
 
 **Option B.** Build the agency knowledge base as milestone v1.1, shipping after v1.0 reaches `Completed`.
 
-The four capability clusters are formalised as epics E11–E14 in the Group D (Post-v1.0 Enhancements) layer of the epics index.
+The four capability clusters are tracked as ideas in the [ideas folder](../ideas/README.md) (SOP library, event retrospectives, template library, vendor registry) pending v1.0 usage signal. They are not currently formalised as epics.
 
 ---
 
@@ -64,18 +64,18 @@ The core v1.0 value proposition is the brief-to-approval loop. That loop must be
 
 The combined knowledge-base layer also strengthens Shortlisty's defensibility: once an agency stores its SOPs, retrospectives, templates, and vendor list inside the platform, switching cost rises substantially. This is a deliberate strategy to improve long-term retention, but it requires the base platform to be trusted first.
 
-**These capabilities are secondary by design.** The permanent centre of gravity for Shortlisty is the venue catalog, fast shortlisting, and delivering structured venue knowledge to the client through the pitch board. The knowledge-base layer (E11–E14) exists to make that core better — retrospectives enrich venue profiles with real operational experience, templates accelerate pitch assembly, SOPs raise consistency of the work that surrounds a pitch, and the vendor registry makes recommendations inside a brief faster and more reliable. None of these features change what Shortlisty is about. They should never compete with the catalog or pitch board for engineering priority, and they should never be marketed as the primary reason to buy the product.
+**These capabilities are secondary by design.** The permanent centre of gravity for Shortlisty is the venue catalog, fast shortlisting, and delivering structured venue knowledge to the client through the pitch board. The knowledge-base layer exists to make that core better — retrospectives enrich venue profiles with real operational experience, templates accelerate pitch assembly, SOPs raise consistency of the work that surrounds a pitch, and the vendor registry makes recommendations inside a brief faster and more reliable. None of these features change what Shortlisty is about. They should never compete with the catalog or pitch board for engineering priority, and they should never be marketed as the primary reason to buy the product.
 
 ---
 
 ## Consequences
 
-- Epics E11, E12, E13, E14 are created at `Not started` status and target v1.1.
+- The four knowledge-base ideas (SOP library, event retrospectives, template library, vendor registry) are tracked in [ideas/](../ideas/README.md) at `Draft` status, targeting v1.1. They are not formalised as epics until v1.0 usage validates the need.
 - No knowledge-base features appear in v0.x or v1.0 milestone files or feature checklist P0–P2 tiers.
-- v1.0 milestone and epics E1–E8 are unaffected by this decision.
-- v1.1 milestone (`v1.1-agency-knowledge-base.md`) is created at `Planned` status, blocked on v1.0 `Completed`.
+- v1.0 milestone and existing epics are unaffected by this decision.
+- A v1.1+ knowledge-base milestone will be created at `Planned` status, blocked on v1.0 `Completed`, only when the four ideas below are promoted to epics. Until then, its feature checklist is a draft derived from the ideas.
 - If v1.0 adoption shows that agencies primarily want the knowledge-base features before the full approval flow (unexpected signal), this decision should be revisited and a new decision record created.
-- Cross-tenant knowledge sharing, a public template marketplace, and vendor-side marketplace features remain out of scope for v1.1. They are captured as backlog candidates and are subject to separate future decisions.
+- Cross-tenant knowledge sharing remains out of scope for v1.1. It is captured as a backlog candidate and is subject to a separate future decision.
 
 ---
 
@@ -85,4 +85,4 @@ The combined knowledge-base layer also strengthens Shortlisty's defensibility: o
 
 ---
 
-**Docs:** [Decisions index](README.md) · [v1.1 milestone](../milestones/v1.1-agency-knowledge-base.md) · [E11 SOP library](../epics/E11-sop-library.md) · [E12 Retrospectives](../epics/E12-event-retrospectives.md) · [E13 Template library](../epics/E13-template-library.md) · [E14 Vendor registry](../epics/E14-vendor-registry.md) · [Vision](../vision.md)
+**Docs:** [Decisions index](README.md) · [SOP library idea](../ideas/sop-library.md) · [Event retrospectives idea](../ideas/event-retrospectives.md) · [Template library idea](../ideas/template-library.md) · [Vendor registry idea](../ideas/vendor-registry.md) · [Vision](../vision.md)

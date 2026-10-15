@@ -1,7 +1,7 @@
-# E13 — Template library
+# Template library
 
 > **Audience:** Product, engineering.
-> **Purpose:** Define the scope and user outcomes for the reusable template capability — pre-built scaffolds for briefs, Deal Rooms, and client communications that eliminate starting from scratch on every project.
+> **Status:** Draft
 
 ---
 
@@ -9,17 +9,15 @@
 
 Every new project in an event agency starts the same way: copy last month's brief format, paste the venue shortlist structure, rewrite the intro email. The template library gives agencies a managed collection of reusable scaffolds — brief questionnaires, Deal Room structures, and client communication drafts — that can be applied in one click at the start of a new project. Applied templates create a ready-to-fill instance; the original template stays intact.
 
----
+## Why it matters
 
-## User stories
+Agency owners want consistent intake questionnaires and on-brand client communications across the team. Senior managers want juniors to open a new pitch board that already matches the agency's style. Coordinators want to pre-structure a Deal Room and fill in only event-specific details. Without templates, every project starts from scratch and quality drifts between planners.
 
-- As an agency owner, I want to create a brief template with a set of structured questions so that any planner on the team can hand a new client a consistent intake questionnaire without writing it from scratch.
-- As a senior event manager, I want to create a Deal Room template (pre-set venue card layout, intro text, and spec configuration) so that my juniors open a new pitch board that already matches our agency's style.
-- As a coordinator, I want to apply a template when starting a new Deal Room so that the board is pre-structured and I only need to fill in the event-specific details.
-- As an agency owner, I want to maintain a library of standard client communication drafts (shortlist delivery email, venue approval confirmation, last-minute change notice) so that anyone on the team can send a consistent, on-brand message.
-- As a team member, I want to browse templates by category (Brief, Deal Room, Communication) and preview their content before applying them so that I can pick the right scaffold for the situation.
+## Where it could land
 
----
+- Likely epic: post-v1.0 epic (formerly E13)
+- Likely milestone: Post-v1.0 milestone (TBD)
+- Related decision: [D12 — Knowledge base scope expansion](../decisions/D12-knowledge-base-scope-expansion.md)
 
 ## In scope
 
@@ -30,23 +28,13 @@ Every new project in an event agency starts the same way: copy last month's brie
 - Built-in starter templates shipped with every new tenant account (minimum: one brief template, one Deal Room template, one shortlist delivery email).
 - Role gate: only owner and editor can create or edit templates; all roles can apply them.
 
----
-
 ## Out of scope
 
 - Dynamic / conditional template logic (if field X is Y then show section Z) — deferred to a later iteration.
-- Template sharing across tenants or a public template marketplace — out of scope for v1.1.
+- Template sharing across tenants — out of scope for v1.1.
 - AI-assisted template generation from retrospectives — may be revisited post-v1.1.
 - Version history for templates — deferred.
 - Integration with external document editors (Google Docs, Word Online).
-
----
-
-## Milestone references
-
-- [v1.1 — Agency knowledge base](../milestones/v1.1-agency-knowledge-base.md)
-
----
 
 ## Open questions
 
@@ -54,12 +42,10 @@ Every new project in an event agency starts the same way: copy last month's brie
 - [x] Are templates tenant-specific or shared globally? Decision: tenant-specific for v1.1. Cross-tenant template sharing is post-v1.1.
 - [ ] Should starter templates be localised (language variants for EN/ES/FR)? Needs decision before first-tenant onboarding in non-English markets.
 
----
-
 ## Status
 
-**Status:** Not started
+**Status:** Draft — demoted from E13 epic pending v1.0 usage signal.
 
 ---
 
-**Docs:** [Epics index](README.md) · [v1.1 milestone](../milestones/v1.1-agency-knowledge-base.md) · [Vision](../vision.md)
+**Docs:** [Ideas index](README.md) · [Vision](../vision.md)

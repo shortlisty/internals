@@ -90,7 +90,7 @@ If an objection comes up during the pitch, see [objections.md](objections.md) fo
 
 - Do not lead with the technology (Spring AI, pgvector, ETL pipeline). Nobody buying a planner tool cares.
 - Do not demo a clean, simple PDF. Use a messy real-world one. The harder the document, the more impressive the result.
-- Do not pitch the marketplace or Phase 3 features. They are not available and the prospect cannot buy them.
+- Do not pitch Phase 3 features. They are not available and the prospect cannot buy them.
 - Do not quote implementation timelines or engineering roadmap dates.
 
 ---

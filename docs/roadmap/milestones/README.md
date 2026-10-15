@@ -48,7 +48,7 @@ You cannot ship the Digital Sales Room (output layer) before the Personal Venue 
 | `v0.1 – v0.5` | Pre-product-market-fit increments. Each adds one major capability block. Not yet commercially viable.                       |
 | `v1.0`        | First commercially viable release. All three layers (Foundation / PVC / DSR) work end-to-end. Pitch boards can be approved. |
 | `v1.1, v1.2…` | Post-launch enhancements. Integrations, deeper collaboration, performance.                                                  |
-| `v2.0`        | Major architectural shift (e.g., marketplace launch, multi-vertical).                                                       |
+| `v2.0`        | Major architectural shift (e.g., platform decomposition, new product domains).                                                       |
 
 ### File naming
 
@@ -94,11 +94,7 @@ Before creating a new milestone file, verify all 8 sections against this checkli
 
 ### Post-v1.0 — Scaling and deeper capabilities
 
-| Version | File                                                           | Title                 | Goal sentence                                                                                                                                                   | Included epic groups | Included epics     | Status  |
-| ------- | -------------------------------------------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ------------------ | ------- |
-| v1.1    | [v1.1-agency-knowledge-base.md](v1.1-agency-knowledge-base.md) | Agency knowledge base | An agency can capture and reuse its operational knowledge — SOPs, event retrospectives, reusable templates, and a vendor registry — without leaving Shortlisty. | D (Knowledge layer)  | E11, E12, E13, E14 | Planned |
-
-> **Note on the current index:** This table is the **pre-implementation standardisation snapshot**. Before creating any milestone file, review whether the goal sentences above, epic-to-milestone assignments, and layer progression boundaries are correct. The act of writing `v0.1-mvp.md` should validate that the v0.1 scope is genuinely demoable end-to-end — if not, update this index first, then create the file.
+> No post-v1.0 milestones are committed yet. The four agency knowledge-base ideas (SOP library, event retrospectives, template library, vendor registry) are tracked in [ideas](../ideas/README.md) and will be promoted to a milestone when v1.0 usage validates the need.
 
 ---
 
@@ -148,10 +144,8 @@ Milestone-level ideas that have not been formalised yet. Capture them so they ar
 | Candidate milestone        | Proposed version | Why it matters                                                                                                                                                                        | Blocked by                                                                                             |
 | -------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | Database decomposition     | v1.2+            | Split shared PostgreSQL into catalog_db and pitch_db when read/write patterns diverge or operational pressure demands it. See [D14](../decisions/D14-shared-database-per-product.md). | v1.0 `Completed`; operational signal (query contention or schema coupling cost) must justify the split |
-| Marketplace foundations    | v1.1             | Venue-side verified profiles, two-sided listing maintenance. Explicitly out of near-term scope per the vision.                                                                        | v1.0 must be `Completed` first                                                                         |
 | Advanced search & filters  | v1.1             | Saved searches, filter presets, alerting on new venues matching a saved query.                                                                                                        | v0.2 at least `In progress`                                                                            |
 | Multi-tenant admin tooling | v1.2             | Platform admin dashboards, per-tenant usage metrics, support tooling for "find this venue across all tenants" queries.                                                                | v0.1 `Completed`, billing integration epic at least `Not started`                                      |
-| Vertical extension launch  | v2.0             | First non-venue domain (medical or agro) using the strategy pattern platform. Validates D8 at production scale.                                                                       | v1.0 `Completed` and all v1.x enhancements at least `In progress`                                      |
 | Docling full rollout       | v1.0 or v1.1     | High-fidelity table + layout PDF parsing replacing Tika for floor plans and spec sheets. Decision D2 anchors this at Phase 2.                                                         | v0.2 `Completed` with Tika baseline accuracy measured                                                  |
 
 Do not let this table grow beyond 8 rows. Review it when any milestone transitions to `Completed`: promote one or two candidates to real next-milestone entries, or delete them with a one-line reason recorded in [CHANGELOG.md](../../../CHANGELOG.md).

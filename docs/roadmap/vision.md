@@ -100,7 +100,7 @@ The client opens a link. That is the entire onboarding. If the experience requir
 ## Out of scope now
 
 - **Booking and payments.** Contracts, invoicing, deposit collection, and calendar holds are venue operator problems. Shortlisty ends at sign-off on the spec, not at the financial transaction.
-- **Venue discovery and marketplace.** Shortlisty works with venues the agency already knows. Finding new venues is a separate workflow — and a Phase 3 direction at earliest.
+- **Venue discovery.** Shortlisty works with venues the agency already knows. Finding new venues is a separate workflow — and a Phase 3 direction at earliest.
 - **CRM and deal pipeline.** Shortlisty is not a sales CRM. It does not manage leads, stages, or follow-up sequences.
 - **Event execution tools.** Timelines, crew management, run-of-show, and on-site logistics are out of scope. Shortlisty covers the venue selection and sign-off phase only.
 - **CAD and video processing in Phase 1.** Floor plans and photos are handled. DWG/DXF parsing and video walkthrough extraction are Phase 2.
@@ -117,13 +117,11 @@ An approved board means the product completed its job: the agency got sign-off, 
 
 ## Long horizon
 
-Once the pitch-to-approval loop is proven and trusted, the platform can grow in three directions.
+Once the pitch-to-approval loop is proven and trusted, the platform can grow in two directions.
 
 **Upward:** deeper collaboration features — inline comments, version history, multi-stakeholder voting on the client side, integration with calendar and booking tools to bridge the gap between approval and execution.
 
 **Inward:** the agency's operational knowledge base. Event agencies accumulate institutional knowledge that lives in people's heads and scattered files — how to run a client intake, what went wrong at a particular venue last June, which AV supplier to call at midnight, which email template reliably moves a hesitant client to approval. Once the catalog and pitch board are trusted daily tools, Shortlisty becomes the natural home for that knowledge too: standard operating procedures attached as live checklists to Deal Rooms, structured post-event retrospectives that enrich venue profiles with real experience, reusable brief and communication templates, and a curated vendor registry with performance notes. The more operational knowledge an agency stores, the more the platform becomes irreplaceable — and the better the next pitch gets. This is the direction that turns Shortlisty from a productivity tool into the agency's long-term institutional memory.
-
-**Outward:** a two-sided layer where venues pay to maintain a verified public profile that agencies can pull into pitches directly, without manual ingestion. That turns Shortlisty into a marketplace — but only after the agency-side workflow is embedded and trusted. The venue side is years away. Nothing in near-term planning is designed to serve venues.
 
 ---
 

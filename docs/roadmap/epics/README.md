@@ -40,7 +40,7 @@ Epics are grouped by the product layer they belong to, matching the two-layer ar
 | **A. Platform Foundation**                 | Infrastructure that must exist before any user-facing capability runs. Tenancy, shared libraries, schema contracts, master catalog. No end-user value on its own — everything depends on it. |
 | **B. Personal Venue Catalog (Data Layer)** | The agency's private library: venue profiles, document ingestion, extraction, metadata, search, data quality. Layer 1 per the vision statement.                                              |
 | **C. Digital Sales Room (Output Layer)**   | Client-facing pitch boards, the approval loop, snapshots. Layer 2 per the vision statement. The buying trigger — agencies pay because this layer exists.                                     |
-| **D. Post-v1.0 Enhancements**              | Scaling features, deeper collaboration, integrations, marketplace, vertical extension. Not part of the v1.0 launch scope.                                                                    |
+| **D. Post-v1.0 Enhancements**              | Scaling features, deeper collaboration, integrations. Not part of the v1.0 launch scope.                                                                    |
 
 ### Numbering and ordering
 
@@ -80,43 +80,31 @@ Before creating a new epic file, verify all 9 sections against this checklist.
 
 Infrastructure prerequisites. No direct end-user value. All later epics depend on these.
 
-| ID  | File                                                       | Title                 | Target milestone(s)     | Dependencies | Status      |
-| --- | ---------------------------------------------------------- | --------------------- | ----------------------- | ------------ | ----------- |
-| E1  | [E1-master-venue-catalog.md](E1-master-venue-catalog.md)   | Master venue catalog  | v0.1-mvp                | —            | In progress |
-| E2  | [E2-venue-profiles.md](E2-venue-profiles.md)               | Tenant venue profiles | v0.1-mvp                | E1           | Not started |
-| E3  | [E3-document-intelligence.md](E3-document-intelligence.md) | Document intelligence | v0.2-intelligence-layer | E1, E2       | Not started |
-| E4  | [E4-search.md](E4-search.md)                               | Search                | v0.2-intelligence-layer | E1, E2, E3   | Not started |
+| ID | File | Title | Target milestone(s) | Dependencies | Status |
+| --- | --- | --- | --- | --- | --- |
 
 ### Group B — Personal Venue Catalog (Data Layer)
 
 The agency's private knowledge base. Layer 1 of the product architecture.
 
-| ID  | File                                                 | Title              | Target milestone(s)               | Dependencies | Status      |
-| --- | ---------------------------------------------------- | ------------------ | --------------------------------- | ------------ | ----------- |
-| E5  | [E5-team-collaboration.md](E5-team-collaboration.md) | Team collaboration | v0.4-export-collaboration         | E2           | Not started |
-| E6  | [E6-plan-enforcement.md](E6-plan-enforcement.md)     | Plan enforcement   | v0.1-mvp, v0.2-intelligence-layer | E2, E3       | Not started |
-| E7  | [E7-data-quality.md](E7-data-quality.md)             | Data quality       | v0.3-data-quality                 | E3, E4       | Not started |
+| ID | File | Title | Target milestone(s) | Dependencies | Status |
+| --- | --- | --- | --- | --- | --- |
 
 ### Group C — Digital Sales Room (Output Layer)
 
 Client-facing pitch boards and the approval loop. Layer 2 of the product architecture — the buying trigger.
 
-| ID  | File                                         | Title              | Target milestone(s)       | Dependencies | Status      |
-| --- | -------------------------------------------- | ------------------ | ------------------------- | ------------ | ----------- |
-| E8  | [E8-export-sharing.md](E8-export-sharing.md) | Export and sharing | v0.4-export-collaboration | E2, E4, E7   | Not started |
+| ID | File | Title | Target milestone(s) | Dependencies | Status |
+| --- | --- | --- | --- | --- | --- |
 
 ### Group D — Post-v1.0 Enhancements
 
 Beyond the v1.0 platform launch. Scaling and deeper capabilities.
 
-| ID  | File                                                       | Title                | Target milestone(s)        | Dependencies | Status      |
-| --- | ---------------------------------------------------------- | -------------------- | -------------------------- | ------------ | ----------- |
-| E9  | [E9-integrations.md](E9-integrations.md)                   | Integrations         | — (post-v1.0)              | E2, E8       | Not started |
-| E10 | [E10-marketplace.md](E10-marketplace.md)                   | Marketplace          | — (post-v1.0)              | E2, E4, E8   | Not started |
-| E11 | [E11-sop-library.md](E11-sop-library.md)                   | SOP library          | v1.1-agency-knowledge-base | E2, E8       | Not started |
-| E12 | [E12-event-retrospectives.md](E12-event-retrospectives.md) | Event retrospectives | v1.1-agency-knowledge-base | E2, E8, E11  | Not started |
-| E13 | [E13-template-library.md](E13-template-library.md)         | Template library     | v1.1-agency-knowledge-base | E2, E8, E11  | Not started |
-| E14 | [E14-vendor-registry.md](E14-vendor-registry.md)           | Vendor registry      | v1.1-agency-knowledge-base | E2, E12      | Not started |
+| ID | File | Title | Target milestone(s) | Dependencies | Status |
+| --- | --- | --- | --- | --- | --- |
+
+> The four agency knowledge-base capabilities (SOP library, event retrospectives, template library, vendor registry) previously tracked as E11–E14 have been demoted to [ideas](../ideas/README.md) pending v1.0 usage signal. They are not currently committed epics.
 
 > **Note on the current index:** This table is the **pre-implementation standardisation snapshot**. Before any epic file is created, review whether the grouping, target milestone assignments, and dependency chains above are final. The act of writing E1 should validate whether the Group A / Group B boundary is correct — if not, update this index first, then create the file.
 
@@ -179,4 +167,4 @@ Do not let this table grow beyond 10 rows. Review it monthly: promote candidates
 
 ---
 
-**Docs:** [Vision](../vision.md) · [Milestones](../milestones/README.md) · [Decisions](../decisions/README.md) · [Feature Checklist](../feature-checklist.md)
+**Docs:** [Vision](../vision.md) · [Ideas](../ideas/README.md) · [Milestones](../milestones/README.md) · [Decisions](../decisions/README.md) · [Feature Checklist](../feature-checklist.md)

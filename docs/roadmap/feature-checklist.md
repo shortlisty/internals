@@ -141,35 +141,19 @@ Each line follows this exact format:
 - [ ] Saved search presets: planner saves a "wedding 150 pax + outdoor" query as a reusable filter · Epic: E4-search · Milestone: — (post-v1.0) · Priority: P3
 - [ ] New-venue alerting: weekly email when a new venue matching a saved search preset appears in the catalogue or via master catalog backdrop new-record signal · Epic: E4-search · Milestone: — (post-v1.0) · Priority: P3
 - [ ] Tenant-wide metadata-schema versioning UI: view `_schema_version` state and run forced-convergence admin actions per venue · Epic: E7-data-quality · Milestone: — (post-v1.0) · Priority: P3
-- [ ] Vertical-extension library scaffolding generator: add medical or agro venue sub-types using the strategy-pattern extension hooks · Epic: E2-venue-profiles · Milestone: — (post-v1.0) · Priority: P3
 
 ### Group C — Digital Sales Room (Output Layer)
 
 - [ ] Multi-stakeholder client approval: weighted voting (brand team + events manager + finance) with per-role approval thresholds · Epic: E8-export-sharing · Milestone: — (post-v1.0) · Priority: P3
 
-### Group D — Post-v1.0 Enhancements (E9 / E10)
+### Group D — Post-v1.0 Enhancements (E9)
 
 - [ ] Export venue shortlist to Google Sheets (one row per venue, one column per extracted field) · Epic: E9-integrations · Milestone: — (post-v1.0) · Priority: P3
 - [ ] CRM sync (HubSpot / Salesforce): push shortlist + client contact to a CRM deal record on board approval · Epic: E9-integrations · Milestone: — (post-v1.0) · Priority: P3
 - [ ] When a pitch board is approved, auto-attach a calendar booking link (Cal.com / Google Calendar) for the next call · Epic: E9-integrations · Milestone: — (post-v1.0) · Priority: P3
-- [ ] Venue-owner verified profile in a public marketplace (two-sided listing, distinct from agency private catalogues) · Epic: E10-marketplace · Milestone: — (post-v1.0) · Priority: P3
-- [ ] Agency planner can send a one-click introduction message to a venue owner from the marketplace venue card · Epic: E10-marketplace · Milestone: — (post-v1.0) · Priority: P3
-- [ ] Marketplace venues can be searched across the master catalog before being explicitly promoted (copy-on-import) into tenant's private library · Epic: E10-marketplace · Milestone: — (post-v1.0) · Priority: P3
 
-### Group D — Agency knowledge base (E11 / E12 / E13 / E14)
-
-- [ ] Agency owner can create an SOP with a title, category, ordered step checklist, and assign it to a built-in or custom category · Epic: [E11-sop-library](epics/E11-sop-library.md) · Milestone: [v1.1-agency-knowledge-base](milestones/v1.1-agency-knowledge-base.md) · Priority: P3
-- [ ] Planner can attach an SOP to a Deal Room as a live checklist instance; team members tick steps and progress is visible tenant-wide · Epic: [E11-sop-library](epics/E11-sop-library.md) · Milestone: [v1.1-agency-knowledge-base](milestones/v1.1-agency-knowledge-base.md) · Priority: P3
-- [ ] Planner can search SOPs by keyword across titles and step text · Epic: [E11-sop-library](epics/E11-sop-library.md) · Milestone: [v1.1-agency-knowledge-base](milestones/v1.1-agency-knowledge-base.md) · Priority: P3
-- [ ] Planner can create a post-event retrospective with structured fields (outcome rating, what worked, what went wrong, venue notes, client feedback) linked to a venue and a closed Deal Room · Epic: [E12-event-retrospectives](epics/E12-event-retrospectives.md) · Milestone: [v1.1-agency-knowledge-base](milestones/v1.1-agency-knowledge-base.md) · Priority: P3
-- [ ] Venue profile shows a "Past experience" tab listing all retrospectives for that venue (team-visible only, not client-facing) · Epic: [E12-event-retrospectives](epics/E12-event-retrospectives.md) · Milestone: [v1.1-agency-knowledge-base](milestones/v1.1-agency-knowledge-base.md) · Priority: P3
-- [ ] Planner can filter and keyword-search retrospectives; can export a single retrospective as a PDF · Epic: [E12-event-retrospectives](epics/E12-event-retrospectives.md) · Milestone: [v1.1-agency-knowledge-base](milestones/v1.1-agency-knowledge-base.md) · Priority: P3
-- [ ] Planner can create a template (Brief, Deal Room, or Communication type) and apply it to a new project, receiving an independent copy that does not affect the master template · Epic: [E13-template-library](epics/E13-template-library.md) · Milestone: [v1.1-agency-knowledge-base](milestones/v1.1-agency-knowledge-base.md) · Priority: P3
-- [ ] Brief templates support a structured question builder (text, multiple-choice, date fields); every new tenant account receives a set of built-in starter templates · Epic: [E13-template-library](epics/E13-template-library.md) · Milestone: [v1.1-agency-knowledge-base](milestones/v1.1-agency-knowledge-base.md) · Priority: P3
-- [ ] Planner can add a vendor with service category, contact details, rating (1–5), and status (Preferred / On hold / Inactive) to the agency vendor registry · Epic: [E14-vendor-registry](epics/E14-vendor-registry.md) · Milestone: [v1.1-agency-knowledge-base](milestones/v1.1-agency-knowledge-base.md) · Priority: P3
-- [ ] Planner can write a performance note on a vendor linked to a retrospective; venue profile shows a "Vendors used here" section · Epic: [E14-vendor-registry](epics/E14-vendor-registry.md) · Milestone: [v1.1-agency-knowledge-base](milestones/v1.1-agency-knowledge-base.md) · Priority: P3
-- [ ] Planner can filter the vendor registry by service category, status, and rating · Epic: [E14-vendor-registry](epics/E14-vendor-registry.md) · Milestone: [v1.1-agency-knowledge-base](milestones/v1.1-agency-knowledge-base.md) · Priority: P3
+> The agency knowledge-base features (SOP library, event retrospectives, template library, vendor registry) previously listed here as P3 are now tracked as [ideas](ideas/README.md), not committed epics.
 
 ---
 
-**Docs:** [Vision](vision.md) · [Epics](epics/README.md) · [Milestones](milestones/README.md)
+**Docs:** [Vision](vision.md) · [Ideas](ideas/README.md) · [Epics](epics/README.md) · [Milestones](milestones/README.md)

@@ -66,12 +66,6 @@ In-house teams at larger companies running recurring events — quarterly offsit
 - Multiple stakeholders (EA, HR, marketing, procurement) need access to the same venue information.
 - No institutional memory between events — the person who ran last year's event may not be running this year's.
 
-### Long horizon — venue marketplace
-
-Venues want to reach event professionals. Right now they send the same PDF deck to every inquiry and hope it stands out. Most of it ends up in an inbox never to be found again.
-
-The long-horizon direction is a two-sided marketplace: event professionals manage their portfolio, venues pay for visibility and to reach managers actively searching. The venue intelligence layer is the foundation that makes that marketplace trusted. This is not a near-term customer segment — it is the direction the platform grows into once the core product is proven.
-
 ---
 
 ## Ideal customer profile
@@ -238,9 +232,9 @@ The long-horizon direction is a two-sided marketplace: event professionals manag
 - Brand colours and logo throughout the product
 - Custom email templates for team and client communications
 
-**Long horizon — marketplace and client-facing features**
+**Long horizon — client-facing features**
 
-Venues claiming profiles, planner-to-venue discovery across the full Shortlisty network, venue subscriptions for enhanced visibility, and client-facing shareable views are long-horizon directions. They are not part of Phase 1, 2, or 3 planning. See [vision.md](../../roadmap/vision.md) for the long-horizon framing.
+Client-facing shareable views and deeper collaboration are long-horizon directions. They are not part of Phase 1, 2, or 3 planning. See [vision.md](../../roadmap/vision.md) for the long-horizon framing.
 
 ---
 
@@ -312,8 +306,6 @@ The platform launches US-first to validate the core product. The architecture su
 
 ### Future revenue
 
-- **Marketplace listings:** venues pay for enhanced visibility, verified badges, inquiry routing
-- **Lead generation:** venues pay per qualified event manager inquiry
 - **Data products:** anonymised, aggregated venue intelligence — trends, pricing benchmarks, availability signals — sold to industry research buyers
 
 ---

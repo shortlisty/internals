@@ -639,22 +639,6 @@ venueintelligence-process
                           ▼ (compile dependency)
         venueintelligence-catalog-service / venueintelligence-catalog-processing-worker
           └── @Bean registrations wire venue strategies into generic consumers
-
-
-  ── vertical extension example ──────────────────────────────────────────────
-
-        venueintelligence-process          (unchanged)
-                 │
-                 ▼
-        mi-med-model
-          ├── MedCaseExtractionStrategy   implements MetadataExtractionStrategy<CaseMetadata>
-          ├── MedCaseAggregationStrategy  implements MetadataAggregationStrategy<CaseMetadata>
-          ├── MedCaseMigrator             implements MetadataMigrator
-          ├── DrugCompendiumMatchStrategy implements CuratedListMatchStrategy
-          └── …
-                 │
-                 ▼
-        mi-med-service / mi-med-processing-worker
 ```
 
 **Rule:** if a class in `venueintelligence-catalog-processing-worker` or `venueintelligence-catalog-service` contains the word `venue` in its business logic (not just in a tag string), ask whether it belongs in `venueintelligence-model` instead. The worker and service should contain Spring wiring, `@Bean` registrations, and `@RabbitListener` configuration — not domain decisions.
