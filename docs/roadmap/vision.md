@@ -1,7 +1,7 @@
 # Vision
 
 > **Audience:** Founders, team.
-> **Purpose:** Describe where Shortlisty Intelligence is going and why — not what has been built. For completed work, see [CHANGELOG.md](../../CHANGELOG.md) and the milestone files.
+> **Purpose:** Describe where Shortlisty is going and why — not what has been built. For completed work, see [CHANGELOG.md](../../CHANGELOG.md) and the milestone files.
 
 ---
 
@@ -15,7 +15,7 @@ Shortlisty is the collaborative workspace where event agencies turn their venue 
 
 The product concept has evolved. The original design — a private venue catalog with AI extraction and semantic search — remains the correct data layer. The position has sharpened: the primary output is not an internal search engine, but a client-facing interactive pitch board that ends with a mutually approved specification.
 
-Architecture and domain model are settled and documented. No code has shipped yet. New product documents are being written under [Digital Sales Room for Events](../business/digital-sales-room-for-events/).
+Architecture and domain model are settled and documented. The platform foundation is ready and the first services have shipped. Work has moved on to the master venue catalog, with tenant venue features next. Product documents — both layers, plus the market and competitive analysis — live under [docs/business](../business/).
 
 ---
 
@@ -100,10 +100,10 @@ The client opens a link. That is the entire onboarding. If the experience requir
 ## Out of scope now
 
 - **Booking and payments.** Contracts, invoicing, deposit collection, and calendar holds are venue operator problems. Shortlisty ends at sign-off on the spec, not at the financial transaction.
-- **Venue discovery.** Shortlisty works with venues the agency already knows. Finding new venues is a separate workflow — and a Phase 3 direction at earliest.
+- **Venue discovery.** Shortlisty works with venues the agency already knows. Finding new venues is a separate workflow.
 - **CRM and deal pipeline.** Shortlisty is not a sales CRM. It does not manage leads, stages, or follow-up sequences.
 - **Event execution tools.** Timelines, crew management, run-of-show, and on-site logistics are out of scope. Shortlisty covers the venue selection and sign-off phase only.
-- **CAD and video processing in Phase 1.** Floor plans and photos are handled. DWG/DXF parsing and video walkthrough extraction are Phase 2.
+- **CAD and video processing.** Floor plans and photos are handled. DWG/DXF parsing and video walkthrough extraction come later.
 
 ---
 
