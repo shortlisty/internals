@@ -3,7 +3,7 @@
 > **Audience:** Product, engineering.
 > **Purpose:** Mid-level prioritised checkbox list of every user-visible feature, cutting across epics and milestones so the next thing to build is visible in under 60 seconds.
 
-> **Status:** P0 features map to the committed [v0.1 — Foundation + Catalog Core](milestones/v0.1-foundation-catalog-core.md) milestone. P1–P3 features reference future milestones that have not been formalised as files or index rows yet; their identifiers are plain-text placeholders and should be validated against the [milestones index](milestones/README.md) before implementation.
+> **Status:** P0 features map to the committed [v0.1 — Foundation + Catalog Core](milestones/v0.1-foundation-catalog-core.md) milestone. P1–P3 features reference future epics and milestones (E4–E9, v0.2–v1.0) that have not been formalised as files yet. Their identifiers are kept as plain text until those files exist.
 
 ---
 
@@ -39,7 +39,7 @@ Each line follows this exact format:
 - [ ] Feature description in user-visible language · Epic: E{N}-slug · Milestone: v{X}.{Y}-slug · Priority: P{N}
 ```
 
-- **Epic / Milestone identifiers:** While the target `E{N}-{slug}.md` or `v{X}.{Y}-{slug}.md` file has not been created yet, the identifier is written as plain text (no markdown link), matching the convention used in the epics and milestones index tables. When the real file is created, convert the plain-text identifier to a relative markdown link in the same commit.
+- **Epic / Milestone identifiers:** Links are only added when the target `E{N}-{slug}.md` or `v{X}.{Y}-{slug}.md` file actually exists. Until then, the identifier is written as plain text — this is intentional, not a gap to fill.
 - **Tick `- [x]` only when:** The feature is fully demoable end-to-end to a real user in its target milestone staging environment. "Works on my machine" or a unit-test pass is not enough.
 - **Never write:** Dates, engineer assignees, or percentage markers. Checkboxes only.
 
