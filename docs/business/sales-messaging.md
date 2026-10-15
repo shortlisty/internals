@@ -29,6 +29,18 @@ _→ [Request Early Access] · [Watch Product Demo]_
 
 ---
 
+## The intelligence layer behind every successful event agency. 🔵
+
+### Turn venue knowledge into client-ready decisions — fast.
+
+> Extract the files. Build the shortlist. Lock the approval.
+>
+> From scattered PDFs and inbox threads to a trusted, signed-off brief — in one place.
+
+_→ [Request Early Access] · [Watch Product Demo]_
+
+---
+
 **Docs:** [What is Shortlisty?](../README.md) · [Market structure](market.md) · [Competitive landscape](comparison.md) · [Product — DSR](digital-sales-room-for-events/product.md) · [Proposal — DSR](digital-sales-room-for-events/proposal.md)
 
 ---
