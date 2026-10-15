@@ -48,7 +48,7 @@ See [docs/README.md](docs/README.md) for the full plain-language overview.
 | [Product Structure](docs/business/personal-venue-catalog/product.md)      | Tenant app, capability pillars, UI concept |
 | [Business Proposal](docs/business/personal-venue-catalog/proposal.md)     | ICP, monetisation, GTM, risks              |
 | [Cold Start Strategy](docs/business/personal-venue-catalog/cold-start.md) | Seeding the library before launch          |
-| [Sales materials](docs/business/personal-venue-catalog/sales/)            | Pitch, battlecards, objections, messaging  |
+| [Superseded sales materials](docs/business/personal-venue-catalog/superseded-sales-materials/) | Pitch, battlecards, objections, messaging (kept for history) |
 
 ### Platform
 

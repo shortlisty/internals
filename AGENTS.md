@@ -40,7 +40,7 @@ system-design-documentation/
     │       ├── product.md             ← Tenant app, capability pillars (catalog positioning)
     │       ├── proposal.md            ← ICP, monetisation, GTM (catalog positioning)
     │       ├── cold-start.md          ← Seed strategy (catalog positioning)
-    │       └── sales/
+    │       └── superseded-sales-materials/   ← Superseded copy bank — kept for history, not the active sales position
     │           ├── pitch.md           ← Demo and intro call narrative flow
     │           ├── battlecards.md     ← Per-competitor positioning for live conversations
     │           ├── objections.md      ← Objection handling: concern, response, follow-up
@@ -158,13 +158,13 @@ Do not invent new audience tags. If a document genuinely serves two separate aud
 - If a decision is superseded, add a link to the replacement decision file. Do not delete the old file.
 - Do not re-litigate accepted decisions in other documents. Link to the decision file instead.
 
-### 4.7 Sales materials (`docs/business/sales/`)
+### 4.7 Sales materials (`docs/business/personal-venue-catalog/superseded-sales-materials/`)
 
 - Audience is always `Founders, team`. Sales docs are internal — they are not shown to prospects.
 - **pitch.md** — structured as named beats with a goal per beat and a transition. No script prose. Must include a "what not to do" section.
 - **battlecards.md** — one `###` section per competitor. Each card must contain exactly: What they have, What they do not have, When a prospect brings them up (with a verbatim example response in a blockquote), Win condition. The win condition is one sentence.
 - **objections.md** — one `###` section per objection. Each entry must contain exactly: the stated objection as a heading, the underlying concern in italics, the response, and the follow-up question. Do not write the response as a rebuttal — acknowledge and reframe first.
-- **messaging.md** — a copy bank. Every entry must have a `Status` field: `Candidate`, `Approved`, or `Retired`. Never delete `Retired` entries. Only `Approved` copy is used in external-facing materials. Add a one-line note when retiring an entry.
+- **messaging.md** — a copy bank. Every entry must have a `Status` field: `Candidate`, `Approved`, `Retired`, or `Superseded`. Never delete `Retired` or `Superseded` entries. Only `Approved` copy is used in external-facing materials. Add a one-line note when retiring or superseding an entry. `Retired` means the copy was dropped with no direct replacement; `Superseded` means it was replaced by a newer entry, and the `Superseded` entry must link to that replacement.
 - Do not duplicate content from `comparison.md` into `battlecards.md`. Battlecards reference the competitive analysis; they do not reproduce it.
 - Do not include pricing figures that are not confirmed. Mark uncertain numbers with `(TBC)`.
 
