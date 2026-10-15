@@ -1,4 +1,4 @@
-# D14 — Master Venue Seeding Infrastructure First
+# D9 — Master Venue Seeding Infrastructure First
 
 > **Audience:** Engineering, product.
 > **Purpose:** Document the decision to prioritize master venue catalog infrastructure before implementing tenant venue management features.

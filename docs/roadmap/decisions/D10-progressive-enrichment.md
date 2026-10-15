@@ -1,4 +1,4 @@
-# D15 — Progressive Profile Enrichment: Beauty First, Accuracy in the Background
+# D10 — Progressive Profile Enrichment: Beauty First, Accuracy in the Background
 
 > **Audience:** Engineers, architects, product.**
 > **Purpose:** Document the decision to prioritize immediate, accurate, fully-formed venue profile UI before fully-formed, and background enrichment from the master catalog, rather than blocking the user to wait for perfect extraction accuracy or to manually complete a long form before seeing value.
