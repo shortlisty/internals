@@ -34,8 +34,8 @@
                              │ RabbitMQ     │ r/w       │ presigned URL
                              │ asset.uploa- │           │ issue + delete
                     ┌────────▼─────────┐  ┌─▼──────────▼──────┐
-                    │ mi-venue-        │  │   PostgreSQL        │
-                    │ processing-worker│──►│   t_{tenant}        │
+                    │               │  │   PostgreSQL        │
+                    │ venueintelligence-catalog-processing-worker│──►│   t_{tenant}        │
                     │ (async sidecar)  │  │   + pgvector        │
                     └────────┬─────────┘  │   + PostGIS         │
                              │            └─────────────────────┘
