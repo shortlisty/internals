@@ -13,17 +13,19 @@
 > Shortlisty reads them, structures them, and turns the right ones into a branded pitch board — ready to send in minutes, ready for the client to approve the same day.
 > No PDFs. No scattered threads. One link, one approval, one record.
 
-*→ Try it on your next brief*
+_→ Try it on your next brief_
 
 ---
 
 ## Venue intelligence that closes deals. 🔵
 
-### From scattered venue files to a signed-off client brief — without the 2-hour assembly job.
+### The workspace for event agencies that turn venue knowledge into client approvals.
 
-> _copy TBD_
+> Pull the files. Build the shortlist. Get the sign-off.
+>
+> From scattered PDFs and WhatsApp threads to a locked, trusted brief — in one place.
 
-*→ CTA TBD*
+_→ [Request Early Access] · [Watch Product Demo]_
 
 ---
 
