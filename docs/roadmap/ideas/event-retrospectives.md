@@ -17,7 +17,7 @@ Senior managers want to capture experience while details are fresh. Planners sta
 
 - Likely epic: post-v1.0 epic (formerly E12)
 - Likely milestone: Post-v1.0 milestone (TBD)
-- Related decision: [D12 — Knowledge base scope expansion](../decisions/D12-knowledge-base-scope-expansion.md)
+- Related decision: [D11 — Knowledge base scope expansion](../decisions/D11-knowledge-base-scope-expansion.md)
 
 ## In scope
 

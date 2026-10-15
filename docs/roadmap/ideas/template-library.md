@@ -17,7 +17,7 @@ Agency owners want consistent intake questionnaires and on-brand client communic
 
 - Likely epic: post-v1.0 epic (formerly E13)
 - Likely milestone: Post-v1.0 milestone (TBD)
-- Related decision: [D12 — Knowledge base scope expansion](../decisions/D12-knowledge-base-scope-expansion.md)
+- Related decision: [D11 — Knowledge base scope expansion](../decisions/D11-knowledge-base-scope-expansion.md)
 
 ## In scope
 

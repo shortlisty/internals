@@ -17,7 +17,7 @@ Agency owners want a shared, up-to-date supplier list with performance ratings. 
 
 - Likely epic: post-v1.0 epic (formerly E14)
 - Likely milestone: Post-v1.0 milestone (TBD)
-- Related decision: [D12 — Knowledge base scope expansion](../decisions/D12-knowledge-base-scope-expansion.md)
+- Related decision: [D11 — Knowledge base scope expansion](../decisions/D11-knowledge-base-scope-expansion.md)
 
 ## In scope
 
@@ -39,7 +39,7 @@ Agency owners want a shared, up-to-date supplier list with performance ratings. 
 ## Open questions
 
 - [ ] Should vendor records surface inside Deal Rooms as an optional "recommended suppliers" section visible to the client? This would cross the internal/external boundary — needs explicit product decision.
-- [x] Is vendor data scoped per tenant or shared at platform level? Decision: per tenant (private to each agency) for v1.1. Platform-level vendor catalog is post-v1.0 scope per D12.
+- [x] Is vendor data scoped per tenant or shared at platform level? Decision: per tenant (private to each agency) for v1.1. Platform-level vendor catalog is post-v1.0 scope per D11.
 - [ ] Should the vendor-venue link be many-to-many (one vendor can be linked to many venues, one venue can have many vendors)? Assumption is yes — confirm before schema design.
 
 ## Status

@@ -35,7 +35,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 | `ContentFormatTransformer` | Normalizes text format                                                                                                                                                                                                                                                                                                                                        |
 | `SummaryMetadataEnricher`  | Generates document summary using LLM, stored as metadata                                                                                                                                                                                                                                                                                                      |
 | `KeywordMetadataEnricher`  | Extracts keywords using LLM, stored as metadata                                                                                                                                                                                                                                                                                                               |
-| `VenueMetadataEnricher`    | **Venue-domain-specific** (`venueintelligence-model`): extracts capacity, amenities, contacts via structured call against the venue canonical field set. Runs against a self-hosted OpenAI-compatible endpoint (Phi-4 / Qwen2.5 via Ollama or vLLM — see D13). The only non-generic component in the pipeline — everything else is reusable across verticals. |
+| `VenueMetadataEnricher`    | **Venue-domain-specific** (`venueintelligence-model`): extracts capacity, amenities, contacts via structured call against the venue canonical field set. Runs against a self-hosted OpenAI-compatible endpoint (Phi-4 / Qwen2.5 via Ollama or vLLM — see D12). The only non-generic component in the pipeline — everything else is reusable across verticals. |
 
 **DocumentWriters (Load):**
 
@@ -150,7 +150,7 @@ public class AssetExtractionOrchestrator<M> {
     var chunks = splitter.apply(taggedDocs);
 
     // 4. Domain-specific: extract structured metadata (strategy supplies prompt + output type)
-    //    Runs against self-hosted OpenAI-compatible endpoint (Phi-4 / Qwen2.5 — see D13)
+    //    Runs against self-hosted OpenAI-compatible endpoint (Phi-4 / Qwen2.5 — see D12)
     var result = extractionStrategy.extract(chunks, ExtractionContext.of(asset));
 
     // 5. Embed + write to item_vectors
@@ -308,7 +308,7 @@ Generic document intelligence tools extract generic fields. Shortlisty extracts 
 
 This schema is the **venue canonical field set** — defined as `VenueMetadata` in `venueintelligence-model` (see §2 of [Architecture](README.md)). It is the venue-domain's answer to the question "what does a structured document look like for this vertical?". The extraction prompt sent to the inference endpoint is derived directly from this schema. If the platform pivots to a different vertical (medical, agro), the domain library is swapped — the extraction pipeline, embedding, and search infrastructure remain identical.
 
-> **Inference stack:** Extraction calls run against a self-hosted OpenAI-compatible endpoint — Phi-4 (Microsoft, 14B) or Qwen2.5 (Alibaba, 7B–72B) served via Ollama or vLLM on own VPS/server infrastructure. Spring AI's `ChatModel` abstraction makes the endpoint a configuration value, not a code dependency. See [D13](../roadmap/decisions/D13-self-hosted-inference-stack.md) for the full rationale.
+> **Inference stack:** Extraction calls run against a self-hosted OpenAI-compatible endpoint — Phi-4 (Microsoft, 14B) or Qwen2.5 (Alibaba, 7B–72B) served via Ollama or vLLM on own VPS/server infrastructure. Spring AI's `ChatModel` abstraction makes the endpoint a configuration value, not a code dependency. See [D12](../roadmap/decisions/D12-self-hosted-inference-stack.md) for the full rationale.
 
 ```json
 {
@@ -586,7 +586,7 @@ public final class SearchOrchestrator<R> {
 ```java
 package com.iqkv.venueintelligence.venue.model;
 
-// Extraction: self-hosted LLM structured call against venue canonical field set (§2.1, D13)
+// Extraction: self-hosted LLM structured call against venue canonical field set (§2.1, D12)
 @Component
 public class VenueMetadataExtractionStrategy
         implements MetadataExtractionStrategy<VenueMetadata> { ... }

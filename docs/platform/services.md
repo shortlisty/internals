@@ -63,7 +63,7 @@
 ### `venueintelligence-catalog-service`
 
 - **Responsibilities:** venue CRUD, asset upload flow (presigned URL), metadata read/write, search API, plan entitlement enforcement, master catalog backdrop lookup
-- **Database:** shares the venueintelligence PostgreSQL instance with `venueintelligence-catalog-processing-worker` — this is a deliberate architectural decision, not an exception (see [D14](../roadmap/decisions/D14-shared-database-per-product.md)). Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`.
+- **Database:** shares the venueintelligence PostgreSQL instance with `venueintelligence-catalog-processing-worker` — this is a deliberate architectural decision, not an exception (see [D13](../roadmap/decisions/D13-shared-database-per-product.md)). Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`.
 - **Exposes:** REST API at `/api/v1/venues` (see [api.md](api.md))
 - **Publishes:** `venue.created`, `venue.updated`, `asset.uploaded`, `asset.deleted` (RabbitMQ)
 - **Consumes:** `extraction.completed`, `extraction.failed` (RabbitMQ) — triggers metadata aggregation
@@ -72,10 +72,10 @@
 
 - **Responsibilities:** document ETL pipeline (parse → chunk → extract → embed), extraction job lifecycle, master catalog match and MC_INHERIT merge, metadata aggregation, scheduled maintenance jobs (stale re-aggregation, cost reporting)
 - **Nature:** async background worker — no inbound HTTP, no REST API, no service discovery entry. Event-driven only.
-- **Database:** shares the venueintelligence PostgreSQL instance with `venueintelligence-catalog-service` (see [D14](../roadmap/decisions/D14-shared-database-per-product.md)). Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.master_venue` for the master catalog match step.
+- **Database:** shares the venueintelligence PostgreSQL instance with `venueintelligence-catalog-service` (see [D13](../roadmap/decisions/D13-shared-database-per-product.md)). Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.master_venue` for the master catalog match step.
 - **Consumes:** `asset.uploaded` (RabbitMQ) — triggers ETL pipeline (see [etl-pipeline.md](etl-pipeline.md))
 - **Publishes:** `extraction.started`, `extraction.completed`, `extraction.failed` (RabbitMQ)
-- **External calls:** self-hosted LLM inference endpoint (Phi-4 / Qwen2.5 via Ollama or vLLM), optionally Docling sidecar (Phase 2) — see [D13](../roadmap/decisions/D13-self-hosted-inference-stack.md)
+- **External calls:** self-hosted LLM inference endpoint (Phi-4 / Qwen2.5 via Ollama or vLLM), optionally Docling sidecar (Phase 2) — see [D12](../roadmap/decisions/D12-self-hosted-inference-stack.md)
 - **Scaling:** replicas scaled independently based on RabbitMQ queue depth — no impact on `venueintelligence-catalog-service`
 
 > Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers: `venueintelligence-mc-ingest-<source>-scraper`. Master Catalog population runs in `venueintelligence-master-venue-loader` (Spring Boot). Full cold-start strategy in [master-catalog.md](master-catalog.md).

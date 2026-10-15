@@ -17,7 +17,7 @@ Agency owners want consistent process across every project. Senior managers want
 
 - Likely epic: post-v1.0 epic (formerly E11)
 - Likely milestone: Post-v1.0 milestone (TBD)
-- Related decision: [D12 — Knowledge base scope expansion](../decisions/D12-knowledge-base-scope-expansion.md)
+- Related decision: [D11 — Knowledge base scope expansion](../decisions/D11-knowledge-base-scope-expansion.md)
 
 ## In scope
 

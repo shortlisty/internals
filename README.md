@@ -81,7 +81,7 @@ Shortlisty is built on top of the iQ Key Value open-source foundation (`com.iqkv
 - **`venueintelligence-mc-ingest-tagvenue-scraper`** — lightweight standalone CLI (Node.js, cron): fetches venue listings from Tagvenue, saves to JSONL on S3.
 - **`venueintelligence-master-venue-loader`** — simple standalone background worker: picks up JSONL files from S3, loads records into the master catalog database.
 
-All services share a single PostgreSQL instance — `public` schema for the master catalog, `t_{tenantKey}` schemas for tenant data. Database decomposition is a named future target once scale justifies it (see D14).
+All services share a single PostgreSQL instance — `public` schema for the master catalog, `t_{tenantKey}` schemas for tenant data. Database decomposition is a named future target once scale justifies it (see D13).
 
 **Stage:** v0.1 MVP in progress — Group A Platform Foundation complete, Master Venue Seeding Infrastructure in development, tenant venue features next.
 

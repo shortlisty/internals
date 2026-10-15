@@ -1,4 +1,4 @@
-# D13 — Self-hosted inference stack: open-source models (Phi-4, Qwen) on own infrastructure as primary AI layer
+# D12 — Self-hosted inference stack: open-source models (Phi-4, Qwen) on own infrastructure as primary AI layer
 
 > **Audience:** Engineers, architects.
 > **Purpose:** Record the decision to run AI inference — structured extraction, embeddings, and AI-assisted pitch features — on self-hosted open-source models rather than calling external AI APIs as the primary path.

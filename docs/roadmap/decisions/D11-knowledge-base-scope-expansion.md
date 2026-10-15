@@ -1,4 +1,4 @@
-# D12 — Agency Knowledge Base: SOPs, retrospectives, templates, and vendor registry as post-v1.0 scope
+# D11 — Agency Knowledge Base: SOPs, retrospectives, templates, and vendor registry as post-v1.0 scope
 
 > **Audience:** Engineers, architects.
 > **Purpose:** Record the decision to extend Shortlisty beyond venue catalog + pitch board into a broader agency operational knowledge base, and to defer that extension to post-v1.0.

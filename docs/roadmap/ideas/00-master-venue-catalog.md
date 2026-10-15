@@ -17,7 +17,7 @@ Without a curated master catalog, every tenant retypes the same venue data from 
 
 - Likely epic: TBD (was E1 in the removed v0.1 milestone)
 - Likely milestone: TBD
-- Related decisions: [D7 — JSONB schema versioning](../decisions/D7-jsonb-schema-versioning.md), [D9 — Master venue seeding infrastructure first](../decisions/D9-master-venue-seeding-infrastructure-first.md)
+- Related decisions: [D7 — JSONB schema versioning](../decisions/D7-jsonb-schema-versioning.md), [D8 — Master venue seeding infrastructure first](../decisions/D8-master-venue-seeding-infrastructure-first.md)
 
 ## In scope
 

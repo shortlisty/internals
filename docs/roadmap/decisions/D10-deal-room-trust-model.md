@@ -1,4 +1,4 @@
-# D11 — Deal Room Trust Model: Immutable History, Bilateral Control, and Confidence-as-Transparency
+# D10 — Deal Room Trust Model: Immutable History, Bilateral Control, and Confidence-as-Transparency
 
 > **Audience:** Engineers, architects, product.
 > **Purpose:** Document the decision that the Digital Sales Room (Deal Room) is not just a pretty link — it is a shared trust space with immutable event history, bilateral data control, provenance-tagged metadata, and transparent confidence scoring designed to build trust between planner and client.
