@@ -41,6 +41,14 @@ _→ [Request Early Access] · [Watch Product Demo]_
 
 ---
 
+## Venue intelligence for event agencies. 🔵
+
+### Effortless shortlisting starts here.
+
+> Get your venue knowledge organised and client-ready from one powerful workspace. From turning scattered files into a living library to generating interactive pitch boards and locking approvals — Shortlisty sets you up for success before the first brief even lands.
+
+---
+
 **Docs:** [What is Shortlisty?](../README.md) · [Market structure](market.md) · [Competitive landscape](comparison.md) · [Product — DSR](digital-sales-room-for-events/product.md) · [Proposal — DSR](digital-sales-room-for-events/proposal.md)
 
 ---
