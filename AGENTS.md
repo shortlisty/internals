@@ -24,7 +24,7 @@ It is **not** a code repository, a changelog of Git commits, or a deployment run
 system-design-documentation/
 ├── AGENTS.md                          ← This file. Read before writing anything.
 ├── CHANGELOG.md                       ← Product-level doc changelog (not Git log)
-├── README.md                          ← Entry point. Navigation table only.
+├── README.md                          ← Entry point. Landing page and navigation index.
 └── docs/
     ├── README.md                      ← Plain-language product overview (any audience)
     ├── business/
@@ -69,6 +69,7 @@ system-design-documentation/
 **Rules:**
 
 - Do not add files outside the structure above without updating this file first.
+- `README.md` is the landing page and navigation index. It carries a short product summary, a status block, and the index tables, and links out to the detailed documents instead of duplicating them.
 - Do not create nested subdirectories beyond what is shown unless the README.md for that folder is updated to explain the new structure.
 - File names are lowercase, hyphen-separated (`my-file-name.md`). No spaces, no underscores, no camelCase.
 - Epic files are prefixed `E{N}-` (e.g. `E1-venue-profiles.md`). Numbers start at 1, increment by 1, never reuse.
@@ -337,7 +338,7 @@ The ideas folder holds speculative product or architecture pitches that are subs
 - **Do not use `# H1` headings inside a document** except for the document title at line one.
 - **Do not write in past tense in vision.md.** Vision is forward-looking.
 - **Do not write dates in milestone files** unless the milestone is `Completed`. Planned dates create false commitments.
-- **Do not put roadmap content in README.md** and architectural content in roadmap files. They serve different readers.
+- **Do not put roadmap planning content in README.md and architectural content in roadmap files.** They serve different readers. The landing page may carry a one-line status block (see §2).
 
 ---
 

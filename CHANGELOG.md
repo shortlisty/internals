@@ -19,6 +19,8 @@
 
 ### Changed
 
+- `README.md` — Rewritten as the repository landing page: centered header, status block, two-layer summary, and a grouped navigation index covering product, Digital Sales Room, catalog, platform, and roadmap. Removed the stale "pre-build" framing, added the audience blockquote required by §3, and indexed the roadmap, platform, and AlphaVenue spike documents that were previously unreachable from the entry point.
+- `AGENTS.md` — §2 now defines `README.md` as the landing page and navigation index instead of "navigation table only", with a new rule bullet describing what the landing page may carry. §6 wording aligned so a landing-page status block is not treated as roadmap content.
 - `docs/roadmap/epics/README.md` — Group D E11–E14 rows removed (demoted to ideas). Added a note pointing to the ideas folder.
 - `docs/roadmap/milestones/README.md` — Post-v1.0 section populated with first committed milestone: v1.1 agency knowledge base row. "Included epics" column updated to reference the four ideas.
 - `docs/roadmap/decisions/README.md` — D11 row added; table restructured to include `ID` and `Domain` columns and `Superseded by` column for all rows; entries ordered newest-first.
