@@ -19,45 +19,26 @@
 ## 4. Service Architecture
 
 ```
-                    ┌──────────────────┐
-  Browser/App  ───► │  Gateway Service │  (existing)
-                    └────────┬─────────┘
-                             │ JWT validated, X-Tenant-ID set
-                    ┌────────▼─────────┐     ┌──────────────────┐
-                    │   IAM Service    │     │  Billing Service │  (existing)
-                    └────────┬─────────┘     └────────┬─────────┘
-                             │                        │ plan entitlements
-                    ┌────────▼────────────────────────▼─────────┐
-                    │            venueintelligence-catalog-service                │
-                    │  venues · assets · metadata · search · api │
-                    └────────┬──────────────┬──────────┬─────────┘
-                             │ RabbitMQ     │ r/w       │ presigned URL
-                             │ asset.uploa- │           │ issue + delete
-                    ┌────────▼─────────┐  ┌─▼──────────▼──────┐
-                    │               │  │   PostgreSQL        │
-                    │ venueintelligence-catalog-processing-worker│──►│   t_{tenant}        │
-                    │ (async sidecar)  │  │   + pgvector        │
-                    └────────┬─────────┘  │   + PostGIS         │
-                             │            └─────────────────────┘
-                             │            ┌─────────────────────┐
-                             │            │   public schema      │
-                             ├───────────►│   master_venue       │
-                             │            │   master_venue_alias │
-                             │            │   master_venue_extern│
-                             │            └─────────────────────┘
-                             │ read asset ┌─────────────────────┐
-                             └───────────►│   S3 / MinIO         │◄── client (direct PUT)
-                                          │   shortlisty/tenants/   │
-                                          │   shortlisty/master-    │
-                                          │   catalog/           │
-                                          └─────────────────────┘
-                                          ▲
-                                          │ scraper output CSV/JSONL
-                    ┌─────────────────────┤
-                    │ venueintelligence-mc-ingest-        │
-                    │ tagvenue-scraper     │──► venueintelligence-master-venue-loader ──► public.master_venue
-                    │ (Node.js)            │     (Spring Boot)   master_venue_external
-                    └─────────────────────┘
+                               ┌─────────────────────┐
+  Browser / App         ─────► │   Gateway Service   │  (existing)
+                               └──────────┬──────────┘
+                                          │ JWT validated, X-Tenant-ID set
+                               ┌──────────▼──────────┐     ┌─────────────────────┐
+                               │     IAM Service     │     │   Billing Service   │  (existing)
+                               └──────────┬──────────┘     └──────────┬──────────┘
+                                          │                           │ plan entitlements
+  ┌───────────────────────────────────────▼───────────────────────────▼───────────┐
+  │                      venueintelligence-catalog-service                       │
+  │                   venues · assets · metadata · search · api                   │
+  └───────────┬───────────────────────────┬───────────────────────────┬───────────┘
+              │ RabbitMQ                  │ r/w                       │ presigned URL
+              │ asset.uploaded            │                           │ issue + delete
+   ┌──────────▼──────────┐     ┌──────────▼──────────┐     ┌──────────▼──────────┐
+   │ venueintelligence-  │     │ PostgreSQL          │     │ S3 / MinIO          │
+   │ catalog-processing- │     │ t_{tenantKey}       │     │ shortlisty/tenants/ │
+   │ worker (async)      │     │ public.master_venue │     │ shortlisty/master-  │
+   │ (no inbound HTTP)   │     │ + pgvector/PostGIS  │     │ catalog/            │
+   └─────────────────────┘     └─────────────────────┘     └─────────────────────┘
 ```
 
 ### `venueintelligence-catalog-service`
@@ -78,6 +59,8 @@
 - **External calls:** self-hosted LLM inference endpoint (Phi-4 / Qwen2.5 via Ollama or vLLM), optionally Docling sidecar (Phase 2) — see [D12](../roadmap/decisions/D12-self-hosted-inference-stack.md)
 - **Scaling:** replicas scaled independently based on RabbitMQ queue depth — no impact on `venueintelligence-catalog-service`
 
+> The worker reads the uploaded object from S3 and writes its extraction results to the tenant schema. Those edges are omitted from the diagram above for clarity.
+>
 > Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers: `venueintelligence-mc-ingest-<source>-scraper`. Master Catalog population runs in `venueintelligence-master-venue-loader` (Spring Boot). Full cold-start strategy in [master-catalog.md](master-catalog.md).
 
 ### Table Ownership
@@ -338,10 +321,10 @@ Future vertical example:
 venueintelligence-process
       │
       ▼
-mi-med-model           (medical-domain library)
+<vertical>-model            (vertical-domain library)
       │
-      ├── mi-med-service
-      └── mi-med-processing-worker
+      ├── <vertical>-catalog-service
+      └── <vertical>-catalog-processing-worker
 ```
 
 ---
