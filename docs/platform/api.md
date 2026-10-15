@@ -5,7 +5,7 @@
 
 ---
 
-## Related Documents
+## Related documents
 
 - [architecture-overview.md](architecture-overview.md) — REST controller patterns, DTO pattern, authority strings
 - [data-model.md](data-model.md) — domain types and enums referenced in DTOs

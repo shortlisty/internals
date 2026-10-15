@@ -5,7 +5,7 @@
 
 ---
 
-## Related Documents
+## Related documents
 
 - [services.md](services.md) — service responsibilities, table ownership, `venueintelligence-process` library
 - [data-model.md](data-model.md) — `ExtractionJob`, `VenueAsset`, `item_vectors` table definitions

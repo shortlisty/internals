@@ -7,7 +7,7 @@
 
 ---
 
-## Related Documents
+## Related documents
 
 - [ui-venue-management.md](ui-venue-management.md) — venue CRUD, form spec, AnyVenue
 - [ui-deal-workspace.md](ui-deal-workspace.md) — proposal, client board, approval snapshot

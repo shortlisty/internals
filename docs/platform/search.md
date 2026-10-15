@@ -5,7 +5,7 @@
 
 ---
 
-## Related Documents
+## Related documents
 
 - [data-model.md](data-model.md) — index strategy (`IVFFlat`, `GIN`, `GIST`), `item_vectors` table, `venues.master_venue_id`
 - [services.md](services.md) — `venueintelligence-catalog-service` owns the search API; cross-schema access rules for `public.master_venue`

@@ -5,7 +5,7 @@
 
 ---
 
-## Related Documents
+## Related documents
 
 - [architecture-overview.md](architecture-overview.md) — platform context and stack
 - [data-model.md](data-model.md) — schema versioning contract (§2a)

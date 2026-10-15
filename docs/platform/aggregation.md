@@ -5,7 +5,7 @@
 
 ---
 
-## Related Documents
+## Related documents
 
 - [data-model.md](data-model.md) — `venue_metadata_events` table, canonical field set, provenance structure
 - [services.md](services.md) — which service owns the aggregation consumer

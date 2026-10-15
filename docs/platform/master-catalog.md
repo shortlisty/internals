@@ -5,7 +5,7 @@
 
 ---
 
-## Related Documents
+## Related documents
 
 - [data-model.md](data-model.md) — `master_venue`, `master_venue_alias`, `master_venue_external` table definitions
 - [services.md](services.md) — `venueintelligence-mc-ingest-tagvenue-scraper`, `venueintelligence-master-venue-loader` services; S3 master-catalog import paths

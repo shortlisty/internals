@@ -5,7 +5,7 @@
 
 ---
 
-## Related Documents
+## Related documents
 
 - [architecture-overview.md](architecture-overview.md) — platform context and foundation reuse
 - [services.md](services.md) — which service owns which table; shared library layout

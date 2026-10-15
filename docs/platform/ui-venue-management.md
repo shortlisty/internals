@@ -7,7 +7,7 @@
 
 ---
 
-## Related Documents
+## Related documents
 
 - [data-model.md](data-model.md) — `venues`, `venue_annotations`, `master_venue`, canonical field set, `profile_stage`
 - [api.md](api.md) — REST endpoints consumed by these features

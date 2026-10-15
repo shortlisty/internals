@@ -5,7 +5,7 @@
 
 ---
 
-## Related Documents
+## Related documents
 
 - [services.md](services.md) — which service publishes and consumes each event
 - [aggregation.md](aggregation.md) — `MetadataAggregationConsumer` listener container configuration (FIFO, MANUAL ack)

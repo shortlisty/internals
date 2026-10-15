@@ -5,7 +5,7 @@
 
 ---
 
-## Document Map
+## Document map
 
 | Document                                             | Sections covered                                                                                           | Key topics                                                                                                                                               |
 | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -24,25 +24,25 @@
 
 ---
 
-## New Services Introduced by Shortlisty Intelligence
+## New services introduced by Shortlisty
 
-### Shared Libraries (compile-time JARs, no runtime process)
+### Shared libraries (compile-time JARs, no runtime process)
 
 | Library                     | Language              | Role                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | --------------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `venueintelligence-process` | Java (no Spring Boot) | Domain-agnostic platform layer — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`, `AssetType`, `MetadataMigration` interface, `MetadataMigrator` chain runner, `MetadataTypeHandler` abstract base, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`), infrastructure Liquibase changelogs (`extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`). No venue-specific fields. Reusable across verticals. See [services.md § 4c](services.md). |
 | `venueintelligence-model`   | Java (no Spring Boot) | Venue-domain layer — `Venue`, `VenueStatus`, `VenueAsset`, `VenueMetadata` (canonical field set), `VenueCapacity`, `VenueMetadataMigrator`, `VenueMetadataTypeHandler`, `VenueMetadataSchemaVersion.CURRENT_SCHEMA_VERSION`, concrete migration classes, `MasterVenue`, `MasterVenueAlias`, `MasterVenueExternal` POJOs, venue and master catalog Liquibase changelogs. Depends on `venueintelligence-process`. See [services.md § 4a](services.md).                                                             |
 
-### Runtime Services
+### Runtime services
 
 | Service                                        | Language / Runtime | Deployment                                             | Role                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | ---------------------------------------------- | ------------------ | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `venueintelligence-catalog-service`            | Java / Spring Boot | `Deployment` (HTTP, HPA on request rate + p95 latency) | Single REST API service for all venue management operations — tenant venue CRUD, asset upload (presigned URL), metadata read/write, search (all 5 modes), plan entitlement enforcement, master catalog backdrop lookup, platform admin endpoints. Depends on `venueintelligence-process` and `venueintelligence-model`. Exposes `/api/v1/venues`. See [api.md](api.md).                                                                                                                                                                                                                                                   |
 | `venueintelligence-catalog-processing-worker`  | Java / Spring Boot | `Deployment` (HPA on RabbitMQ queue depth)             | Complex async background worker — handles tenant document files through the full ETL pipeline (Tika parse → chunk → self-hosted LLM extract → embed), manages extraction job lifecycle, maps data from master catalog records to tenant venue records where possible (`MasterVenueMatcher` MC_INHERIT merge), runs metadata aggregation consumer and scheduled maintenance jobs (stale re-aggregation, cost reporting). No inbound HTTP. Depends on `venueintelligence-process` and `venueintelligence-model`. Shares PostgreSQL schema with `venueintelligence-catalog-service`. See [etl-pipeline.md](etl-pipeline.md). |
-| `venueintelligence-mc-ingest-tagvenue-scraper` | Node.js (≥ 22.13)  | `CronJob` (nightly)                                    | Lightweight standalone CLI — runs on cron, fetches venue listings from Tagvenue.com (SSR and Playwright-browser modes), and saves results as `MasterVenueRecord`-compatible JSONL files to S3 `venueintelligence/master-catalog/imports/{importId}/`. No DB connections, no shared libraries, no modeling. Output consumed by `venueintelligence-master-venue-loader`. See [master-catalog.md](master-catalog.md).                                                                                                                                                                                                        |
+| `venueintelligence-mc-ingest-tagvenue-scraper` | Node.js (≥ 22.13)  | `CronJob` (nightly)                                    | Lightweight standalone CLI — runs on cron, fetches venue listings from Tagvenue.com (SSR and Playwright-browser modes), and saves results as `MasterVenueRecord`-compatible JSONL files to S3 `shortlisty/master-catalog/imports/{importId}/`. No DB connections, no shared libraries, no modeling. Output consumed by `venueintelligence-master-venue-loader`. See [master-catalog.md](master-catalog.md).                                                                                                                                                                                                        |
 | `venueintelligence-master-venue-loader`        | Java / Spring Boot | `Deployment` (event-driven, low replica count)         | Simple standalone background worker — picks up JSONL files from S3, maps fields directly to `master_venue` / `master_venue_alias` / `master_venue_external` DB records using copy-paste MyBatis mapping (no domain modeling), runs dedup check and CSV audit report before applying. Triggered by `admin.master-catalog.import.dry-run` → `admin.master-catalog.import.apply` RabbitMQ events. Never makes autonomous merge decisions. Depends on `venueintelligence-model` for POJO types only. See [master-catalog.md](master-catalog.md).                                                                              |
 
-### Dependency Graph
+### Dependency graph
 
 ```
 venueintelligence-process  (platform JAR — no vertical deps)
@@ -64,7 +64,7 @@ public.master_venue / master_venue_alias / master_venue_external
 
 ---
 
-## New Infrastructure
+## New infrastructure
 
 | Component          | Notes                                        |
 | ------------------ | -------------------------------------------- |
@@ -74,7 +74,7 @@ public.master_venue / master_venue_alias / master_venue_external
 
 ---
 
-## Quick Cross-Reference
+## Quick cross-reference
 
 | If you need to know…                                                               | Go to…                                                          |
 | ---------------------------------------------------------------------------------- | --------------------------------------------------------------- |

@@ -5,7 +5,7 @@
 
 ---
 
-## Related Documents
+## Related documents
 
 - [services.md](services.md) — tenant isolation in PostgreSQL and S3; GDPR deletion cascade
 - [data-model.md](data-model.md) — schema versioning metrics; `_schema_version` contract

@@ -7,7 +7,7 @@
 
 ---
 
-## Related Documents
+## Related documents
 
 - [ui-venue-management.md](ui-venue-management.md) — Venue catalog UI, form spec, AnyVenue abstraction
 - [data-model.md](data-model.md) — venue, venue_annotations, canonical metadata

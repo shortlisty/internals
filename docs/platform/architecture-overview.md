@@ -5,7 +5,7 @@
 
 ---
 
-## Document Map
+## Document map
 
 | Document                                         | Contents                                                                                                                             |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
@@ -28,7 +28,7 @@
 
 ## 1. Platform Context
 
-Shortlisty Intelligence is a new product service built **on top of the iQ Key Value foundation**. It does not replace or fork any existing service. It reuses:
+Shortlisty is a new product service built **on top of the iQ Key Value foundation**. It does not replace or fork any existing service. It reuses:
 
 | Foundation service           | What Shortlisty inherits                                                                |
 | ---------------------------- | --------------------------------------------------------------------------------------- |
@@ -39,7 +39,7 @@ Shortlisty Intelligence is a new product service built **on top of the iQ Key Va
 | `foundation-ui-app`          | Extended (not forked) with new `/venues/*` routes under FSD architecture                |
 | `foundation-tenancy`         | Schema-per-tenant isolation library reused directly                                     |
 
-**New services introduced by Shortlisty Intelligence:**
+**New services introduced by Shortlisty:**
 
 - `venueintelligence-process` — platform-level shared library (JAR). Domain-agnostic extraction pipeline contracts, metadata versioning mechanism, provenance model, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`), and Liquibase migrations for infrastructure tables (`extraction_jobs`, `item_vectors`, `item_metadata_events`, `ai_cost_tracking`). No Spring beans, no business logic, no venue-specific fields. The domain-agnostic layer — reusable across verticals (venue, medical, agro, etc.). Imported by both services and by `venueintelligence-model`.
 - `venueintelligence-model` — venue-domain shared library (JAR). Venue-specific domain model (`Venue`, `VenueMetadata`, `MasterVenue`), canonical field set, venue metadata migrations, and Liquibase migrations for venue tables (`venues`, `venue_assets`, `venue_annotations`, `master_venue`). Depends on `venueintelligence-process`. Imported by both services.
@@ -48,7 +48,7 @@ Shortlisty Intelligence is a new product service built **on top of the iQ Key Va
 - `venueintelligence-master-venue-loader` — Spring Boot service. Runs master catalog import jobs triggered by `admin.master-catalog.import.*` RabbitMQ events. Applies reviewed scraper CSV/JSONL batches to `public.master_venue`. No tenant interaction.
 - Standalone scrapers (`venueintelligence-mc-ingest-<source>-scraper`) — Node.js. Produce CSV/JSONL output, upload to S3. Run on demand, not deployed as persistent services.
 
-**New infrastructure introduced by Shortlisty Intelligence:**
+**New infrastructure introduced by Shortlisty:**
 
 - pgvector extension on existing PostgreSQL (not a new service)
 - PostGIS extension on existing PostgreSQL (not a new service)

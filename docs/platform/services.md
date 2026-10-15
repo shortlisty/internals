@@ -5,7 +5,7 @@
 
 ---
 
-## Related Documents
+## Related documents
 
 - [architecture-overview.md](architecture-overview.md) — platform context, foundation reuse, implementation patterns
 - [data-model.md](data-model.md) — full domain model and database schema
@@ -28,7 +28,7 @@
                                └──────────┬──────────┘     └──────────┬──────────┘
                                           │                           │ plan entitlements
   ┌───────────────────────────────────────▼───────────────────────────▼───────────┐
-  │                      venueintelligence-catalog-service                       │
+  │                       venueintelligence-catalog-service                       │
   │                   venues · assets · metadata · search · api                   │
   └───────────┬───────────────────────────┬───────────────────────────┬───────────┘
               │ RabbitMQ                  │ r/w                       │ presigned URL
