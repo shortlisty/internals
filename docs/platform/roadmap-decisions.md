@@ -17,7 +17,7 @@
 
 ---
 
-## 15. Open Decisions
+## 15. Open decisions
 
 ### Resolved
 
@@ -49,9 +49,9 @@
 
 ---
 
-## 17. Next Steps & Design Iterations
+## 17. Next steps & design iterations
 
-### Before Sprint 1 — Resolve These First
+### Before sprint 1 — resolve these first
 
 - [ ] **Implement `VenueMetadataMigrator` v0 + v1 chain** in `venueintelligence-model` before any service code reads or writes `venues.metadata`. Wire `VenueMetadataTypeHandler` into the `VenueResultMap`. Add Micrometer counter inside `migrateToCurrent()`. Add JUnit tests for `MetadataMigrationV0ToV1` with 5+ fixture JSON shapes (empty `{}`, `{}` without `_schema_version`, full v1 shape, partial v1 shape, master-catalog-copy shape) to cover legacy-bootstrapping edge cases.
 
@@ -63,7 +63,7 @@
 
 ---
 
-### Phase 2 Design (post-MVP signal)
+### Phase 2 design (post-MVP signal)
 
 - **Conflict resolution UX** — API shape + state machine for resolving competing extracted values
 - **Bulk import / CSV ingestion** — for concierge onboarding and agency migrations
@@ -79,7 +79,7 @@
 
 ---
 
-### Phase 3 Design
+### Phase 3 design
 
 - **Export / sharing** — shareable branded links, PDF/Excel report generation, venue comparison view
 - **Deduplication** — detect and merge duplicate venue records across teams
@@ -88,7 +88,7 @@
 
 ---
 
-### Cross-Cutting Concerns (design before Phase 2 builds)
+### Cross-cutting concerns (design before phase 2 builds)
 
 - **AI resilience** — fallback behavior when OpenAI is unavailable; graceful degradation (queue for retry, notify user)
 - **Per-tenant AI cost controls** — budget caps, monthly usage alerts, what happens at limit
@@ -97,7 +97,7 @@
 
 ---
 
-### Strategic Bets to Validate with First Users
+### Strategic bets to validate with first users
 
 - Is semantic search ("find venues like this one") actually used, or do planners prefer structured filters?
 - What is the real extraction accuracy on real-world venue PDFs? Run benchmark on 50 sample documents before committing to accuracy claims.

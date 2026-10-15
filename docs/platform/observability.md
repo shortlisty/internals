@@ -20,7 +20,7 @@
 
 Both Shortlisty services follow foundation patterns exactly.
 
-### Prometheus Metrics
+### Prometheus metrics
 
 | Metric                                              | Labels                                  | Notes                                                                                                                                                                                                                                                                                                     |
 | --------------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -40,7 +40,7 @@ Both Shortlisty services follow foundation patterns exactly.
 | `shortlisty_item_vectors_rows_total`                | `tenant_id`                             | Gauge — per-tenant `item_vectors` row count. Trigger for IVFFlat → HNSW evaluation when > 1 M rows (see [roadmap-decisions.md](roadmap-decisions.md)).                                                                                                                                                    |
 | `shortlisty_master_catalog_entry_sweep_total`       | `outcome`                               | Counter incremented when orphan `venues.master_venue_id` values are swept after a master catalog entry is deleted. `outcome` = `updated` / `no_match` / `error`. Phase 2 — see [roadmap-decisions.md](roadmap-decisions.md).                                                                              |
 
-### Grafana Dashboard
+### Grafana dashboard
 
 Added to `docker/grafana/provisioning/dashboards/VipService.json`.
 
@@ -57,7 +57,7 @@ Added to `docker/grafana/provisioning/dashboards/VipService.json`.
 | Audit trail             | All `venue.*`, `asset.*`, `extraction.*` events passively consumed by `foundation-audit-service` (see [events.md](events.md)).                                             |
 | PII in documents        | Warn on upload. Do not log extracted text.                                                                                                                                 |
 
-### Security Config
+### Security config
 
 Full `SecurityConfig` pattern, JWT claim names, and authority strings are in [architecture-overview.md § Security](architecture-overview.md).
 

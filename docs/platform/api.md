@@ -17,7 +17,7 @@
 
 ---
 
-## Platform Conventions
+## Platform conventions
 
 All endpoints follow platform conventions based on the actual implementation in `foundation-cms-service` and `foundation-iam-service`:
 
@@ -103,7 +103,7 @@ VenueSummaryListResponse
 
 ---
 
-## Master Venues (MEMBER read)
+## Master venues (MEMBER read)
 
 Base: `/api/v1/venues/master-venues`
 
@@ -275,7 +275,7 @@ MetadataEventResponse
 
 ---
 
-## Extraction Jobs
+## Extraction jobs
 
 Base: `/api/v1/venues/{venueId}/extractions`
 
@@ -314,7 +314,7 @@ Deal Workspace — planner assembles venue shortlists, sends to client for revie
 | `GET`   | `/{id}/snapshot`  | `MEMBER`                | 200    | Locked snapshot — only available when `status = APPROVED`         |
 | `POST`  | `/{id}/ai-assist` | `MEMBER`                | 200    | AI-suggested response for a client question                       |
 
-### Proposal Venues
+### Proposal venues
 
 Base: `/api/v1/venues/proposals/{proposalId}/venues`
 
@@ -324,7 +324,7 @@ Base: `/api/v1/venues/proposals/{proposalId}/venues`
 | `PATCH`  | `/{pvId}` | `MEMBER`  | 200    | Update `order`, `exposed_fields`, `planner_note` |
 | `DELETE` | `/{pvId}` | `MEMBER`  | 204    | Remove venue from proposal                       |
 
-### Proposal Labels
+### Proposal labels
 
 Base: `/api/v1/venues/proposals/{proposalId}/labels`
 
@@ -389,7 +389,7 @@ ProposalEventResponse
 
 ---
 
-## Client Board (Public — no auth)
+## Client board (public — no auth)
 
 Base: `/api/v1/venues/share/{token}`
 
@@ -427,7 +427,7 @@ ClientApproveRequest
 
 ---
 
-## Platform Admin API
+## Platform admin API
 
 Base: `/api/v1/venues/admin/master-venues`
 
@@ -488,7 +488,7 @@ DeduplicationCheckResponse
 
 ---
 
-## Error Responses
+## Error responses
 
 All errors use Spring's `ProblemDetail` (RFC 7807). `type = about:blank`. Every response includes `correlationId` and `requestId` extension properties.
 

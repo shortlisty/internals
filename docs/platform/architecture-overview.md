@@ -26,7 +26,7 @@
 
 ---
 
-## 1. Platform Context
+## 1. Platform context
 
 Shortlisty is a new product service built **on top of the iQ Key Value foundation**. It does not replace or fork any existing service. It reuses:
 
@@ -56,7 +56,7 @@ Shortlisty is a new product service built **on top of the iQ Key Value foundatio
 
 ---
 
-## 14. Technology Decisions
+## 14. Technology decisions
 
 | Concern              | Decision                                                                           | Rationale                                                                                                                 |
 | -------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
@@ -76,7 +76,7 @@ Full rationale and competitor analysis: see [`../business/Digital_Sales_Room_for
 
 ---
 
-## 16. Implementation Patterns
+## 16. Implementation patterns
 
 This section records how core cross-cutting concerns are implemented in the existing foundation services. Shortlisty must follow these patterns exactly — they are not aspirational, they are the actual running code.
 
@@ -237,7 +237,7 @@ Key points:
 
 ---
 
-### REST Controllers
+### REST controllers
 
 **Pattern 1 — Tenant-scoped (standard).** Controller at `/api/v1/venues/**`. `TenantExtractionFilter` sets `TenantContext` from JWT before the request hits the controller. No tenant path variable.
 
@@ -294,7 +294,7 @@ public class AdminVenueRestResource {
 
 ---
 
-### DTO Pattern
+### DTO pattern
 
 All DTOs are Java **records**, grouped in a single `{Domain}Dtos.java` container class. Response wrappers for lists include `items` and `totalElements` — no Spring `Page<T>` in API responses.
 
@@ -326,7 +326,7 @@ public final class VenueDtos {
 
 ---
 
-### MyBatis Mapper Pattern
+### MyBatis mapper pattern
 
 ```java
 package com.iqkv.venueintelligence.catalog.persistence;
@@ -347,13 +347,13 @@ SQL in XML mapper. `search_path` is set to `t_{tenantKey}` by `MyBatisSchemaInte
 
 ---
 
-### GlobalExceptionHandler Pattern
+### GlobalExceptionHandler pattern
 
 One `@RestControllerAdvice` per service. Every handler uses the same `problem(type, title, status, detail, request)` helper that sets `type = "about:blank"`, adds `correlationId` (from MDC) and `requestId` (generated short UUID). No `https://api.iqkv.site/errors/` URIs — the actual implementation uses `about:blank` throughout.
 
 ---
 
-## UI Integration (`foundation-ui-app`)
+## UI integration (`foundation-ui-app`)
 
 Extend `foundation-ui-app` — do **not** fork. New Shortlisty features live under:
 

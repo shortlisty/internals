@@ -16,7 +16,7 @@
 
 ---
 
-## 5. ETL Pipeline (`venueintelligence-catalog-processing-worker`)
+## 5. ETL pipeline (`venueintelligence-catalog-processing-worker`)
 
 Built on **Spring AI's ETL framework**. Three composable stages:
 
@@ -83,7 +83,7 @@ Retry on failure: 3 attempts with exponential backoff. After 3 failures → `Ext
 
 ---
 
-### Spring Wiring — Worker Entry Point
+### Spring wiring — worker entry point
 
 ```java
 package com.iqkv.venueintelligence.catalog.processing;

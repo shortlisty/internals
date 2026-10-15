@@ -16,7 +16,7 @@
 
 ---
 
-## 4. Service Architecture
+## 4. Service architecture
 
 ```
                                ┌─────────────────────┐
@@ -63,7 +63,7 @@
 >
 > Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers: `venueintelligence-mc-ingest-<source>-scraper`. Master Catalog population runs in `venueintelligence-master-venue-loader` (Spring Boot). Full cold-start strategy in [master-catalog.md](master-catalog.md).
 
-### Table Ownership
+### Table ownership
 
 Both services share one PostgreSQL schema. Ownership defines who may write to a table. Cross-boundary reads are permitted; cross-boundary writes are not.
 
@@ -80,7 +80,7 @@ The single legitimate cross-boundary read from `venueintelligence-catalog-proces
 
 ---
 
-## 4a. Shared Library — `venueintelligence-model`
+## 4a. Shared library — `venueintelligence-model`
 
 `venueintelligence-model` is a plain Java library (JAR, no Spring Boot). It is the **venue-domain layer** containing only venue-specific entities, field definitions, metadata migrations, and schema changelogs. Generic extraction infrastructure lives in `venueintelligence-process` (§4c), which this library imports as a compile dependency.
 
@@ -137,11 +137,11 @@ venueintelligence-model/
 
 ---
 
-## 4b. S3 Storage Layout
+## 4b. S3 storage layout
 
 S3 (MinIO for local dev) is already in the iQ Key Value stack. Shortlisty adds its own prefix namespace inside the shared bucket (`iqkv-files`).
 
-### Bucket Strategy
+### Bucket strategy
 
 | Environment | Bucket           | Notes                                                                                        |
 | ----------- | ---------------- | -------------------------------------------------------------------------------------------- |
@@ -151,9 +151,9 @@ S3 (MinIO for local dev) is already in the iQ Key Value stack. Shortlisty adds i
 
 MinIO in local dev is configured in `docker-compose.yml` with `MINIO_DEFAULT_BUCKETS=iqkv-files`.
 
-### Key Naming Convention
+### Key naming convention
 
-#### Tenant Asset Files
+#### Tenant asset files
 
 ```
 shortlisty/tenants/{tenantKey}/venues/{venueId}/assets/{assetId}/{fileName}
@@ -182,7 +182,7 @@ shortlisty/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/6ba7b
 - `{venueId}` and `{assetId}` are UUIDs without hyphens (compact 32-char hex).
 - The `asset_id` is generated server-side at `POST /api/v1/venues/{venueId}/assets/initiate` and written to `venue_assets.id` before the presigned URL is issued. The S3 key is stored in `venue_assets.s3_key` — at confirm time no key re-computation happens.
 
-#### Presigned URL Issuance
+#### Presigned URL issuance
 
 `POST /api/v1/venues/{venueId}/assets/initiate` response:
 
@@ -196,7 +196,7 @@ shortlisty/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/6ba7b
 
 The presigned PUT URL is scoped to the exact key. The client uploads directly. The service never proxies the file body. Download presigned URLs (1h TTL) are generated on-demand at `GET /api/v1/venues/{venueId}/assets/{id}/download-url` — not stored.
 
-#### Master Catalog Import Files
+#### Master catalog import files
 
 ```
 shortlisty/master-catalog/imports/{importId}/{fileName}
@@ -208,13 +208,13 @@ shortlisty/master-catalog/exports/{date}/{snapshot}.jsonl.gz
 | `shortlisty/master-catalog/imports/{importId}/` | One folder per import batch (admin-triggered). Contains raw CSV/JSON input files. |
 | `shortlisty/master-catalog/exports/{date}/`     | Nightly compacted snapshots of `public.master_venue` for downstream consumers.    |
 
-### Tenant Isolation
+### Tenant isolation
 
 - All tenant objects scoped under `shortlisty/tenants/{tenantKey}/`. Cross-tenant read is structurally impossible without knowing the other tenant's key.
 - The service account holds a single S3 IAM policy allowing `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on the full `shortlisty/*` prefix. Presigned URLs are scoped to the exact object key.
 - Master catalog paths (`shortlisty/master-catalog/*`) are not accessible via tenant-issued presigned URLs. Written only by the platform's internal job service account (`venueintelligence-master-venue-loader`).
 
-### Lifecycle Rules
+### Lifecycle rules
 
 | Rule                             | Prefix                                         | Action                                                                                                 |
 | -------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
@@ -230,7 +230,7 @@ Object tags set by `venueintelligence-catalog-service` at `POST /api/v1/venues/{
 | `asset_type`        | `pdf_deck`, `floor_plan`, `photo`, `cad_file` … | venueintelligence-catalog-service at initiate       |
 | `tenant_key`        | 8-char nanoid                                   | venueintelligence-catalog-service at initiate       |
 
-### Deletion Cascade
+### Deletion cascade
 
 When a tenant deletes an asset (`DELETE /api/v1/venues/{venueId}/assets/{id}`) or when a tenant account is terminated:
 
@@ -246,7 +246,7 @@ For full tenant deletion (GDPR right to erasure):
 
 ---
 
-## 4c. Shared Library — `venueintelligence-process`
+## 4c. Shared library — `venueintelligence-process`
 
 `venueintelligence-process` is a plain Java library (JAR, no Spring Boot). It is the **domain-agnostic, vertical-independent layer** — containing everything that would be reused verbatim if the platform were applied to a different vertical (medical records, agro assets, legal documents, etc.). Neither venue-specific fields nor venue-specific migration logic belong here.
 
@@ -304,7 +304,7 @@ venueintelligence-process/
 | `capacity`, `catering`, `av_tech` field names | Canonical field set — domain library                |
 | Extraction prompt templates                   | Domain config — externalised per vertical           |
 
-### Dependency Graph
+### Dependency graph
 
 ```
 venueintelligence-process   (platform library, no runtime, no vertical deps)

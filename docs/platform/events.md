@@ -16,7 +16,7 @@
 
 ---
 
-## 8. Event Contracts (RabbitMQ)
+## 8. Event contracts (RabbitMQ)
 
 Exchange: `iqkv.events` (Topic) — same exchange used by all foundation services.
 
@@ -65,7 +65,7 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 
 ---
 
-## Metadata Aggregation Queue — Consumer Configuration
+## Metadata aggregation queue — consumer configuration
 
 The `MetadataAggregationConsumer` listener container in `venueintelligence-catalog-service` must be configured to serialise processing per queue so that per-venue events never execute concurrently:
 
@@ -80,7 +80,7 @@ The consumer listens either on one queue (A1) or on all 16 slot queues (A2) via 
 
 ---
 
-## 9. Plan Entitlement Mapping
+## 9. Plan entitlement mapping
 
 Feature codes used in `foundation-billing-service` plan config:
 

@@ -5,9 +5,9 @@
 
 ---
 
-## 1. ETL Pipeline Architecture — Proven Foundation
+## 1. ETL pipeline architecture — proven foundation
 
-### 1.1 Spring AI's ETL Pipeline
+### 1.1 Spring AI's ETL pipeline
 
 Spring AI ships a first-class, production-grade ETL pipeline with three composable stages:
 
@@ -45,7 +45,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 | `SimpleVectorStore`  | In-memory (testing/dev)                           |
 | `FileDocumentWriter` | Write to files (useful for debugging pipeline)    |
 
-### 1.2 Shortlisty's Document Processing Pipeline
+### 1.2 Shortlisty's document processing pipeline
 
 ```
                      S3 Asset Storage
@@ -165,7 +165,7 @@ public class AssetExtractionOrchestrator<M> {
 }
 ```
 
-### 1.3 Asset-Type Processing Matrix
+### 1.3 Asset-type processing matrix
 
 | Asset Type            | Asset Type Enum | Parser                            | OCR Needed  | Structured Extraction     | `table_data` | Vector Indexed    |
 | --------------------- | --------------- | --------------------------------- | ----------- | ------------------------- | ------------ | ----------------- |
@@ -185,7 +185,7 @@ public class AssetExtractionOrchestrator<M> {
 
 `table_data` is populated synchronously in the worker before text extraction is queued — it is a fast CSV/XLSX parse, not an AI call. See [data-model.md §2c](data-model.md) for the `table_data` JSONB schema and size constraints (max 500 rows × 20 columns).
 
-### 1.4 Chunking Strategy
+### 1.4 Chunking strategy
 
 Document chunking significantly impacts retrieval quality. Shortlisty uses a hybrid strategy:
 
@@ -212,7 +212,7 @@ Document chunking significantly impacts retrieval quality. Shortlisty uses a hyb
 - No text chunking — pass directly to GPT-4o vision
 - Single Document per image with vision-extracted metadata
 
-### 1.5 Why Apache Tika is the Right Foundation
+### 1.5 Why Apache Tika is the right foundation
 
 Apache Tika has been the Java ecosystem's battle-tested document parser since 2007:
 
@@ -237,7 +237,7 @@ public TikaDocumentReader.Factory tikaReaderFactory() {
 }
 ```
 
-### 1.6 Docling Integration for High-Fidelity PDF Parsing
+### 1.6 Docling integration for high-fidelity PDF parsing
 
 For venue decks with complex layouts, tables, and multi-column structures, Docling outperforms basic Tika PDF parsing:
 
@@ -298,11 +298,11 @@ docling-service:
 
 ---
 
-## 2. The Intelligence Layer Shortlisty Owns
+## 2. The intelligence layer Shortlisty owns
 
 Everything above (Tika, Docling, Spring AI ETL) is infrastructure. Shortlisty's proprietary intelligence sits on top:
 
-### 2.1 Venue-Specific Extraction Schema
+### 2.1 Venue-specific extraction schema
 
 Generic document intelligence tools extract generic fields. Shortlisty extracts fields that matter for event professionals.
 
@@ -387,7 +387,7 @@ This schema is the **venue canonical field set** — defined as `VenueMetadata` 
 
 This schema is what makes Shortlisty a _venue intelligence platform_, not just a document storage system. Every competitor either has operational data (bookings, invoicing) or generic extraction. No one has this schema purpose-built for event planners.
 
-### 2.2 Confidence-Sourced Metadata Model
+### 2.2 Confidence-sourced metadata model
 
 Each field carries full provenance:
 
@@ -407,7 +407,7 @@ Each field carries full provenance:
 
 No existing venue tool surfaces this level of data provenance. Users see not just the value but _why_ the system believes it.
 
-### 2.3 Semantic Layer and Versioned Event Mappings
+### 2.3 Semantic layer and versioned event mappings
 
 Raw venue documents use inconsistent field names across sources and across time. A marketing deck from 2023 may call it "maximum occupancy"; a 2026 spec sheet calls it "standing capacity." Both map to the same canonical field `capacity.max_total`. Shortlisty solves this with a **semantic layer**: a set of canonical business definitions that remain stable regardless of how raw source documents phrase or rename the underlying data.
 
@@ -429,7 +429,7 @@ Raw venue documents use inconsistent field names across sources and across time.
 
 **Why this matters for AI-generated insights.** An AI layer querying venue data — whether for search ranking, anomaly detection, or pattern extraction — can only produce deterministic, auditable results if the underlying field definitions are stable and versioned. Without this, a model trained or prompted on `capacity.max_total` today may silently return different results next year because a mapping changed without a version bump. The semantic layer and versioned mapping pattern guarantee that insight queries are reproducible.
 
-### 2.4 Multi-Source Aggregation (The Hard Problem Nobody Solves)
+### 2.4 Multi-source aggregation (the hard problem nobody solves)
 
 Documents arrive for the same item in multiple formats — a marketing deck, a floor plan PDF, a technical spec sheet, a photo set. Each source may have conflicting or complementary data.
 
@@ -445,7 +445,7 @@ This is a genuine product moat. No other platform in the event space does this. 
 
 ---
 
-## 3. Extension Model — Generic Core, Domain Strategies
+## 3. Extension model — generic core, domain strategies
 
 The platform separates **infrastructure contracts** (reusable across any document-intelligence vertical) from **domain strategies** (venue-specific, swapped per vertical). This is the mechanism that makes a pivot — from venues to medical records, agro assets, legal documents, or any other domain — a library swap rather than a rewrite.
 
@@ -645,9 +645,9 @@ venueintelligence-process
 
 ---
 
-## 4. Scalability Architecture
+## 4. Scalability architecture
 
-### Event-Driven, Horizontally Scalable
+### Event-driven, horizontally scalable
 
 ```
 Upload → S3 → AssetUploadedEvent → RabbitMQ → N consumers → Processing Pipeline
@@ -661,7 +661,7 @@ Upload → S3 → AssetUploadedEvent → RabbitMQ → N consumers → Processing
 - Dead-letter queue catches failures — automatic retry with backoff
 - No single point of failure in the processing path
 
-### Cost Scaling
+### Cost scaling
 
 | Scale            | AI Cost | Infrastructure                         |
 | ---------------- | ------- | -------------------------------------- |
@@ -672,7 +672,7 @@ Upload → S3 → AssetUploadedEvent → RabbitMQ → N consumers → Processing
 
 At the $0.001/venue cost of GPT-4o extraction + embedding generation, Shortlisty can process 1 million venues for approximately $1,000 in AI costs. This is not a cost problem.
 
-### Vector Search Scaling
+### Vector search scaling
 
 pgvector with IVFFlat index:
 
@@ -682,7 +682,7 @@ pgvector with IVFFlat index:
 
 ---
 
-## 5. Technology Decisions Summary
+## 5. Technology decisions summary
 
 | Layer                   | Choice                                                                                                                                                                                                                                               | Rationale                                                                                             |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
@@ -702,7 +702,7 @@ pgvector with IVFFlat index:
 
 ---
 
-## 6. Open Questions for Implementation
+## 6. Open questions for implementation
 
 - [x] **Docling vs. pure Tika:** ~~Start with Tika for MVP speed. Add Docling for Phase 2 when floor plan fidelity matters.~~ **Decided:** Tika-only for Phase 1 (MVP). Docling sidecar added in Phase 2 for floor plan and table fidelity. See §15 of [Architecture](README.md).
 - [x] **OCR strategy:** ~~Tika bundles Tesseract for basic OCR. GPT-4o vision handles complex cases.~~ **Decided:** If Tika OCR confidence < 0.7 on a scanned PDF, escalate to GPT-4o vision. Threshold is fixed, not configurable in Phase 1.

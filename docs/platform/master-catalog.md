@@ -16,7 +16,7 @@
 
 ---
 
-## What Is the Master Catalog?
+## What is the master catalog?
 
 The master venue catalog (`public.master_venue`) is a **platform-level service component** — a reference dataset that operates behind the scenes to improve tenant experiences without direct tenant interaction. It is **not a tenant-facing feature**; it is **platform infrastructure** that provides autocomplete suggestions, prevents duplicates, and enriches metadata transparently.
 
@@ -24,7 +24,7 @@ Master Catalog functions as a background service via MC_INHERIT provenance (prio
 
 ---
 
-## Cold-Start Population Strategy (MVP)
+## Cold-start population strategy (MVP)
 
 Three **platform admin channels** seed `public.master_venue`. **No tenant interaction** — all management happens at the platform level by platform administrators. Tenants benefit from the improved suggestions and data quality without seeing or managing the underlying reference data.
 
@@ -37,7 +37,7 @@ Three **platform admin channels** seed `public.master_venue`. **No tenant intera
 
 ---
 
-## Alias Normalisation
+## Alias normalisation
 
 Before any name comparison (INSERT-time dedup check, scraper dry-run report, extraction-time gap-fill), both sides pass through the same normalisation function so that trivial differences do not break the match:
 
@@ -57,7 +57,7 @@ Both the original name and the normalised form are stored. `master_venue_alias` 
 
 ---
 
-## Scraper Import — Dry-Run Dedup Check
+## Scraper import — dry-run dedup check
 
 Channel 3 scraper dry-run and channel 2 admin INSERT pre-write validation share one deduplication rule set. **Never auto-apply.**
 
@@ -93,18 +93,18 @@ Admin always has the final say via the reviewed CSV action column or the confirm
 
 ---
 
-## Platform Admin Full Control
+## Platform admin full control
 
 Platform administrators (`PLATFORM_ADMIN` authority) have **complete unrestricted access** to the master venue catalog:
 
-### Full CRUD Operations
+### Full CRUD operations
 
 - **CREATE**: Add new master venues without any validation constraints
 - **READ**: Access all master venue data, metadata, aliases, and external provider records
 - **UPDATE**: Modify any field in any master venue record, including metadata, confidence scores, and provenance
 - **DELETE**: Remove master venues, aliases, or external provider records
 
-### Override Capabilities
+### Override capabilities
 
 - **Force operations** that bypass deduplication warnings
 - **Manual merge** decisions overriding similarity thresholds
@@ -112,7 +112,7 @@ Platform administrators (`PLATFORM_ADMIN` authority) have **complete unrestricte
 - **Metadata schema version** management and force-migration
 - **Bulk operations** for data cleanup and management
 
-### No Restrictions
+### No restrictions
 
 - **Any possible change is accepted** — no business logic constraints on admin operations
 - **Bypass all validation** — admins can create venues that fail normal validation rules
@@ -123,7 +123,7 @@ Platform admins are trusted with full control because master venue data quality 
 
 ---
 
-## Extraction-Time MC_INHERIT Merge — `MasterVenueMatcher`
+## Extraction-time MC_INHERIT merge — `MasterVenueMatcher`
 
 After a tenant document finishes extraction, `MasterVenueMatcher` runs as Step 3 in [etl-pipeline.md § Stage 3](etl-pipeline.md). It compares the tenant's `Venue` record against `public.master_venue`. **No LLM calls. No embedding similarity. Pure PostgreSQL `pg_trgm` + PostGIS, zero external cost.**
 
@@ -150,7 +150,7 @@ Combined confidence:
       combined = 1.00 * name_sim   // name-only threshold is much stricter
 ```
 
-### Outcome and Thresholds
+### Outcome and thresholds
 
 ```
 MATCH (MC_INHERIT merge fields):
@@ -185,7 +185,7 @@ Also populates `venues.master_venue_id` on unambiguous MATCH — used by cross-s
 
 ---
 
-## Before Sprint 1 — Threshold Calibration Dry-Run
+## Before sprint 1 — threshold calibration dry-run
 
 Before any production tenant has access, run a mandatory calibration pass:
 
@@ -197,7 +197,7 @@ Before any production tenant has access, run a mandatory calibration pass:
 
 ---
 
-## Observability for Match Quality
+## Observability for match quality
 
 `MasterVenueMatcher` records Micrometer metrics on every extraction run (see [observability.md](observability.md)):
 

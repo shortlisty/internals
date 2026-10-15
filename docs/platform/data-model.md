@@ -17,11 +17,11 @@
 
 ---
 
-## 2. Domain Model
+## 2. Domain model
 
-### Bounded Contexts
+### Bounded contexts
 
-#### `venue/` — Core Profile
+#### `venue/` — core profile
 
 **Aggregate root: `Venue`**
 
@@ -66,7 +66,7 @@ Transitions are monotone by default (SEEDED → ENRICHED → CURATED → READY) 
 
 ---
 
-#### `asset/` — File Attachments
+#### `asset/` — file attachments
 
 **Aggregate root: `VenueAsset`**
 
@@ -180,7 +180,7 @@ flag in `extracted_text`.
 
 ---
 
-#### `extraction/` — AI Processing Jobs
+#### `extraction/` — AI processing jobs
 
 **Aggregate root: `ExtractionJob`**
 
@@ -200,7 +200,7 @@ Defined in `venueintelligence-process`. Owned by `venueintelligence-catalog-proc
 
 ---
 
-#### `metadata_events/` — Event Log (for aggregation)
+#### `metadata_events/` — event log (for aggregation)
 
 **Not an aggregate root — append-only event log.**
 
@@ -219,7 +219,7 @@ How this table feeds aggregation: see [aggregation.md](aggregation.md).
 
 ---
 
-#### `venue_annotations/` — Agent Personal Context
+#### `venue_annotations/` — agent personal context
 
 **Tenant-owned. Lives in `t_{tenantKey}` schema.**
 
@@ -255,7 +255,7 @@ Annotations are owned per-member (not per-tenant) and can be scoped as private (
 
 ---
 
-#### `venue_groups/` — Tenant Library Organisation (Phase 2)
+#### `venue_groups/` — tenant library organisation (phase 2)
 
 **Tenant-owned. Lives in `t_{tenantKey}` schema.**
 
@@ -277,7 +277,7 @@ Venues are assigned to groups via a join table `venue_group_members(venue_id, gr
 
 ---
 
-### Canonical Field Set
+### Canonical field set
 
 The `venues.metadata` column stores the **consolidated view** of all extracted and manually entered data. The `venues.metadata_sources` column stores **provenance** per field.
 
@@ -370,7 +370,7 @@ ratings
 
 ---
 
-## 2a. Metadata Schema Versioning & Migration
+## 2a. Metadata schema versioning & migration
 
 The canonical `venues.metadata` shape evolves over time — new nested fields are added, types are widened, obsolete keys are retired. Without an explicit version marker and migration pipeline, JSONB documents produced by older extraction prompts or older code versions deserialize incompletely (null pointers, type coercion failures, silent data drops) when read by newer backend code.
 
@@ -387,7 +387,7 @@ Every `venues.metadata` JSONB document must carry an integer key `_schema_versio
 | Write enforcement   | Every write path runs the migrator and sets `_schema_version = CURRENT_SCHEMA_VERSION` before persisting     |
 | Read enforcement    | `VenueMetadataMigrator.migrateToCurrent(JsonNode)` is called on **every read** via MyBatis ResultMap handler |
 
-### Migration Pipeline — `VenueMetadataMigrator`
+### Migration pipeline — `VenueMetadataMigrator`
 
 Lives in `venueintelligence-model` (shared library, zero Spring deps — pure Java). Both services use the **same** migrator instance.
 
@@ -422,7 +422,7 @@ Lives in `venueintelligence-model` (shared library, zero Spring deps — pure Ja
                       VenueMetadata POJO)
 ```
 
-### Migration Classes
+### Migration classes
 
 Each `N → N+1` step is a single-responsibility class implementing `MetadataMigration` interface (defined in `venueintelligence-process`). Migrations are registered in an ordered list inside `VenueMetadataMigrator` — the order is the source of truth.
 
@@ -469,7 +469,7 @@ public final class MetadataMigrationV1ToV2 implements MetadataMigration {
 - Enum string rename: produce a mapping table. Missing values default to `null` — callers decide how to render an unknown enum value in UI/API.
 - Migration list is **append-only**. Once a migration class is merged, it is never deleted or reordered.
 
-### Write Path — Stamping the Version
+### Write path — stamping the version
 
 All code paths that produce or mutate `venues.metadata` call `migrator.ensureCurrent(node)` **before** the `UPDATE` / `INSERT`. This:
 
@@ -479,7 +479,7 @@ All code paths that produce or mutate `venues.metadata` call `migrator.ensureCur
 
 Write paths affected: `MetadataAggregationConsumer`, `PATCH /api/v1/venues/{venueId}/metadata/{field}` handler, bulk import job, MC_INHERIT merge, `CreateVenueRequest` default metadata initializer.
 
-### Read Path — Safe Deserialization
+### Read path — safe deserialization
 
 Reading `venues.metadata` from the database never returns a raw JSONB value. The MyBatis result map applies the migrator inside the column handler:
 
@@ -494,28 +494,28 @@ Reading `venues.metadata` from the database never returns a raw JSONB value. The
 
 `VenueMetadataTypeHandler` runs `VenueMetadataMigrator.migrateToCurrent()` between the raw `PGobject` JSONB and `VenueMetadata` POJO construction. If a document is several versions behind, all intermediate migrations run in a single pass.
 
-### Backfill: Online-Only, No Offline Migration Job
+### Backfill: online-only, no offline migration job
 
 - **First read** of a stale document → migrator upgrades in-memory, returns correct shape. The DB copy remains stale.
 - **Next write** → `ensureCurrent()` stamps the DB copy to the latest version permanently.
 
 No scheduled backfill job, no downtime, no `ALTER TABLE` on JSONB. If all rows must be force-converged (e.g. before a heavy schema jump), a one-shot admin endpoint iterates `SELECT id FROM venues` and issues a no-op `UPDATE venues SET metadata = metadata` to trigger write-path stamping.
 
-### Version Distribution Observability
+### Version distribution observability
 
 The migrator records the pre-migration version of every document it sees via Micrometer. See [observability.md](observability.md) for the `shortlisty_metadata_schema_version_seen_total` metric.
 
-### Schema Version in Master Catalog Metadata
+### Schema version in master catalog metadata
 
 `public.master_venue.metadata` follows the same `_schema_version` contract. Master catalog import jobs run `VenueMetadataMigrator.ensureCurrent()` before `INSERT/UPDATE public.master_venue`. See [master-catalog.md](master-catalog.md).
 
 ---
 
-## 10. Database Schema
+## 10. Database schema
 
 Migrations live in `venueintelligence-model` under `src/main/resources/db/changelog/tenant/`. Both services include the library on their classpath; `venueintelligence-catalog-service` runs the migrations on startup (same pattern as IAM).
 
-### Naming and Format Conventions
+### Naming and format conventions
 
 - Format: **XML only** — no SQL scripts, no YAML
 - File naming: `YYYYMMDDhhmmss-description.xml`
@@ -524,7 +524,7 @@ Migrations live in `venueintelligence-model` under `src/main/resources/db/change
 - Every changeset must include a `<rollback>` block
 - Never modify an existing changeset — add a new one
 
-### Migration Files
+### Migration files
 
 ```
 db/changelog/system/
@@ -544,7 +544,7 @@ db/changelog/tenant/
 
 The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml` first (to the `public` schema), then `tenant/master.xml` to each `t_{tenantKey}` schema. The `master_venue`, `master_venue_alias`, and `master_venue_external` tables are created in `public` once, not per-tenant.
 
-### Changeset Structure Example — `venues` Table
+### Changeset structure example — `venues` table
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -666,7 +666,7 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 </databaseChangeLog>
 ```
 
-### Changeset Structure Example — `venue_annotations` Table
+### Changeset structure example — `venue_annotations` table
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -734,7 +734,7 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 </databaseChangeLog>
 ```
 
-### Changeset Structure Example — `venue_assets` Table
+### Changeset structure example — `venue_assets` table
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -826,7 +826,7 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 </databaseChangeLog>
 ```
 
-### Schema Overview
+### Schema overview
 
 **Public schema (platform-owned, not tenant-scoped):**
 
@@ -848,7 +848,7 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 | `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in `venueintelligence-process` changelog.                                                                                                                                                                                                                                            | `venueintelligence-catalog-processing-worker` |
 | `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                                                                                                                                                                                                                                                                                            | `venueintelligence-catalog-processing-worker` |
 
-### Index Strategy
+### Index strategy
 
 | Table               | Index name                   | Type    | Column(s)                                 | Purpose                                                     |
 | ------------------- | ---------------------------- | ------- | ----------------------------------------- | ----------------------------------------------------------- |
@@ -876,7 +876,7 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 | `item_vectors`      | `idx_vectors_asset`          | btree   | `(metadata->>'asset_id')`                 | Fast sweep on `asset.deleted` event                         |
 | `ai_cost_tracking`  | `idx_ai_cost_month`          | btree   | `DATE_TRUNC('month', created_at)`         | Monthly cost rollup                                         |
 
-### Cross-Schema Access Rules
+### Cross-schema access rules
 
 PostgreSQL schema-per-tenant means `public.master_venue` lives in a different schema than `t_{tenantKey}.venues`. The `MyBatisSchemaInterceptor` sets `SET search_path TO t_{tenantKey}, public` before every statement.
 

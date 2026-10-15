@@ -47,7 +47,7 @@ Key properties:
 
 ---
 
-## 2. Core Entities
+## 2. Core entities
 
 ### `Proposal`
 
@@ -218,7 +218,7 @@ export interface ProposalSnapshot {
 }
 ```
 
-### Colored Labels (dynamic select)
+### Colored labels (dynamic select)
 
 Planner-defined labels scoped to a proposal — not global tags. Used for quick visual communication
 on the client board.
@@ -240,7 +240,7 @@ export interface ProposalVenueLabel {
 
 ---
 
-## 3. Confidence Score
+## 3. Confidence score
 
 Each `ProposalVenue` carries a computed `dataConfidence` — a UI-level indicator of how complete
 and reliable the venue data is. Not stored; derived client-side from `venueSnapshot.metadata` and
@@ -266,7 +266,7 @@ and in client view (simplified: just HIGH/MEDIUM, never LOW shown to client).
 
 ---
 
-## 4. App Placement
+## 4. App placement
 
 ### `foundation-ui-app` (tenant — planner side)
 
@@ -309,7 +309,7 @@ src/pages/
 
 ---
 
-## 5. Component Structure
+## 5. Component structure
 
 ### Planner side
 
@@ -366,7 +366,7 @@ ClientBoardPage  (/share/:token)
 
 ---
 
-## 6. Bilateral Control Model
+## 6. Bilateral control model
 
 ```
 Planner controls:
@@ -393,7 +393,7 @@ sent to the client board API response. The server enforces this, not just the UI
 
 ---
 
-## 7. Immutable History UX
+## 7. Immutable history UX
 
 The `ProposalHistoryPanel` is a read-only timeline. Design rules:
 
@@ -406,7 +406,7 @@ The `ProposalHistoryPanel` is a read-only timeline. Design rules:
 
 ---
 
-## 8. AI Assistance
+## 8. AI assistance
 
 The planner can ask questions about catalog data from within the proposal board:
 
@@ -440,7 +440,7 @@ export interface AIAssistResponse {
 
 ---
 
-## 9. Themes / Skins
+## 9. Themes / skins
 
 Same CSS token pattern as `ui-venue-management.md` §7. The client board uses
 `data-skin="client-board"` set by the public share layout.
@@ -469,7 +469,7 @@ Logo and custom domain replace Shortlisty defaults. `"Powered by Shortlisty"` fo
 
 ---
 
-## 10. API Integration
+## 10. API integration
 
 ```typescript
 // src/shared/api/proposal.ts  (tenant app — planner side)
@@ -528,7 +528,7 @@ the tenant from the token.
 
 ---
 
-## 12. Prototype Strategy
+## 12. Prototype strategy
 
 > **Prototype scope note.**
 > The prototype is a **fully interactive implementation** — not a mockup or a clickable wireframe.
@@ -622,7 +622,7 @@ Fixture data must include:
 
 ---
 
-## 13. File Contracts
+## 13. File contracts
 
 The addon file layout is **identical** across prototype, planner tenant app, and any future consumer. No rewrites on promotion — only wiring (auth guards, feature gates, route registration).
 

@@ -16,7 +16,7 @@
 
 ---
 
-## 1. Guiding Principles
+## 1. Guiding principles
 
 - **DRY / KISS first.** One form spec, one set of form components, one entity abstraction.
   Both `Venue` (tenant) and `MasterVenue` (platform) share the same canonical metadata schema and
@@ -34,7 +34,7 @@
 
 ---
 
-## 2. Shared Entity Abstraction
+## 2. Shared entity abstraction
 
 `Venue` and `MasterVenue` share the same canonical `metadata` JSONB schema. The UI treats them as
 variants of one abstract entity `AnyVenue`, differentiated by a `context` discriminator.
@@ -152,7 +152,7 @@ Tenant-only panels (`VenueAnnotationsPanel`, `VenueQuickFillBar`) are not render
 
 ---
 
-## 3. Entity Types
+## 3. Entity types
 
 ### Tenant `Venue`
 
@@ -345,7 +345,7 @@ export interface FieldProvenance {
 
 ---
 
-## 4. App Placement
+## 4. App placement
 
 ### `foundation-ui-app` (tenant)
 
@@ -402,7 +402,7 @@ copied. Components, registry, and utils are identical. The admin app passes
 
 ---
 
-## 5. form spec
+## 5. Form spec
 
 ### Types
 
@@ -940,7 +940,7 @@ export function groupByTabAndSection(registry: VenueFormSpec) {
 
 ---
 
-## 6. Component Structure
+## 6. Component structure
 
 All components accept `AnyVenue`. Tenant-only panels are gated on `context`.
 
@@ -1042,7 +1042,7 @@ const SOURCE_OVERRIDES: Record<string, { label: string; color: string }> = {
 
 ---
 
-## 7. Themes / Skins
+## 7. Themes / skins
 
 The addon owns its CSS tokens. Skins override tokens — no component changes, no prop drilling.
 The `data-skin` attribute is set by the parent layout (Sales Room, admin app, tenant app).
@@ -1077,7 +1077,7 @@ The `data-skin` attribute is set by the parent layout (Sales Room, admin app, te
 
 ---
 
-## 8. API Integration
+## 8. API integration
 
 ```typescript
 // src/shared/api/venue.ts  (tenant app)
@@ -1134,7 +1134,7 @@ Note: `/master-venues` routes use the **same page components** as `/venues`, pas
 
 ---
 
-## 10. Evolution Path
+## 10. Evolution path
 
 `MasterVenue` is currently the more complete entity (richer data, multi-source, higher confidence).
 Tenant `Venue` gains parity over time. The shared `AnyVenue` abstraction means UI features added
@@ -1154,7 +1154,7 @@ rewrite needed.
 
 ---
 
-## 11. Prototype Strategy
+## 11. Prototype strategy
 
 > **Prototype scope note.**
 > The prototype is a **fully interactive implementation** — not a mockup or a clickable wireframe.
@@ -1246,7 +1246,7 @@ MSW handlers from `foundation-ui-blank` are kept as-is for local dev and Playwri
 
 ---
 
-## 12. File Contracts (implementation reference)
+## 12. File contracts (implementation reference)
 
 Files to create. Contents are defined in §§ 2–8 above — this section is the index to prevent drift.
 

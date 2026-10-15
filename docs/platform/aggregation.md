@@ -19,7 +19,7 @@
 
 Multiple assets per venue produce multiple extraction events, potentially with conflicting values. The aggregation service resolves conflicts and maintains the consolidated `metadata` column.
 
-### Conflict Resolution Priority
+### Conflict resolution priority
 
 ```
 MANUAL_OVERRIDE  (10)  → always wins
@@ -31,11 +31,11 @@ LOW_CONF_AI       (5)  → confidence < 0.7
 SCRAPE_PROVIDER   (4)  → raw provider scrape value (lowest)
 ```
 
-### Array Fields (`amenities`, `restrictions`)
+### Array fields (`amenities`, `restrictions`)
 
 Set-union across all sources. An entry is included if at least one source reports it with confidence ≥ 0.6.
 
-### Trigger Points
+### Trigger points
 
 Aggregation runs (async, via RabbitMQ) when:
 
@@ -47,7 +47,7 @@ Aggregation is debounced (5s) to batch rapid successive events. The `shortlisty_
 
 ---
 
-## Profile Stage Recalculation
+## Profile stage recalculation
 
 `profile_stage` is recomputed inside every aggregation consumer transaction — immediately after the metadata merge, before the `UPDATE` commits. It is never set by application code outside `MetadataAggregationConsumer`.
 
@@ -70,7 +70,7 @@ Metadata aggregation is a read-modify-write operation: `SELECT venues.metadata` 
 
 The chosen approach eliminates the race at the messaging layer using RabbitMQ's built-in capabilities. No distributed locks, no optimistic locking retry loops, no row-level `SELECT … FOR UPDATE` contention.
 
-### Why RabbitMQ FIFO Routing Per `venue_id`
+### Why RabbitMQ FIFO routing per `venue_id`
 
 | Constraint                | How FIFO routing delivers it                                                                                                                                          |
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -80,7 +80,7 @@ The chosen approach eliminates the race at the messaging layer using RabbitMQ's 
 | No infrastructure cost    | Same RabbitMQ cluster, same number of consumer threads. No extra services or sidecars.                                                                                |
 | Horizontal scalability    | As venue count grows, increase the hash slot count and consumer pool size. Different venues always process in parallel.                                               |
 
-### Implementation Variants
+### Implementation variants
 
 Two variants share the same conceptual model. Start with A1 for MVP; both use the same consumer code shape.
 
@@ -133,9 +133,9 @@ Acknowledgement mode on the listener container must be `MANUAL` (or `AUTO` with 
 
 ---
 
-## Concurrency Control and Race Condition Prevention
+## Concurrency control and race condition prevention
 
-### Debounce + FIFO Synergy
+### Debounce + FIFO synergy
 
 The 5-second debounce window composes naturally with FIFO ordering:
 
@@ -146,14 +146,14 @@ The 5-second debounce window composes naturally with FIFO ordering:
 
 Outcome: one SQL `UPDATE` instead of three.
 
-### Secondary Benefits
+### Secondary benefits
 
 - **No retry loops or conflict handling.** No conflict exception, no exponential-backoff retry code, no test surface for livelock.
 - **Event sourcing friendly.** If `venue_metadata_events` are replayed, per-venue ordering is preserved at the messaging layer.
 - **Straightforward integration testing.** Seed three `extraction.completed` events for the same `venue_id`, consume, assert final `venues.metadata` contains merged fields from all three sources. No `CountDownLatch` multi-threaded test harness.
 - **Compatible with `_schema_version`** (see [data-model.md](data-model.md) §2a). The `VenueMetadataMigrator` runs inside step 4 of the consumer transaction, before the `UPDATE` commits.
 
-### Queue Consumer Configuration
+### Queue consumer configuration
 
 See [events.md](events.md) for the full RabbitMQ queue and listener container configuration table.
 
