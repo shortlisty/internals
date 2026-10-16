@@ -25,6 +25,7 @@ system-design-documentation/
 ├── AGENTS.md                          ← This file. Read before writing anything.
 ├── CHANGELOG.md                       ← Product-level doc changelog (not Git log)
 ├── README.md                          ← Entry point. Landing page and navigation index.
+├── chats/                             ← Raw AI planning conversations (source material, not design docs)
 └── docs/
     ├── README.md                      ← Plain-language product overview (any audience)
     ├── business/
@@ -37,6 +38,8 @@ system-design-documentation/
     │   │   ├── pitch-mechanics.md     ← Micro-site structure, collaboration, approval snapshot
     │   │   └── cold-start.md          ← Seed catalog, concierge onboarding, city expansion
     │   ├── sales-messaging.md         ← Unified copy bank: taglines, hero copy, value pillars, naming (both layers)
+    │   ├── spikes/
+    │   │   └── alphavenue-spike.md    ← Reference deep dive on a venue-side AI operations platform
     │   └── personal-venue-catalog/    ← Segment reference — catalog data-layer docs
     │       ├── product.md             ← Tenant app, capability pillars (catalog positioning)
     │       ├── proposal.md            ← ICP, monetisation, GTM (catalog positioning)
@@ -47,8 +50,22 @@ system-design-documentation/
     │           ├── objections.md      ← Objection handling: concern, response, follow-up
     │           └── messaging.md       ← Taglines, hero copy, value pillars, naming (PVC-only, superseded)
     ├── platform/
-    │   ├── README.md            ← Domain model, services, schema, API, events
-    │   └── intelligence.md            ← ETL pipeline, extraction, AI layer
+    │   ├── README.md                  ← Architecture index and navigation hub
+    │   ├── architecture-overview.md   ← Platform context, technology decisions, implementation patterns
+    │   ├── data-model.md              ← Domain model, canonical field set, JSONB versioning, DB schema
+    │   ├── aggregation.md             ← Multi-source conflict resolution into consolidated metadata
+    │   ├── services.md                ← Service decomposition, table ownership, S3 storage layout
+    │   ├── etl-pipeline.md            ← Async document pipeline stages and processing SLAs
+    │   ├── intelligence.md            ← Intelligence layer, extraction schema, aggregation model
+    │   ├── search.md                  ← Search modes and cross-source orchestration
+    │   ├── api.md                     ← REST API surface for the catalog service
+    │   ├── events.md                  ← RabbitMQ event contracts and plan entitlements
+    │   ├── master-catalog.md          ← Master catalog seeding, dedup, MC_INHERIT merge
+    │   ├── observability.md           ← Prometheus metrics and tenant data isolation model
+    │   ├── roadmap-decisions.md       ← Open architecture decisions and Phase 2/3 backlog
+    │   ├── ui-venue-management.md     ← UI spec: venue management screens
+    │   ├── ui-deal-workspace.md       ← UI spec: deal workspace screens
+    │   └── ui-shared-packages.md      ← UI shared npm packages
     ├── roadmap/
     │   ├── vision.md                  ← Product direction and strategic bets (not a changelog)
     │   ├── feature-checklist.md       ← Mid-level prioritized product feature checklist (P0–P3)
@@ -64,7 +81,7 @@ system-design-documentation/
     │   └── decisions/
     │       ├── README.md
     │       └── D{N}-{slug}.md
-    └── ru/                            ← Russian translations (mirrors docs/ structure - currently on hold)
+    └── ru/                            ← Russian translations (planned — folder not yet created; on hold)
 ```
 
 **Rules:**
@@ -102,14 +119,14 @@ Do not invent new audience tags. If a document genuinely serves two separate aud
 
 ## 4. Document types and their rules
 
-### 4.1 Overview / explainer (`docs/README.md`, `docs/business/proposal.md`)
+### 4.1 Overview / explainer (`docs/README.md`, `docs/business/digital-sales-room-for-events/proposal.md`)
 
 - Written in plain prose. No code blocks unless illustrating a concept with a short example.
 - No bullet point walls. Use bullet points only for lists of 3+ items that are genuinely parallel.
 - Sections must flow as a narrative that a reader can read top to bottom without jumping around.
 - No internal jargon without first defining it in plain language.
 
-### 4.2 Architecture reference (`docs/platform/README.md`, `docs/platform/intelligence.md`)
+### 4.2 Architecture reference (`docs/platform/`)
 
 - Audience is always engineers or architects.
 - Every major section must have a one-sentence summary before any tables or diagrams.
