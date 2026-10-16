@@ -38,6 +38,7 @@ system-design-documentation/
     │   │   ├── pitch-mechanics.md     ← Micro-site structure, collaboration, approval snapshot
     │   │   └── cold-start.md          ← Seed catalog, concierge onboarding, city expansion
     │   ├── sales-messaging.md         ← Unified copy bank: taglines, hero copy, value pillars, naming (both layers)
+    │   ├── growth-playbooks.md        ← Acquisition, activation and retention playbooks
     │   ├── spikes/
     │   │   └── alphavenue-spike.md    ← Reference deep dive on a venue-side AI operations platform
     │   └── personal-venue-catalog/    ← Segment reference — catalog data-layer docs

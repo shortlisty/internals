@@ -16,6 +16,7 @@
 - `docs/roadmap/ideas/vendor-registry.md` — New idea (demoted from E14 epic): Vendor registry. Preferred supplier list with service categories, ratings, status, and performance notes linked to retrospectives and venue profiles.
 - `docs/roadmap/milestones/v1.1-agency-knowledge-base.md` — New milestone: Agency knowledge base (Planned). Scope is draft, derived from the four ideas above; to be finalised when the ideas are promoted to epics. Includes 19 draft feature checkboxes and 6 acceptance criteria.
 - `docs/roadmap/decisions/D11-knowledge-base-scope-expansion.md` — New ADR: formalises the decision to extend Shortlisty into operational agency knowledge (SOPs, retrospectives, templates, vendor registry) and defers that scope to post-v1.0 (v1.1). Documents three options considered and rationale for deferral.
+- `docs/business/growth-playbooks.md` — New document: acquisition, activation and retention playbooks for event agencies.
 
 ### Changed
 
