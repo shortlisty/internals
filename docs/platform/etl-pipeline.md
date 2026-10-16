@@ -7,7 +7,7 @@
 
 ## Related documents
 
-- [services.md](services.md) — service responsibilities, table ownership, `venueintelligence-process` library
+- [services.md](services.md) — service responsibilities, table ownership, the self-contained service rule
 - [data-model.md](data-model.md) — `ExtractionJob`, `VenueAsset`, `item_vectors` table definitions
 - [aggregation.md](aggregation.md) — what happens after `ExtractionCompletedEvent` is published
 - [master-catalog.md](master-catalog.md) — Stage 3 MC_INHERIT merge (MasterVenueMatcher)
@@ -25,7 +25,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
   (parse)            (chunk + enrich)        (embed + store)
 ```
 
-The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`, `AssetType`, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`) — are defined in `venueintelligence-process` (see [services.md § 4c](services.md)). The venue-specific enricher (`VenueMetadataEnricher`) and its output type (`VenueMetadata`) come from `venueintelligence-model` (see [services.md § 4a](services.md)).
+The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`, `AssetType`, and the event payloads (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`) — live inside the service that uses them. Extraction-side types belong to `venueintelligence-catalog-processing-worker`; the `asset.uploaded` payload belongs to `venueintelligence-catalog-service`, which publishes it. The venue enricher (`VenueMetadataEnricher`) and its output type (`VenueMetadata`) are also carried by the worker. No pipeline type crosses a service boundary as a compiled artifact.
 
 ---
 
@@ -56,16 +56,16 @@ The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`,
 
 1. **Chunk** — `TokenTextSplitter` (512 tokens, 50-token overlap). Spec-sheet tables use 256-token chunks to preserve row precision.
 2. **Tag** — attach `venue_id`, `asset_id`, `asset_type`, `tenant_id` as Document metadata.
-3. **Extract** — `VenueMetadataEnricher` (custom `DocumentTransformer`, venue-specific, from `venueintelligence-model`): calls GPT-4o with structured output schema matching the venue canonical field set (see [data-model.md § Canonical Field Set](data-model.md)), returns `VenueMetadata` POJO with confidence scores per field. The enricher is the **only venue-specific component** in the pipeline — all surrounding plumbing is generic.
+3. **Extract** — `VenueMetadataEnricher` (custom `DocumentTransformer`, carried by `venueintelligence-catalog-processing-worker`): calls GPT-4o with structured output schema matching the venue canonical field set (see [data-model.md § Canonical Field Set](data-model.md)), returns `VenueMetadata` POJO with confidence scores per field. The enricher is the only venue-aware component in the pipeline.
 
 ---
 
 ### Stage 3 — Load
 
-1. **Embed** — `EmbeddingModel` (`text-embedding-3-small`, 1536 dims). Generic — from `venueintelligence-process`. Skipped for `DATA_TABLE` and `PRICE_LIST` (CSV/XLSX) — `table_data` is already populated; only metadata stored in `item_vectors`.
-2. **Store** — `TenantAwarePgVectorStore` writes chunks + embeddings to `item_vectors` table in the tenant's schema. Table defined in `venueintelligence-process` changelog (see [services.md § 4c](services.md)).
+1. **Embed** — `EmbeddingModel` (`text-embedding-3-small`, 1536 dims). Skipped for `DATA_TABLE` and `PRICE_LIST` (CSV/XLSX) — `table_data` is already populated; only metadata stored in `item_vectors`.
+2. **Store** — `TenantAwarePgVectorStore` writes chunks + embeddings to `item_vectors` table in the tenant's schema. Table defined in the tenant changelog owned by `venueintelligence-catalog-service` (see [services.md § 4](services.md)).
 3. **Master catalog match** — `MasterVenueMatcher` runs the full MC_INHERIT merge algorithm (trigram name similarity via `pg_trgm` GIN index on `master_venue_alias`, PostGIS `ST_DWithin` 200m radius, combined confidence formula, thresholds 0.75 with geo / 0.90 name-only, ambiguity delta guard ≥ 0.08). No LLM calls. Full algorithm, thresholds, and field-copy semantics in [master-catalog.md](master-catalog.md).
-4. **Aggregate** — publishes `ExtractionCompletedEvent` (from `venueintelligence-process`) → `MetadataAggregationConsumer` in `venueintelligence-catalog-service` updates `venues.metadata` via `VenueMetadataMigrator.ensureCurrent()` (from `venueintelligence-model`) and recalculates `profile_stage` (`SEEDED → ENRICHED → CURATED → READY`) in the same DB transaction. Full aggregation design including `profile_stage` transition rules in [aggregation.md](aggregation.md).
+4. **Aggregate** — publishes `ExtractionCompletedEvent` → `MetadataAggregationConsumer` in `venueintelligence-catalog-service` updates `venues.metadata` via `VenueMetadataMigrator.ensureCurrent()` and recalculates `profile_stage` (`SEEDED → ENRICHED → CURATED → READY`) in the same DB transaction. Full aggregation design including `profile_stage` transition rules in [aggregation.md](aggregation.md).
 
 ---
 
@@ -79,7 +79,7 @@ The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`,
 | CAD files               | < 2 min        |                              |
 | Video                   | Phase 2        |                              |
 
-Retry on failure: 3 attempts with exponential backoff. After 3 failures → `ExtractionFailedEvent` (from `venueintelligence-process`) → user notification.
+Retry on failure: 3 attempts with exponential backoff. After 3 failures → `ExtractionFailedEvent` → user notification.
 
 ---
 
@@ -94,8 +94,8 @@ public class AssetExtractionConsumer {
 
     private final DocumentReader tikaReader;
     private final TokenTextSplitter splitter;
-    private final VenueMetadataEnricher enricher;   // from venueintelligence-model
-    private final TableDataParser tableDataParser;  // from venueintelligence-process
+    private final VenueMetadataEnricher enricher;   // carried by this service
+    private final TableDataParser tableDataParser;  // carried by this service
     private final EmbeddingModel embeddingModel;
     private final TenantAwarePgVectorStore vectorStore;
     private final MasterVenueMatcher masterVenueMatcher;
@@ -162,7 +162,7 @@ public class AssetExtractionConsumer {
 }
 ```
 
-**Rule:** if a class in `venueintelligence-catalog-processing-worker` or `venueintelligence-catalog-service` contains the word `venue` in its business logic (not just in a tag string), ask whether it belongs in `venueintelligence-model` instead. The worker and service should contain Spring wiring, `@Bean` registrations, and `@RabbitListener` configuration — not domain decisions.
+**Rule:** a class that carries venue business logic belongs to the service that owns the table it serves. Neither service may add a compile dependency on the other; if a type is needed on both sides, each service declares its own copy.
 
 ---
 

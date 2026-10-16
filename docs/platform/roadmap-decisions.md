@@ -12,7 +12,7 @@
 - [aggregation.md](aggregation.md) — FIFO metadata aggregation (§3)
 - [master-catalog.md](master-catalog.md) — MC_INHERIT merge algorithm and threshold calibration
 - [search.md](search.md) — cross-source search architecture (§6)
-- [services.md](services.md) — shared library split (`venueintelligence-process` + `venueintelligence-model`)
+- [services.md](services.md) — the self-contained service rule
 - [observability.md](observability.md) — metrics referenced in Phase 2 triggers
 
 ---
@@ -27,7 +27,7 @@
 
 - [x] **Master Venue Catalog (MC).** A `public.master_venue` table (with `master_venue_alias`, `master_venue_external` tables) serves as invisible backdrop for gap-filling tenant venue data at extraction time. Copy-on-match (MC_INHERIT provenance, priority 7), not link — tenant record is fully independent after copy. No reverse flow from tenant to master catalog in MVP. Full design in [master-catalog.md](master-catalog.md).
 
-- [x] **Metadata schema versioning and JSONB drift.** Every `venues.metadata` and `public.master_venue.metadata` JSONB document carries a top-level integer `_schema_version` (initial: 1; absent = 0 "legacy"). `venueintelligence-process` contains the `MetadataMigration` interface and `MetadataMigrator` chain runner. `venueintelligence-model` contains the venue-specific migration classes, `VenueMetadataMigrator`, and `VenueMetadataSchemaVersion.CURRENT_SCHEMA_VERSION`. Every read upgrades the shape in memory; every write stamps the document to `CURRENT_SCHEMA_VERSION` before persist. Full design in [data-model.md § 2a](data-model.md).
+- [x] **Metadata schema versioning and JSONB drift.** Every `venues.metadata` and `public.master_venue.metadata` JSONB document carries a top-level integer `_schema_version` (initial: 1; absent = 0 "legacy"). `venueintelligence-catalog-service` contains the `MetadataMigration` interface and `MetadataMigrator` chain runner, along with the venue-specific migration classes, `VenueMetadataMigrator`, and `VenueMetadataSchemaVersion.CURRENT_SCHEMA_VERSION`. Every read upgrades the shape in memory; every write stamps the document to `CURRENT_SCHEMA_VERSION` before persist. Full design in [data-model.md § 2a](data-model.md).
 
 - [x] **Metadata aggregation race condition prevention.** RabbitMQ FIFO routing per `venue_id` using hash-partitioned queues. Eliminates the race at the messaging layer before the consumer runs. Zero new dependencies, no retry code. Variant A1 (single queue, concurrency=1, prefetch=1) for MVP; variant A2 (16 hash-slot queues) when throughput requires. Full design in [aggregation.md](aggregation.md).
 
@@ -35,9 +35,9 @@
 
 - [x] **Master Catalog match threshold and algorithm.** Fuzzy name + PostGIS proximity, no embeddings/LLM in the match path. Combined confidence formula, thresholds 0.75 with geo / 0.90 name-only, ambiguity delta guard ≥ 0.08. FP rate ≤ 1% acceptance criterion before Sprint 1. Full design in [master-catalog.md](master-catalog.md).
 
-- [x] **Chunking table placement and naming.** One `item_vectors` table per tenant schema (defined in `venueintelligence-process` changelog). Table name `item_vectors` — generic, not `vector_store`. IVFFlat index at MVP volumes. Full design in [data-model.md § 10](data-model.md).
+- [x] **Chunking table placement and naming.** One `item_vectors` table per tenant schema (changelog owned by `venueintelligence-catalog-service`). Table name `item_vectors` — generic, not `vector_store`. IVFFlat index at MVP volumes. Full design in [data-model.md § 10](data-model.md).
 
-- [x] **Shared library split: `venueintelligence-process` + `venueintelligence-model`.** Generic extraction pipeline contracts, event POJOs, metadata versioning mechanism, and provenance model live in `venueintelligence-process`. Venue canonical field set and migrations live in `venueintelligence-model`. Full design in [services.md](services.md).
+- [x] **Self-contained services at MVP.** Each service carries its own domain classes, event payloads, and Liquibase changelogs, and declares no compile dependency on another service. Duplication across services is accepted in exchange for zero cross-service compile coupling. See [services.md](services.md).
 
 ### Pending
 
@@ -53,7 +53,7 @@
 
 ### Before sprint 1 — resolve these first
 
-- [ ] **Implement `VenueMetadataMigrator` v0 + v1 chain** in `venueintelligence-model` before any service code reads or writes `venues.metadata`. Wire `VenueMetadataTypeHandler` into the `VenueResultMap`. Add Micrometer counter inside `migrateToCurrent()`. Add JUnit tests for `MetadataMigrationV0ToV1` with 5+ fixture JSON shapes (empty `{}`, `{}` without `_schema_version`, full v1 shape, partial v1 shape, master-catalog-copy shape) to cover legacy-bootstrapping edge cases.
+- [ ] **Implement `VenueMetadataMigrator` v0 + v1 chain** in `venueintelligence-catalog-service` before any service code reads or writes `venues.metadata`. Wire `VenueMetadataTypeHandler` into the `VenueResultMap`. Add Micrometer counter inside `migrateToCurrent()`. Add JUnit tests for `MetadataMigrationV0ToV1` with 5+ fixture JSON shapes (empty `{}`, `{}` without `_schema_version`, full v1 shape, partial v1 shape, master-catalog-copy shape) to cover legacy-bootstrapping edge cases.
 
 - [ ] **Implement metadata aggregation FIFO routing (A1 for MVP)** in `venueintelligence-catalog-service` `MetadataAggregationConsumer`: configure `@RabbitListener` on `shortlisty.metadata.aggregation` with `concurrency=1`, `prefetchCount=1`, `acknowledgeMode=MANUAL`. Wrap the full SELECT → debounce check → merge via `VenueMetadataMigrator` → UPDATE → `venue_metadata_events` consume cycle in a single `@Transactional` DB transaction. Ack the RabbitMQ message only after the transaction commits. Add integration test: publish three `extraction.completed` events for the same `venue_id` in quick succession, consume, assert final `venues.metadata` contains merged fields from all three sources AND exactly one SQL `UPDATE` was executed. When queue depth metrics show sustained backlog > 1 s, promote from A1 to A2.
 

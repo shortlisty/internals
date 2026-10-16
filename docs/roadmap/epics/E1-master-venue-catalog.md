@@ -7,7 +7,7 @@
 
 ## Summary
 
-The master venue catalog is the platform-wide reference library of venues. It provides the schema, shared libraries, seed data, and admin API that tenant venue creation depends on for autocomplete suggestions, gap-fill, and deduplication. After this epic ships, the platform can store and manage a canonical set of venues that tenant catalogs promote from.
+The master venue catalog is the platform-wide reference library of venues. It provides the schema, seed data, and admin API that tenant venue creation depends on for autocomplete suggestions, gap-fill, and deduplication. After this epic ships, the platform can store and manage a canonical set of venues that tenant catalogs promote from.
 
 ---
 

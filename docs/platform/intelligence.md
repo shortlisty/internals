@@ -1,7 +1,7 @@
 # Shortlisty — Intelligence Layer & ETL Pipeline
 
 > **Audience:** Engineers, architects.
-> **Purpose:** Technical reference for the document intelligence ETL pipeline, the proprietary venue-specific extraction schema, the multi-source aggregation model, and the vertical-agnostic extension strategy.
+> **Purpose:** Technical reference for the document intelligence ETL pipeline, the proprietary venue-specific extraction schema, and the multi-source aggregation model.
 
 ---
 
@@ -35,7 +35,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 | `ContentFormatTransformer` | Normalizes text format                                                                                                                                                                                                                                                                                                                                        |
 | `SummaryMetadataEnricher`  | Generates document summary using LLM, stored as metadata                                                                                                                                                                                                                                                                                                      |
 | `KeywordMetadataEnricher`  | Extracts keywords using LLM, stored as metadata                                                                                                                                                                                                                                                                                                               |
-| `VenueMetadataEnricher`    | **Venue-domain-specific** (`venueintelligence-model`): extracts capacity, amenities, contacts via structured call against the venue canonical field set. Runs against a self-hosted OpenAI-compatible endpoint (Phi-4 / Qwen2.5 via Ollama or vLLM — see D12). The only non-generic component in the pipeline — everything else is reusable across verticals. |
+| `VenueMetadataEnricher`    | **Venue-domain-specific**: extracts capacity, amenities, contacts via structured call against the venue canonical field set. Runs against a self-hosted OpenAI-compatible endpoint (Phi-4 / Qwen2.5 via Ollama or vLLM — see D12). Implemented inside `venueintelligence-catalog-processing-worker`. |
 
 **DocumentWriters (Load):**
 
@@ -53,44 +53,44 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
                           │ presigned URL download
                           ▼
                ┌─────────────────────┐
-               │  DocumentReader     │  Spring AI / Apache Tika          [generic — venueintelligence-process]
+               │  DocumentReader     │  Spring AI / Apache Tika
                │  (per asset type)   │  + IBM Docling (PDF tables, Ph.2)
                └──────────┬──────────┘
                           │  List<Document>
                           │  (raw text chunks + page metadata)
                           ▼
                ┌─────────────────────┐
-               │  DocumentSplitter   │  TokenTextSplitter                [generic — venueintelligence-process]
+               │  DocumentSplitter   │  TokenTextSplitter
                │                     │  (512 tokens, 50 overlap)
                └──────────┬──────────┘
                           │  List<Document> (chunks)
                           ▼
                ┌─────────────────────┐
-               │  VenueMetadata      │  Self-hosted LLM structured output    [venue-specific — venueintelligence-model]
+               │  VenueMetadata      │  Self-hosted LLM structured output
                │  Enricher           │  Phi-4 / Qwen2.5 via Ollama or vLLM
                │                     │  → capacity, amenities, contacts
                └──────────┬──────────┘
                           │  List<Document> + venue metadata
                           ▼
                ┌─────────────────────┐
-               │  EmbeddingModel     │  BGE-M3 (self-hosted) or              [generic — venueintelligence-process]
+               │  EmbeddingModel     │  BGE-M3 (self-hosted) or
                │                     │  text-embedding-3-small (fallback)
                └──────────┬──────────┘
                           │  List<Document> + float[] embeddings
                           ▼
                ┌─────────────────────┐
-               │  TenantAware        │  PostgreSQL + pgvector            [generic — venueintelligence-process]
+               │  TenantAware        │  PostgreSQL + pgvector
                │  PgVectorStore      │  → item_vectors (per-tenant schema)
                └──────────┬──────────┘
                           │
                           ▼
                ┌─────────────────────┐
-               │  MetadataAggregator │  Event-sourced consolidation      [venue-specific — venueintelligence-model]
+               │  MetadataAggregator │  Event-sourced consolidation
                │                     │  (conflict resolution)
                └─────────────────────┘
 ```
 
-**Java implementation sketch** — the orchestrator is generic; venue-specific behaviour is injected via strategies (see §3 Extension Model):
+**Java implementation sketch** — every type below lives inside `venueintelligence-catalog-processing-worker`. No pipeline type is shared with another service:
 
 ```java
 package com.iqkv.venueintelligence.catalog.processing;
@@ -99,13 +99,13 @@ package com.iqkv.venueintelligence.catalog.processing;
 @Service
 public class AssetExtractionOrchestrator<M> {
 
-  // ── generic contracts from venueintelligence-process ──────────────────────
+  // ── pipeline infrastructure ──────────────────────────────────────────────
   private final TikaDocumentReader.Factory tikaFactory;
   private final TokenTextSplitter splitter;
   private final EmbeddingModel embeddingModel;
   private final VectorStore vectorStore;              // writes to item_vectors
 
-  // ── domain strategies injected from venueintelligence-model ───────────────────
+  // ── venue strategies ─────────────────────────────────────────────────────
   private final MetadataExtractionStrategy<M> extractionStrategy;   // VenueMetadataExtractionStrategy
   private final MetadataAggregationStrategy<M> aggregationStrategy; // VenueMetadataAggregationStrategy
   private final MetadataMigrator migrator;                           // VenueMetadataMigrator
@@ -306,7 +306,7 @@ Everything above (Tika, Docling, Spring AI ETL) is infrastructure. Shortlisty's 
 
 Generic document intelligence tools extract generic fields. Shortlisty extracts fields that matter for event professionals.
 
-This schema is the **venue canonical field set** — defined as `VenueMetadata` in `venueintelligence-model` (see §2 of [Architecture](README.md)). It is the venue-domain's answer to the question "what does a structured document look like for this vertical?". The extraction prompt sent to the inference endpoint is derived directly from this schema. If the platform pivots to a different vertical (medical, agro), the domain library is swapped — the extraction pipeline, embedding, and search infrastructure remain identical.
+This schema is the **venue canonical field set** — defined as `VenueMetadata` in `venueintelligence-catalog-service` (see §2 of [Architecture](README.md)). It defines what a structured venue document looks like. The extraction prompt sent to the inference endpoint is derived directly from this schema.
 
 > **Inference stack:** Extraction calls run against a self-hosted OpenAI-compatible endpoint — Phi-4 (Microsoft, 14B) or Qwen2.5 (Alibaba, 7B–72B) served via Ollama or vLLM on own VPS/server infrastructure. Spring AI's `ChatModel` abstraction makes the endpoint a configuration value, not a code dependency. See [D12](../roadmap/decisions/D12-self-hosted-inference-stack.md) for the full rationale.
 
@@ -433,7 +433,7 @@ Raw venue documents use inconsistent field names across sources and across time.
 
 Documents arrive for the same item in multiple formats — a marketing deck, a floor plan PDF, a technical spec sheet, a photo set. Each source may have conflicting or complementary data.
 
-The aggregation engine (`MetadataAggregationConsumer` in `venueintelligence-process`) is generic — it does not know about venues or capacity fields. It operates on `JsonNode` + `metadata_sources` provenance entries and delegates conflict decisions to the domain's `MetadataAggregationStrategy`:
+The aggregation engine (`MetadataAggregationConsumer` in `venueintelligence-catalog-service`) operates on `JsonNode` + `metadata_sources` provenance entries and delegates conflict decisions to `MetadataAggregationStrategy`:
 
 1. Collects all extraction events per item (event log)
 2. Delegates priority resolution to `MetadataAggregationStrategy.aggregate()` — venue impl applies: `manual_override > verified > high_confidence_AI > low_confidence_AI`
@@ -441,207 +441,7 @@ The aggregation engine (`MetadataAggregationConsumer` in `venueintelligence-proc
 4. `ConflictReport` surfaced in the UI: "AI found two different capacity values — which is correct?"
 5. One-click resolution writes a `MANUAL_OVERRIDE` event, re-triggers aggregation
 
-This is a genuine product moat. No other platform in the event space does this. And the engine itself is reusable across verticals — only the priority rules and field semantics change per domain.
-
----
-
-## 3. Extension model — generic core, domain strategies
-
-The platform separates **infrastructure contracts** (reusable across any document-intelligence vertical) from **domain strategies** (venue-specific, swapped per vertical). This is the mechanism that makes a pivot — from venues to medical records, agro assets, legal documents, or any other domain — a library swap rather than a rewrite.
-
-### 3.1 Contracts defined in `venueintelligence-process`
-
-```java
-// ── Extraction ────────────────────────────────────────────────────────────
-
-/**
- * Extracts structured domain metadata from a set of document chunks.
- * Implement once per vertical. Supplies the LLM prompt and output type.
- *
- * @param <M> the domain metadata type (e.g. VenueMetadata, CaseMetadata)
- */
-public interface MetadataExtractionStrategy<M> {
-    /**
-     * Run structured extraction against the given chunks.
-     * @param chunks   tokenised, tagged document chunks from the splitter
-     * @param context  asset-level context (item id, asset type, tenant)
-     * @return extracted domain metadata with per-field confidence scores
-     */
-    M extract(List<Document> chunks, ExtractionContext context);
-
-    /** The concrete metadata class this strategy produces. Used for type-safe deserialization. */
-    Class<M> getMetadataType();
-}
-
-// ── Aggregation ───────────────────────────────────────────────────────────
-
-/**
- * Merges a new extraction result into the current consolidated metadata.
- * Defines conflict-resolution priority rules for the domain.
- *
- * @param <M> the domain metadata type
- */
-public interface MetadataAggregationStrategy<M> {
-    /**
-     * Merge incoming extraction into current state.
-     * Called inside a single DB transaction by MetadataAggregationConsumer.
-     */
-    M aggregate(M current, M incoming, AggregationContext context);
-
-    /**
-     * Identify fields where current and incoming values disagree above threshold.
-     * Returned report is persisted and surfaced in the UI for human resolution.
-     */
-    ConflictReport detectConflicts(M current, M incoming);
-}
-
-// ── Schema migration ──────────────────────────────────────────────────────
-
-/**
- * Migrates a raw JSONB metadata document from any historical version to current.
- * Implement once per domain. Register in the domain library; runner is generic.
- */
-public interface MetadataMigrator {
-    /** Upgrade raw node to current schema version. Safe to call on every read. */
-    JsonNode migrateToCurrent(JsonNode raw);
-
-    /** Upgrade + stamp _schema_version = CURRENT. Call before every DB write. */
-    JsonNode ensureCurrent(JsonNode node);
-
-    int getCurrentVersion();
-}
-
-// ── Curated list matching ─────────────────────────────────────────────────
-
-/**
- * Finds candidates in the platform curated list and copies gap-fill fields
- * into the tenant item record. Implements the trigram + proximity algorithm;
- * the source table and field-copy rules are domain-specific.
- */
-public interface CuratedListMatchStrategy {
-    /**
-     * Query the domain's curated list for candidate matches.
-     * @param name      normalised item name
-     * @param location  geo point (may be null — triggers name-only path)
-     * @param limit     max candidates to return
-     */
-    List<MatchCandidate> findCandidates(String name, GeoPoint location, int limit);
-
-    /**
-     * Copy fields from the matched curated entry into the tenant item metadata.
-     * Only copies leaf fields that are null/empty on the tenant side.
-     * Sets metadata_sources[field].source = MC_INHERIT.
-     */
-    CopyResult copyFields(JsonNode tenantMetadata, JsonNode curatedMetadata, double confidence);
-}
-
-// ── Search ────────────────────────────────────────────────────────────────
-
-/**
- * Executes one branch of a parallel search query (tenant items or curated list).
- * Two implementations are wired per vertical; results are merged by RRF.
- *
- * @param <R> the result summary type (e.g. VenueSummaryView)
- */
-public interface SearchBranchExecutor<R> {
-    List<ScoredResult<R>> execute(SearchQuery query);
-
-    /** Branch label used in metrics (shortlisty_search_latency_seconds{branch=...}). */
-    String branchName();
-}
-```
-
-### 3.2 Generic consumers in `venueintelligence-process`
-
-These classes contain no domain knowledge. They are final implementations wired with domain strategies via Spring DI:
-
-```java
-package com.iqkv.venueintelligence.intelligence;
-
-// Orchestrates the full ETL pipeline for one asset.
-// Domain strategies are injected — see §3.3 for venue wiring.
-@Service
-public final class AssetExtractionOrchestrator<M> { ... }
-
-// Listens on RabbitMQ, runs SELECT → debounce → aggregate → UPDATE per venue.
-// Concurrency=1 / prefetchCount=1 per slot queue (see README.md §3).
-@RabbitListener
-public final class MetadataAggregationConsumer<M> {
-    private final MetadataAggregationStrategy<M> strategy;
-    private final MetadataMigrator migrator;
-    // SELECT venues.metadata → strategy.aggregate() → migrator.ensureCurrent() → UPDATE
-}
-
-// Parallel search orchestrator. Runs branchA + branchB via CompletableFuture,
-// merges with Reciprocal Rank Fusion, appends origin="TENANT"|"MASTER_CATALOG".
-@Service
-public final class SearchOrchestrator<R> {
-    private final SearchBranchExecutor<R> tenantBranch;
-    private final SearchBranchExecutor<R> curatedBranch;
-}
-```
-
-### 3.3 Venue implementations in `venueintelligence-model`
-
-```java
-package com.iqkv.venueintelligence.venue.model;
-
-// Extraction: self-hosted LLM structured call against venue canonical field set (§2.1, D12)
-@Component
-public class VenueMetadataExtractionStrategy
-        implements MetadataExtractionStrategy<VenueMetadata> { ... }
-
-// Aggregation priority: MANUAL_OVERRIDE(10) > VERIFIED(9) > HIGH_CONF_AI(8) > MC_INHERIT(7) > MEDIUM_CONF_AI(6) > LOW_CONF_AI(5) > SCRAPE_PROVIDER(4)
-@Component
-public class VenueMetadataAggregationStrategy
-        implements MetadataAggregationStrategy<VenueMetadata> { ... }
-
-// Migration chain: VenueMetadataMigrationV0ToV1, V1ToV2, …
-@Component
-public class VenueMetadataMigrator implements MetadataMigrator { ... }
-
-// Curated list: trigram GIN on master_venue_alias + PostGIS ST_DWithin 200m
-@Component
-public class MasterVenueMatchStrategy implements CuratedListMatchStrategy { ... }
-
-// Search branch A: tenant venues, full 5-mode hybrid (keyword + semantic + structured + geo + RRF)
-@Component
-public class TenantVenueSearchBranch implements SearchBranchExecutor<VenueSummaryView> { ... }
-
-// Search branch B: public.master_venue, 3-mode MVP (keyword + structured + geo)
-@Component
-public class MasterCatalogSearchBranch implements SearchBranchExecutor<VenueSummaryView> { ... }
-```
-
-### 3.4 Dependency and flow
-
-```
-venueintelligence-process
-  ├── interfaces:  MetadataExtractionStrategy<M>
-  │                MetadataAggregationStrategy<M>
-  │                MetadataMigrator
-  │                CuratedListMatchStrategy
-  │                SearchBranchExecutor<R>
-  │
-  └── consumers:   AssetExtractionOrchestrator<M>   ← wires all 4 strategies
-                   MetadataAggregationConsumer<M>   ← wires strategy + migrator
-                   SearchOrchestrator<R>            ← wires 2 branch executors
-                          │
-                          ▼ (compile dependency)
-        venueintelligence-model
-          ├── VenueMetadataExtractionStrategy   implements MetadataExtractionStrategy<VenueMetadata>
-          ├── VenueMetadataAggregationStrategy  implements MetadataAggregationStrategy<VenueMetadata>
-          ├── VenueMetadataMigrator             implements MetadataMigrator
-          ├── MasterVenueMatchStrategy        implements CuratedListMatchStrategy
-          ├── TenantVenueSearchBranch           implements SearchBranchExecutor<VenueSummaryView>
-          └── MasterCatalogSearchBranch             implements SearchBranchExecutor<VenueSummaryView>
-                          │
-                          ▼ (compile dependency)
-        venueintelligence-catalog-service / venueintelligence-catalog-processing-worker
-          └── @Bean registrations wire venue strategies into generic consumers
-```
-
-**Rule:** if a class in `venueintelligence-catalog-processing-worker` or `venueintelligence-catalog-service` contains the word `venue` in its business logic (not just in a tag string), ask whether it belongs in `venueintelligence-model` instead. The worker and service should contain Spring wiring, `@Bean` registrations, and `@RabbitListener` configuration — not domain decisions.
+This is a genuine product moat. No other platform in the event space does this.
 
 ---
 
@@ -696,7 +496,6 @@ pgvector with IVFFlat index:
 | **Geo search**          | PostGIS (PostgreSQL extension)                                                                                                                                                                                                                       | Mature, no extra service                                                                              |
 | **Async processing**    | RabbitMQ (existing foundation)                                                                                                                                                                                                                       | Already in platform, priority queues, DLQ                                                             |
 | **File storage**        | S3 / MinIO (existing foundation)                                                                                                                                                                                                                     | Already in IAM service, same pattern                                                                  |
-| **Vertical isolation**  | Strategy pattern — `MetadataExtractionStrategy`, `MetadataAggregationStrategy`, `MetadataMigrator`, `CuratedListMatchStrategy`, `SearchBranchExecutor` interfaces in `venueintelligence-process`; venue implementations in `venueintelligence-model` | Pivot to new domain = new domain library + `@Bean` wiring. Zero changes to generic consumers. See §3. |
 
 **Principle:** Use proven infrastructure that already exists in the iQ Key Value foundation. Introduce the minimum number of new services. The only truly new infrastructure is pgvector (a PostgreSQL extension, not a new service) and optionally a self-hosted Docling container for advanced PDF parsing.
 

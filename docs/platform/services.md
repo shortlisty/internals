@@ -1,7 +1,7 @@
 # Shortlisty — Service Architecture
 
 > **Audience:** Engineers, architects.
-> **Purpose:** Service decomposition, table ownership rules, shared library internals (`venueintelligence-model`, `venueintelligence-process`), and S3 storage layout.
+> **Purpose:** Service decomposition, table ownership rules, self-contained service rule, and S3 storage layout.
 
 ---
 
@@ -17,6 +17,8 @@
 ---
 
 ## 4. Service architecture
+
+Two runtime services, each fully self-contained. Domain classes, event payloads, and Liquibase changelogs live inside the service that owns them, and neither service declares a compile dependency on the other. Where both services touch the same table, the ownership rules below govern access, and each service carries its own copy of the payload types it needs. Duplication across services is accepted deliberately in exchange for zero cross-service compile coupling.
 
 ```
                                ┌─────────────────────┐
@@ -80,64 +82,7 @@ The single legitimate cross-boundary read from `venueintelligence-catalog-proces
 
 ---
 
-## 4a. Shared library — `venueintelligence-model`
-
-`venueintelligence-model` is a plain Java library (JAR, no Spring Boot). It is the **venue-domain layer** containing only venue-specific entities, field definitions, metadata migrations, and schema changelogs. Generic extraction infrastructure lives in `venueintelligence-process` (§4c), which this library imports as a compile dependency.
-
-Both `venueintelligence-catalog-service` and `venueintelligence-catalog-processing-worker` declare `venueintelligence-model` as a compile dependency and receive `venueintelligence-process` transitively.
-
-**Contents:**
-
-```
-venueintelligence-model/
-├── venue/
-│   ├── Venue.java                       Plain POJO — aggregate root, no JPA annotations
-│   ├── VenueStatus.java                 enum: DRAFT, ACTIVE, ARCHIVED
-│   └── VenueAsset.java                  Plain POJO — file attachment owned by a venue
-├── metadata/
-│   ├── VenueMetadata.java               Value object — mirrors venues.metadata JSONB
-│   ├── VenueCapacity.java               Capacity configurations value object
-│   ├── VenueMetadataSchemaVersion.java  Single source of truth: CURRENT_SCHEMA_VERSION = 1
-│   │                                    Extends MetadataSchemaVersion contract from
-│   │                                    venueintelligence-process.
-│   ├── VenueMetadataMigrator.java       Extends MetadataMigrator (venueintelligence-process):
-│   │                                    supplies the ordered venue migration list and
-│   │                                    CURRENT_SCHEMA_VERSION.
-│   ├── VenueMetadataTypeHandler.java    Extends MetadataTypeHandler (venueintelligence-process):
-│   │                                    wires VenueMetadataMigrator into MyBatis result maps.
-│   └── migrations/
-│       ├── VenueMetadataMigrationV0ToV1.java   bootstraps legacy pre-versioned docs → v1
-│       └── VenueMetadataMigrationV1ToV2.java   reserved for next schema bump
-├── mastercatalog/
-│   ├── MasterVenue.java                 Plain POJO — platform curated venue record (public schema)
-│   ├── MasterVenueAlias.java            Plain POJO — alternative names for deduplication
-│   └── MasterVenueExternal.java         Plain POJO — external provider records (Tagvenue, Cvent, etc.)
-└── db/
-    └── changelog/
-        ├── system/                      System (public) schema — master venue catalog tables
-        │   ├── master.xml
-        │   └── 20260901000000-create-master-venue.xml
-        └── tenant/                      Tenant schema — venue domain tables only
-            ├── master.xml               includes venueintelligence-process/intelligence/master.xml
-            │                            first, then venue-specific changesets
-            ├── 20260901000001-create-venues.xml
-            └── 20260901000002-create-venue-assets.xml
-```
-
-> Infrastructure table changelogs (`extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`) live in `venueintelligence-process/db/changelog/intelligence/` and are included via the `tenant/master.xml` reference. They must not be duplicated here.
-
-**Rules:**
-
-- No `@Service`, `@Repository`, `@Component`, or any Spring bean annotation.
-- No business logic — plain Java domain classes, value objects, enums only. `VenueMetadataMigrator` is the single exception: pure-function schema migration is a model-layer concern.
-- No JPA annotations. Plain POJOs only — the platform uses MyBatis.
-- `VenueMetadataSchemaVersion.CURRENT_SCHEMA_VERSION` is the **only** place the venue schema version number is hardcoded. No service may define its own copy.
-- Migration classes under `metadata/migrations/` are added, never removed or reordered.
-- Event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, etc.) come from `venueintelligence-process`. Do not redefine or shadow them here.
-
----
-
-## 4b. S3 storage layout
+## 4a. S3 storage layout
 
 S3 (MinIO for local dev) is already in the iQ Key Value stack. Shortlisty adds its own prefix namespace inside the shared bucket (`iqkv-files`).
 
@@ -243,89 +188,6 @@ For full tenant deletion (GDPR right to erasure):
 1. `DELETE FROM t_{tenantKey}.venues` cascades to all asset rows.
 2. A `tenant.deleted` event triggers a background S3 sweep: `s3:DeleteObjects` with all keys matching `shortlisty/tenants/{tenantKey}/*` (batched in 1000-object chunks).
 3. The pgvector sweep deletes all `item_vectors` rows for the tenant schema (schema drop handles this implicitly if the schema is dropped).
-
----
-
-## 4c. Shared library — `venueintelligence-process`
-
-`venueintelligence-process` is a plain Java library (JAR, no Spring Boot). It is the **domain-agnostic, vertical-independent layer** — containing everything that would be reused verbatim if the platform were applied to a different vertical (medical records, agro assets, legal documents, etc.). Neither venue-specific fields nor venue-specific migration logic belong here.
-
-**Contents:**
-
-```
-venueintelligence-process/
-├── extraction/
-│   ├── ExtractionJob.java          Plain POJO — AI processing job record
-│   ├── ExtractionStatus.java       enum: QUEUED, PROCESSING, COMPLETED, FAILED
-│   └── ExtractorType.java          enum: TIKA_TEXT, GPT4O_DOCUMENT, GPT4O_VISION
-├── asset/
-│   └── AssetType.java              enum: PDF_DECK, FLOOR_PLAN, PHOTO, VIDEO, CAD_FILE, SPEC_SHEET, MISC
-├── metadata/
-│   ├── MetadataSource.java         Provenance per field — generic structure, field names are strings
-│   ├── MetadataEventType.java      enum: ASSET_EXTRACTED, MANUAL_OVERRIDE, BULK_IMPORT, MC_INHERIT, SCRAPE_PROVIDER
-│   ├── MetadataSchemaVersion.java  Versioning contract: defines _schema_version semantics and absent-key fallback (→ 0)
-│   ├── MetadataMigration.java      Interface: fromVersion(), toVersion(), apply(JsonNode, ObjectMapper)
-│   └── MetadataMigrator.java       Generic chain runner — pure Java, zero Spring deps
-├── typehandler/
-│   └── MetadataTypeHandler.java    Abstract MyBatis TypeHandler base — applies MetadataMigrator on every DB read
-├── events/
-│   ├── AssetUploadedEvent.java     asset_id, item_id, tenant_id, asset_type, s3_key, content_type
-│   ├── ExtractionStartedEvent.java job_id, asset_id, item_id, tenant_id
-│   ├── ExtractionCompletedEvent.java job_id, asset_id, item_id, tenant_id
-│   └── ExtractionFailedEvent.java  job_id, asset_id, item_id, tenant_id, reason
-└── db/
-    └── changelog/
-        └── intelligence/
-            ├── master.xml
-            ├── 20260901000003-create-extraction-jobs.xml
-            ├── 20260901000004-create-item-metadata-events.xml
-            ├── 20260901000005-create-item-vectors.xml
-            └── 20260901000006-create-ai-cost-tracking.xml
-```
-
-**Rules:**
-
-- No `@Service`, `@Repository`, `@Component`, or any Spring bean annotation.
-- No domain-specific field names. `MetadataSource` stores field names as plain `String` keys — the canonical field set is defined in `venueintelligence-model`.
-- No venue, medical, agro, or any other vertical concept. If a class name contains a vertical noun, it does not belong here.
-- `MetadataMigrator` (the chain runner) is here. Concrete `MetadataMigrationV{N}ToV{N+1}` classes are in the domain library.
-- `MetadataTypeHandler` is an abstract base class. Domain libraries extend it once, passing their concrete migrator and target POJO class.
-- Event POJOs use `item_id` as the generic field name. Domain services map their aggregate root ID (`venue_id`) to `item_id` when publishing and back when consuming.
-- Infrastructure Liquibase changelogs live here so that `extraction_jobs`, `item_vectors`, `item_metadata_events`, and `ai_cost_tracking` tables are created identically regardless of which vertical is deployed.
-
-**What does NOT go here — common mistakes to avoid at code review:**
-
-| Tempting addition                             | Why it does not belong                              |
-| --------------------------------------------- | --------------------------------------------------- |
-| `VenueMetadata` or any domain POJO            | Venue-specific — lives in `venueintelligence-model` |
-| `CURRENT_SCHEMA_VERSION = 1` constant         | Domain-version-specific — lives in domain library   |
-| `MetadataMigrationV0ToV1`                     | Venue field renames — domain migration, not generic |
-| `MasterVenue`                                 | Field shape is venue-specific — domain library      |
-| `capacity`, `catering`, `av_tech` field names | Canonical field set — domain library                |
-| Extraction prompt templates                   | Domain config — externalised per vertical           |
-
-### Dependency graph
-
-```
-venueintelligence-process   (platform library, no runtime, no vertical deps)
-      │
-      ▼
-venueintelligence-model         (venue-domain library, imports venueintelligence-process)
-      │
-      ├── venueintelligence-catalog-service          (Spring Boot)
-      └── venueintelligence-catalog-processing-worker (Spring Boot)
-
-
-Future vertical example:
-
-venueintelligence-process
-      │
-      ▼
-<vertical>-model            (vertical-domain library)
-      │
-      ├── <vertical>-catalog-service
-      └── <vertical>-catalog-processing-worker
-```
 
 ---
 

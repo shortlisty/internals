@@ -103,8 +103,6 @@ Shortlisty builds on the iQ Key Value open-source foundation (`com.iqkv.foundati
 
 | Component                                      | Type         | Role                                                                                                       |
 | ---------------------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------- |
-| `venueintelligence-process`                    | Shared JAR   | Domain-agnostic processing layer: ETL contracts, extraction interfaces, provenance, vectors, cost tracking |
-| `venueintelligence-model`                      | Shared JAR   | Venue domain layer: entities, canonical field set, metadata migrations, Liquibase changelogs               |
 | `venueintelligence-catalog-service`            | Java service | Single REST API for all venue management, tenant and platform admin                                        |
 | `venueintelligence-catalog-processing-worker`  | Java service | Async ETL worker: document processing, self-hosted LLM inference, master catalog mapping                   |
 | `venueintelligence-mc-ingest-tagvenue-scraper` | Node CLI     | Nightly cron scraper; writes master catalog JSONL to S3                                                    |

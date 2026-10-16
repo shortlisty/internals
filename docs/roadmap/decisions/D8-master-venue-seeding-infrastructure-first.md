@@ -23,10 +23,12 @@ The master venue catalog serves as:
 
 This means the following infrastructure must be in place before any tenant can create or manage venues:
 
-### 1. Shared Libraries Foundation
+### 1. Service-Owned Foundation
 
-- `venueintelligence-process` - Domain-agnostic extraction and metadata infrastructure
-- `venueintelligence-model` - Venue-specific domain models, migrations, and contracts
+Each service is self-contained: it carries its own domain classes, event payloads, and Liquibase changelogs, with no shared artifact linking them.
+
+- `venueintelligence-catalog-service` - venue domain classes, canonical field set, metadata migrations, and tenant Liquibase changelogs
+- `venueintelligence-catalog-processing-worker` - extraction pipeline types and event payloads
 
 ### 2. Database Schema and Migrations
 
@@ -67,7 +69,7 @@ This means the following infrastructure must be in place before any tenant can c
 
 4. **Operational Readiness**: Platform admin tooling and seeding infrastructure must be operational before launching tenant venue management, since tenant data quality depends on platform reference data.
 
-5. **Development Efficiency**: Shared libraries and platform services provide stable backend foundation for implementing tenant features without architectural changes.
+5. **Development Efficiency**: Self-contained services and platform services provide a stable backend foundation for implementing tenant features without architectural changes.
 
 ### Alternative Considered
 
@@ -84,7 +86,7 @@ This means the following infrastructure must be in place before any tenant can c
 
 1. ✅ Group A Platform Foundation (Complete)
 2. 🚧 Master Venue Seeding Infrastructure (Current Priority)
-   - Shared libraries foundation
+   - Service-owned domain and pipeline foundations
    - Database schema and migrations
    - Master venue data model and versioning
    - CRUD API endpoints with deduplication
@@ -107,7 +109,7 @@ Master venue seeding infrastructure is complete when:
 - [ ] Metadata schema versioning handles forward/backward compatibility across platform and tenant data
 - [ ] S3 storage enforces tenant isolation with proper lifecycle rules (platform manages master catalog separately)
 - [ ] All database indexes support expected query patterns (platform service performance)
-- [ ] Shared libraries provide stable contracts for platform services and tenant-facing applications
+- [ ] Self-contained services provide stable contracts for platform services and tenant-facing applications
 - [ ] Tenant venue creation UI can suggest venues from platform catalog without exposing platform complexity
 
 ## Impact on Timeline

@@ -44,7 +44,7 @@ Split into:
 
 Scraping and master catalog population are further decomposed into venueintelligence-mc-ingest-<source>-scraper (Node.js per provider) and venueintelligence-master-venue-loader (Spring Boot) — see architecture §4.
 
-Both services connect to the same PostgreSQL instance and share the tenant schema (`t_{tenantKey}`). They share the domain model via a common library (`venueintelligence-model`) so table definitions agree.
+Both services connect to the same PostgreSQL instance and share the tenant schema (`t_{tenantKey}`). Each service carries its own copy of the domain classes it uses, so no compile dependency links them.
 
 **Pros:**
 
@@ -57,7 +57,7 @@ Both services connect to the same PostgreSQL instance and share the tenant schem
 **Cons:**
 
 - Two deployment units, more CI/CD pipeline complexity
-- Shared database schema requires coordination on migrations (Liquibase changelogs live in the shared model library, mitigating this)
+- Shared database schema requires coordination on migrations (the tenant-schema Liquibase changelog lives in `venueintelligence-catalog-service`, the only service that runs it, mitigating this)
 - Cross-boundary reads (processing-worker reads `venue_assets.s3_key`) must be disciplined — enforced by table ownership rules
 
 ---
@@ -66,7 +66,7 @@ Both services connect to the same PostgreSQL instance and share the tenant schem
 
 **Option B: Two services sharing one database schema.**
 
-One synchronous service (`venueintelligence-catalog-service`) for HTTP and one async sidecar (`venueintelligence-catalog-processing-worker`) for the ETL pipeline. Both share `venueintelligence-model` (domain model + Liquibase changelogs) as a compile dependency.
+One synchronous service (`venueintelligence-catalog-service`) for HTTP and one async sidecar (`venueintelligence-catalog-processing-worker`) for the ETL pipeline. Each service is self-contained: it carries its own domain classes, event payloads, and Liquibase changelogs, and neither declares a compile dependency on the other.
 
 ---
 
@@ -74,7 +74,7 @@ One synchronous service (`venueintelligence-catalog-service`) for HTTP and one a
 
 - **Event-processing workloads are bursty and failure-prone.** Document extraction calls external APIs (GPT-4o, text-embedding-3-small) with unpredictable latency and failure modes. Running this inside the same process as user-facing search guarantees that an upstream API incident degrades user-facing latency.
 - **Scaling profiles are opposites.** The ingestion worker is CPU/memory-heavy during parsing and embedding, and largely idle otherwise. The venue service is IO-bound (PostgreSQL queries) with flat steady-state concurrency. Independent pod sizing cuts infrastructure cost at any scale above MVP.
-- **The shared-model library removes the biggest cost of a split.** Because migrations, POJOs, metadata migrations, and the canonical field set live in `venueintelligence-model`, there is zero risk of the two services drifting apart on schema shape. The table-ownership contract (venue-service owns `venues`, `venue_assets`; processing-worker owns extraction/vector tables) removes write-path ambiguity.
+- **Duplicated types keep the split honest.** Each service carries its own copies of the domain and payload classes it needs, so there is no shared artifact to version and no cross-service compile dependency to break. Table shape is kept in agreement by the table-ownership contract (venue-service owns `venues`, `venue_assets`; processing-worker owns the extraction and vector tables) plus the tenant-schema Liquibase changelog, which only `venueintelligence-catalog-service` runs. The ownership contract removes write-path ambiguity.
 - **Cross-boundary reads are narrow and well-defined.** The only read processing-worker makes across the ownership boundary is `SELECT s3_key FROM venue_assets WHERE id = ?` — a foreign-key lookup delivered inside the RabbitMQ event payload. No business logic crosses.
 - **Pattern already validated in platform.** The iQ Key Value foundation already separates synchronous gateway/API services from async workers (billing event processors, audit log consumers). The ops team has tooling and runbooks for this topology.
 

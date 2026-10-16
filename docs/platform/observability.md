@@ -50,7 +50,7 @@ Added to `docker/grafana/provisioning/dashboards/VipService.json`.
 
 | Concern                 | Approach                                                                                                                                                                   |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tenant data isolation   | Schema-per-tenant (PostgreSQL + pgvector); S3 key prefix `shortlisty/tenants/{tenantKey}/` per tenant — see [services.md § 4b](services.md) for full key layout            |
+| Tenant data isolation   | Schema-per-tenant (PostgreSQL + pgvector); S3 key prefix `shortlisty/tenants/{tenantKey}/` per tenant — see [services.md § 4a](services.md) for full key layout            |
 | Asset access            | Presigned S3 URLs only (15 min upload, 1h download). No public bucket. Master catalog paths (`shortlisty/master-catalog/*`) inaccessible via tenant-issued presigned URLs. |
 | AI data handling        | Documents sent to OpenAI API per their data processing terms. Enterprise option: Azure OpenAI (data stays in tenant's region).                                             |
 | GDPR / right to erasure | `DELETE tenant` cascades to venues → assets → S3 objects → vector embeddings. Full cascade detail in [services.md § Deletion Cascade](services.md).                        |

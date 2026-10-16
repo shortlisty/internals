@@ -7,11 +7,11 @@
 
 ## Summary
 
-The master venue catalog is a platform-wide reference dataset of venues that powers autocomplete suggestions, deduplication assistance, and metadata gap-filling when a tenant creates a venue. It is not tenant-facing — it is a platform service layer that every tenant venue creation draws from. Building it establishes the shared libraries, database schema, admin tooling, and seed data that tenant venue profiles depend on.
+The master venue catalog is a platform-wide reference dataset of venues that powers autocomplete suggestions, deduplication assistance, and metadata gap-filling when a tenant creates a venue. It is not tenant-facing — it is a platform service layer that every tenant venue creation draws from. Building it establishes the per-service domain classes, database schema, admin tooling, and seed data that tenant venue profiles depend on.
 
 ## Why it matters
 
-Without a curated master catalog, every tenant retypes the same venue data from scratch and duplicate venue records proliferate across tenants. A platform-maintained reference set lets a planner pick a known venue in one click, inherit verified base fields, and focus on their agency-specific notes instead of re-keying an address. The catalog's shared libraries and schema contracts are also the foundation that the document intelligence and search layers build on.
+Without a curated master catalog, every tenant retypes the same venue data from scratch and duplicate venue records proliferate across tenants. A platform-maintained reference set lets a planner pick a known venue in one click, inherit verified base fields, and focus on their agency-specific notes instead of re-keying an address. The catalog's domain classes and schema contracts are also the foundation that the document intelligence and search layers build on.
 
 ## Where it could land
 
@@ -21,26 +21,26 @@ Without a curated master catalog, every tenant retypes the same venue data from 
 
 ## In scope
 
-Scope markers: `[shared-lib]` `[venueintelligence-catalog-service]` `[admin-ui]` `[tenant-ui]` `[infra]`
+Scope markers: `[venueintelligence-catalog-service]` `[venueintelligence-catalog-processing-worker]` `[admin-ui]` `[tenant-ui]` `[infra]`
 
 Tasks are ordered by dependency. Each is sized for 2–3 h including tests and CI/CD to UAT.
 
-### Shared Libraries
+### Service Domain and Pipeline Types
 
-- [ ] `[shared-lib]` Create `venueintelligence-process` Maven module: `MetadataMigration`, `MetadataMigrator`, `MetadataTypeHandler`, `MetadataSchemaVersion`, `MetadataSource`, `MetadataEventType`, enums (`ExtractionStatus`, `ExtractorType`, `AssetType`), event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`). No Spring beans. Unit tests for migrator chain.
-- [ ] `[shared-lib]` Create `venueintelligence-model` Maven module depending on `venueintelligence-process`: `Venue`, `VenueStatus`, `VenueAsset`, `VenueMetadata`, `VenueCapacity`, `VenueMetadataSchemaVersion` (`CURRENT_SCHEMA_VERSION = 1`), `VenueMetadataMigrator`, `VenueMetadataTypeHandler`, `VenueMetadataMigrationV0ToV1`. `MasterVenue`, `MasterVenueAlias`, `MasterVenueExternal` POJOs. Unit tests for V0→V1 migration.
+- [ ] `[venueintelligence-catalog-processing-worker]` Create inside the service: enums (`ExtractionStatus`, `ExtractorType`, `AssetType`) and event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`). No Spring beans.
+- [ ] `[venueintelligence-catalog-service]` Create inside the service: `MetadataMigration`, `MetadataMigrator`, `MetadataTypeHandler`, `MetadataSchemaVersion`, `MetadataSource`, `MetadataEventType`, `Venue`, `VenueStatus`, `VenueAsset`, `VenueMetadata`, `VenueCapacity`, `VenueMetadataSchemaVersion` (`CURRENT_SCHEMA_VERSION = 1`), `VenueMetadataMigrator`, `VenueMetadataTypeHandler`, `VenueMetadataMigrationV0ToV1`, plus `MasterVenue`, `MasterVenueAlias`, `MasterVenueExternal` POJOs. Unit tests for the migrator chain and the V0→V1 migration.
 
 ### Database Schema
 
-- [ ] `[shared-lib]` Liquibase `system/20260901000000-create-master-venue.xml`: tables `master_venue`, `master_venue_alias`, `master_venue_external` in `public` schema. pg_trgm extension. GIN trigram index on `master_venue_alias.alias`. Full rollback block.
-- [ ] `[shared-lib]` Liquibase `tenant/20260901000001-create-venues.xml`: `venues` table with pgvector + PostGIS extensions, IVFFlat/GIN/GIST/btree indexes, `trg_venues_tsvector` trigger. Full rollback block.
-- [ ] `[shared-lib]` Liquibase `tenant/20260901000002-create-venue-assets.xml`: `venue_assets` table with btree + IVFFlat indexes. Full rollback block.
-- [ ] `[shared-lib]` Liquibase `intelligence/` changesets in `venueintelligence-process`: `extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`. Included via `tenant/master.xml`. Full rollback blocks.
-- [ ] `[shared-lib]` Seed migration `system/20260901000001-seed-master-venues.xml`: 50 curated venues as `<insert>` changesets, `source = platform_seed`, `metadata._schema_version = 1`. Covers top convention centres and hotel venues in 3 target launch cities.
+- [ ] `[venueintelligence-catalog-service]` Liquibase `system/20260901000000-create-master-venue.xml`: tables `master_venue`, `master_venue_alias`, `master_venue_external` in `public` schema. pg_trgm extension. GIN trigram index on `master_venue_alias.alias`. Full rollback block.
+- [ ] `[venueintelligence-catalog-service]` Liquibase `tenant/20260901000001-create-venues.xml`: `venues` table with pgvector + PostGIS extensions, IVFFlat/GIN/GIST/btree indexes, `trg_venues_tsvector` trigger. Full rollback block.
+- [ ] `[venueintelligence-catalog-service]` Liquibase `tenant/20260901000002-create-venue-assets.xml`: `venue_assets` table with btree + IVFFlat indexes. Full rollback block.
+- [ ] `[venueintelligence-catalog-service]` Liquibase `intelligence/` changesets live in the service, which is the only service that runs Liquibase against the tenant schema: `extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`. Included via `tenant/master.xml`. Full rollback blocks.
+- [ ] `[venueintelligence-catalog-service]` Seed migration `system/20260901000001-seed-master-venues.xml`: 50 curated venues as `<insert>` changesets, `source = platform_seed`, `metadata._schema_version = 1`. Covers top convention centres and hotel venues in 3 target launch cities.
 
 ### venueintelligence-catalog-service Bootstrap
 
-- [ ] `[venueintelligence-catalog-service]` Scaffold Spring Boot service: Maven parent `boot-parent-pom`, deps (`venueintelligence-model`, `foundation-tenancy`, MyBatis, Spring Security OAuth2 RS, RabbitMQ, MinIO, Micrometer). `SecurityConfig` (RS256, JWKS URI, bare authority strings). `TenantExtractionFilter`. `GlobalExceptionHandler` (RFC 7807). Actuator + Swagger UI. Passes CI.
+- [ ] `[venueintelligence-catalog-service]` Scaffold Spring Boot service: Maven parent `boot-parent-pom`, deps (`foundation-tenancy`, MyBatis, Spring Security OAuth2 RS, RabbitMQ, MinIO, Micrometer). `SecurityConfig` (RS256, JWKS URI, bare authority strings). `TenantExtractionFilter`. `GlobalExceptionHandler` (RFC 7807). Actuator + Swagger UI. Passes CI.
 - [ ] `[venueintelligence-catalog-service]` `MyBatisSchemaInterceptor` wired from `foundation-tenancy`. `TenantLiquibaseRunner` applying `system/master.xml` then `tenant/master.xml` on startup. Integration test: startup against Testcontainers Postgres verifies all tables created in correct schemas.
 
 ### Master Venue Admin API

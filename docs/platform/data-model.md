@@ -8,7 +8,7 @@
 ## Related documents
 
 - [architecture-overview.md](architecture-overview.md) — platform context and foundation reuse
-- [services.md](services.md) — which service owns which table; shared library layout
+- [services.md](services.md) — which service owns which table; the self-contained service rule
 - [aggregation.md](aggregation.md) — how conflicting field values are resolved at write time
 - [master-catalog.md](master-catalog.md) — `public.master_venue` tables and MC_INHERIT provenance
 - [etl-pipeline.md](etl-pipeline.md) — how extraction jobs produce `venue_metadata_events`
@@ -196,7 +196,7 @@ flag in `extracted_text`.
 | `completed_at`      | timestamp |                                               |
 | `error_message`     | text      | On failure                                    |
 
-Defined in `venueintelligence-process`. Owned by `venueintelligence-catalog-processing-worker`. See [services.md](services.md) §4c.
+Owned by `venueintelligence-catalog-processing-worker`. See [services.md](services.md) §4.
 
 ---
 
@@ -383,13 +383,13 @@ Every `venues.metadata` JSONB document must carry an integer key `_schema_versio
 | Initial version     | `1` (matches the first canonical field set shipped in MVP)                                                   |
 | Absent key fallback | `0` (triggers full migration chain from v0)                                                                  |
 | Bump condition      | Any backwards-incompatible change to canonical fields, or any addition of a required nested field            |
-| Bump ownership      | `venueintelligence-model` library — only the shared model may define `CURRENT_SCHEMA_VERSION`                |
+| Bump ownership      | `venueintelligence-catalog-service` — the only place `CURRENT_SCHEMA_VERSION` is defined               |
 | Write enforcement   | Every write path runs the migrator and sets `_schema_version = CURRENT_SCHEMA_VERSION` before persisting     |
 | Read enforcement    | `VenueMetadataMigrator.migrateToCurrent(JsonNode)` is called on **every read** via MyBatis ResultMap handler |
 
 ### Migration pipeline — `VenueMetadataMigrator`
 
-Lives in `venueintelligence-model` (shared library, zero Spring deps — pure Java). Both services use the **same** migrator instance.
+Lives in `venueintelligence-catalog-service` (plain Java, zero Spring deps).
 
 ```
                  ┌──────────────────────────────────┐
@@ -424,12 +424,12 @@ Lives in `venueintelligence-model` (shared library, zero Spring deps — pure Ja
 
 ### Migration classes
 
-Each `N → N+1` step is a single-responsibility class implementing `MetadataMigration` interface (defined in `venueintelligence-process`). Migrations are registered in an ordered list inside `VenueMetadataMigrator` — the order is the source of truth.
+Each `N → N+1` step is a single-responsibility class implementing the `MetadataMigration` interface (a plain Java interface in `venueintelligence-catalog-service`). Migrations are registered in an ordered list inside `VenueMetadataMigrator` — the order is the source of truth.
 
 ```java
 package com.iqkv.venueintelligence.venue.model;
 
-// venueintelligence-model: no Spring, no framework deps
+// venueintelligence-catalog-service: no Spring, no framework deps
 public interface MetadataMigration {
     int fromVersion();
     int toVersion();
@@ -513,7 +513,7 @@ The migrator records the pre-migration version of every document it sees via Mic
 
 ## 10. Database schema
 
-Migrations live in `venueintelligence-model` under `src/main/resources/db/changelog/tenant/`. Both services include the library on their classpath; `venueintelligence-catalog-service` runs the migrations on startup (same pattern as IAM).
+Migrations live in `venueintelligence-catalog-service` under `src/main/resources/db/changelog/tenant/`. That service is the only one that runs Liquibase against the tenant schema, on startup (same pattern as IAM).
 
 ### Naming and format conventions
 
@@ -845,7 +845,7 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 | `venue_assets`          | `id` UUID PK, `venue_id` UUID FK, `asset_type` VARCHAR(50), `photo_category` VARCHAR(30), `display_order` SMALLINT, `label` VARCHAR(255), `cdn_url` TEXT, `thumbnail_cdn_url` TEXT, `table_data` JSONB, `extraction_status` VARCHAR(20), `extracted_text_embedding` VECTOR(1536), `uploaded_at` TIMESTAMP, `updated_at` TIMESTAMP                                                                      | `venueintelligence-catalog-service`           |
 | `extraction_jobs`       | `id` UUID PK, `asset_id` UUID FK, `status` VARCHAR(20), `extractor_type` VARCHAR(50), `extracted_data` JSONB, `confidence_scores` JSONB                                                                                                                                                                                                                                                                | `venueintelligence-catalog-processing-worker` |
 | `venue_metadata_events` | `id` UUID PK, `venue_id` UUID FK, `event_type` VARCHAR(50), `event_data` JSONB — append-only                                                                                                                                                                                                                                                                                                           | `venueintelligence-catalog-service`           |
-| `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in `venueintelligence-process` changelog.                                                                                                                                                                                                                                            | `venueintelligence-catalog-processing-worker` |
+| `item_vectors`          | `id` UUID PK, `content` TEXT, `metadata` JSONB, `embedding` VECTOR(1536) — Spring AI PgVectorStore table. Defined in the tenant changelog owned by `venueintelligence-catalog-service`.                                                                                                                                                                                                                                            | `venueintelligence-catalog-processing-worker` |
 | `ai_cost_tracking`      | `id` UUID PK, `provider` VARCHAR(50), `model` VARCHAR(100), `tokens_used` INTEGER, `cost_usd` NUMERIC(10,6)                                                                                                                                                                                                                                                                                            | `venueintelligence-catalog-processing-worker` |
 
 ### Index strategy

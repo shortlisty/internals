@@ -158,7 +158,7 @@ Safe projection excludes: `confidence`, `quality_score`, `admin_notes`, `last_ve
 
 Base: `/api/v1/venues/{venueId}/assets`
 
-Upload uses the two-phase presigned URL pattern (no multipart to the service). Full S3 key layout in [services.md § 4b](services.md).
+Upload uses the two-phase presigned URL pattern (no multipart to the service). Full S3 key layout in [services.md § 4a](services.md).
 
 | Method   | Path            | Authority               | Status | Notes                                                                     |
 | -------- | --------------- | ----------------------- | ------ | ------------------------------------------------------------------------- |

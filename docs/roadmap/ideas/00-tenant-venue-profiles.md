@@ -21,7 +21,7 @@ The master catalog is invisible to the planner. The value they feel is "I can ad
 
 ## In scope
 
-Scope markers: `[shared-lib]` `[venueintelligence-catalog-service]` `[admin-ui]` `[tenant-ui]` `[infra]`
+Scope markers: `[venueintelligence-catalog-service]` `[admin-ui]` `[tenant-ui]` `[infra]`
 
 Tasks are ordered by dependency. Each is sized for 2–3 h including tests and CI/CD to UAT.
 

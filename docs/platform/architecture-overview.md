@@ -11,7 +11,7 @@
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
 | **This file**                                    | Platform context, foundation reuse, tech stack decisions, implementation patterns                                                    |
 | [data-model.md](data-model.md)                   | Domain model, canonical field set, schema versioning, database schema & indexes                                                      |
-| [services.md](services.md)                       | Service decomposition, shared libraries (`venueintelligence-model`, `venueintelligence-process`), S3 layout                          |
+| [services.md](services.md)                       | Service decomposition, the self-contained service rule, S3 layout                          |
 | [aggregation.md](aggregation.md)                 | Metadata aggregation, conflict resolution, FIFO race-condition prevention                                                            |
 | [master-catalog.md](master-catalog.md)           | Master Venue Catalog — cold start, alias normalisation, MC_INHERIT merge algorithm                                                   |
 | [etl-pipeline.md](etl-pipeline.md)               | ETL pipeline (parse → transform → load), Spring AI stages, processing SLAs                                                           |
@@ -41,8 +41,8 @@ Shortlisty is a new product service built **on top of the iQ Key Value foundatio
 
 **New services introduced by Shortlisty:**
 
-- `venueintelligence-process` — platform-level shared library (JAR). Domain-agnostic extraction pipeline contracts, metadata versioning mechanism, provenance model, event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`), and Liquibase migrations for infrastructure tables (`extraction_jobs`, `item_vectors`, `item_metadata_events`, `ai_cost_tracking`). No Spring beans, no business logic, no venue-specific fields. The domain-agnostic layer — reusable across verticals (venue, medical, agro, etc.). Imported by both services and by `venueintelligence-model`.
-- `venueintelligence-model` — venue-domain shared library (JAR). Venue-specific domain model (`Venue`, `VenueMetadata`, `MasterVenue`), canonical field set, venue metadata migrations, and Liquibase migrations for venue tables (`venues`, `venue_assets`, `venue_annotations`, `master_venue`). Depends on `venueintelligence-process`. Imported by both services.
+Each service is fully self-contained at MVP: it carries its own domain classes, event payloads, and Liquibase changelogs, and declares no compile dependency on another service.
+
 - `venueintelligence-catalog-service` — core domain: venues, assets, annotations, metadata, proposals, search, plan enforcement, master catalog backdrop lookup. Synchronous request/response only.
 - `venueintelligence-catalog-processing-worker` — async sidecar: document ETL for tenant uploads, table data parsing (CSV/XLSX), embedding generation, metadata aggregation, scheduled maintenance jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `venueintelligence-catalog-service`.
 - `venueintelligence-master-venue-loader` — Spring Boot service. Runs master catalog import jobs triggered by `admin.master-catalog.import.*` RabbitMQ events. Applies reviewed scraper CSV/JSONL batches to `public.master_venue`. No tenant interaction.
@@ -70,7 +70,7 @@ Shortlisty is a new product service built **on top of the iQ Key Value foundatio
 | Geo search           | PostGIS (PostgreSQL extension)                                                     | No new service                                                                                                            |
 | Async processing     | RabbitMQ (existing foundation)                                                     | Priority queues, DLQ, already in platform                                                                                 |
 | File storage         | S3 / MinIO (existing foundation)                                                   | Presigned URL pattern already proven in IAM                                                                               |
-| Shared library split | `venueintelligence-process` (generic) + `venueintelligence-model` (venue-specific) | Enables pivot to other verticals without refactoring infrastructure contracts. Full design in [services.md](services.md). |
+| Self-contained services (MVP) | Each service owns its domain classes, event payloads, and changelogs; neither declares a compile dependency on the other | Duplication across services is accepted at MVP to remove cross-service compile coupling. |
 
 Full rationale and competitor analysis: see [`../business/Digital_Sales_Room_for_Events/comparison.md`](../business/Digital_Sales_Room_for_Events/comparison.md).
 
