@@ -476,6 +476,36 @@ These rules are enforced by:
 
 If a rule in this file is wrong or needs updating, change this file first, then apply the change. Do not establish ad-hoc exceptions.
 
+## 14. Evaluation
+
+How we judge whether an agent task in this repository is actually done. Evaluation is evidence-based — a claim without the result is not a pass.
+
+> This section starts minimal and grows with the repository. Add a gate only when a change type repeatedly slips through without it.
+
+### Definition of done
+
+A task is evaluated as done only when all of the following hold:
+
+- Every gate required by the change type below is satisfied.
+- The final report names what was changed and what was checked — per §8.
+- Nothing required was skipped silently. Something that could not be checked is reported as a gap, never as a pass.
+
+### Required gates by change type
+
+| Change type | Required gates |
+| --- | --- |
+| Any change | No build gate — Markdown formatting is enforced by the pre-commit hook (§13) |
+| New document | Index row added first (§4.4, §4.5, §4.6, §4.12), then the document is created |
+| Structural change (new folder, renamed file, new document type) | §2 updated in the same change |
+| Cross-reference change | Both ends updated — a one-way link is a drift bug (§4.4) |
+| Status transition (epic, milestone, idea) | Status rules and forward-only transitions verified (§4.4, §4.5, §4.12) |
+| Change to the active sales position | CHANGELOG.md entry added (§7) |
+| Wording-only edit | No gate |
+
+### Ordering
+
+Check the narrowest relevant rule first, then the rest for the change type. On a violation, stop and report it rather than continuing on an unverified base (per §9).
+
 ---
 
 **Docs:** [What is Shortlisty?](docs/README.md) · [Architecture](docs/platform/README.md) · [Roadmap Vision](docs/roadmap/vision.md)
