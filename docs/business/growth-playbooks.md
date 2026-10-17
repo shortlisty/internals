@@ -161,12 +161,64 @@ North star remains: **approved pitch boards per team per month**.
 
 ---
 
+## Playbook 7 — Build in public / open-core (parallel developer channel)
+
+**Goal:** Build a developer community around the open-source document intelligence layer, creating a second acquisition surface that runs in parallel with the agency-direct motion and compounds over time.
+
+**Positioning:** The IQKV platform is already open source. The promise is an open-core system for document intelligence — extracting and reconciling information across PDFs, scans, tables, and emails. This is hard infrastructure that event agencies benefit from, but its audience is broader: any team that drowns in unstructured documents.
+
+**Reference projects:** [Papermark](https://github.com/mfts/papermark) (open-core line, doc sharing → analytics), [Postiz](https://github.com/gitroomhq/postiz-app) (founder-led social content cadence), [Kestra](https://github.com/kestra-io/kestra) (community flywheel around pipeline/workflow infra).
+
+**Motion:** Ship visibly → narrate publicly → let the repo pull inbound.
+
+| Step | Action                                                                                              | Owner   | Success signal                          |
+|------|-----------------------------------------------------------------------------------------------------|---------|-----------------------------------------|
+| 1    | Publish IQKV with a clear README: what it solves, what's open, where the proprietary line will be  | Founder | Repo is linkable and readable           |
+| 2    | First build-in-public post: "Why we open-sourced our document intelligence layer" (X + LinkedIn)   | Founder | Post circulates; first GitHub stars     |
+| 3    | Weekly content: one real extraction problem solved, one lesson learned, one before/after            | Founder | Consistent impressions; community DMs   |
+| 4    | Reddit seeding: r/selfhosted, r/MachineLearning, r/devops — answer real questions, link naturally  | Founder | Inbound repo traffic from Reddit        |
+| 5    | Hacker News Show HN when repo has ≥ 100 stars and a working demo                                   | Founder | Front page or top comments; spike in stars |
+| 6    | Developer signups convert to Shortlisty waitlist or paid when they have the event agency use case  | Founder | Cross-channel signups mentioning IQKV   |
+
+**Content rule:** Always lead with the problem (reconciling conflicting data across 40 venue PDFs). Never lead with "AI" or model names. Show the output, not the architecture.
+
+**Channels (ranked by expected leverage):**
+
+1. **GitHub** — the repo itself is the primary surface; README quality and issue responsiveness drive stars and forks
+2. **X (Twitter)** — build-in-public content; short loops, screenshots, raw numbers
+3. **LinkedIn** — same content, slightly longer form; reaches event industry adjacent audience
+4. **Hacker News** — Show HN for milestone releases; high signal-to-noise for infrastructure tools
+5. **Reddit** — r/selfhosted, r/devops, r/MachineLearning; answer first, link second
+6. **Facebook / industry media** — lower priority; revisit after traction on the channels above
+
+**Open-core line:** Not yet drawn. This is a required decision before the first public announcement. Key question: what stays open (extraction engine? reconciliation logic?) and what stays proprietary (multi-source aggregation, tenant isolation, master catalog merge, pitch board output)?
+
+**What this playbook is not:**
+- A replacement for Playbooks 1–3. Agency acquisition stays direct and manual.
+- A paid acquisition channel. No spend until organic traction is proven.
+- A community management commitment. One founder, one cadence — sustainable > comprehensive.
+
+**Metrics:**
+
+| Metric                                   | Cadence | Owner   |
+|------------------------------------------|---------|---------|
+| GitHub stars                             | Weekly  | Founder |
+| Inbound signups mentioning IQKV / GitHub | Monthly | Founder |
+| Reddit / HN referral traffic             | Monthly | Founder |
+| Developer → agency conversion (if any)   | Monthly | Founder |
+
+**Kill criterion:** If GitHub stars stall under 50 after 3 months of consistent content and the inbound is zero — pause the channel, reassess the open-core line, not the content cadence.
+
+---
+
 ## Open questions (to resolve)
 
 - Which city is the true cold-start market? (density of agencies + willingness to try new tools)
 - How strong is the client-side viral effect in practice? (measure after 50 boards sent)
 - Is white-label the main upgrade driver, or is it priority processing / API?
 - Should we offer a free "viewer" seat for junior coordinators, or keep unlimited team on Pro?
+- What is the open-core line for IQKV? (what stays open, what stays proprietary — must be resolved before first public announcement)
+- Does the developer audience convert to paying agencies, or is it an entirely separate funnel? (measure after first 6 months of build-in-public)
 
 ---
 
