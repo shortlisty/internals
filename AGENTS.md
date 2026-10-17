@@ -510,15 +510,15 @@ A task is evaluated as done only when all of the following hold:
 
 ### Required gates by change type
 
-| Change type | Required gates |
-| --- | --- |
-| Any change | No build gate — Markdown formatting is enforced by the pre-commit hook (§13) |
-| New document | Index row added first (§4.4, §4.5, §4.6, §4.12), then the document is created |
-| Structural change (new folder, renamed file, new document type) | §2 updated in the same change |
-| Cross-reference change | Both ends updated — a one-way link is a drift bug (§4.4) |
-| Status transition (epic, milestone, idea) | Status rules and forward-only transitions verified (§4.4, §4.5, §4.12) |
-| Change to the active sales position | CHANGELOG.md entry added (§7) |
-| Wording-only edit | No gate |
+| Change type                                                     | Required gates                                                                |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Any change                                                      | No build gate — Markdown formatting is enforced by the pre-commit hook (§13)  |
+| New document                                                    | Index row added first (§4.4, §4.5, §4.6, §4.12), then the document is created |
+| Structural change (new folder, renamed file, new document type) | §2 updated in the same change                                                 |
+| Cross-reference change                                          | Both ends updated — a one-way link is a drift bug (§4.4)                      |
+| Status transition (epic, milestone, idea)                       | Status rules and forward-only transitions verified (§4.4, §4.5, §4.12)        |
+| Change to the active sales position                             | CHANGELOG.md entry added (§7)                                                 |
+| Wording-only edit                                               | No gate                                                                       |
 
 ### Ordering
 
