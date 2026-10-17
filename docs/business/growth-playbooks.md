@@ -167,7 +167,7 @@ North star remains: **approved pitch boards per team per month**.
 
 **Positioning:** The IQKV platform is already open source. The promise is an open-core system for document intelligence — extracting and reconciling information across PDFs, scans, tables, and emails. This is hard infrastructure that event agencies benefit from, but its audience is broader: any team that drowns in unstructured documents.
 
-**Reference projects:** [Papermark](https://github.com/mfts/papermark) (open-core line, doc sharing → analytics), [Postiz](https://github.com/gitroomhq/postiz-app) (founder-led social content cadence), [Kestra](https://github.com/kestra-io/kestra) (community flywheel around pipeline/workflow infra).
+**Reference projects:** [Papermark](https://github.com/mfts/papermark) (open-core line, doc sharing → analytics), [Postiz](https://github.com/gitroomhq/postiz-app) (founder-led social content cadence), [Kestra](https://github.com/kestra-io/kestra) (community flywheel around pipeline/workflow infra), [Plausible](https://github.com/plausible/analytics) (open-core SaaS, privacy-first alternative positioning), [Documenso](https://github.com/documenso/documenso) (open-source doc signing, community-led trust building), [Cal.com](https://github.com/calcom/cal.com) (aggressive open-core with hosted tier, rapid GitHub star growth), [Dify / LangGenius](https://github.com/langgenius/dify) (open-source LLM app platform, developer community around AI pipelines).
 
 **Motion:** Ship visibly → narrate publicly → let the repo pull inbound.
 
