@@ -45,17 +45,17 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 
 ### Consumed by `docintelligence-catalog-processing-worker`
 
-| Routing key      | Queue                                         | Action                                |
-| ---------------- | --------------------------------------------- | ------------------------------------- |
+| Routing key      | Queue                                              | Action                                |
+| ---------------- | -------------------------------------------------- | ------------------------------------- |
 | `asset.uploaded` | `docintelligence.extraction.priority` (Enterprise) | Trigger ETL pipeline immediately      |
 | `asset.uploaded` | `docintelligence.extraction.standard` (Free/Pro)   | Trigger ETL pipeline (standard queue) |
 
 ### Consumed by `docintelligence-catalog-service`
 
-| Routing key            | Queue (MVP A1)                                   | Queue (Scalable A2)                                                                                                      | Action                                  |
-| ---------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- |
+| Routing key            | Queue (MVP A1)                                        | Queue (Scalable A2)                                                                                                                | Action                                  |
+| ---------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
 | `extraction.completed` | `docintelligence.metadata.aggregation` (single queue) | `docintelligence.metadata.aggregation.0` … `docintelligence.metadata.aggregation.15` (16 slots, slot-bound via routing key suffix) | Run metadata aggregation for venue      |
-| `extraction.failed`    | `docintelligence.extraction.dlq`                      | `docintelligence.extraction.dlq`                                                                                              | Mark asset `extraction_status = FAILED` |
+| `extraction.failed`    | `docintelligence.extraction.dlq`                      | `docintelligence.extraction.dlq`                                                                                                   | Mark asset `extraction_status = FAILED` |
 
 ### Consumed by `foundation-audit-service` (passive, no changes)
 
