@@ -21,40 +21,40 @@ Without a curated master catalog, every tenant retypes the same venue data from 
 
 ## In scope
 
-Scope markers: `[venueintelligence-catalog-service]` `[venueintelligence-catalog-processing-worker]` `[admin-ui]` `[tenant-ui]` `[infra]`
+Scope markers: `[docintelligence-catalog-service]` `[docintelligence-catalog-processing-worker]` `[admin-ui]` `[tenant-ui]` `[infra]`
 
 Tasks are ordered by dependency. Each is sized for 2–3 h including tests and CI/CD to UAT.
 
 ### Service Domain and Pipeline Types
 
-- [ ] `[venueintelligence-catalog-processing-worker]` Create inside the service: enums (`ExtractionStatus`, `ExtractorType`, `AssetType`) and event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`). No Spring beans.
-- [ ] `[venueintelligence-catalog-service]` Create inside the service: `MetadataMigration`, `MetadataMigrator`, `MetadataTypeHandler`, `MetadataSchemaVersion`, `MetadataSource`, `MetadataEventType`, `Venue`, `VenueStatus`, `VenueAsset`, `VenueMetadata`, `VenueCapacity`, `VenueMetadataSchemaVersion` (`CURRENT_SCHEMA_VERSION = 1`), `VenueMetadataMigrator`, `VenueMetadataTypeHandler`, `VenueMetadataMigrationV0ToV1`, plus `MasterVenue`, `MasterVenueAlias`, `MasterVenueExternal` POJOs. Unit tests for the migrator chain and the V0→V1 migration.
+- [ ] `[docintelligence-catalog-processing-worker]` Create inside the service: enums (`ExtractionStatus`, `ExtractorType`, `AssetType`) and event POJOs (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`). No Spring beans.
+- [ ] `[docintelligence-catalog-service]` Create inside the service: `MetadataMigration`, `MetadataMigrator`, `MetadataTypeHandler`, `MetadataSchemaVersion`, `MetadataSource`, `MetadataEventType`, `Venue`, `VenueStatus`, `VenueAsset`, `VenueMetadata`, `VenueCapacity`, `VenueMetadataSchemaVersion` (`CURRENT_SCHEMA_VERSION = 1`), `VenueMetadataMigrator`, `VenueMetadataTypeHandler`, `VenueMetadataMigrationV0ToV1`, plus `MasterVenue`, `MasterVenueAlias`, `MasterVenueExternal` POJOs. Unit tests for the migrator chain and the V0→V1 migration.
 
 ### Database Schema
 
-- [ ] `[venueintelligence-catalog-service]` Liquibase `system/20260901000000-create-master-venue.xml`: tables `master_venue`, `master_venue_alias`, `master_venue_external` in `public` schema. pg_trgm extension. GIN trigram index on `master_venue_alias.alias`. Full rollback block.
-- [ ] `[venueintelligence-catalog-service]` Liquibase `tenant/20260901000001-create-venues.xml`: `venues` table with pgvector + PostGIS extensions, IVFFlat/GIN/GIST/btree indexes, `trg_venues_tsvector` trigger. Full rollback block.
-- [ ] `[venueintelligence-catalog-service]` Liquibase `tenant/20260901000002-create-venue-assets.xml`: `venue_assets` table with btree + IVFFlat indexes. Full rollback block.
-- [ ] `[venueintelligence-catalog-service]` Liquibase `intelligence/` changesets live in the service, which is the only service that runs Liquibase against the tenant schema: `extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`. Included via `tenant/master.xml`. Full rollback blocks.
-- [ ] `[venueintelligence-catalog-service]` Seed migration `system/20260901000001-seed-master-venues.xml`: 50 curated venues as `<insert>` changesets, `source = platform_seed`, `metadata._schema_version = 1`. Covers top convention centres and hotel venues in 3 target launch cities.
+- [ ] `[docintelligence-catalog-service]` Liquibase `system/20260901000000-create-master-venue.xml`: tables `master_venue`, `master_venue_alias`, `master_venue_external` in `public` schema. pg_trgm extension. GIN trigram index on `master_venue_alias.alias`. Full rollback block.
+- [ ] `[docintelligence-catalog-service]` Liquibase `tenant/20260901000001-create-venues.xml`: `venues` table with pgvector + PostGIS extensions, IVFFlat/GIN/GIST/btree indexes, `trg_venues_tsvector` trigger. Full rollback block.
+- [ ] `[docintelligence-catalog-service]` Liquibase `tenant/20260901000002-create-venue-assets.xml`: `venue_assets` table with btree + IVFFlat indexes. Full rollback block.
+- [ ] `[docintelligence-catalog-service]` Liquibase `intelligence/` changesets live in the service, which is the only service that runs Liquibase against the tenant schema: `extraction_jobs`, `item_metadata_events`, `item_vectors`, `ai_cost_tracking`. Included via `tenant/master.xml`. Full rollback blocks.
+- [ ] `[docintelligence-catalog-service]` Seed migration `system/20260901000001-seed-master-venues.xml`: 50 curated venues as `<insert>` changesets, `source = platform_seed`, `metadata._schema_version = 1`. Covers top convention centres and hotel venues in 3 target launch cities.
 
-### venueintelligence-catalog-service Bootstrap
+### docintelligence-catalog-service Bootstrap
 
-- [ ] `[venueintelligence-catalog-service]` Scaffold Spring Boot service: Maven parent `boot-parent-pom`, deps (`foundation-tenancy`, MyBatis, Spring Security OAuth2 RS, RabbitMQ, MinIO, Micrometer). `SecurityConfig` (RS256, JWKS URI, bare authority strings). `TenantExtractionFilter`. `GlobalExceptionHandler` (RFC 7807). Actuator + Swagger UI. Passes CI.
-- [ ] `[venueintelligence-catalog-service]` `MyBatisSchemaInterceptor` wired from `foundation-tenancy`. `TenantLiquibaseRunner` applying `system/master.xml` then `tenant/master.xml` on startup. Integration test: startup against Testcontainers Postgres verifies all tables created in correct schemas.
+- [ ] `[docintelligence-catalog-service]` Scaffold Spring Boot service: Maven parent `boot-parent-pom`, deps (`foundation-tenancy`, MyBatis, Spring Security OAuth2 RS, RabbitMQ, MinIO, Micrometer). `SecurityConfig` (RS256, JWKS URI, bare authority strings). `TenantExtractionFilter`. `GlobalExceptionHandler` (RFC 7807). Actuator + Swagger UI. Passes CI.
+- [ ] `[docintelligence-catalog-service]` `MyBatisSchemaInterceptor` wired from `foundation-tenancy`. `TenantLiquibaseRunner` applying `system/master.xml` then `tenant/master.xml` on startup. Integration test: startup against Testcontainers Postgres verifies all tables created in correct schemas.
 
 ### Master Venue Admin API
 
-- [ ] `[venueintelligence-catalog-service]` `MasterCatalogAdminMapper` (MyBatis, `public.` qualified): `insert`, `findById`, `findAll` (paginated), `update`, `delete`, `findAliasesById`, `insertAlias`, `updateAlias`, `deleteAlias`. Mapper XML + `MasterVenueDtos` records. Unit tests.
-- [ ] `[venueintelligence-catalog-service]` `MasterVenueNormalizer` utility: 6-step normalize function (trim → strip articles → lowercase → strip non-alphanumeric → collapse whitespace → trim). `MasterVenueDeduplicator`: pg_trgm similarity + `ST_Distance` query, returns top-5 candidates with `name_sim`, `geo_distance_m`, `action_recommendation`. Unit tests for normalizer. Integration test for dedup query.
-- [ ] `[venueintelligence-catalog-service]` `AdminMasterVenueRestResource` (`/api/v1/admin/master-venues`, `PLATFORM_ADMIN`): `GET /`, `POST /`, `GET /{id}`, `PUT /{id}`, `PATCH /{id}`, `DELETE /{id}`. No TenantContext — operates on `public` schema directly. `ProblemDetail` error responses. Controller + service + mapper integration tests.
-- [ ] `[venueintelligence-catalog-service]` `AdminMasterVenueRestResource` continuation: `POST /{id}/merge` (`ForceMergeRequest`, three strategies), `POST /dedup-check` (`DeduplicationCheckRequest` → `DeduplicationCheckResponse`). Integration tests covering merge strategies and dedup recommendations.
-- [ ] `[venueintelligence-catalog-service]` `AdminMasterVenueAliasRestResource` (`/api/v1/admin/master-venues/{id}/aliases`, `PLATFORM_ADMIN`): `GET /`, `POST /`, `GET /{aliasId}`, `PUT /{aliasId}`, `DELETE /{aliasId}`. Integration tests. 404 when parent `master_venue` not found.
-- [ ] `[venueintelligence-catalog-service]` `POST /bulk-import` (`PLATFORM_ADMIN`, status 202): accepts `BulkImportRequest` (S3 key + force_mode), enqueues `admin.master-catalog.import.apply` RabbitMQ event, returns `BulkImportJobResponse`. Integration test verifies event published.
+- [ ] `[docintelligence-catalog-service]` `MasterCatalogAdminMapper` (MyBatis, `public.` qualified): `insert`, `findById`, `findAll` (paginated), `update`, `delete`, `findAliasesById`, `insertAlias`, `updateAlias`, `deleteAlias`. Mapper XML + `MasterVenueDtos` records. Unit tests.
+- [ ] `[docintelligence-catalog-service]` `MasterVenueNormalizer` utility: 6-step normalize function (trim → strip articles → lowercase → strip non-alphanumeric → collapse whitespace → trim). `MasterVenueDeduplicator`: pg_trgm similarity + `ST_Distance` query, returns top-5 candidates with `name_sim`, `geo_distance_m`, `action_recommendation`. Unit tests for normalizer. Integration test for dedup query.
+- [ ] `[docintelligence-catalog-service]` `AdminMasterVenueRestResource` (`/api/v1/admin/master-venues`, `PLATFORM_ADMIN`): `GET /`, `POST /`, `GET /{id}`, `PUT /{id}`, `PATCH /{id}`, `DELETE /{id}`. No TenantContext — operates on `public` schema directly. `ProblemDetail` error responses. Controller + service + mapper integration tests.
+- [ ] `[docintelligence-catalog-service]` `AdminMasterVenueRestResource` continuation: `POST /{id}/merge` (`ForceMergeRequest`, three strategies), `POST /dedup-check` (`DeduplicationCheckRequest` → `DeduplicationCheckResponse`). Integration tests covering merge strategies and dedup recommendations.
+- [ ] `[docintelligence-catalog-service]` `AdminMasterVenueAliasRestResource` (`/api/v1/admin/master-venues/{id}/aliases`, `PLATFORM_ADMIN`): `GET /`, `POST /`, `GET /{aliasId}`, `PUT /{aliasId}`, `DELETE /{aliasId}`. Integration tests. 404 when parent `master_venue` not found.
+- [ ] `[docintelligence-catalog-service]` `POST /bulk-import` (`PLATFORM_ADMIN`, status 202): accepts `BulkImportRequest` (S3 key + force_mode), enqueues `admin.master-catalog.import.apply` RabbitMQ event, returns `BulkImportJobResponse`. Integration test verifies event published.
 
 ### Master Venue Public Read
 
-- [ ] `[venueintelligence-catalog-service]` `MasterVenueQueryMapper`: `findById` returning safe projection. `MasterVenueRestResource` (`/api/v1/master-venues`, `MEMBER`): `GET /{id}` → `MasterVenuePublicResponse` (no admin-only fields). 404 if `status = ARCHIVED`. Integration test.
+- [ ] `[docintelligence-catalog-service]` `MasterVenueQueryMapper`: `findById` returning safe projection. `MasterVenueRestResource` (`/api/v1/master-venues`, `MEMBER`): `GET /{id}` → `MasterVenuePublicResponse` (no admin-only fields). 404 if `status = ARCHIVED`. Integration test.
 
 ### Admin UI
 
@@ -64,17 +64,17 @@ Tasks are ordered by dependency. Each is sized for 2–3 h including tests and C
 
 ## Out of scope
 
-- Document upload and extraction pipeline (`venueintelligence-catalog-processing-worker`) — deferred.
+- Document upload and extraction pipeline (`docintelligence-catalog-processing-worker`) — deferred.
 - Semantic search (pgvector embeddings) — deferred.
 - Full-text keyword search — deferred.
 - MC_INHERIT merge on extraction completion — deferred.
-- `venueintelligence-master-venue-loader` bulk import processor — deferred.
+- `docintelligence-master-venue-loader` bulk import processor — deferred.
 - Tenant-facing venue creation UI (covered by the tenant venue profiles idea).
 
 ## Open questions
 
 - [ ] Which 3 target launch cities does the 50-venue seed set cover?
-- [ ] Does the bulk-import processor (`venueintelligence-master-venue-loader`) ship in the same increment as the admin API, or as a follow-up?
+- [ ] Does the bulk-import processor (`docintelligence-master-venue-loader`) ship in the same increment as the admin API, or as a follow-up?
 
 ## Status
 

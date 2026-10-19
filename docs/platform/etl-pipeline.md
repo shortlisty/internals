@@ -1,7 +1,7 @@
 # Shortlisty — ETL Pipeline
 
 > **Audience:** Engineers.
-> **Purpose:** The full async document processing pipeline inside `venueintelligence-catalog-processing-worker` — parse, transform, load stages, asset type routing, and processing SLAs.
+> **Purpose:** The full async document processing pipeline inside `docintelligence-catalog-processing-worker` — parse, transform, load stages, asset type routing, and processing SLAs.
 
 ---
 
@@ -16,7 +16,7 @@
 
 ---
 
-## 5. ETL pipeline (`venueintelligence-catalog-processing-worker`)
+## 5. ETL pipeline (`docintelligence-catalog-processing-worker`)
 
 Built on **Spring AI's ETL framework**. Three composable stages:
 
@@ -25,7 +25,7 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
   (parse)            (chunk + enrich)        (embed + store)
 ```
 
-The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`, `AssetType`, and the event payloads (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`) — live inside the service that uses them. Extraction-side types belong to `venueintelligence-catalog-processing-worker`; the `asset.uploaded` payload belongs to `venueintelligence-catalog-service`, which publishes it. The venue enricher (`VenueMetadataEnricher`) and its output type (`VenueMetadata`) are also carried by the worker. No pipeline type crosses a service boundary as a compiled artifact.
+The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`, `AssetType`, and the event payloads (`AssetUploadedEvent`, `ExtractionCompletedEvent`, `ExtractionFailedEvent`) — live inside the service that uses them. Extraction-side types belong to `docintelligence-catalog-processing-worker`; the `asset.uploaded` payload belongs to `docintelligence-catalog-service`, which publishes it. The venue enricher (`VenueMetadataEnricher`) and its output type (`VenueMetadata`) are also carried by the worker. No pipeline type crosses a service boundary as a compiled artifact.
 
 ---
 
@@ -56,16 +56,16 @@ The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`,
 
 1. **Chunk** — `TokenTextSplitter` (512 tokens, 50-token overlap). Spec-sheet tables use 256-token chunks to preserve row precision.
 2. **Tag** — attach `venue_id`, `asset_id`, `asset_type`, `tenant_id` as Document metadata.
-3. **Extract** — `VenueMetadataEnricher` (custom `DocumentTransformer`, carried by `venueintelligence-catalog-processing-worker`): calls GPT-4o with structured output schema matching the venue canonical field set (see [data-model.md § Canonical Field Set](data-model.md)), returns `VenueMetadata` POJO with confidence scores per field. The enricher is the only venue-aware component in the pipeline.
+3. **Extract** — `VenueMetadataEnricher` (custom `DocumentTransformer`, carried by `docintelligence-catalog-processing-worker`): calls GPT-4o with structured output schema matching the venue canonical field set (see [data-model.md § Canonical Field Set](data-model.md)), returns `VenueMetadata` POJO with confidence scores per field. The enricher is the only venue-aware component in the pipeline.
 
 ---
 
 ### Stage 3 — Load
 
 1. **Embed** — `EmbeddingModel` (`text-embedding-3-small`, 1536 dims). Skipped for `DATA_TABLE` and `PRICE_LIST` (CSV/XLSX) — `table_data` is already populated; only metadata stored in `item_vectors`.
-2. **Store** — `TenantAwarePgVectorStore` writes chunks + embeddings to `item_vectors` table in the tenant's schema. Table defined in the tenant changelog owned by `venueintelligence-catalog-service` (see [services.md § 4](services.md)).
+2. **Store** — `TenantAwarePgVectorStore` writes chunks + embeddings to `item_vectors` table in the tenant's schema. Table defined in the tenant changelog owned by `docintelligence-catalog-service` (see [services.md § 4](services.md)).
 3. **Master catalog match** — `MasterVenueMatcher` runs the full MC_INHERIT merge algorithm (trigram name similarity via `pg_trgm` GIN index on `master_venue_alias`, PostGIS `ST_DWithin` 200m radius, combined confidence formula, thresholds 0.75 with geo / 0.90 name-only, ambiguity delta guard ≥ 0.08). No LLM calls. Full algorithm, thresholds, and field-copy semantics in [master-catalog.md](master-catalog.md).
-4. **Aggregate** — publishes `ExtractionCompletedEvent` → `MetadataAggregationConsumer` in `venueintelligence-catalog-service` updates `venues.metadata` via `VenueMetadataMigrator.ensureCurrent()` and recalculates `profile_stage` (`SEEDED → ENRICHED → CURATED → READY`) in the same DB transaction. Full aggregation design including `profile_stage` transition rules in [aggregation.md](aggregation.md).
+4. **Aggregate** — publishes `ExtractionCompletedEvent` → `MetadataAggregationConsumer` in `docintelligence-catalog-service` updates `venues.metadata` via `VenueMetadataMigrator.ensureCurrent()` and recalculates `profile_stage` (`SEEDED → ENRICHED → CURATED → READY`) in the same DB transaction. Full aggregation design including `profile_stage` transition rules in [aggregation.md](aggregation.md).
 
 ---
 
@@ -86,9 +86,9 @@ Retry on failure: 3 attempts with exponential backoff. After 3 failures → `Ext
 ### Spring wiring — worker entry point
 
 ```java
-package com.iqkv.venueintelligence.catalog.processing;
+package com.iqkv.docintelligence.catalog.processing;
 
-// venueintelligence-catalog-processing-worker — Spring wiring only, no domain logic here
+// docintelligence-catalog-processing-worker — Spring wiring only, no domain logic here
 @Service
 public class AssetExtractionConsumer {
 

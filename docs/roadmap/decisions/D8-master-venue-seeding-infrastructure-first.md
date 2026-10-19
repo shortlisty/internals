@@ -27,8 +27,8 @@ This means the following infrastructure must be in place before any tenant can c
 
 Each service is self-contained: it carries its own domain classes, event payloads, and Liquibase changelogs, with no shared artifact linking them.
 
-- `venueintelligence-catalog-service` - venue domain classes, canonical field set, metadata migrations, and tenant Liquibase changelogs
-- `venueintelligence-catalog-processing-worker` - extraction pipeline types and event payloads
+- `docintelligence-catalog-service` - venue domain classes, canonical field set, metadata migrations, and tenant Liquibase changelogs
+- `docintelligence-catalog-processing-worker` - extraction pipeline types and event payloads
 
 ### 2. Database Schema and Migrations
 

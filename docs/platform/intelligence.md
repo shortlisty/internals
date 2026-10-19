@@ -29,13 +29,13 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
 
 **DocumentTransformers (Transform):**
 
-| Transformer                | What it does                                                                                                                                                                                                                                                                                         |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `TokenTextSplitter`        | Splits large documents into chunks respecting token limits                                                                                                                                                                                                                                           |
-| `ContentFormatTransformer` | Normalizes text format                                                                                                                                                                                                                                                                               |
-| `SummaryMetadataEnricher`  | Generates document summary using LLM, stored as metadata                                                                                                                                                                                                                                             |
-| `KeywordMetadataEnricher`  | Extracts keywords using LLM, stored as metadata                                                                                                                                                                                                                                                      |
-| `VenueMetadataEnricher`    | **Venue-domain-specific**: extracts capacity, amenities, contacts via structured call against the venue canonical field set. Runs against a self-hosted OpenAI-compatible endpoint (Phi-4 / Qwen2.5 via Ollama or vLLM — see D12). Implemented inside `venueintelligence-catalog-processing-worker`. |
+| Transformer                | What it does                                                                                                                                                                                                                                                                                       |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TokenTextSplitter`        | Splits large documents into chunks respecting token limits                                                                                                                                                                                                                                         |
+| `ContentFormatTransformer` | Normalizes text format                                                                                                                                                                                                                                                                             |
+| `SummaryMetadataEnricher`  | Generates document summary using LLM, stored as metadata                                                                                                                                                                                                                                           |
+| `KeywordMetadataEnricher`  | Extracts keywords using LLM, stored as metadata                                                                                                                                                                                                                                                    |
+| `VenueMetadataEnricher`    | **Venue-domain-specific**: extracts capacity, amenities, contacts via structured call against the venue canonical field set. Runs against a self-hosted OpenAI-compatible endpoint (Phi-4 / Qwen2.5 via Ollama or vLLM — see D12). Implemented inside `docintelligence-catalog-processing-worker`. |
 
 **DocumentWriters (Load):**
 
@@ -90,12 +90,12 @@ DocumentReader  →  DocumentTransformer  →  DocumentWriter
                └─────────────────────┘
 ```
 
-**Java implementation sketch** — every type below lives inside `venueintelligence-catalog-processing-worker`. No pipeline type is shared with another service:
+**Java implementation sketch** — every type below lives inside `docintelligence-catalog-processing-worker`. No pipeline type is shared with another service:
 
 ```java
-package com.iqkv.venueintelligence.catalog.processing;
+package com.iqkv.docintelligence.catalog.processing;
 
-// venueintelligence-catalog-processing-worker — Spring wiring only, no domain logic here
+// docintelligence-catalog-processing-worker — Spring wiring only, no domain logic here
 @Service
 public class AssetExtractionOrchestrator<M> {
 
@@ -251,7 +251,7 @@ For venue decks with complex layouts, tables, and multi-column structures, Docli
 **Integration approach:**
 
 ```java
-package com.iqkv.venueintelligence.catalog.processing;
+package com.iqkv.docintelligence.catalog.processing;
 
 // Spring AI custom DocumentReader wrapping Docling HTTP API
 @Component
@@ -306,7 +306,7 @@ Everything above (Tika, Docling, Spring AI ETL) is infrastructure. Shortlisty's 
 
 Generic document intelligence tools extract generic fields. Shortlisty extracts fields that matter for event professionals.
 
-This schema is the **venue canonical field set** — defined as `VenueMetadata` in `venueintelligence-catalog-service` (see §2 of [Architecture](README.md)). It defines what a structured venue document looks like. The extraction prompt sent to the inference endpoint is derived directly from this schema.
+This schema is the **venue canonical field set** — defined as `VenueMetadata` in `docintelligence-catalog-service` (see §2 of [Architecture](README.md)). It defines what a structured venue document looks like. The extraction prompt sent to the inference endpoint is derived directly from this schema.
 
 > **Inference stack:** Extraction calls run against a self-hosted OpenAI-compatible endpoint — Phi-4 (Microsoft, 14B) or Qwen2.5 (Alibaba, 7B–72B) served via Ollama or vLLM on own VPS/server infrastructure. Spring AI's `ChatModel` abstraction makes the endpoint a configuration value, not a code dependency. See [D12](../roadmap/decisions/D12-self-hosted-inference-stack.md) for the full rationale.
 
@@ -433,7 +433,7 @@ Raw venue documents use inconsistent field names across sources and across time.
 
 Documents arrive for the same item in multiple formats — a marketing deck, a floor plan PDF, a technical spec sheet, a photo set. Each source may have conflicting or complementary data.
 
-The aggregation engine (`MetadataAggregationConsumer` in `venueintelligence-catalog-service`) operates on `JsonNode` + `metadata_sources` provenance entries and delegates conflict decisions to `MetadataAggregationStrategy`:
+The aggregation engine (`MetadataAggregationConsumer` in `docintelligence-catalog-service`) operates on `JsonNode` + `metadata_sources` provenance entries and delegates conflict decisions to `MetadataAggregationStrategy`:
 
 1. Collects all extraction events per item (event log)
 2. Delegates priority resolution to `MetadataAggregationStrategy.aggregate()` — venue impl applies: `manual_override > verified > high_confidence_AI > low_confidence_AI`

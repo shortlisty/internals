@@ -21,22 +21,22 @@ The master catalog is invisible to the planner. The value they feel is "I can ad
 
 ## In scope
 
-Scope markers: `[venueintelligence-catalog-service]` `[admin-ui]` `[tenant-ui]` `[infra]`
+Scope markers: `[docintelligence-catalog-service]` `[admin-ui]` `[tenant-ui]` `[infra]`
 
 Tasks are ordered by dependency. Each is sized for 2–3 h including tests and CI/CD to UAT.
 
 ### Tenant Venue Profiles
 
-- [ ] `[venueintelligence-catalog-service]` `VenueMapper` (MyBatis): `insert`, `findById`, `findAll` (paginated + filters), `update`, `archive`. `VenueDtos` records. `VenueMetadataTypeHandler` wired in ResultMap. Integration tests against Testcontainers.
-- [ ] `[venueintelligence-catalog-service]` `VenueRestResource` (`/api/v1/venues`, `MEMBER`): `POST /` (201, enforces `max_venues` plan limit → 402), `GET /` (200, `VenueSummaryListResponse`), `GET /{id}` (200), `PATCH /{id}` (200), `DELETE /{id}` (204, soft-archive, `TENANT_OWNER`/`ADMIN` only). Integration tests per endpoint.
-- [ ] `[venueintelligence-catalog-service]` `POST /venues/from-master-catalog/{masterVenueId}` (`MEMBER`, 201): clone master venue fields into new tenant `venues` row with `MC_INHERIT` provenance in `metadata_sources`. Idempotent — re-promote returns existing row. Integration test.
+- [ ] `[docintelligence-catalog-service]` `VenueMapper` (MyBatis): `insert`, `findById`, `findAll` (paginated + filters), `update`, `archive`. `VenueDtos` records. `VenueMetadataTypeHandler` wired in ResultMap. Integration tests against Testcontainers.
+- [ ] `[docintelligence-catalog-service]` `VenueRestResource` (`/api/v1/venues`, `MEMBER`): `POST /` (201, enforces `max_venues` plan limit → 402), `GET /` (200, `VenueSummaryListResponse`), `GET /{id}` (200), `PATCH /{id}` (200), `DELETE /{id}` (204, soft-archive, `TENANT_OWNER`/`ADMIN` only). Integration tests per endpoint.
+- [ ] `[docintelligence-catalog-service]` `POST /venues/from-master-catalog/{masterVenueId}` (`MEMBER`, 201): clone master venue fields into new tenant `venues` row with `MC_INHERIT` provenance in `metadata_sources`. Idempotent — re-promote returns existing row. Integration test.
 - [ ] `[tenant-ui]` Venue list page (`/venues`): card grid — name, city, status badge, asset count. Empty state. `MEMBER` access.
 - [ ] `[tenant-ui]` Create venue form (`/venues/new`): name, address, city, capacity, category, description. On name input call master venue suggest (debounced `GET /api/v1/master-venues?q=`). One-click promote from suggestion. Submit → `POST /venues`.
 - [ ] `[tenant-ui]` Venue detail page (`/venues/:id`): render all core fields + metadata panel. Document list (assets). Edit inline via `PATCH`. Archive via `DELETE`. Status badge.
 
 ### Plan Enforcement (partial)
 
-- [ ] `[venueintelligence-catalog-service]` `PlanResolver` (non-reactive, `RestTemplate`, 10-min cache): fetches entitlements from `foundation-billing-service /internal/plans`. `PlanFeatureGuard` checks `max_venues` at `POST /venues`. Returns 402 `ProblemDetail` with `featureCode = max_venues` when limit reached. Integration test with mocked billing response.
+- [ ] `[docintelligence-catalog-service]` `PlanResolver` (non-reactive, `RestTemplate`, 10-min cache): fetches entitlements from `foundation-billing-service /internal/plans`. `PlanFeatureGuard` checks `max_venues` at `POST /venues`. Returns 402 `ProblemDetail` with `featureCode = max_venues` when limit reached. Integration test with mocked billing response.
 
 ## Out of scope
 

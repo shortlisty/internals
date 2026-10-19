@@ -30,55 +30,55 @@ Two runtime services, each fully self-contained. Domain classes, event payloads,
                                └──────────┬──────────┘     └──────────┬──────────┘
                                           │                           │ plan entitlements
   ┌───────────────────────────────────────▼───────────────────────────▼───────────┐
-  │                       venueintelligence-catalog-service                       │
+  │                       docintelligence-catalog-service                       │
   │                   venues · assets · metadata · search · api                   │
   └───────────┬───────────────────────────┬───────────────────────────┬───────────┘
               │ RabbitMQ                  │ r/w                       │ presigned URL
               │ asset.uploaded            │                           │ issue + delete
    ┌──────────▼──────────┐     ┌──────────▼──────────┐     ┌──────────▼──────────┐
-   │ venueintelligence-  │     │ PostgreSQL          │     │ S3 / MinIO          │
+   │ docintelligence-  │     │ PostgreSQL          │     │ S3 / MinIO          │
    │ catalog-processing- │     │ t_{tenantKey}       │     │ shortlisty/tenants/ │
    │ worker (async)      │     │ public.master_venue │     │ shortlisty/master-  │
    │ (no inbound HTTP)   │     │ + pgvector/PostGIS  │     │ catalog/            │
    └─────────────────────┘     └─────────────────────┘     └─────────────────────┘
 ```
 
-### `venueintelligence-catalog-service`
+### `docintelligence-catalog-service`
 
 - **Responsibilities:** venue CRUD, asset upload flow (presigned URL), metadata read/write, search API, plan entitlement enforcement, master catalog backdrop lookup
-- **Database:** shares the venueintelligence PostgreSQL instance with `venueintelligence-catalog-processing-worker` — this is a deliberate architectural decision, not an exception (see [D13](../roadmap/decisions/D13-shared-database-per-product.md)). Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`.
+- **Database:** shares the docintelligence PostgreSQL instance with `docintelligence-catalog-processing-worker` — this is a deliberate architectural decision, not an exception (see [D13](../roadmap/decisions/D13-shared-database-per-product.md)). Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`.
 - **Exposes:** REST API at `/api/v1/venues` (see [api.md](api.md))
 - **Publishes:** `venue.created`, `venue.updated`, `asset.uploaded`, `asset.deleted` (RabbitMQ)
 - **Consumes:** `extraction.completed`, `extraction.failed` (RabbitMQ) — triggers metadata aggregation
 
-### `venueintelligence-catalog-processing-worker`
+### `docintelligence-catalog-processing-worker`
 
 - **Responsibilities:** document ETL pipeline (parse → chunk → extract → embed), extraction job lifecycle, master catalog match and MC_INHERIT merge, metadata aggregation, scheduled maintenance jobs (stale re-aggregation, cost reporting)
 - **Nature:** async background worker — no inbound HTTP, no REST API, no service discovery entry. Event-driven only.
-- **Database:** shares the venueintelligence PostgreSQL instance with `venueintelligence-catalog-service` (see [D13](../roadmap/decisions/D13-shared-database-per-product.md)). Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.master_venue` for the master catalog match step.
+- **Database:** shares the docintelligence PostgreSQL instance with `docintelligence-catalog-service` (see [D13](../roadmap/decisions/D13-shared-database-per-product.md)). Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.master_venue` for the master catalog match step.
 - **Consumes:** `asset.uploaded` (RabbitMQ) — triggers ETL pipeline (see [etl-pipeline.md](etl-pipeline.md))
 - **Publishes:** `extraction.started`, `extraction.completed`, `extraction.failed` (RabbitMQ)
 - **External calls:** self-hosted LLM inference endpoint (Phi-4 / Qwen2.5 via Ollama or vLLM), optionally Docling sidecar (Phase 2) — see [D12](../roadmap/decisions/D12-self-hosted-inference-stack.md)
-- **Scaling:** replicas scaled independently based on RabbitMQ queue depth — no impact on `venueintelligence-catalog-service`
+- **Scaling:** replicas scaled independently based on RabbitMQ queue depth — no impact on `docintelligence-catalog-service`
 
 > The worker reads the uploaded object from S3 and writes its extraction results to the tenant schema. Those edges are omitted from the diagram above for clarity.
 >
-> Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers: `venueintelligence-mc-ingest-<source>-scraper`. Master Catalog population runs in `venueintelligence-master-venue-loader` (Spring Boot). Full cold-start strategy in [master-catalog.md](master-catalog.md).
+> Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers: `docintelligence-mc-ingest-<source>-scraper`. Master Catalog population runs in `docintelligence-master-venue-loader` (Spring Boot). Full cold-start strategy in [master-catalog.md](master-catalog.md).
 
 ### Table ownership
 
 Both services share one PostgreSQL schema. Ownership defines who may write to a table. Cross-boundary reads are permitted; cross-boundary writes are not.
 
-| Table                   | Owner                                         | The other service may…                                                                           |
-| ----------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `venues`                | `venueintelligence-catalog-service`           | read (processing-worker: resolve venue_id only)                                                  |
-| `venue_assets`          | `venueintelligence-catalog-service`           | read (processing-worker: fetch asset for processing)                                             |
-| `venue_metadata_events` | `venueintelligence-catalog-service`           | write via event reaction (`extraction.completed` → venueintelligence-catalog-service aggregates) |
-| `extraction_jobs`       | `venueintelligence-catalog-processing-worker` | read (venue-service: expose job status to API)                                                   |
-| `item_vectors`          | `venueintelligence-catalog-processing-worker` | read (venue-service: vector search queries)                                                      |
-| `ai_cost_tracking`      | `venueintelligence-catalog-processing-worker` | read (venue-service: expose cost summary to API)                                                 |
+| Table                   | Owner                                       | The other service may…                                                                         |
+| ----------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `venues`                | `docintelligence-catalog-service`           | read (processing-worker: resolve venue_id only)                                                |
+| `venue_assets`          | `docintelligence-catalog-service`           | read (processing-worker: fetch asset for processing)                                           |
+| `venue_metadata_events` | `docintelligence-catalog-service`           | write via event reaction (`extraction.completed` → docintelligence-catalog-service aggregates) |
+| `extraction_jobs`       | `docintelligence-catalog-processing-worker` | read (venue-service: expose job status to API)                                                 |
+| `item_vectors`          | `docintelligence-catalog-processing-worker` | read (venue-service: vector search queries)                                                    |
+| `ai_cost_tracking`      | `docintelligence-catalog-processing-worker` | read (venue-service: expose cost summary to API)                                               |
 
-The single legitimate cross-boundary read from `venueintelligence-catalog-processing-worker` is a `SELECT` on `venue_assets` by `asset_id` (delivered in the `asset.uploaded` event payload). This is a foreign key lookup, not business logic — acceptable and intentional.
+The single legitimate cross-boundary read from `docintelligence-catalog-processing-worker` is a `SELECT` on `venue_assets` by `asset_id` (delivered in the `asset.uploaded` event payload). This is a foreign key lookup, not business logic — acceptable and intentional.
 
 ---
 
@@ -157,7 +157,7 @@ shortlisty/master-catalog/exports/{date}/{snapshot}.jsonl.gz
 
 - All tenant objects scoped under `shortlisty/tenants/{tenantKey}/`. Cross-tenant read is structurally impossible without knowing the other tenant's key.
 - The service account holds a single S3 IAM policy allowing `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on the full `shortlisty/*` prefix. Presigned URLs are scoped to the exact object key.
-- Master catalog paths (`shortlisty/master-catalog/*`) are not accessible via tenant-issued presigned URLs. Written only by the platform's internal job service account (`venueintelligence-master-venue-loader`).
+- Master catalog paths (`shortlisty/master-catalog/*`) are not accessible via tenant-issued presigned URLs. Written only by the platform's internal job service account (`docintelligence-master-venue-loader`).
 
 ### Lifecycle rules
 
@@ -167,21 +167,21 @@ shortlisty/master-catalog/exports/{date}/{snapshot}.jsonl.gz
 | Master catalog import cleanup    | `shortlisty/master-catalog/imports/processed/` | Delete after 30 days.                                                                                  |
 | Master catalog snapshot rotation | `shortlisty/master-catalog/exports/`           | Keep last 14 daily snapshots; delete older.                                                            |
 
-Object tags set by `venueintelligence-catalog-service` at `POST /api/v1/venues/{venueId}/assets/{id}/confirm`:
+Object tags set by `docintelligence-catalog-service` at `POST /api/v1/venues/{venueId}/assets/{id}/confirm`:
 
-| Tag key             | Values                                          | Set by                                              |
-| ------------------- | ----------------------------------------------- | --------------------------------------------------- |
-| `extraction_status` | `pending`, `completed`, `failed`                | venueintelligence-catalog-service at confirm/update |
-| `asset_type`        | `pdf_deck`, `floor_plan`, `photo`, `cad_file` … | venueintelligence-catalog-service at initiate       |
-| `tenant_key`        | 8-char nanoid                                   | venueintelligence-catalog-service at initiate       |
+| Tag key             | Values                                          | Set by                                            |
+| ------------------- | ----------------------------------------------- | ------------------------------------------------- |
+| `extraction_status` | `pending`, `completed`, `failed`                | docintelligence-catalog-service at confirm/update |
+| `asset_type`        | `pdf_deck`, `floor_plan`, `photo`, `cad_file` … | docintelligence-catalog-service at initiate       |
+| `tenant_key`        | 8-char nanoid                                   | docintelligence-catalog-service at initiate       |
 
 ### Deletion cascade
 
 When a tenant deletes an asset (`DELETE /api/v1/venues/{venueId}/assets/{id}`) or when a tenant account is terminated:
 
-1. `venueintelligence-catalog-service` deletes the `venue_assets` row (DB cascade drops extraction jobs and metadata events).
-2. `venueintelligence-catalog-service` issues `s3:DeleteObject` for `venue_assets.s3_key`.
-3. `asset.deleted` event published → `venueintelligence-catalog-processing-worker` deletes all `item_vectors` rows where `metadata->>'asset_id' = :assetId`.
+1. `docintelligence-catalog-service` deletes the `venue_assets` row (DB cascade drops extraction jobs and metadata events).
+2. `docintelligence-catalog-service` issues `s3:DeleteObject` for `venue_assets.s3_key`.
+3. `asset.deleted` event published → `docintelligence-catalog-processing-worker` deletes all `item_vectors` rows where `metadata->>'asset_id' = :assetId`.
 
 For full tenant deletion (GDPR right to erasure):
 

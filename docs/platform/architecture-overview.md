@@ -43,10 +43,10 @@ Shortlisty is a new product service built **on top of the iQ Key Value foundatio
 
 Each service is fully self-contained at MVP: it carries its own domain classes, event payloads, and Liquibase changelogs, and declares no compile dependency on another service.
 
-- `venueintelligence-catalog-service` — core domain: venues, assets, annotations, metadata, proposals, search, plan enforcement, master catalog backdrop lookup. Synchronous request/response only.
-- `venueintelligence-catalog-processing-worker` — async sidecar: document ETL for tenant uploads, table data parsing (CSV/XLSX), embedding generation, metadata aggregation, scheduled maintenance jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `venueintelligence-catalog-service`.
-- `venueintelligence-master-venue-loader` — Spring Boot service. Runs master catalog import jobs triggered by `admin.master-catalog.import.*` RabbitMQ events. Applies reviewed scraper CSV/JSONL batches to `public.master_venue`. No tenant interaction.
-- Standalone scrapers (`venueintelligence-mc-ingest-<source>-scraper`) — Node.js. Produce CSV/JSONL output, upload to S3. Run on demand, not deployed as persistent services.
+- `docintelligence-catalog-service` — core domain: venues, assets, annotations, metadata, proposals, search, plan enforcement, master catalog backdrop lookup. Synchronous request/response only.
+- `docintelligence-catalog-processing-worker` — async sidecar: document ETL for tenant uploads, table data parsing (CSV/XLSX), embedding generation, metadata aggregation, scheduled maintenance jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `docintelligence-catalog-service`.
+- `docintelligence-master-venue-loader` — Spring Boot service. Runs master catalog import jobs triggered by `admin.master-catalog.import.*` RabbitMQ events. Applies reviewed scraper CSV/JSONL batches to `public.master_venue`. No tenant interaction.
+- Standalone scrapers (`docintelligence-mc-ingest-<source>-scraper`) — Node.js. Produce CSV/JSONL output, upload to S3. Run on demand, not deployed as persistent services.
 
 **New infrastructure introduced by Shortlisty:**
 
@@ -149,7 +149,7 @@ try {
 **`SecurityConfig` pattern** (identical structure in every consumer service):
 
 ```java
-package com.iqkv.venueintelligence.catalog.api.security;
+package com.iqkv.docintelligence.catalog.api.security;
 
 @Configuration
 @EnableWebSecurity
@@ -242,7 +242,7 @@ Key points:
 **Pattern 1 — Tenant-scoped (standard).** Controller at `/api/v1/venues/**`. `TenantExtractionFilter` sets `TenantContext` from JWT before the request hits the controller. No tenant path variable.
 
 ```java
-package com.iqkv.venueintelligence.catalog.api.rest;
+package com.iqkv.docintelligence.catalog.api.rest;
 
 @RestController
 @RequestMapping("/api/v1/venues")
@@ -270,7 +270,7 @@ public class VenueRestResource {
 **Pattern 2 — Admin cross-tenant.** Controller at `/api/v1/venues/admin/venues/{tenantKey}/**`. `TenantExtractionFilter` excluded for `/admin/` paths. Controller sets `TenantContext` manually in try/finally.
 
 ```java
-package com.iqkv.venueintelligence.catalog.api.rest;
+package com.iqkv.docintelligence.catalog.api.rest;
 
 @RestController
 @RequestMapping("/api/v1/venues/admin/venues/{tenantKey}")
@@ -299,7 +299,7 @@ public class AdminVenueRestResource {
 All DTOs are Java **records**, grouped in a single `{Domain}Dtos.java` container class. Response wrappers for lists include `items` and `totalElements` — no Spring `Page<T>` in API responses.
 
 ```java
-package com.iqkv.venueintelligence.catalog.api.dto;
+package com.iqkv.docintelligence.catalog.api.dto;
 
 public final class VenueDtos {
     private VenueDtos() {}
@@ -329,7 +329,7 @@ public final class VenueDtos {
 ### MyBatis mapper pattern
 
 ```java
-package com.iqkv.venueintelligence.catalog.persistence;
+package com.iqkv.docintelligence.catalog.persistence;
 
 @Mapper
 public interface VenueMapper {

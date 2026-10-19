@@ -39,25 +39,25 @@ One Spring Boot application handles both HTTP endpoints and async ETL processing
 
 Split into:
 
-- `venueintelligence-catalog-service` — synchronous HTTP only. Owns `venues` and `venue_assets` writes.
-- `venueintelligence-catalog-processing-worker` — async sidecar only. No inbound HTTP. Consumes RabbitMQ events, runs ETL pipeline, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`.
+- `docintelligence-catalog-service` — synchronous HTTP only. Owns `venues` and `venue_assets` writes.
+- `docintelligence-catalog-processing-worker` — async sidecar only. No inbound HTTP. Consumes RabbitMQ events, runs ETL pipeline, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`.
 
-Scraping and master catalog population are further decomposed into venueintelligence-mc-ingest-<source>-scraper (Node.js per provider) and venueintelligence-master-venue-loader (Spring Boot) — see architecture §4.
+Scraping and master catalog population are further decomposed into docintelligence-mc-ingest-<source>-scraper (Node.js per provider) and docintelligence-master-venue-loader (Spring Boot) — see architecture §4.
 
 Both services connect to the same PostgreSQL instance and share the tenant schema (`t_{tenantKey}`). Each service carries its own copy of the domain classes it uses, so no compile dependency links them.
 
 **Pros:**
 
-- Independent scaling: scale ingestion workers on queue depth, scale venueintelligence-catalog-service on request rate
+- Independent scaling: scale ingestion workers on queue depth, scale docintelligence-catalog-service on request rate
 - Failure isolation: an LLM API outage or a malformed-PDF OOM kills only the ingestion worker; user search and CRUD continue
-- Resource isolation: dedicate CPU/memory profiles per service (ingestion gets larger pods with more memory for Tika Pipes forked JVMs; venueintelligence-catalog-service gets smaller pods tuned for request concurrency)
+- Resource isolation: dedicate CPU/memory profiles per service (ingestion gets larger pods with more memory for Tika Pipes forked JVMs; docintelligence-catalog-service gets smaller pods tuned for request concurrency)
 - Clean separation of concerns: service team can reason about "reads/API" vs "processing pipeline" independently
 - Table ownership model (§4 of README.md) clarifies who writes what, preventing drift
 
 **Cons:**
 
 - Two deployment units, more CI/CD pipeline complexity
-- Shared database schema requires coordination on migrations (the tenant-schema Liquibase changelog lives in `venueintelligence-catalog-service`, the only service that runs it, mitigating this)
+- Shared database schema requires coordination on migrations (the tenant-schema Liquibase changelog lives in `docintelligence-catalog-service`, the only service that runs it, mitigating this)
 - Cross-boundary reads (processing-worker reads `venue_assets.s3_key`) must be disciplined — enforced by table ownership rules
 
 ---
@@ -66,7 +66,7 @@ Both services connect to the same PostgreSQL instance and share the tenant schem
 
 **Option B: Two services sharing one database schema.**
 
-One synchronous service (`venueintelligence-catalog-service`) for HTTP and one async sidecar (`venueintelligence-catalog-processing-worker`) for the ETL pipeline. Each service is self-contained: it carries its own domain classes, event payloads, and Liquibase changelogs, and neither declares a compile dependency on the other.
+One synchronous service (`docintelligence-catalog-service`) for HTTP and one async sidecar (`docintelligence-catalog-processing-worker`) for the ETL pipeline. Each service is self-contained: it carries its own domain classes, event payloads, and Liquibase changelogs, and neither declares a compile dependency on the other.
 
 ---
 
@@ -74,7 +74,7 @@ One synchronous service (`venueintelligence-catalog-service`) for HTTP and one a
 
 - **Event-processing workloads are bursty and failure-prone.** Document extraction calls external APIs (GPT-4o, text-embedding-3-small) with unpredictable latency and failure modes. Running this inside the same process as user-facing search guarantees that an upstream API incident degrades user-facing latency.
 - **Scaling profiles are opposites.** The ingestion worker is CPU/memory-heavy during parsing and embedding, and largely idle otherwise. The venue service is IO-bound (PostgreSQL queries) with flat steady-state concurrency. Independent pod sizing cuts infrastructure cost at any scale above MVP.
-- **Duplicated types keep the split honest.** Each service carries its own copies of the domain and payload classes it needs, so there is no shared artifact to version and no cross-service compile dependency to break. Table shape is kept in agreement by the table-ownership contract (venue-service owns `venues`, `venue_assets`; processing-worker owns the extraction and vector tables) plus the tenant-schema Liquibase changelog, which only `venueintelligence-catalog-service` runs. The ownership contract removes write-path ambiguity.
+- **Duplicated types keep the split honest.** Each service carries its own copies of the domain and payload classes it needs, so there is no shared artifact to version and no cross-service compile dependency to break. Table shape is kept in agreement by the table-ownership contract (venue-service owns `venues`, `venue_assets`; processing-worker owns the extraction and vector tables) plus the tenant-schema Liquibase changelog, which only `docintelligence-catalog-service` runs. The ownership contract removes write-path ambiguity.
 - **Cross-boundary reads are narrow and well-defined.** The only read processing-worker makes across the ownership boundary is `SELECT s3_key FROM venue_assets WHERE id = ?` — a foreign-key lookup delivered inside the RabbitMQ event payload. No business logic crosses.
 - **Pattern already validated in platform.** The iQ Key Value foundation already separates synchronous gateway/API services from async workers (billing event processors, audit log consumers). The ops team has tooling and runbooks for this topology.
 
@@ -82,10 +82,10 @@ One synchronous service (`venueintelligence-catalog-service`) for HTTP and one a
 
 ## Consequences
 
-- The deployment manifest ships two containers per environment (`venueintelligence-catalog-service` + `venueintelligence-catalog-processing-worker`). Helm chart has separate replica counts, HPA triggers, and resource quotas per service.
-- Table ownership is documented in README.md §4 and enforced at code review: processing-worker never issues `UPDATE venues`; venueintelligence-catalog-service never writes to `extraction_jobs` or `item_vectors` directly.
-- Rolling deployments of `venueintelligence-catalog-processing-worker` must use RabbitMQ `MANUAL` ack mode so in-flight messages are re-queued on consumer shutdown. No message loss is acceptable.
-- HPA for `venueintelligence-catalog-processing-worker` scales on RabbitMQ queue depth (`shortlisty.asset.uploaded` messages ready), not CPU. HPA for `venueintelligence-catalog-service` scales on request rate + p95 latency.
+- The deployment manifest ships two containers per environment (`docintelligence-catalog-service` + `docintelligence-catalog-processing-worker`). Helm chart has separate replica counts, HPA triggers, and resource quotas per service.
+- Table ownership is documented in README.md §4 and enforced at code review: processing-worker never issues `UPDATE venues`; docintelligence-catalog-service never writes to `extraction_jobs` or `item_vectors` directly.
+- Rolling deployments of `docintelligence-catalog-processing-worker` must use RabbitMQ `MANUAL` ack mode so in-flight messages are re-queued on consumer shutdown. No message loss is acceptable.
+- HPA for `docintelligence-catalog-processing-worker` scales on RabbitMQ queue depth (`shortlisty.asset.uploaded` messages ready), not CPU. HPA for `docintelligence-catalog-service` scales on request rate + p95 latency.
 
 ---
 
