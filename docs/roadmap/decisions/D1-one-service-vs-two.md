@@ -85,7 +85,7 @@ One synchronous service (`docintelligence-catalog-service`) for HTTP and one asy
 - The deployment manifest ships two containers per environment (`docintelligence-catalog-service` + `docintelligence-catalog-processing-worker`). Helm chart has separate replica counts, HPA triggers, and resource quotas per service.
 - Table ownership is documented in README.md §4 and enforced at code review: processing-worker never issues `UPDATE venues`; docintelligence-catalog-service never writes to `extraction_jobs` or `item_vectors` directly.
 - Rolling deployments of `docintelligence-catalog-processing-worker` must use RabbitMQ `MANUAL` ack mode so in-flight messages are re-queued on consumer shutdown. No message loss is acceptable.
-- HPA for `docintelligence-catalog-processing-worker` scales on RabbitMQ queue depth (`shortlisty.asset.uploaded` messages ready), not CPU. HPA for `docintelligence-catalog-service` scales on request rate + p95 latency.
+- HPA for `docintelligence-catalog-processing-worker` scales on RabbitMQ queue depth (`docintelligence.extraction.priority` / `docintelligence.extraction.standard` messages ready), not CPU. HPA for `docintelligence-catalog-service` scales on request rate + p95 latency.
 
 ---
 

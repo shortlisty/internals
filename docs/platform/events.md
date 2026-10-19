@@ -47,15 +47,15 @@ Exchange: `iqkv.events` (Topic) — same exchange used by all foundation service
 
 | Routing key      | Queue                                         | Action                                |
 | ---------------- | --------------------------------------------- | ------------------------------------- |
-| `asset.uploaded` | `shortlisty.extraction.priority` (Enterprise) | Trigger ETL pipeline immediately      |
-| `asset.uploaded` | `shortlisty.extraction.standard` (Free/Pro)   | Trigger ETL pipeline (standard queue) |
+| `asset.uploaded` | `docintelligence.extraction.priority` (Enterprise) | Trigger ETL pipeline immediately      |
+| `asset.uploaded` | `docintelligence.extraction.standard` (Free/Pro)   | Trigger ETL pipeline (standard queue) |
 
 ### Consumed by `docintelligence-catalog-service`
 
 | Routing key            | Queue (MVP A1)                                   | Queue (Scalable A2)                                                                                                      | Action                                  |
 | ---------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- |
-| `extraction.completed` | `shortlisty.metadata.aggregation` (single queue) | `shortlisty.metadata.aggregation.0` … `shortlisty.metadata.aggregation.15` (16 slots, slot-bound via routing key suffix) | Run metadata aggregation for venue      |
-| `extraction.failed`    | `shortlisty.extraction.dlq`                      | `shortlisty.extraction.dlq`                                                                                              | Mark asset `extraction_status = FAILED` |
+| `extraction.completed` | `docintelligence.metadata.aggregation` (single queue) | `docintelligence.metadata.aggregation.0` … `docintelligence.metadata.aggregation.15` (16 slots, slot-bound via routing key suffix) | Run metadata aggregation for venue      |
+| `extraction.failed`    | `docintelligence.extraction.dlq`                      | `docintelligence.extraction.dlq`                                                                                              | Mark asset `extraction_status = FAILED` |
 
 ### Consumed by `foundation-audit-service` (passive, no changes)
 

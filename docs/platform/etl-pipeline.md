@@ -123,7 +123,7 @@ public class AssetExtractionConsumer {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    @RabbitListener(queues = "${shortlisty.queues.asset-uploaded}")
+    @RabbitListener(queues = "${docintelligence.queues.asset-uploaded}")
     public void onAssetUploaded(AssetUploadedEvent event) {
         // 0. Table data (CSV/XLSX only) — fast parse, no AI, written before embedding
         if (tableDataParser.supports(event.assetType())) {
