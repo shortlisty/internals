@@ -37,8 +37,8 @@ Two runtime services, each fully self-contained. Domain classes, event payloads,
               │ asset.uploaded            │                           │ issue + delete
    ┌──────────▼──────────┐     ┌──────────▼──────────┐     ┌──────────▼──────────┐
    │ docintelligence-  │     │ PostgreSQL          │     │ S3 / MinIO          │
-   │ catalog-processing- │     │ t_{tenantKey}       │     │ shortlisty/tenants/ │
-   │ worker (async)      │     │ public.master_venue │     │ shortlisty/master-  │
+   │ catalog-processing- │     │ t_{tenantKey}       │     │ docintelligence/tenants/ │
+   │ worker (async)      │     │ public.master_venue │     │ docintelligence/master-  │
    │ (no inbound HTTP)   │     │ + pgvector/PostGIS  │     │ catalog/            │
    └─────────────────────┘     └─────────────────────┘     └─────────────────────┘
 ```
@@ -88,11 +88,11 @@ S3 (MinIO for local dev) is already in the iQ Key Value stack. Shortlisty adds i
 
 ### Bucket strategy
 
-| Environment | Bucket           | Notes                                                                                        |
-| ----------- | ---------------- | -------------------------------------------------------------------------------------------- |
-| Dev / CI    | `iqkv-files`     | Shared with foundation services, MinIO default. VIP objects live under `shortlisty/` prefix. |
-| Staging     | `iqkv-files`     | Same shared bucket, same prefix scheme. Isolated by prefix only.                             |
-| Production  | `iqkv-vip-files` | Dedicated bucket. Separate IAM policy, separate lifecycle rules. Key structure identical.    |
+| Environment | Bucket           | Notes                                                                                             |
+| ----------- | ---------------- | ------------------------------------------------------------------------------------------------- |
+| Dev / CI    | `iqkv-files`     | Shared with foundation services, MinIO default. VIP objects live under `docintelligence/` prefix. |
+| Staging     | `iqkv-files`     | Same shared bucket, same prefix scheme. Isolated by prefix only.                                  |
+| Production  | `iqkv-vip-files` | Dedicated bucket. Separate IAM policy, separate lifecycle rules. Key structure identical.         |
 
 MinIO in local dev is configured in `docker-compose.yml` with `MINIO_DEFAULT_BUCKETS=iqkv-files`.
 
@@ -101,24 +101,24 @@ MinIO in local dev is configured in `docker-compose.yml` with `MINIO_DEFAULT_BUC
 #### Tenant asset files
 
 ```
-shortlisty/tenants/{tenantKey}/venues/{venueId}/assets/{assetId}/{fileName}
+docintelligence/tenants/{tenantKey}/venues/{venueId}/assets/{assetId}/{fileName}
 ```
 
-| Segment       | Value                                         | Example                            |
-| ------------- | --------------------------------------------- | ---------------------------------- |
-| `shortlisty/` | VIP namespace                                 | (literal)                          |
-| `tenants/`    | Tenant subtree root                           | (literal)                          |
-| `{tenantKey}` | 8-char nanoid from JWT `tenant_id` claim      | `acme0001`                         |
-| `venues/`     | Venue subtree                                 | (literal)                          |
-| `{venueId}`   | UUID of the venue (no hyphens — compact form) | `550e8400e29b41d4a716446655440000` |
-| `assets/`     | Asset subtree                                 | (literal)                          |
-| `{assetId}`   | UUID of the asset (no hyphens)                | `6ba7b8109dad11d180b400c04fd430c8` |
-| `{fileName}`  | Original file name, URL-safe, max 255 chars   | `grand-ballroom-deck.pdf`          |
+| Segment            | Value                                         | Example                            |
+| ------------------ | --------------------------------------------- | ---------------------------------- |
+| `docintelligence/` | VIP namespace                                 | (literal)                          |
+| `tenants/`         | Tenant subtree root                           | (literal)                          |
+| `{tenantKey}`      | 8-char nanoid from JWT `tenant_id` claim      | `acme0001`                         |
+| `venues/`          | Venue subtree                                 | (literal)                          |
+| `{venueId}`        | UUID of the venue (no hyphens — compact form) | `550e8400e29b41d4a716446655440000` |
+| `assets/`          | Asset subtree                                 | (literal)                          |
+| `{assetId}`        | UUID of the asset (no hyphens)                | `6ba7b8109dad11d180b400c04fd430c8` |
+| `{fileName}`       | Original file name, URL-safe, max 255 chars   | `grand-ballroom-deck.pdf`          |
 
 Full example:
 
 ```
-shortlisty/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/6ba7b8109dad11d180b400c04fd430c8/grand-ballroom-deck.pdf
+docintelligence/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/6ba7b8109dad11d180b400c04fd430c8/grand-ballroom-deck.pdf
 ```
 
 **Key rules:**
@@ -134,7 +134,7 @@ shortlisty/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/6ba7b
 ```json
 {
   "asset_id": "<uuid>",
-  "upload_url": "https://minio.local/iqkv-files/shortlisty/tenants/acme0001/venues/.../grand-ballroom-deck.pdf?X-Amz-Signature=...",
+  "upload_url": "https://minio.local/iqkv-files/docintelligence/tenants/acme0001/venues/.../grand-ballroom-deck.pdf?X-Amz-Signature=...",
   "expires_at": "2025-06-01T12:15:00Z"
 }
 ```
@@ -144,28 +144,28 @@ The presigned PUT URL is scoped to the exact key. The client uploads directly. T
 #### Master catalog import files
 
 ```
-shortlisty/master-catalog/imports/{importId}/{fileName}
-shortlisty/master-catalog/exports/{date}/{snapshot}.jsonl.gz
+docintelligence/master-catalog/imports/{importId}/{fileName}
+docintelligence/master-catalog/exports/{date}/{snapshot}.jsonl.gz
 ```
 
-| Path                                            | Purpose                                                                           |
-| ----------------------------------------------- | --------------------------------------------------------------------------------- |
-| `shortlisty/master-catalog/imports/{importId}/` | One folder per import batch (admin-triggered). Contains raw CSV/JSON input files. |
-| `shortlisty/master-catalog/exports/{date}/`     | Nightly compacted snapshots of `public.master_venue` for downstream consumers.    |
+| Path                                                 | Purpose                                                                           |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `docintelligence/master-catalog/imports/{importId}/` | One folder per import batch (admin-triggered). Contains raw CSV/JSON input files. |
+| `docintelligence/master-catalog/exports/{date}/`     | Nightly compacted snapshots of `public.master_venue` for downstream consumers.    |
 
 ### Tenant isolation
 
-- All tenant objects scoped under `shortlisty/tenants/{tenantKey}/`. Cross-tenant read is structurally impossible without knowing the other tenant's key.
-- The service account holds a single S3 IAM policy allowing `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on the full `shortlisty/*` prefix. Presigned URLs are scoped to the exact object key.
-- Master catalog paths (`shortlisty/master-catalog/*`) are not accessible via tenant-issued presigned URLs. Written only by the platform's internal job service account (`docintelligence-master-venue-loader`).
+- All tenant objects scoped under `docintelligence/tenants/{tenantKey}/`. Cross-tenant read is structurally impossible without knowing the other tenant's key.
+- The service account holds a single S3 IAM policy allowing `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on the full `docintelligence/*` prefix. Presigned URLs are scoped to the exact object key.
+- Master catalog paths (`docintelligence/master-catalog/*`) are not accessible via tenant-issued presigned URLs. Written only by the platform's internal job service account (`docintelligence-master-venue-loader`).
 
 ### Lifecycle rules
 
-| Rule                             | Prefix                                         | Action                                                                                                 |
-| -------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Extraction artefact expiry       | `shortlisty/tenants/*/venues/*/assets/*/`      | Transition to Glacier/IA after 90 days if `extraction_status = COMPLETED`. Managed via S3 object tags. |
-| Master catalog import cleanup    | `shortlisty/master-catalog/imports/processed/` | Delete after 30 days.                                                                                  |
-| Master catalog snapshot rotation | `shortlisty/master-catalog/exports/`           | Keep last 14 daily snapshots; delete older.                                                            |
+| Rule                             | Prefix                                              | Action                                                                                                 |
+| -------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Extraction artefact expiry       | `docintelligence/tenants/*/venues/*/assets/*/`      | Transition to Glacier/IA after 90 days if `extraction_status = COMPLETED`. Managed via S3 object tags. |
+| Master catalog import cleanup    | `docintelligence/master-catalog/imports/processed/` | Delete after 30 days.                                                                                  |
+| Master catalog snapshot rotation | `docintelligence/master-catalog/exports/`           | Keep last 14 daily snapshots; delete older.                                                            |
 
 Object tags set by `docintelligence-catalog-service` at `POST /api/v1/venues/{venueId}/assets/{id}/confirm`:
 
@@ -186,7 +186,7 @@ When a tenant deletes an asset (`DELETE /api/v1/venues/{venueId}/assets/{id}`) o
 For full tenant deletion (GDPR right to erasure):
 
 1. `DELETE FROM t_{tenantKey}.venues` cascades to all asset rows.
-2. A `tenant.deleted` event triggers a background S3 sweep: `s3:DeleteObjects` with all keys matching `shortlisty/tenants/{tenantKey}/*` (batched in 1000-object chunks).
+2. A `tenant.deleted` event triggers a background S3 sweep: `s3:DeleteObjects` with all keys matching `docintelligence/tenants/{tenantKey}/*` (batched in 1000-object chunks).
 3. The pgvector sweep deletes all `item_vectors` rows for the tenant schema (schema drop handles this implicitly if the schema is dropped).
 
 ---

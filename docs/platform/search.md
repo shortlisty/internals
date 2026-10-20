@@ -11,7 +11,7 @@
 - [services.md](services.md) — `docintelligence-catalog-service` owns the search API; cross-schema access rules for `public.master_venue`
 - [master-catalog.md](master-catalog.md) — MC_INHERIT provenance; `master_venue_id` populated at extraction time
 - [api.md](api.md) — `GET /api/v1/venues/` endpoint, `scope` query param, response DTOs; `GET /api/v1/venues/master-venues` MEMBER search endpoint
-- [observability.md](observability.md) — `shortlisty_search_requests_total`, `shortlisty_search_latency_seconds`, `shortlisty_search_failures_total`
+- [observability.md](observability.md) — `docintelligence_search_requests_total`, `docintelligence_search_latency_seconds`, `docintelligence_search_failures_total`
 
 ---
 
@@ -106,7 +106,7 @@ Branch B (master catalog backdrop) timeout or SQL exception → search does **no
 Warning: 299 - "Master catalog backdrop merge unavailable, results incomplete"
 ```
 
-response header and increments `shortlisty_search_failures_total{branch="master_catalog"}`.
+response header and increments `docintelligence_search_failures_total{branch="master_catalog"}`.
 
 ### Search parameters
 

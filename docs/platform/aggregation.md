@@ -43,7 +43,7 @@ Aggregation runs (async, via RabbitMQ) when:
 - A user submits a manual override → immediate re-aggregation
 - A scheduled job catches stale venues (24h without re-aggregation)
 
-Aggregation is debounced (5s) to batch rapid successive events. The `shortlisty_metadata_schema_version_seen_total` Micrometer metric (see [observability.md](observability.md)) records the pre-migration version on every aggregation pass — use it to monitor stale-document distribution and scheduled job catch-up rate.
+Aggregation is debounced (5s) to batch rapid successive events. The `docintelligence_metadata_schema_version_seen_total` Micrometer metric (see [observability.md](observability.md)) records the pre-migration version on every aggregation pass — use it to monitor stale-document distribution and scheduled job catch-up rate.
 
 ---
 
