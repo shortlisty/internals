@@ -84,17 +84,17 @@ The single legitimate cross-boundary read from `docintelligence-catalog-processi
 
 ## 4a. S3 storage layout
 
-S3 (MinIO for local dev) is already in the iQ Key Value stack. Shortlisty adds its own prefix namespace inside the shared bucket (`iqkv-files`).
+S3 (MinIO for local dev) is already in the iQ Key Value stack. Shortlisty adds its own prefix namespace inside the shared bucket (`catalog-assets`).
 
 ### Bucket strategy
 
-| Environment | Bucket           | Notes                                                                                             |
-| ----------- | ---------------- | ------------------------------------------------------------------------------------------------- |
-| Dev / CI    | `iqkv-files`     | Shared with foundation services, MinIO default. VIP objects live under `docintelligence/` prefix. |
-| Staging     | `iqkv-files`     | Same shared bucket, same prefix scheme. Isolated by prefix only.                                  |
-| Production  | `iqkv-vip-files` | Dedicated bucket. Separate IAM policy, separate lifecycle rules. Key structure identical.         |
+| Environment | Bucket               | Notes                                                                                               |
+| ----------- | -------------------- | --------------------------------------------------------------------------------------------------- |
+| Dev / CI    | `catalog-assets`     | Shared with foundation services, MinIO default. VIP objects live under `docintelligence/` prefix.   |
+| Staging     | `catalog-assets`     | Same shared bucket, same prefix scheme. Isolated by prefix only.                                    |
+| Production  | `catalog-assets-prd` | Showld be dedicated bucket. Separate IAM policy, separate lifecycle rules. Key structure identical. |
 
-MinIO in local dev is configured in `docker-compose.yml` with `MINIO_DEFAULT_BUCKETS=iqkv-files`.
+MinIO in local dev is configured in `docker-compose.yml` with `MINIO_DEFAULT_BUCKETS=catalog-assets`.
 
 ### Key naming convention
 
@@ -134,7 +134,7 @@ docintelligence/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/
 ```json
 {
   "asset_id": "<uuid>",
-  "upload_url": "https://minio.local/iqkv-files/docintelligence/tenants/acme0001/venues/.../grand-ballroom-deck.pdf?X-Amz-Signature=...",
+  "upload_url": "https://minio.local/catalog-assets/docintelligence/tenants/acme0001/venues/.../grand-ballroom-deck.pdf?X-Amz-Signature=...",
   "expires_at": "2025-06-01T12:15:00Z"
 }
 ```

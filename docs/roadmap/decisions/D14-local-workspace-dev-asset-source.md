@@ -107,7 +107,7 @@ Read the local folder; if the key is absent, fetch it from S3.
 ## Rationale
 
 - **The critical path is parser and extraction iteration, not upload plumbing.** Cost per iteration dominates Phase 1 throughput, and the cheapest way to widen the corpus is a folder of files.
-- **The seam has to exist anyway.** `TikaDocumentReader` has no auto-configuration and takes a `Resource`, so *something* must resolve key → bytes. Making that something a port costs nothing and keeps S3 SDK calls out of the extraction pipeline.
+- **The seam has to exist anyway.** `TikaDocumentReader` has no auto-configuration and takes a `Resource`, so _something_ must resolve key → bytes. Making that something a port costs nothing and keeps S3 SDK calls out of the extraction pipeline.
 - **Explicit selection with no fallback keeps dev mode honest.** Option C buys a small convenience with non-deterministic behaviour and a hidden second source of truth — a convenience path nobody can reason about later.
 - **Layout parity makes the mode switch almost meaningless.** A real bucket prefix copied into the workspace is a valid corpus, and a file that parses locally parses in sit on the same bytes; no translation layer between folder structure and object key needs maintaining.
 - **S3 stays the storage of record.** The two-phase presigned upload, key layout, bucket strategy, and credentials in [services.md § 4a](../../platform/services.md) are untouched; this decision only governs how the worker reads bytes.
