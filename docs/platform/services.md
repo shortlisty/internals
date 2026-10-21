@@ -77,8 +77,13 @@ Both services share one PostgreSQL schema. Ownership defines who may write to a 
 | `extraction_jobs`       | `docintelligence-catalog-processing-worker` | read (venue-service: expose job status to API)                                                 |
 | `item_vectors`          | `docintelligence-catalog-processing-worker` | read (venue-service: vector search queries)                                                    |
 | `ai_cost_tracking`      | `docintelligence-catalog-processing-worker` | read (venue-service: expose cost summary to API)                                               |
+| `master_venue`          | `docintelligence-master-venue-worker`       | read (processing-worker: MC match; docintelligence-catalog-service: dedup-check)               |
+| `master_venue_alias`    | `docintelligence-master-venue-worker`       | read (processing-worker: MC match; docintelligence-catalog-service: dedup-check)               |
+| `master_venue_external` | `docintelligence-master-venue-worker`       | read (processing-worker: MC match; docintelligence-catalog-service: dedup-check)               |
 
-The single legitimate cross-boundary read from `docintelligence-catalog-processing-worker` is a `SELECT` on `venue_assets` by `asset_id` (delivered in the `asset.uploaded` event payload). This is a foreign key lookup, not business logic — acceptable and intentional.
+Cross-boundary reads from `docintelligence-catalog-processing-worker` are limited to two cases: a `SELECT` on `venue_assets` by `asset_id` (delivered in the `asset.uploaded` event payload), which is a foreign key lookup rather than business logic, and read-only access to `public.master_venue*` for the MC match step. Both are intentional.
+
+The master catalog tables are created once in the `public` schema by `docintelligence-catalog-service`'s `system/master.xml` changelog — see [data-model.md](data-model.md) — so DDL ownership stays with `docintelligence-catalog-service` while the write owner is `docintelligence-master-venue-worker` (see [D15](../roadmap/decisions/D15-dedicated-master-venue-worker.md)). Admin CRUD over master catalog rows and the dedup-check endpoint are served by `docintelligence-catalog-service`.
 
 ---
 
