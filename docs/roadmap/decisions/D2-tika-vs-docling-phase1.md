@@ -9,7 +9,7 @@
 
 The Shortlisty ingestion pipeline reads venue documents (PDF decks, floor plans, spec sheets, CAD files) and extracts structured metadata (capacity, catering policy, restrictions, etc.). Two production-grade document readers are available in the Java/self-hosted ecosystem:
 
-- **Apache Tika** — battle-tested since 2007, ships as a first-class Spring AI `TikaDocumentReader`, supports 1000+ formats including DWG/AutoCAD, has forked-JVM isolation via Tika Pipes.
+- **Apache Tika** — battle-tested since 2007, ships as a first-class Spring AI `TikaDocumentReader`, supports 1000+ formats including DWG/AutoCAD, parses in-process with no external service to deploy.
 - **IBM Docling** — newer layout-aware parser with state-of-the-art table extraction and multi-column PDF reconstruction. Runs as a self-hosted Docker container (MIT license, no per-page cost).
 
 The question is which parsers to ship in Phase 1 (MVP) and which to defer.
@@ -50,7 +50,7 @@ Docling is designed-in as a Phase 2 capability. The pipeline uses a pluggable `D
 
 - Zero new infrastructure dependencies in MVP; reduces deployment surface, monitoring, and incident-response complexity for the first paying customers
 - Spring AI ships `TikaDocumentReader` out of the box; zero custom parser code, zero client libraries to maintain
-- Tika Pipes forked-JVM isolation is production-proven; a malformed or malicious PDF crashes a forked JVM, not the ingestion worker
+- Parsing runs in-process — no sidecar parser container to deploy, monitor, and scale separately from the ingestion worker, and no network hop per asset
 - DWG/AutoCAD support exists today in Tika — a rare capability that Docling does not provide (CAD venue files appear in ~10% of agency uploads based on pre-MVP file inventory)
 - Human-in-the-loop verification (split-screen confirm/correct UI) catches the gap: a human reviews every extracted field anyway in MVP, so parser quality gaps are corrected before they reach search or pitch generation
 
@@ -59,6 +59,7 @@ Docling is designed-in as a Phase 2 capability. The pipeline uses a pluggable `D
 - Table-heavy venue decks produce lower extraction accuracy in Phase 1; the human reviewer must correct capacity numbers more often for the first 2–3 months
 - Marketing PDFs with dense two-column layouts produce mangled reading order; GPT-4o must disambiguate messy input, occasionally yielding wrong values with mis-attributed confidence scores
 - Phase 2 switch to Docling for a subset of PDFs requires re-extraction of historical assets; a one-shot re-extraction job must be written and run
+- Tika parsing runs in-process: Spring AI 2.0.1 integrates no forked-JVM isolation, no parse timeout, and no memory ceiling. A malformed or hostile PDF is contained only by an extracted-text cap (`ContentHandler`) and a timeout enforced around the parse call — not by process isolation
 
 ---
 
@@ -72,7 +73,7 @@ Docling is designed-in as a Phase 2 capability. The pipeline uses a pluggable `D
 
 - **MVP priority is correctness via human review, not full automation.** The split-screen human-verification flow is a first-class feature, not a backup. Every extracted field in MVP is confirmed or corrected by a human before being persisted as verified. Parser quality gaps are caught in the UI before they corrupt search or pitch output. Shipping Docling for MVP does not eliminate human review — it merely shifts the human's effort from correcting fields to reviewing near-perfect fields. The incremental user-visible quality gain does not justify the incremental infrastructure and code complexity for launch.
 - **Tika's DWG support is irreplaceable in the short term.** Agencies regularly upload AutoCAD files for floor plans and technical layouts. Docling has no CAD parsing. A Tika-based MVP handles every asset type agencies upload today without a "format not supported" error path. A Docling-first MVP would still need Tika alongside it for CAD/DWG support — yielding both parsers in MVP with zero complexity saved.
-- **Spring AI integration maturity matters for launch stability.** `TikaDocumentReader` is a maintained, tested first-class component with Pipes configuration, timeout controls, and memory caps exposed as simple builder properties. A custom Docling reader would need all of that implemented and battle-tested before launch — several weeks of work that is orthogonal to the venue-domain product.
+- **Spring AI integration maturity matters for launch stability.** `TikaDocumentReader` is a maintained, tested first-class component: parsing an asset is constructing the reader over a `Resource` and calling `get()`, with the extracted-text cap passed through the `ContentHandler` overload. A custom Docling reader would need an HTTP client, retry/backoff against the sidecar, health checks, and its own isolation story implemented and battle-tested before launch — several weeks of work that is orthogonal to the venue-domain product.
 - **Phase 2 Docling integration is architecturally free.** The `AssetExtractionOrchestrator` in `docintelligence-catalog-processing-worker` accepts any `DocumentReader` via Spring DI. Adding a Docling reader in Phase 2 is a `@Bean` registration, a content-type routing predicate (use Docling for `application/pdf` when `asset_type = FLOOR_PLAN | SPEC_SHEET`; fall back to Tika otherwise), and a container in the manifest. No extraction, embedding, or aggregation code changes. The one-shot re-extraction job for historical PDFs is the same job infrastructure we already need for extraction-prompt version bumps.
 
 ---

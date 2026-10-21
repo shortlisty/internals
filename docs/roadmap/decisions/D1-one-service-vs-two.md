@@ -50,7 +50,7 @@ Both services connect to the same PostgreSQL instance and share the tenant schem
 
 - Independent scaling: scale ingestion workers on queue depth, scale docintelligence-catalog-service on request rate
 - Failure isolation: an LLM API outage or a malformed-PDF OOM kills only the ingestion worker; user search and CRUD continue
-- Resource isolation: dedicate CPU/memory profiles per service (ingestion gets larger pods with more memory for Tika Pipes forked JVMs; docintelligence-catalog-service gets smaller pods tuned for request concurrency)
+- Resource isolation: dedicate CPU/memory profiles per service (ingestion gets larger pods with more memory for in-process document parsing; docintelligence-catalog-service gets smaller pods tuned for request concurrency)
 - Clean separation of concerns: service team can reason about "reads/API" vs "processing pipeline" independently
 - Table ownership model (§4 of README.md) clarifies who writes what, preventing drift
 
