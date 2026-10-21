@@ -100,7 +100,6 @@ package com.iqkv.docintelligence.catalog.processing;
 public class AssetExtractionOrchestrator<M> {
 
   // ── pipeline infrastructure ──────────────────────────────────────────────
-  private final TikaDocumentReader.Factory tikaFactory;
   private final TokenTextSplitter splitter;
   private final EmbeddingModel embeddingModel;
   private final VectorStore vectorStore;              // writes to item_vectors
@@ -112,7 +111,6 @@ public class AssetExtractionOrchestrator<M> {
   private final CuratedListMatchStrategy matchStrategy;              // MasterVenueMatchStrategy
 
   public AssetExtractionOrchestrator(
-      TikaDocumentReader.Factory tikaFactory,
       TokenTextSplitter splitter,
       EmbeddingModel embeddingModel,
       VectorStore vectorStore,
@@ -120,7 +118,6 @@ public class AssetExtractionOrchestrator<M> {
       MetadataAggregationStrategy<M> aggregationStrategy,
       MetadataMigrator migrator,
       CuratedListMatchStrategy matchStrategy) {
-    this.tikaFactory = tikaFactory;
     this.splitter = splitter;
     this.embeddingModel = embeddingModel;
     this.vectorStore = vectorStore;
@@ -132,9 +129,8 @@ public class AssetExtractionOrchestrator<M> {
 
   public void process(ItemAsset asset, byte[] content) {
     // 1. Parse — Tika handles PDF, DOCX, XLSX, images via OCR, DWG
-    var rawDocs = tikaFactory
-        .create(new ByteArrayResource(content), asset.getContentType())
-        .get();
+    // TikaDocumentReader has no auto-configuration and takes a Resource: build it per asset
+    var rawDocs = new TikaDocumentReader(new ByteArrayResource(content)).get();
 
     // 2. Tag with source context
     var taggedDocs = rawDocs.stream()
@@ -217,25 +213,26 @@ Document chunking significantly impacts retrieval quality. Shortlisty uses a hyb
 Apache Tika has been the Java ecosystem's battle-tested document parser since 2007:
 
 - **1000+ file formats** — one interface regardless of file type
-- **Tika Pipes** — each file processed in forked JVM; a malformed or malicious file cannot crash the service
 - **Production-proven** — used by Elasticsearch, Solr, Apache Nutch, enterprise search systems globally
 - **DWG/DXF support** — AutoCAD format parser built in (rare capability — most alternatives don't support this)
-- **Direct Spring AI integration** — `TikaDocumentReader` ships with Spring AI, no custom code needed
+- **Direct Spring AI integration** — `spring-ai-tika-document-reader` wraps Tika, no custom code needed for text extraction
 - **Zero cloud dependency** — runs in-process, no API call needed for text extraction
 
-**Tika Pipes configuration for production safety:**
+**Runtime limits and isolation:** Spring AI 2.0.1 does not auto-configure `TikaDocumentReader` and does not integrate Tika Pipes — parsing runs `AutoDetectParser` in-process, with no forked JVM, no parse timeout and no memory ceiling. Build the reader per asset and cap the extracted text through the `ContentHandler` overload; a parse timeout must be enforced around the call, and forked-JVM isolation needs a separate Tika Pipes setup (out of Phase 1 scope). OCR additionally requires a Tesseract binary installed in the image — the Tika OCR module does not bundle one.
 
 ```java
-@Bean
-public TikaDocumentReader.Factory tikaReaderFactory() {
-  return TikaDocumentReader.Factory.builder()
-    .withTikaConfig(TikaConfig.getDefaultConfig())
-    .withForkParser(true)          // Each file in isolated JVM
-    .withParseTimeout(60)          // 60s max per file
-    .withMaxMemory(256 * 1024 * 1024)  // 256MB per file
-    .build();
-}
+// no auto-configuration: one reader per asset
+var docs = new TikaDocumentReader(new ByteArrayResource(content)).get();
+// List<Document>; source asset is under TikaDocumentReader.METADATA_SOURCE
+
+// optional knobs: character cap on the extracted text + text formatting
+var capped = new TikaDocumentReader(
+    new ByteArrayResource(content),
+    new WriteOutContentHandler(5_000_000),
+    ExtractedTextFormatter.defaults());
 ```
+
+Spring AI 2.0.1 pins `tika-core` and `tika-parsers-standard-package` to 3.3.1 — the reader's bytecode targets that API line, so Tika 4.x breaks it (`NoSuchMethodError` on `AutoDetectParser#parse`). `boot-parent-pom` 0.24.35 keeps the same version.
 
 ### 1.6 Docling integration for high-fidelity PDF parsing
 
@@ -486,9 +483,9 @@ pgvector with IVFFlat index:
 
 | Layer                   | Choice                                           | Rationale                                                                 |
 | ----------------------- | ------------------------------------------------ | ------------------------------------------------------------------------- |
-| **Document parsing**    | Apache Tika (via Spring AI `TikaDocumentReader`) | 1000+ formats, DWG support, fault-tolerant Pipes, built into Spring AI    |
+| **Document parsing**    | Apache Tika (via Spring AI `TikaDocumentReader`) | 1000+ formats, DWG support, in-process, built into Spring AI              |
 | **PDF layout analysis** | IBM Docling (self-hosted, open source)           | State-of-the-art table/layout extraction, MIT license, no per-page cost   |
-| **AI framework**        | Spring AI 1.0                                    | Java-native, provider-agnostic, ETL pipeline built-in, Micrometer metrics |
+| **AI framework**        | Spring AI 2.0                                    | Java-native, provider-agnostic, ETL pipeline built-in, Micrometer metrics |
 | **LLM extraction**      | OpenAI GPT-4o                                    | Best structured output, multimodal (vision for images/floor plans)        |
 | **Embeddings**          | OpenAI text-embedding-3-small                    | 1536 dims, $0.02/1M tokens, excellent quality/cost ratio                  |
 | **Vector store**        | pgvector (PostgreSQL extension)                  | No extra service, transactional, tenant-isolated, production-ready        |
