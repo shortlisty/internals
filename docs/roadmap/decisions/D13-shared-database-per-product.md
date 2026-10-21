@@ -41,7 +41,7 @@ All docintelligence services share one PostgreSQL instance. Tenant isolation is 
 
 Structure within the shared instance:
 
-- `public` schema — platform-wide master catalog tables (`master_venue`, `master_venue_alias`, `master_venue_external`). Read by all services; written only by `docintelligence-master-venue-loader`.
+- `public` schema — platform-wide master catalog tables (`master_venue`, `master_venue_alias`, `master_venue_external`). Read by all services; written only by `docintelligence-master-venue-worker`.
 - `t_{tenantKey}` schemas — per-tenant tables (venues, assets, extraction jobs, vectors, metadata events). Provisioned by `foundation-tenancy` on tenant creation. Accessed via `MyBatisSchemaInterceptor`.
 
 Future split targets when they become relevant:

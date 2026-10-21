@@ -63,7 +63,7 @@ Two runtime services, each fully self-contained. Domain classes, event payloads,
 
 > The worker reads the uploaded object from S3 and writes its extraction results to the tenant schema. Those edges are omitted from the diagram above for clarity.
 >
-> Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers: `docintelligence-mc-ingest-<source>-scraper`. Master Catalog population runs in `docintelligence-master-venue-loader` (Spring Boot). Full cold-start strategy in [master-catalog.md](master-catalog.md).
+> Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers: `docintelligence-mc-ingest-<source>-scraper`. Master Catalog population runs in `docintelligence-master-venue-worker` (Spring Boot). Full cold-start strategy in [master-catalog.md](master-catalog.md).
 
 ### Table ownership
 
@@ -157,7 +157,7 @@ docintelligence/master-catalog/exports/{date}/{snapshot}.jsonl.gz
 
 - All tenant objects scoped under `docintelligence/tenants/{tenantKey}/`. Cross-tenant read is structurally impossible without knowing the other tenant's key.
 - The service account holds a single S3 IAM policy allowing `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on the full `docintelligence/*` prefix. Presigned URLs are scoped to the exact object key.
-- Master catalog paths (`docintelligence/master-catalog/*`) are not accessible via tenant-issued presigned URLs. Written only by the platform's internal job service account (`docintelligence-master-venue-loader`).
+- Master catalog paths (`docintelligence/master-catalog/*`) are not accessible via tenant-issued presigned URLs. Written only by the platform's internal job service account (`docintelligence-master-venue-worker`).
 
 ### Lifecycle rules
 

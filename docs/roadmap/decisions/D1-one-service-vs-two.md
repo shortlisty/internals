@@ -42,7 +42,7 @@ Split into:
 - `docintelligence-catalog-service` — synchronous HTTP only. Owns `venues` and `venue_assets` writes.
 - `docintelligence-catalog-processing-worker` — async sidecar only. No inbound HTTP. Consumes RabbitMQ events, runs ETL pipeline, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`.
 
-Scraping and master catalog population are further decomposed into docintelligence-mc-ingest-<source>-scraper (Node.js per provider) and docintelligence-master-venue-loader (Spring Boot) — see architecture §4.
+Scraping and master catalog population are further decomposed into docintelligence-mc-ingest-<source>-scraper (Node.js per provider) and docintelligence-master-venue-worker (Spring Boot) — see architecture §4.
 
 Both services connect to the same PostgreSQL instance and share the tenant schema (`t_{tenantKey}`). Each service carries its own copy of the domain classes it uses, so no compile dependency links them.
 

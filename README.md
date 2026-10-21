@@ -106,7 +106,7 @@ Shortlisty builds on the iQ Key Value open-source foundation (`com.iqkv.foundati
 | `docintelligence-catalog-service`            | Java service | Single REST API for all venue management, tenant and platform admin                      |
 | `docintelligence-catalog-processing-worker`  | Java service | Async ETL worker: document processing, self-hosted LLM inference, master catalog mapping |
 | `docintelligence-mc-ingest-tagvenue-scraper` | Node CLI     | Nightly cron scraper; writes master catalog JSONL to S3                                  |
-| `docintelligence-master-venue-loader`        | Java service | Loads JSONL from S3 into the master catalog tables                                       |
+| `docintelligence-master-venue-worker`        | Java service | Loads JSONL from S3 into the master catalog tables                                       |
 
 All services share a single PostgreSQL instance: the `public` schema holds the master catalog, and `t_{tenantKey}` schemas hold tenant data. Database decomposition is a named future target once scale justifies it (see [D13](docs/roadmap/decisions/D13-shared-database-per-product.md)).
 

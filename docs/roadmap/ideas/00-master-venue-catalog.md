@@ -68,13 +68,13 @@ Tasks are ordered by dependency. Each is sized for 2–3 h including tests and C
 - Semantic search (pgvector embeddings) — deferred.
 - Full-text keyword search — deferred.
 - MC_INHERIT merge on extraction completion — deferred.
-- `docintelligence-master-venue-loader` bulk import processor — deferred.
+- `docintelligence-master-venue-worker` bulk import processor — deferred.
 - Tenant-facing venue creation UI (covered by the tenant venue profiles idea).
 
 ## Open questions
 
 - [ ] Which 3 target launch cities does the 50-venue seed set cover?
-- [ ] Does the bulk-import processor (`docintelligence-master-venue-loader`) ship in the same increment as the admin API, or as a follow-up?
+- [ ] Does the bulk-import processor (`docintelligence-master-venue-worker`) ship in the same increment as the admin API, or as a follow-up?
 
 ## Status
 

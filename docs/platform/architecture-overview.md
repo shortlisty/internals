@@ -45,7 +45,7 @@ Each service is fully self-contained at MVP: it carries its own domain classes, 
 
 - `docintelligence-catalog-service` — core domain: venues, assets, annotations, metadata, proposals, search, plan enforcement, master catalog backdrop lookup. Synchronous request/response only.
 - `docintelligence-catalog-processing-worker` — async sidecar: document ETL for tenant uploads, table data parsing (CSV/XLSX), embedding generation, metadata aggregation, scheduled maintenance jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `docintelligence-catalog-service`.
-- `docintelligence-master-venue-loader` — Spring Boot service. Runs master catalog import jobs triggered by `admin.master-catalog.import.*` RabbitMQ events. Applies reviewed scraper CSV/JSONL batches to `public.master_venue`. No tenant interaction.
+- `docintelligence-master-venue-worker` — Spring Boot service. Runs master catalog import jobs triggered by `admin.master-catalog.import.*` RabbitMQ events. Applies reviewed scraper CSV/JSONL batches to `public.master_venue`. No tenant interaction.
 - Standalone scrapers (`docintelligence-mc-ingest-<source>-scraper`) — Node.js. Produce CSV/JSONL output, upload to S3. Run on demand, not deployed as persistent services.
 
 **New infrastructure introduced by Shortlisty:**
