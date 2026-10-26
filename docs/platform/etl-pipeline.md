@@ -7,7 +7,7 @@
 
 ## Related documents
 
-- [services.md](services.md) — service responsibilities, table ownership, the self-contained service rule
+- [services.md](services.md) — service responsibilities, table ownership, code-sharing rules
 - [data-model.md](data-model.md) — `ExtractionJob`, `VenueAsset`, `item_vectors` table definitions
 - [aggregation.md](aggregation.md) — what happens after `ExtractionCompletedEvent` is published
 - [master-catalog.md](master-catalog.md) — Stage 3 MC_INHERIT merge (MasterVenueMatcher)
@@ -162,7 +162,7 @@ public class AssetExtractionConsumer {
 }
 ```
 
-**Rule:** a class that carries venue business logic belongs to the service that owns the table it serves. Neither service may add a compile dependency on the other; if a type is needed on both sides, each service declares its own copy.
+**Rule:** a class that carries venue business logic belongs to the service that owns the table it serves. Neither service may add a compile dependency on the other. Payload types stay duplicated on both sides because they are the contract between the services; row types and persistence helpers that are not a contract come from a shared library ([D16](../roadmap/decisions/D16-shared-artifacts.md)).
 
 ---
 

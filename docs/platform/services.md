@@ -1,7 +1,7 @@
 # Shortlisty — Service Architecture
 
 > **Audience:** Engineers, architects.
-> **Purpose:** Service decomposition, table ownership rules, self-contained service rule, and S3 storage layout.
+> **Purpose:** Service decomposition, table ownership rules, code-sharing rules, and S3 storage layout.
 
 ---
 
@@ -18,7 +18,9 @@
 
 ## 4. Service architecture
 
-Two runtime services, each fully self-contained. Domain classes, event payloads, and Liquibase changelogs live inside the service that owns them, and neither service declares a compile dependency on the other. Where both services touch the same table, the ownership rules below govern access, and each service carries its own copy of the payload types it needs. Duplication across services is accepted deliberately in exchange for zero cross-service compile coupling.
+No service depends on another. Event payloads and Liquibase changelogs live inside the service that owns them, and no service declares a compile dependency on another service. Where two services touch the same table, the ownership rules below govern access, and each service keeps its own copy of the event payload types it exchanges. Duplication of payload contracts across services is accepted deliberately in exchange for zero cross-service compile coupling.
+
+Code that is not a contract between two services is shared instead of copied. The venue model and its MyBatis persistence layer live in `com.iqkv:docintelligence-venue`; the MyBatis type handlers live in `com.iqkv:foundation-mybatis-util`. Both are libraries with no deployment of their own, their versions are managed in `boot-parent-pom`, and consumers declare them without a version. The eligibility test for extraction and the reasoning behind it are in [D16](../roadmap/decisions/D16-shared-artifacts.md).
 
 ```
                                ┌─────────────────────┐

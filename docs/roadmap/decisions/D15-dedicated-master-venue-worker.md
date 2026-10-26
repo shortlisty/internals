@@ -9,20 +9,20 @@
 
 The master catalog pipeline is three steps: a per-provider scraper writes master-catalog-ready JSON to S3, a loader writes it into the `public.master_venue*` tables, and the tenant ETL pipeline resolves each venue against those tables at extraction time. The four components and their roles:
 
-| Component                                        | Role                                                                                                                                                                     |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `docintelligence-mc-ingest-<source>-scraper`     | Node CLI, nightly cron. Scrapes provider sites and writes master-catalog-ready JSONL to S3. No LLM, no database access.                                                   |
-| `docintelligence-master-venue-worker`            | Reads that JSONL from S3 and writes `public.master_venue*`. Deterministic dedup and normalisation only — no LLM, no tenant schema access.                                 |
-| `docintelligence-catalog-processing-worker`      | Tenant ETL: parse, chunk, extract, embed, aggregate; writes tenant-schema tables and maps tenant venues to master catalog matches (copy-on-match MC_INHERIT).              |
-| `docintelligence-catalog-service`                | Control plane and APIs: venue CRUD, search, asset upload flow, admin master catalog management, and the only service that runs Liquibase.                                 |
+| Component                                    | Role                                                                                                                                                          |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docintelligence-mc-ingest-<source>-scraper` | Node CLI, nightly cron. Scrapes provider sites and writes master-catalog-ready JSONL to S3. No LLM, no database access.                                       |
+| `docintelligence-master-venue-worker`        | Reads that JSONL from S3 and writes `public.master_venue*`. Deterministic dedup and normalisation only — no LLM, no tenant schema access.                     |
+| `docintelligence-catalog-processing-worker`  | Tenant ETL: parse, chunk, extract, embed, aggregate; writes tenant-schema tables and maps tenant venues to master catalog matches (copy-on-match MC_INHERIT). |
+| `docintelligence-catalog-service`            | Control plane and APIs: venue CRUD, search, asset upload flow, admin master catalog management, and the only service that runs Liquibase.                     |
 
-This decomposition is already the documented one ([D1](D1-one-service-vs-two.md), [services.md § Table ownership](../../platform/services.md), component inventory in [README.md](../../../README.md)). What was never recorded is *why* the population role is not folded into the processing worker, given that the two workers share everything below the code:
+This decomposition is already the documented one ([D1](D1-one-service-vs-two.md), [services.md § Table ownership](../../platform/services.md), component inventory in [README.md](../../../README.md)). What was never recorded is _why_ the population role is not folded into the processing worker, given that the two workers share everything below the code:
 
 - One PostgreSQL instance for the whole product ([D13](D13-shared-database-per-product.md)).
 - The master catalog tables are created once in `public` by `docintelligence-catalog-service`'s `system/master.xml` changelog, not per tenant ([data-model.md](../../platform/data-model.md)).
 - The tenant↔master link is an app-level FK (`venues.master_venue_id`) with no DB-level constraint ([data-model.md](../../platform/data-model.md)).
 - Import and ETL both honour the same `_schema_version` contract and must call `VenueMetadataMigrator.ensureCurrent()` before writing metadata ([data-model.md](../../platform/data-model.md)).
-- The `MasterVenue` entity and its MyBatis mapper already live in the processing worker's codebase, which is explicitly allowed to name the `public` schema.
+- The `MasterVenue` entity and its MyBatis mapper are already shared by the suite through the `docintelligence-venue` artifact ([D16](D16-shared-artifacts.md)), and the processing worker is explicitly allowed to name the `public` schema.
 
 So the data model does not separate these roles. The open question is operational: does master catalog population need its own deployable?
 
@@ -65,7 +65,7 @@ The loader remains its own Java service, as [D1](D1-one-service-vs-two.md) and [
 
 - Third Java deployable: pipelines, chart values, quotas, observability, on-call surface
 - Shared-schema coordination burden (mitigated: migrations stay in `docintelligence-catalog-service`, and neither worker runs them)
-- A second copy of the `MasterVenue` model and mapper across repositories, per the self-contained-service rule
+- A second copy of the `MasterVenue` model and mapper across repositories — removed by [D16](D16-shared-artifacts.md), which shares the model and mapper as a published artifact instead of a copy
 
 ---
 
@@ -96,7 +96,7 @@ This record is **provisional**: the two-worker split is the working assumption, 
 
 - Four deployables per environment: one Node CLI scraper, `docintelligence-master-venue-worker`, `docintelligence-catalog-processing-worker`, `docintelligence-catalog-service`.
 - The ownership table in [services.md](../../platform/services.md) gains rows for `master_venue`, `master_venue_alias`, and `master_venue_external`, owned by `docintelligence-master-venue-worker`; DDL for those tables stays with `docintelligence-catalog-service`'s `system/master.xml`.
-- `MasterVenueMapper` in the processing worker currently exposes write methods. Under this decision, writes belong to `docintelligence-master-venue-worker` and the mapper in the processing worker is read-only for the match step. This is a code follow-up, tracked outside this record.
+- Writes to `master_venue*` belong to `docintelligence-master-venue-worker`; `docintelligence-catalog-processing-worker` reads those tables for the match step only. Since [D16](D16-shared-artifacts.md) the mapper interface is shared by all three Java services, so this read/write split is enforced at code review rather than by an interface split.
 - Neither worker runs migrations; neither worker exposes inbound HTTP beyond health, readiness, and metrics.
 - The cold-start seeding path described in [D8](D8-master-venue-seeding-infrastructure-first.md) and [cold-start.md](../../business/personal-venue-catalog/cold-start.md) (admin CRUD API or importer CLI) keeps both entry points, one per component.
 - Sequencing — which of the two workers is built first — is deliberately not fixed here.
@@ -105,7 +105,7 @@ This record is **provisional**: the two-worker split is the working assumption, 
 
 ## Status
 
-**Proposed.** Recorded as a working assumption: the topology is settled (two workers, four components), the trigger and deployment details of the importer are not. If the assumption is dropped in favour of a single worker, this record is superseded by a new decision rather than edited.
+**Proposed.** Recorded as a working assumption: the topology is settled (two workers, four components), the trigger and deployment details of the importer are not. If the assumption is dropped in favour of a single worker, this record is superseded by a new decision rather than edited. Amended by [D16](D16-shared-artifacts.md): the shared `MasterVenue` model and mapper are now a published artifact, and the read/write split between the workers is a review rule. The topology decided here is unchanged.
 
 ---
 

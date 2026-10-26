@@ -12,7 +12,7 @@
 - [aggregation.md](aggregation.md) — FIFO metadata aggregation (§3)
 - [master-catalog.md](master-catalog.md) — MC_INHERIT merge algorithm and threshold calibration
 - [search.md](search.md) — cross-source search architecture (§6)
-- [services.md](services.md) — the self-contained service rule
+- [services.md](services.md) — table ownership and code-sharing rules
 - [observability.md](observability.md) — metrics referenced in Phase 2 triggers
 
 ---
@@ -37,7 +37,7 @@
 
 - [x] **Chunking table placement and naming.** One `item_vectors` table per tenant schema (changelog owned by `docintelligence-catalog-service`). Table name `item_vectors` — generic, not `vector_store`. IVFFlat index at MVP volumes. Full design in [data-model.md § 10](data-model.md).
 
-- [x] **Self-contained services at MVP.** Each service carries its own domain classes, event payloads, and Liquibase changelogs, and declares no compile dependency on another service. Duplication across services is accepted in exchange for zero cross-service compile coupling. See [services.md](services.md).
+- [x] **Independent services at MVP.** No service declares a compile dependency on another, so no service can break another's build or release. Event payloads and Liquibase changelogs stay with the service that owns them. Code that is not a contract between services is shared through published artifacts (`com.iqkv:docintelligence-venue`, `com.iqkv:foundation-mybatis-util`) rather than copied. See [services.md](services.md) and [D16](../roadmap/decisions/D16-shared-artifacts.md).
 
 ### Pending
 

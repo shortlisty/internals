@@ -94,7 +94,7 @@ The Architecture Reference is the hub for all platform documents, including sear
 | [Feature Checklist](docs/roadmap/feature-checklist.md) | Product, engineering  | Prioritised feature list (P0–P3)                     |
 | [Epics](docs/roadmap/epics/README.md)                  | Product, engineering  | User-facing capability clusters                      |
 | [Milestones](docs/roadmap/milestones/README.md)        | Product, engineering  | Versioned shippable increments                       |
-| [Decisions](docs/roadmap/decisions/README.md)          | Engineers, architects | Architecture decision records (D1–D13)               |
+| [Decisions](docs/roadmap/decisions/README.md)          | Engineers, architects | Architecture decision records (D1–D16)               |
 | [Ideas](docs/roadmap/ideas/README.md)                  | Product, engineering  | Worked pitches not yet promoted to epics             |
 
 ## Platform at a glance

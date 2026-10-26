@@ -25,7 +25,7 @@ This means the following infrastructure must be in place before any tenant can c
 
 ### 1. Service-Owned Foundation
 
-Each service is self-contained: it carries its own domain classes, event payloads, and Liquibase changelogs, with no shared artifact linking them.
+Each service owns its event payloads and Liquibase changelogs and declares no compile dependency on another service. Domain types and persistence helpers that are not a contract between services are shared through published libraries rather than copied — see [D16](D16-shared-artifacts.md).
 
 - `docintelligence-catalog-service` - venue domain classes, canonical field set, metadata migrations, and tenant Liquibase changelogs
 - `docintelligence-catalog-processing-worker` - extraction pipeline types and event payloads
@@ -69,7 +69,7 @@ Each service is self-contained: it carries its own domain classes, event payload
 
 4. **Operational Readiness**: Platform admin tooling and seeding infrastructure must be operational before launching tenant venue management, since tenant data quality depends on platform reference data.
 
-5. **Development Efficiency**: Self-contained services and platform services provide a stable backend foundation for implementing tenant features without architectural changes.
+5. **Development Efficiency**: Independently deployable services and platform services provide a stable backend foundation for implementing tenant features without architectural changes.
 
 ### Alternative Considered
 
@@ -109,7 +109,7 @@ Master venue seeding infrastructure is complete when:
 - [ ] Metadata schema versioning handles forward/backward compatibility across platform and tenant data
 - [ ] S3 storage enforces tenant isolation with proper lifecycle rules (platform manages master catalog separately)
 - [ ] All database indexes support expected query patterns (platform service performance)
-- [ ] Self-contained services provide stable contracts for platform services and tenant-facing applications
+- [ ] Independently deployable services provide stable contracts for platform services and tenant-facing applications
 - [ ] Tenant venue creation UI can suggest venues from platform catalog without exposing platform complexity
 
 ## Impact on Timeline

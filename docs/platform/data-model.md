@@ -8,7 +8,7 @@
 ## Related documents
 
 - [architecture-overview.md](architecture-overview.md) — platform context and foundation reuse
-- [services.md](services.md) — which service owns which table; the self-contained service rule
+- [services.md](services.md) — which service owns which table; the code-sharing rule
 - [aggregation.md](aggregation.md) — how conflicting field values are resolved at write time
 - [master-catalog.md](master-catalog.md) — `public.master_venue` tables and MC_INHERIT provenance
 - [etl-pipeline.md](etl-pipeline.md) — how extraction jobs produce `venue_metadata_events`
@@ -886,6 +886,8 @@ PostgreSQL schema-per-tenant means `public.master_venue` lives in a different sc
    - `MasterVenueQueryMapper` (search branch B): read-only SELECT with a fixed column whitelist
    - `MasterVenueMatcherMapper` (extraction-time MC_INHERIT merge): same qualified reads
    - `MasterCatalogAdminMapper` (`PLATFORM_ADMIN` only): reads + writes `public.master_venue` / aliases / external
+
+   The venue mapper interface and its XML are a shared artifact (`com.iqkv:docintelligence-venue`) consumed by all three Java services ([D16](../roadmap/decisions/D16-shared-artifacts.md)), so the rule above is enforced at code review rather than by which repository a mapper lives in.
 
 2. **Single-statement cross-schema `JOIN` / `UNION ALL` is forbidden.** Cross-source merging always happens in the `VenueSearchOrchestrator` app-layer (see [search.md](search.md)), never in SQL.
 

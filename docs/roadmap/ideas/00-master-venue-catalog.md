@@ -7,7 +7,7 @@
 
 ## Summary
 
-The master venue catalog is a platform-wide reference dataset of venues that powers autocomplete suggestions, deduplication assistance, and metadata gap-filling when a tenant creates a venue. It is not tenant-facing — it is a platform service layer that every tenant venue creation draws from. Building it establishes the per-service domain classes, database schema, admin tooling, and seed data that tenant venue profiles depend on.
+The master venue catalog is a platform-wide reference dataset of venues that powers autocomplete suggestions, deduplication assistance, and metadata gap-filling when a tenant creates a venue. It is not tenant-facing — it is a platform service layer that every tenant venue creation draws from. Building it establishes the venue domain model, database schema, admin tooling, and seed data that tenant venue profiles depend on.
 
 ## Why it matters
 
