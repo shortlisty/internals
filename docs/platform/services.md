@@ -82,10 +82,11 @@ Both services share one PostgreSQL schema. Ownership defines who may write to a 
 | `master_venue`          | `docintelligence-master-venue-worker`       | read (processing-worker: MC match; docintelligence-catalog-service: dedup-check)               |
 | `master_venue_alias`    | `docintelligence-master-venue-worker`       | read (processing-worker: MC match; docintelligence-catalog-service: dedup-check)               |
 | `master_venue_external` | `docintelligence-master-venue-worker`       | read (processing-worker: MC match; docintelligence-catalog-service: dedup-check)               |
+| `master_venue_asset`    | `docintelligence-master-venue-worker`       | read (docintelligence-catalog-service: admin CRUD and dedup-check)                             |
 
 Cross-boundary reads from `docintelligence-catalog-processing-worker` are limited to two cases: a `SELECT` on `venue_assets` by `asset_id` (delivered in the `asset.uploaded` event payload), which is a foreign key lookup rather than business logic, and read-only access to `public.master_venue*` for the MC match step. Both are intentional.
 
-The master catalog tables are created once in the `public` schema by `docintelligence-catalog-service`'s `system/master.xml` changelog — see [data-model.md](data-model.md) — so DDL ownership stays with `docintelligence-catalog-service` while the write owner is `docintelligence-master-venue-worker` (see [D15](../roadmap/decisions/D15-dedicated-master-venue-worker.md)). Admin CRUD over master catalog rows and the dedup-check endpoint are served by `docintelligence-catalog-service`.
+The master catalog tables (`master_venue`, `master_venue_alias`, `master_venue_external`, `master_venue_asset`) are created once in the `public` schema by `docintelligence-catalog-service`'s `system/master.xml` changelog — see [data-model.md](data-model.md) — so DDL ownership stays with `docintelligence-catalog-service` while the write owner is `docintelligence-master-venue-worker` (see [D15](../roadmap/decisions/D15-dedicated-master-venue-worker.md)). Admin CRUD over master catalog rows and the dedup-check endpoint are served by `docintelligence-catalog-service`.
 
 ---
 
@@ -148,17 +149,19 @@ docintelligence/tenants/acme0001/venues/550e8400e29b41d4a716446655440000/assets/
 
 The presigned PUT URL is scoped to the exact key. The client uploads directly. The service never proxies the file body. Download presigned URLs (1h TTL) are generated on-demand at `GET /api/v1/venues/{venueId}/assets/{id}/download-url` — not stored.
 
-#### Master catalog import files
+#### Master catalog files
 
 ```
 docintelligence/master-catalog/imports/{importId}/{fileName}
 docintelligence/master-catalog/exports/{date}/{snapshot}.jsonl.gz
+docintelligence/master-catalog/venues/{venueId}/assets/{assetId}/{fileName}
 ```
 
-| Path                                                 | Purpose                                                                           |
-| ---------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `docintelligence/master-catalog/imports/{importId}/` | One folder per import batch (admin-triggered). Contains raw CSV/JSON input files. |
-| `docintelligence/master-catalog/exports/{date}/`     | Nightly compacted snapshots of `public.master_venue` for downstream consumers.    |
+| Path                                                                | Purpose                                                                           |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `docintelligence/master-catalog/imports/{importId}/`                | One folder per import batch (admin-triggered). Contains raw CSV/JSON input files. |
+| `docintelligence/master-catalog/exports/{date}/`                    | Nightly compacted snapshots of `public.master_venue` for downstream consumers.    |
+| `docintelligence/master-catalog/venues/{venueId}/assets/{assetId}/` | Photos and attachments of a master venue of record; one folder per asset.         |
 
 ### Tenant isolation
 

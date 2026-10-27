@@ -529,7 +529,8 @@ Migrations live in `docintelligence-catalog-service` under `src/main/resources/d
 ```
 db/changelog/system/
 ├── master.xml
-└── 20260901000000-create-master-venue.xml   ← public schema, platform-owned
+├── 20260901000000-create-master-venue.xml         ← public schema, platform-owned
+└── 20260901000001-create-master-venue-asset.xml   ← public schema, platform-owned
 
 db/changelog/tenant/
 ├── master.xml
@@ -542,7 +543,7 @@ db/changelog/tenant/
 └── 20260901000007-create-venue-annotations.xml
 ```
 
-The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml` first (to the `public` schema), then `tenant/master.xml` to each `t_{tenantKey}` schema. The `master_venue`, `master_venue_alias`, and `master_venue_external` tables are created in `public` once, not per-tenant.
+The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml` first (to the `public` schema), then `tenant/master.xml` to each `t_{tenantKey}` schema. The `master_venue`, `master_venue_alias`, `master_venue_external`, and `master_venue_asset` tables are created in `public` once, not per-tenant.
 
 ### Changeset structure example — `venues` table
 
@@ -830,11 +831,12 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 
 **Public schema (platform-owned, not tenant-scoped):**
 
-| Table                   | Key columns                                                                                                                                                     | Notes                                                                           |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `master_venue`          | `id` UUID PK, `name` VARCHAR(255), `address` TEXT, `city` VARCHAR(100), `location` GEOGRAPHY, `metadata` JSONB, `confidence` NUMERIC(3,2), `source` VARCHAR(50) | Platform seed data. Read-only to tenants. `metadata._schema_version` mandatory. |
-| `master_venue_alias`    | `id` UUID PK, `master_venue_id` UUID FK, `alias` VARCHAR(255)                                                                                                   | Alternative names for master catalog deduplication                              |
-| `master_venue_external` | `id` UUID PK, `master_venue_id` UUID FK, `provider` VARCHAR, `provider_external_id` VARCHAR, `raw_payload` JSONB, `confidence` NUMERIC, `crawled_at` TIMESTAMP  | 1 MasterVenue ↔ N external provider records from Tagvenue, Cvent, etc.          |
+| Table                   | Key columns                                                                                                                                                                                                                                                                              | Notes                                                                                                                 |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `master_venue`          | `id` UUID PK, `name` VARCHAR(255), `address` TEXT, `city` VARCHAR(100), `location` GEOGRAPHY, `metadata` JSONB, `confidence` NUMERIC(3,2), `source` VARCHAR(50)                                                                                                                          | Platform seed data. Read-only to tenants. `metadata._schema_version` mandatory.                                       |
+| `master_venue_alias`    | `id` UUID PK, `master_venue_id` UUID FK, `alias` VARCHAR(255)                                                                                                                                                                                                                            | Alternative names for master catalog deduplication                                                                    |
+| `master_venue_external` | `id` UUID PK, `master_venue_id` UUID FK, `provider` VARCHAR, `provider_external_id` VARCHAR, `raw_payload` JSONB, `confidence` NUMERIC, `crawled_at` TIMESTAMP                                                                                                                           | 1 MasterVenue ↔ N external provider records from Tagvenue, Cvent, etc.                                                |
+| `master_venue_asset`    | `id` UUID PK, `master_venue_id` UUID FK, `asset_type` VARCHAR(50), `photo_category` VARCHAR(50), `display_order` INT, `label` VARCHAR(255), `file_name` VARCHAR(255), `content_type` VARCHAR(100), `size_bytes` BIGINT, `s3_key` VARCHAR(512), `source_url` TEXT, `provider` VARCHAR(50) | 1 MasterVenue ↔ N assets. Photos and attachments; UNIQUE (`master_venue_id`, `file_name`) keeps re-ingest idempotent. |
 
 **Tenant schema `t_{tenantKey}` (tenant-owned):**
 
@@ -882,18 +884,19 @@ PostgreSQL schema-per-tenant means `public.master_venue` lives in a different sc
 
 **Rules (enforced at code review + MyBatis mapper audit):**
 
-1. **Only three mapper interfaces may reference `public.` schema-qualified names explicitly:**
+1. **Only four mapper interfaces may reference `public.` schema-qualified names explicitly:**
    - `MasterVenueQueryMapper` (search branch B): read-only SELECT with a fixed column whitelist
    - `MasterVenueMatcherMapper` (extraction-time MC_INHERIT merge): same qualified reads
-   - `MasterCatalogAdminMapper` (`PLATFORM_ADMIN` only): reads + writes `public.master_venue` / aliases / external
+   - `MasterCatalogAdminMapper` (`PLATFORM_ADMIN` only): reads + writes `public.master_venue` / aliases / external / assets
+   - `MasterVenueAssetMapper` (master catalog ingestion): reads + writes `public.master_venue_asset` only
 
-   The venue mapper interface and its XML are a shared artifact (`com.iqkv:docintelligence-venue`) consumed by all three Java services ([D16](../roadmap/decisions/D16-shared-artifacts.md)), so the rule above is enforced at code review rather than by which repository a mapper lives in.
+   These mapper interfaces and their XML are a shared artifact (`com.iqkv:docintelligence-venue`) consumed by all three Java services ([D16](../roadmap/decisions/D16-shared-artifacts.md)), so the rule above is enforced at code review rather than by which repository a mapper lives in.
 
 2. **Single-statement cross-schema `JOIN` / `UNION ALL` is forbidden.** Cross-source merging always happens in the `VenueSearchOrchestrator` app-layer (see [search.md](search.md)), never in SQL.
 
 3. **No cross-schema DDL-level FK constraints.** The `venues.master_venue_id → master_venue.id` reference is application-enforced only.
 
-4. **Role-level hardening (pre-production):** The `docintelligence-catalog-service` connection pool holds `SELECT` on `public.master_venue` / aliases / external. `INSERT / UPDATE / DELETE` on `public` tables is revoked; only the `master_catalog_admin` connection holds write grants.
+4. **Role-level hardening (pre-production):** The `docintelligence-catalog-service` connection pool holds `SELECT` on `public.master_venue` / aliases / external / assets. `INSERT / UPDATE / DELETE` on `public` tables is revoked; only the `master_catalog_admin` connection holds write grants.
 
 ---
 

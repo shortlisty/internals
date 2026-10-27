@@ -25,7 +25,7 @@
 
 - [x] **Naming convention.** Service names reflect domain/purpose, not implementation technology. `docintelligence-catalog-processing-worker` describes what it does (ingest and process assets), not how (AI/ML).
 
-- [x] **Master Venue Catalog (MC).** A `public.master_venue` table (with `master_venue_alias`, `master_venue_external` tables) serves as invisible backdrop for gap-filling tenant venue data at extraction time. Copy-on-match (MC_INHERIT provenance, priority 7), not link — tenant record is fully independent after copy. No reverse flow from tenant to master catalog in MVP. Full design in [master-catalog.md](master-catalog.md).
+- [x] **Master Venue Catalog (MC).** A `public.master_venue` table (with `master_venue_alias`, `master_venue_external`, `master_venue_asset` tables) serves as invisible backdrop for gap-filling tenant venue data at extraction time. Copy-on-match (MC_INHERIT provenance, priority 7), not link — tenant record is fully independent after copy. No reverse flow from tenant to master catalog in MVP. Full design in [master-catalog.md](master-catalog.md).
 
 - [x] **Metadata schema versioning and JSONB drift.** Every `venues.metadata` and `public.master_venue.metadata` JSONB document carries a top-level integer `_schema_version` (initial: 1; absent = 0 "legacy"). `docintelligence-catalog-service` contains the `MetadataMigration` interface and `MetadataMigrator` chain runner, along with the venue-specific migration classes, `VenueMetadataMigrator`, and `VenueMetadataSchemaVersion.CURRENT_SCHEMA_VERSION`. Every read upgrades the shape in memory; every write stamps the document to `CURRENT_SCHEMA_VERSION` before persist. Full design in [data-model.md § 2a](data-model.md).
 
