@@ -38,15 +38,17 @@ Shortlisty is a new product service built **on top of the iQ Key Value foundatio
 | `foundation-audit-service`   | Compliance log — consumes Shortlisty events passively, no code changes                  |
 | `foundation-ui-app`          | Extended (not forked) with new `/venues/*` routes under FSD architecture                |
 | `foundation-tenancy`         | Schema-per-tenant isolation library reused directly                                     |
+| `foundation-mybatis-util`    | Four MyBatis type handlers (`JsonTypeHandler`, `PgVectorTypeHandler`, `StringArrayTypeHandler`, `UuidTypeHandler`) — registered in both services' `MyBatisConfig` |
+| `foundation-mail`            | `EmailSender` abstraction with SMTP and Resend transports — auto-configured via `MailAutoConfiguration`; consumed by any service that sends email notifications |
 
 **New services introduced by Shortlisty:**
 
-No service declares a compile dependency on another service, so no service can break another's build or release. Event payloads and Liquibase changelogs live inside the service that owns them. Code that is not a contract between services is shared through published libraries instead of copied: `com.iqkv:docintelligence-venue` carries the venue model and its MyBatis persistence layer, `com.iqkv:foundation-mybatis-util` carries the shared type handlers. See [D16](../roadmap/decisions/D16-shared-artifacts.md).
+No service declares a compile dependency on another service, so no service can break another's build or release. Event payloads and Liquibase changelogs live inside the service that owns them. Code that is not a contract between services is shared through published libraries instead of copied: `com.iqkv:docintelligence-venue` carries the venue model and its MyBatis persistence layer, `com.iqkv:foundation-mybatis-util` carries the shared type handlers (`JsonTypeHandler`, `PgVectorTypeHandler`, `StringArrayTypeHandler`, `UuidTypeHandler`). See [D16](../roadmap/decisions/D16-shared-artifacts.md).
 
-- `docintelligence-catalog-service` — core domain: venues, assets, annotations, metadata, proposals, search, plan enforcement, master catalog backdrop lookup. Synchronous request/response only.
-- `docintelligence-catalog-processing-worker` — async sidecar: document ETL for tenant uploads, table data parsing (CSV/XLSX), embedding generation, metadata aggregation, scheduled maintenance jobs. No inbound HTTP — event-driven only. Shares the same PostgreSQL schema as `docintelligence-catalog-service`.
-- `docintelligence-master-venue-worker` — Spring Boot service. Runs master catalog import jobs triggered by `admin.master-catalog.import.*` RabbitMQ events. Applies reviewed scraper batches to `public.master_venue*` — venue rows plus their photos and attachments, uploaded to the master-catalog S3 prefix and recorded in `public.master_venue_asset`. No tenant interaction.
-- Standalone scrapers (`docintelligence-mc-ingest-<source>-scraper`) — Node.js. Produce one folder per venue (`venue.json` plus downloaded `assets/`) and upload the batch to S3. Run on demand, not deployed as persistent services.
+- `docintelligence-catalog-service` — **infrastructure skeleton + master venue catalog slice implemented.** Full domain: tenant-scoped venue CRUD, assets, metadata, search, plan enforcement — future sprints. What is running: `SecurityConfig`, `TenantExtractionFilter`, `TenantProvisioningConsumer`, `AllTenantsKeyProvider`, full `mastervenue` slice (public read API + admin CRUD + admin semantic search), Liquibase system and tenant changelog scaffold. See [roadmap-decisions.md § Before sprint 1](roadmap-decisions.md).
+- `docintelligence-catalog-processing-worker` — **infrastructure skeleton only.** All processing pipeline classes (`AssetExtractionConsumer`, `VenueMetadataEnricher`, `MasterVenueMatcher`, etc.) are future sprint work. The worker starts up, wires MyBatis/MinIO/RabbitMQ/Spring AI infrastructure, and does nothing else. See [roadmap-decisions.md § Before sprint 1](roadmap-decisions.md).
+- `docintelligence-master-venue-worker` — Spring Boot service. Runs master catalog import jobs triggered by `admin.master-catalog.import.*` RabbitMQ events. Applies reviewed scraper batches to `public.master_venue*`. No tenant interaction. Not yet implemented.
+- Standalone scrapers (`docintelligence-mc-ingest-<source>-scraper`) — Node.js. Produce one folder per venue (`venue.json` plus downloaded `assets/`) and upload the batch to S3. Run on demand, not deployed as persistent services. Not yet implemented.
 
 **New infrastructure introduced by Shortlisty:**
 
@@ -146,7 +148,7 @@ try {
 
 ### Security
 
-**`SecurityConfig` pattern** (identical structure in every consumer service):
+**`SecurityConfig` pattern** (implemented in `docintelligence-catalog-service`; identical structure expected in every consumer service):
 
 ```java
 package com.iqkv.docintelligence.catalog.api.security;
@@ -241,6 +243,8 @@ Key points:
 
 **Pattern 1 — Tenant-scoped (standard).** Controller at `/api/v1/venues/**`. `TenantExtractionFilter` sets `TenantContext` from JWT before the request hits the controller. No tenant path variable.
 
+> **Implementation status:** Tenant-scoped venue controllers are a future sprint. The pattern below is the agreed design. The only implemented tenant-scoped path today is `TenantProvisioningConsumer` (messaging, not HTTP).
+
 ```java
 package com.iqkv.docintelligence.catalog.api.rest;
 
@@ -267,27 +271,25 @@ public class VenueRestResource {
 }
 ```
 
-**Pattern 2 — Admin cross-tenant.** Controller at `/api/v1/venues/admin/venues/{tenantKey}/**`. `TenantExtractionFilter` excluded for `/admin/` paths. Controller sets `TenantContext` manually in try/finally.
+**Pattern 2 — Admin cross-tenant (implemented).** Controller at `/api/v1/catalog/admin/master-venues/**`. `TenantExtractionFilter` skips `/api/v1/catalog/admin/**` paths. `PLATFORM_ADMIN` authority required. The live `AdminMasterVenueRestResource` follows this pattern exactly (full CRUD + semantic search on `public.master_venue`).
 
 ```java
-package com.iqkv.docintelligence.catalog.api.rest;
+package com.iqkv.docintelligence.catalogservice.mastervenue;
 
 @RestController
-@RequestMapping("/api/v1/venues/admin/venues/{tenantKey}")
+@RequestMapping("/api/v1/catalog/admin/master-venues")
 @PreAuthorize("hasAuthority('PLATFORM_ADMIN')")
-public class AdminVenueRestResource {
+public class AdminMasterVenueRestResource {
 
     @GetMapping
-    public ResponseEntity<VenueDtos.VenueSummaryListResponse> getAll(
-            @PathVariable String tenantKey,
+    public ResponseEntity<MasterVenueDtos.AdminMasterVenueListResponse> search(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String city,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir,
             @RequestParam(defaultValue = "20") int limit,
             @RequestParam(defaultValue = "0") int offset) {
-        try {
-            TenantContext.setCurrentTenant(tenantKey);
-            return ResponseEntity.ok(venueService.getAllSummary(limit, offset));
-        } finally {
-            TenantContext.clear();
-        }
+        return ResponseEntity.ok(masterVenueService.searchVenues(search, city, sortBy, sortDir, limit, offset));
     }
 }
 ```

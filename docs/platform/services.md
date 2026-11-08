@@ -20,7 +20,7 @@
 
 No service depends on another. Event payloads and Liquibase changelogs live inside the service that owns them, and no service declares a compile dependency on another service. Where two services touch the same table, the ownership rules below govern access, and each service keeps its own copy of the event payload types it exchanges. Duplication of payload contracts across services is accepted deliberately in exchange for zero cross-service compile coupling.
 
-Code that is not a contract between two services is shared instead of copied. The venue model and its MyBatis persistence layer live in `com.iqkv:docintelligence-venue`; the MyBatis type handlers live in `com.iqkv:foundation-mybatis-util`. Both are libraries with no deployment of their own, their versions are managed in `boot-parent-pom`, and consumers declare them without a version. The eligibility test for extraction and the reasoning behind it are in [D16](../roadmap/decisions/D16-shared-artifacts.md).
+Code that is not a contract between two services is shared instead of copied. The venue model and its MyBatis persistence layer live in `com.iqkv:docintelligence-venue`; the MyBatis type handlers (`JsonTypeHandler`, `PgVectorTypeHandler`, `StringArrayTypeHandler`, `UuidTypeHandler`) live in `com.iqkv:foundation-mybatis-util`. Both are libraries with no deployment of their own, their versions are managed in `boot-parent-pom`, and consumers declare them without a version. The eligibility test for extraction and the reasoning behind it are in [D16](../roadmap/decisions/D16-shared-artifacts.md).
 
 ```
                                ┌─────────────────────┐
@@ -47,23 +47,26 @@ Code that is not a contract between two services is shared instead of copied. Th
 
 ### `docintelligence-catalog-service`
 
-- **Responsibilities:** venue CRUD, asset upload flow (presigned URL), metadata read/write, search API, plan entitlement enforcement, master catalog backdrop lookup
+- **Responsibilities:** master venue catalog CRUD (public read + admin write), tenant schema provisioning, security and tenant context. Tenant-scoped venue/asset management, metadata aggregation, search, plan entitlement enforcement, and the remaining catalog API are **not yet implemented** — see [roadmap-decisions.md § Before sprint 1](roadmap-decisions.md).
+- **Implemented:** infrastructure skeleton (security, MyBatis wiring, tenant extraction filter, RabbitMQ config, S3 config, Liquibase migrations for `public.master_venue*`); `mastervenue` feature slice — full public read API (`GET /api/v1/catalog/master-venues`) and admin CRUD + semantic search API (`/api/v1/catalog/admin/master-venues`); `TenantProvisioningConsumer` (listens on `docintelligence.catalog.tenant.provisioning` to run Liquibase per new tenant).
 - **Database:** shares the docintelligence PostgreSQL instance with `docintelligence-catalog-processing-worker` — this is a deliberate architectural decision, not an exception (see [D13](../roadmap/decisions/D13-shared-database-per-product.md)). Tenancy is schema-level via `foundation-tenancy` — each tenant gets its own schema `t_{tenantKey}`. No `tenant_id` column on any table; schema routing is handled by `MyBatisSchemaInterceptor`.
-- **Exposes:** REST API at `/api/v1/venues` (see [api.md](api.md))
-- **Publishes:** `venue.created`, `venue.updated`, `asset.uploaded`, `asset.deleted` (RabbitMQ)
-- **Consumes:** `extraction.completed`, `extraction.failed` (RabbitMQ) — triggers metadata aggregation
+- **Exposes (implemented):** REST API at `/api/v1/catalog/master-venues` (member read) and `/api/v1/catalog/admin/master-venues` (platform admin CRUD + semantic search). Ping at `/api/v1/catalog/ping`.
+- **Exposes (future sprint):** `/api/v1/venues` tenant-scoped CRUD, asset upload flow (presigned URL), metadata read/write, search, plan entitlement enforcement (see [api.md](api.md)).
+- **Publishes (future sprint):** `venue.created`, `venue.updated`, `asset.uploaded`, `asset.deleted` (RabbitMQ)
+- **Consumes (future sprint):** `extraction.completed`, `extraction.failed` (RabbitMQ) — triggers metadata aggregation
 
 ### `docintelligence-catalog-processing-worker`
 
-- **Responsibilities:** document ETL pipeline (parse → chunk → extract → embed), extraction job lifecycle, master catalog match and MC_INHERIT merge, metadata aggregation, scheduled maintenance jobs (stale re-aggregation, cost reporting)
+- **Responsibilities (designed):** document ETL pipeline (parse → chunk → extract → embed), extraction job lifecycle, master catalog match and MC_INHERIT merge, metadata aggregation, scheduled maintenance jobs (stale re-aggregation, cost reporting)
+- **Implemented:** infrastructure skeleton only — Spring Boot main class, MyBatis wiring (scans `com.iqkv.docintelligence.venue` mappers from the shared artifact), MinIO client, RabbitMQ message converter, Jackson config. No processing logic exists yet.
 - **Nature:** async background worker — no inbound HTTP, no REST API, no service discovery entry. Event-driven only.
-- **Database:** shares the docintelligence PostgreSQL instance with `docintelligence-catalog-service` (see [D13](../roadmap/decisions/D13-shared-database-per-product.md)). Reads `venue_assets`, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.master_venue` for the master catalog match step.
-- **Consumes:** `asset.uploaded` (RabbitMQ) — triggers ETL pipeline (see [etl-pipeline.md](etl-pipeline.md))
-- **Publishes:** `extraction.started`, `extraction.completed`, `extraction.failed` (RabbitMQ)
-- **External calls:** self-hosted LLM inference endpoint (Phi-4 / Qwen2.5 via Ollama or vLLM), optionally Docling sidecar (Phase 2) — see [D12](../roadmap/decisions/D12-self-hosted-inference-stack.md)
+- **Database:** shares the docintelligence PostgreSQL instance with `docintelligence-catalog-service` (see [D13](../roadmap/decisions/D13-shared-database-per-product.md)). Will read `venue_assets`, write `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.master_venue` for the master catalog match step. None of this is implemented yet.
+- **Consumes (future sprint):** `asset.uploaded` (RabbitMQ) — triggers ETL pipeline (see [etl-pipeline.md](etl-pipeline.md))
+- **Publishes (future sprint):** `extraction.started`, `extraction.completed`, `extraction.failed` (RabbitMQ)
+- **External calls (future sprint):** self-hosted LLM inference endpoint (Phi-4 / Qwen2.5 via Ollama or vLLM), optionally Docling sidecar (Phase 2) — see [D12](../roadmap/decisions/D12-self-hosted-inference-stack.md)
 - **Scaling:** replicas scaled independently based on RabbitMQ queue depth — no impact on `docintelligence-catalog-service`
 
-> The worker reads the uploaded object from S3 and writes its extraction results to the tenant schema. Those edges are omitted from the diagram above for clarity.
+> The worker reads the uploaded object from S3 and writes its extraction results to the tenant schema. Those edges are omitted from the diagram above for clarity. The processing pipeline itself is a future sprint; see [roadmap-decisions.md § Before sprint 1](roadmap-decisions.md).
 >
 > Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers: `docintelligence-mc-ingest-<source>-scraper`. Master Catalog population runs in `docintelligence-master-venue-worker` (Spring Boot). Full cold-start strategy in [master-catalog.md](master-catalog.md).
 

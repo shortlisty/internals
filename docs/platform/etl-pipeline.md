@@ -18,6 +18,8 @@
 
 ## 5. ETL pipeline (`docintelligence-catalog-processing-worker`)
 
+> **Implementation status:** The pipeline below is fully designed and all required dependencies are declared in the worker's `pom.xml` (`spring-ai-tika-document-reader`, `spring-ai-starter-model-ollama`, RabbitMQ, MinIO, `docintelligence-venue`). No pipeline code has been written yet — this is a future sprint. See [roadmap-decisions.md § Before sprint 1](roadmap-decisions.md) for the ordered task list.
+
 Built on **Spring AI's ETL framework**. Three composable stages:
 
 ```
@@ -83,7 +85,9 @@ Retry on failure: 3 attempts with exponential backoff. After 3 failures → `Ext
 
 ---
 
-### Spring wiring — worker entry point
+### Spring wiring — worker entry point (future sprint)
+
+The class below illustrates the intended wiring. It does not yet exist in the codebase.
 
 ```java
 package com.iqkv.docintelligence.catalog.processing;

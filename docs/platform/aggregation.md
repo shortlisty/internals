@@ -17,6 +17,8 @@
 
 ## Overview
 
+> **Implementation status:** `MetadataAggregationConsumer` and `VenueMetadataMigrator` are not yet implemented. The design below is the agreed approach for a future sprint. See [roadmap-decisions.md § Before sprint 1](roadmap-decisions.md).
+
 Multiple assets per venue produce multiple extraction events, potentially with conflicting values. The aggregation service resolves conflicts and maintains the consolidated `metadata` column.
 
 ### Conflict resolution priority
