@@ -30,16 +30,16 @@
 
 Shortlisty is a new product service built **on top of the iQ Key Value foundation**. It does not replace or fork any existing service. It reuses:
 
-| Foundation service           | What Shortlisty inherits                                                                |
-| ---------------------------- | --------------------------------------------------------------------------------------- |
-| `foundation-gateway-service` | JWT validation, tenant routing, header propagation — no changes needed                  |
-| `foundation-iam-service`     | Auth, multi-tenancy, team invitations, SSO, presigned S3 upload pattern                 |
-| `foundation-billing-service` | Plan entitlements (`max_venues`, `ai_extraction_enabled`, etc.), subscription lifecycle |
-| `foundation-audit-service`   | Compliance log — consumes Shortlisty events passively, no code changes                  |
-| `foundation-ui-app`          | Extended (not forked) with new `/venues/*` routes under FSD architecture                |
-| `foundation-tenancy`         | Schema-per-tenant isolation library reused directly                                     |
+| Foundation service           | What Shortlisty inherits                                                                                                                                          |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `foundation-gateway-service` | JWT validation, tenant routing, header propagation — no changes needed                                                                                            |
+| `foundation-iam-service`     | Auth, multi-tenancy, team invitations, SSO, presigned S3 upload pattern                                                                                           |
+| `foundation-billing-service` | Plan entitlements (`max_venues`, `ai_extraction_enabled`, etc.), subscription lifecycle                                                                           |
+| `foundation-audit-service`   | Compliance log — consumes Shortlisty events passively, no code changes                                                                                            |
+| `foundation-ui-app`          | Extended (not forked) with new `/venues/*` routes under FSD architecture                                                                                          |
+| `foundation-tenancy`         | Schema-per-tenant isolation library reused directly                                                                                                               |
 | `foundation-mybatis-util`    | Four MyBatis type handlers (`JsonTypeHandler`, `PgVectorTypeHandler`, `StringArrayTypeHandler`, `UuidTypeHandler`) — registered in both services' `MyBatisConfig` |
-| `foundation-mail`            | `EmailSender` abstraction with SMTP and Resend transports — auto-configured via `MailAutoConfiguration`; consumed by any service that sends email notifications |
+| `foundation-mail`            | `EmailSender` abstraction with SMTP and Resend transports — auto-configured via `MailAutoConfiguration`; consumed by any service that sends email notifications   |
 
 **New services introduced by Shortlisty:**
 
