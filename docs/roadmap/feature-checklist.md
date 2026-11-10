@@ -47,7 +47,7 @@ Each line follows this exact format:
 
 ## P0 — Highly prioritized (cannot ship v0.1 Foundation + Catalog Core without)
 
-### Group A — Platform Foundation (master catalog)
+### Group A — Platform Foundation (master venue)
 
 - [ ] Platform admin can list, create, view, edit, and delete master venue entries through the platform admin UI · Epic: [E1-master-venue-catalog](epics/E1-master-venue-catalog.md) · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
 - [ ] Master catalog is seeded with a curated set of venues for autocomplete suggestions · Epic: [E1-master-venue-catalog](epics/E1-master-venue-catalog.md) · Milestone: [v0.1-foundation-catalog-core](milestones/v0.1-foundation-catalog-core.md) · Priority: P0
@@ -128,7 +128,7 @@ Each line follows this exact format:
 - [ ] CAD/DWG floor plan file → PNG conversion → layout-aware amenity extraction via vision model · Epic: [E3-document-intelligence](epics/E3-document-intelligence.md) · Milestone: — (post-v1.0) · Priority: P3
 - [ ] Venue walkthrough videos: keyframe extraction + Whisper transcription → scene-level amenity tagging · Epic: [E3-document-intelligence](epics/E3-document-intelligence.md) · Milestone: — (post-v1.0) · Priority: P3
 - [ ] Saved search presets: planner saves a "wedding 150 pax + outdoor" query as a reusable filter · Epic: E4-search · Milestone: — (post-v1.0) · Priority: P3
-- [ ] New-venue alerting: weekly email when a new venue matching a saved search preset appears in the catalogue or via master catalog backdrop new-record signal · Epic: E4-search · Milestone: — (post-v1.0) · Priority: P3
+- [ ] New-venue alerting: weekly email when a new venue matching a saved search preset appears in the catalogue or via master venue backdrop new-record signal · Epic: E4-search · Milestone: — (post-v1.0) · Priority: P3
 - [ ] Tenant-wide metadata-schema versioning UI: view `_schema_version` state and run forced-convergence admin actions per venue · Epic: E7-data-quality · Milestone: — (post-v1.0) · Priority: P3
 
 ### Group C — Digital Sales Room (Output Layer)

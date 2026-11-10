@@ -61,7 +61,7 @@ system-design-documentation/
     │   ├── search.md                  ← Search modes and cross-source orchestration
     │   ├── api.md                     ← REST API surface for the catalog service
     │   ├── events.md                  ← RabbitMQ event contracts and plan entitlements
-    │   ├── master-catalog.md          ← Master catalog seeding, dedup, MC_INHERIT merge
+    │   ├── master-venue.md          ← Master catalog seeding, dedup, MC_INHERIT merge
     │   ├── observability.md           ← Prometheus metrics and tenant data isolation model
     │   ├── roadmap-decisions.md       ← Open architecture decisions and Phase 2/3 backlog
     │   ├── ui-venue-management.md     ← UI spec: venue management screens

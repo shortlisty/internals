@@ -86,7 +86,7 @@ Before creating a new milestone file, verify all 8 sections against this checkli
 **What's included:**
 
 - Master catalog infrastructure (DB schema, admin API, seed data)
-- Tenant venue CRUD (create, view, edit, delete; promote from master catalog)
+- Tenant venue CRUD (create, view, edit, delete; promote from master venue)
 - Document upload (PDF, DOCX, images attached to a venue)
 - Basic extraction (text + a small set of core fields surfaced on the venue profile)
 

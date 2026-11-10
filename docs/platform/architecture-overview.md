@@ -13,7 +13,7 @@
 | [data-model.md](data-model.md)                   | Domain model, canonical field set, schema versioning, database schema & indexes                                                      |
 | [services.md](services.md)                       | Service decomposition, table ownership and code-sharing rules, S3 layout                                                             |
 | [aggregation.md](aggregation.md)                 | Metadata aggregation, conflict resolution, FIFO race-condition prevention                                                            |
-| [master-catalog.md](master-catalog.md)           | Master Venue Catalog — cold start, alias normalisation, MC_INHERIT merge algorithm                                                   |
+| [master-venue.md](master-venue.md)               | Master Venue Catalog — cold start, alias normalisation, MC_INHERIT merge algorithm                                                   |
 | [etl-pipeline.md](etl-pipeline.md)               | ETL pipeline (parse → transform → load), Spring AI stages, processing SLAs                                                           |
 | [search.md](search.md)                           | Search architecture — keyword, semantic, geo, hybrid, cross-source orchestration                                                     |
 | [api.md](api.md)                                 | REST API surface — all endpoints, DTOs, error responses                                                                              |
@@ -47,7 +47,7 @@ No service declares a compile dependency on another service, so no service can b
 
 - `docintelligence-catalog-service` — **infrastructure skeleton + master venue catalog slice implemented.** Full domain: tenant-scoped venue CRUD, assets, metadata, search, plan enforcement — future sprints. What is running: `SecurityConfig`, `TenantExtractionFilter`, `TenantProvisioningConsumer`, `AllTenantsKeyProvider`, full `mastervenue` slice (public read API + admin CRUD + admin semantic search), Liquibase system and tenant changelog scaffold. See [roadmap-decisions.md § Before sprint 1](roadmap-decisions.md).
 - `docintelligence-catalog-processing-worker` — **infrastructure skeleton only.** All processing pipeline classes (`AssetExtractionConsumer`, `VenueMetadataEnricher`, `MasterVenueMatcher`, etc.) are future sprint work. The worker starts up, wires MyBatis/MinIO/RabbitMQ/Spring AI infrastructure, and does nothing else. See [roadmap-decisions.md § Before sprint 1](roadmap-decisions.md).
-- `docintelligence-master-venue-worker` — Spring Boot service. Runs master catalog import jobs triggered by `admin.master-catalog.import.*` RabbitMQ events. Applies reviewed scraper batches to `public.master_venue*`. No tenant interaction. Not yet implemented.
+- `docintelligence-master-venue-worker` — Spring Boot service. Runs master venue import jobs triggered by `admin.master-venue.import.*` RabbitMQ events. Applies reviewed scraper batches to `public.master_venue*`. No tenant interaction. Not yet implemented.
 - Standalone scrapers (`docintelligence-mc-ingest-<source>-scraper`) — Node.js. Produce one folder per venue (`venue.json` plus downloaded `assets/`) and upload the batch to S3. Run on demand, not deployed as persistent services. Not yet implemented.
 
 **New infrastructure introduced by Shortlisty:**

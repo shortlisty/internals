@@ -109,7 +109,7 @@ Rules:
 - `_schema_version` integer key at the top level of every `venues.metadata` JSONB document. Absent → v0.
 - `VenueMetadataMigrator` singleton in `docintelligence-catalog-service` (plain Java, zero Spring deps).
 - `VenueMetadataTypeHandler` (extends the `MetadataTypeHandler` base in `docintelligence-catalog-service`) runs `migrateToCurrent()` on every SELECT via MyBatis ResultMap.
-- Every write path (aggregation consumer, PATCH metadata handler, bulk import, master catalog backdrop gap-fill, `CreateVenueRequest` default builder) calls `ensureCurrent()` before INSERT/UPDATE.
+- Every write path (aggregation consumer, PATCH metadata handler, bulk import, master venue backdrop gap-fill, `CreateVenueRequest` default builder) calls `ensureCurrent()` before INSERT/UPDATE.
 - Migration classes are pure-Java, unit-tested with 3-line fixtures, append-only list, never reordered or deleted.
 
 ---

@@ -48,7 +48,7 @@ Every tenant gets its own PostgreSQL database with its own users, tables, and co
 
 ### Option C — Schema-per-tenant inside one shared PostgreSQL instance
 
-Each tenant gets its own named schema `t_{tenantKey}`. Tables are created per-schema: `t_acme0001.venues`, `t_acme0001.venue_assets`, `t_acme0001.item_vectors`, etc. A `MyBatisSchemaInterceptor` sets `SET search_path = t_acme0001, public` on each connection before the SQL executes. Queries reference `venues` unqualified — the connection's search_path resolves it. `public` schema contains only the `master_venue` (master catalog, read-only) and infrastructure tables.
+Each tenant gets its own named schema `t_{tenantKey}`. Tables are created per-schema: `t_acme0001.venues`, `t_acme0001.venue_assets`, `t_acme0001.item_vectors`, etc. A `MyBatisSchemaInterceptor` sets `SET search_path = t_acme0001, public` on each connection before the SQL executes. Queries reference `venues` unqualified — the connection's search_path resolves it. `public` schema contains only the `master_venue` (master venue, read-only) and infrastructure tables.
 
 **Pros:**
 
@@ -70,7 +70,7 @@ Each tenant gets its own named schema `t_{tenantKey}`. Tables are created per-sc
 
 **Option C: Schema-per-tenant inside one shared PostgreSQL instance.**
 
-Shortlisty inherits the foundation's `foundation-tenancy` library unchanged. All Shortlisty tenant-specific tables (`venues`, `venue_assets`, `venue_groups`, `extraction_jobs`, `item_vectors`, `venue_metadata_events`, `ai_cost_tracking`) are created inside `t_{tenantKey}`. The `master_venue` master catalog reference table lives in `public` and is read-only to tenant connections.
+Shortlisty inherits the foundation's `foundation-tenancy` library unchanged. All Shortlisty tenant-specific tables (`venues`, `venue_assets`, `venue_groups`, `extraction_jobs`, `item_vectors`, `venue_metadata_events`, `ai_cost_tracking`) are created inside `t_{tenantKey}`. The `master_venue` master venue reference table lives in `public` and is read-only to tenant connections.
 
 Only one mapper (`MasterVenueQueryMapper`) may explicitly qualify `public.` in SQL. All other mappers rely on `search_path` set by `MyBatisSchemaInterceptor` and never reference schema names.
 

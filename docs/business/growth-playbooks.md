@@ -52,7 +52,7 @@
 
 | Day | Trigger                    | Action                                                                        |
 | --- | -------------------------- | ----------------------------------------------------------------------------- |
-| 0   | Signup                     | Concierge or self-serve: import ≥ 5 venues (or use master-catalog backdrop)   |
+| 0   | Signup                     | Concierge or self-serve: import ≥ 5 venues (or use master-venue backdrop)     |
 | 1   | First venue ready          | In-app prompt: "Generate your first pitch board"                              |
 | 3   | No pitch yet               | Email + in-app: "Pick a real brief this week and send a board"                |
 | 7   | Pitch sent, no client open | Nudge: "Client hasn't opened the board yet — want a short reminder template?" |
@@ -201,7 +201,7 @@ North star remains: **approved pitch boards per team per month**.
 5. **Reddit** — r/selfhosted, r/devops, r/MachineLearning; answer first, link second
 6. **Facebook / industry media** — lower priority; revisit after traction on the channels above
 
-**Open-core line:** Not yet drawn. This is a required decision before the first public announcement. Key question: what stays open (extraction engine? reconciliation logic?) and what stays proprietary (multi-source aggregation, tenant isolation, master catalog merge, pitch board output)?
+**Open-core line:** Not yet drawn. This is a required decision before the first public announcement. Key question: what stays open (extraction engine? reconciliation logic?) and what stays proprietary (multi-source aggregation, tenant isolation, master venue merge, pitch board output)?
 
 **What this playbook is not:**
 

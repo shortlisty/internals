@@ -11,7 +11,7 @@
 - [services.md](services.md) — which service owns the aggregation consumer
 - [events.md](events.md) — RabbitMQ event contracts and queue configuration
 - [etl-pipeline.md](etl-pipeline.md) — how extraction jobs produce the events that trigger aggregation
-- [master-catalog.md](master-catalog.md) — MC_INHERIT priority source (priority 7)
+- [master-venue.md](master-venue.md) — MC_INHERIT priority source (priority 7)
 
 ---
 
@@ -27,7 +27,7 @@ Multiple assets per venue produce multiple extraction events, potentially with c
 MANUAL_OVERRIDE  (10)  → always wins
 VERIFIED          (9)  → verified extraction / human confirmed
 HIGH_CONF_AI      (8)  → confidence ≥ 0.9
-MC_INHERIT        (7)  → master catalog inherited
+MC_INHERIT        (7)  → master venue inherited
 MEDIUM_CONF_AI    (6)  → confidence 0.7–0.9
 LOW_CONF_AI       (5)  → confidence < 0.7
 SCRAPE_PROVIDER   (4)  → raw provider scrape value (lowest)

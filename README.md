@@ -80,7 +80,7 @@ Two products that only work together. The catalog feeds the pitch; the pitch pro
 | [Intelligence Layer](docs/platform/intelligence.md)    | Engineers, architects | ETL pipeline, extraction, AI layer, tech decisions       |
 | [Service Architecture](docs/platform/services.md)      | Engineers, architects | Service decomposition, table ownership, S3 layout        |
 | [Domain Model and Schema](docs/platform/data-model.md) | Engineers, architects | Bounded contexts, canonical field set, database schema   |
-| [Master Catalog](docs/platform/master-catalog.md)      | Engineers, product    | Cold start, alias normalisation, venue matching          |
+| [Master Catalog](docs/platform/master-venue.md)        | Engineers, product    | Cold start, alias normalisation, venue matching          |
 | [API Surface](docs/platform/api.md)                    | Engineers             | REST endpoints, DTOs, plan gates                         |
 | [Event Contracts](docs/platform/events.md)             | Engineers             | RabbitMQ routing keys, queues, plan entitlements         |
 
@@ -101,14 +101,14 @@ The Architecture Reference is the hub for all platform documents, including sear
 
 Shortlisty builds on the iQ Key Value open-source foundation (`com.iqkv.foundation`). New components live under `com.iqkv.docintelligence`.
 
-| Component                                    | Type         | Role                                                                                     |
-| -------------------------------------------- | ------------ | ---------------------------------------------------------------------------------------- |
-| `docintelligence-catalog-service`            | Java service | Single REST API for all venue management, tenant and platform admin                      |
-| `docintelligence-catalog-processing-worker`  | Java service | Async ETL worker: document processing, self-hosted LLM inference, master catalog mapping |
-| `docintelligence-mc-ingest-tagvenue-scraper` | Node CLI     | Nightly cron scraper; writes master catalog JSONL to S3                                  |
-| `docintelligence-master-venue-worker`        | Java service | Loads JSONL from S3 into the master catalog tables                                       |
+| Component                                    | Type         | Role                                                                                   |
+| -------------------------------------------- | ------------ | -------------------------------------------------------------------------------------- |
+| `docintelligence-catalog-service`            | Java service | Single REST API for all venue management, tenant and platform admin                    |
+| `docintelligence-catalog-processing-worker`  | Java service | Async ETL worker: document processing, self-hosted LLM inference, master venue mapping |
+| `docintelligence-mc-ingest-tagvenue-scraper` | Node CLI     | Nightly cron scraper; writes master venue JSONL to S3                                  |
+| `docintelligence-master-venue-worker`        | Java service | Loads JSONL from S3 into the master venue tables                                       |
 
-All services share a single PostgreSQL instance: the `public` schema holds the master catalog, and `t_{tenantKey}` schemas hold tenant data. Database decomposition is a named future target once scale justifies it (see [D13](docs/roadmap/decisions/D13-shared-database-per-product.md)).
+All services share a single PostgreSQL instance: the `public` schema holds the master venue, and `t_{tenantKey}` schemas hold tenant data. Database decomposition is a named future target once scale justifies it (see [D13](docs/roadmap/decisions/D13-shared-database-per-product.md)).
 
 Full detail: [Architecture Reference](docs/platform/README.md) · [Service Architecture](docs/platform/services.md).
 

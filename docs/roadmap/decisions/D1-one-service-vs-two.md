@@ -10,7 +10,7 @@
 The Shortlisty venue domain has two distinct workloads:
 
 1. **Synchronous user traffic** — venue CRUD, search, metadata reads, asset upload flow. These are user-facing HTTP requests that must respond quickly and fail independently.
-2. **Asynchronous document processing** — PDF parsing, text extraction, GPT-4o structured extraction calls, embedding generation, metadata aggregation, master catalog matching. These are CPU/IO-bound, external-API-dependent, and can take seconds to minutes per asset.
+2. **Asynchronous document processing** — PDF parsing, text extraction, GPT-4o structured extraction calls, embedding generation, metadata aggregation, master venue matching. These are CPU/IO-bound, external-API-dependent, and can take seconds to minutes per asset.
 
 The question is whether to combine both in one service or split them.
 
@@ -42,7 +42,7 @@ Split into:
 - `docintelligence-catalog-service` — synchronous HTTP only. Owns `venues` and `venue_assets` writes.
 - `docintelligence-catalog-processing-worker` — async sidecar only. No inbound HTTP. Consumes RabbitMQ events, runs ETL pipeline, writes `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`.
 
-Scraping and master catalog population are further decomposed into docintelligence-mc-ingest-<source>-scraper (Node.js per provider) and docintelligence-master-venue-worker (Spring Boot) — see architecture §4.
+Scraping and master venue population are further decomposed into docintelligence-mc-ingest-<source>-scraper (Node.js per provider) and docintelligence-master-venue-worker (Spring Boot) — see architecture §4.
 
 Both services connect to the same PostgreSQL instance and share the tenant schema (`t_{tenantKey}`). Neither declares a compile dependency on the other, so neither can break the other's build or release. Domain types that are not a contract between the two are shared through a library rather than copied — see [D16](D16-shared-artifacts.md).
 

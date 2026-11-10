@@ -47,7 +47,7 @@ Each service owns its event payloads and Liquibase changelogs and declares no co
 ### 4. Seeding Infrastructure
 
 - Liquibase seed migrations with curated venue data (platform bootstrap)
-- Platform admin CRUD API for master catalog management (full unrestricted access - any change accepted)
+- Platform admin CRUD API for master venue management (full unrestricted access - any change accepted)
 - Deduplication logic using pg_trgm similarity and PostGIS geo-distance (background service with admin override)
 - Alias normalization functions (transparent venue name matching with admin controls)
 
@@ -63,7 +63,7 @@ Each service owns its event payloads and Liquibase changelogs and declares no co
 
 1. **Platform Service Foundation**: Master venue catalog provides behind-the-scenes services (autocomplete, deduplication, metadata enrichment) that improve tenant UX from day one without exposing platform complexity.
 
-2. **Transparent Deduplication**: Without master catalog matching running in the background, tenant venues will accumulate duplicates that are expensive to clean up later. Tenants benefit from deduplication without seeing the complexity.
+2. **Transparent Deduplication**: Without master venue matching running in the background, tenant venues will accumulate duplicates that are expensive to clean up later. Tenants benefit from deduplication without seeing the complexity.
 
 3. **Architecture Validation**: Building the complete platform service pipeline validates the schema versioning, provenance tracking, and background enrichment design before tenant-facing features arrive.
 
@@ -73,7 +73,7 @@ Each service owns its event payloads and Liquibase changelogs and declares no co
 
 ### Alternative Considered
 
-**Tenant Features First**: Implement venue CRUD without master catalog infrastructure, add master catalog later.
+**Tenant Features First**: Implement venue CRUD without master venue infrastructure, add master venue later.
 
 **Rejected because:**
 
@@ -104,10 +104,10 @@ Each service owns its event payloads and Liquibase changelogs and declares no co
 Master venue seeding infrastructure is complete when:
 
 - [ ] 50-200 curated venues are seeded via Liquibase migrations (platform reference data)
-- [ ] Platform admin can manage master catalog via API (full CRUD access - create, update, delete any venue data without restrictions)
+- [ ] Platform admin can manage master venue via API (full CRUD access - create, update, delete any venue data without restrictions)
 - [ ] Deduplication prevents >99% of obvious duplicates transparently during tenant venue creation
 - [ ] Metadata schema versioning handles forward/backward compatibility across platform and tenant data
-- [ ] S3 storage enforces tenant isolation with proper lifecycle rules (platform manages master catalog separately)
+- [ ] S3 storage enforces tenant isolation with proper lifecycle rules (platform manages master venue separately)
 - [ ] All database indexes support expected query patterns (platform service performance)
 - [ ] Independently deployable services provide stable contracts for platform services and tenant-facing applications
 - [ ] Tenant venue creation UI can suggest venues from platform catalog without exposing platform complexity
@@ -125,4 +125,4 @@ The investment pays dividends as soon as tenant venue management features are im
 
 ---
 
-**Docs:** [Decisions index](README.md) · [Architecture](../../platform/README.md) · [Master Catalog](../../platform/master-catalog.md)
+**Docs:** [Decisions index](README.md) · [Architecture](../../platform/README.md) · [Master Catalog](../../platform/master-venue.md)

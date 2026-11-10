@@ -39,14 +39,14 @@ All endpoints follow platform conventions based on the actual implementation in 
 
 Base: `/api/v1/venues`
 
-| Method   | Path                                   | Authority               | Status | Notes                                                                                               |
-| -------- | -------------------------------------- | ----------------------- | ------ | --------------------------------------------------------------------------------------------------- |
-| `GET`    | `/`                                    | `MEMBER`                | 200    | Hybrid search + filter. `scope=TENANT_ONLY\|MASTER_CATALOG_ONLY\|BOTH` (default `TENANT_ONLY`)      |
-| `POST`   | `/`                                    | `MEMBER`                | 201    | Enforces `max_venues` plan limit before insert                                                      |
-| `GET`    | `/{id}`                                | `MEMBER`                | 200    | Full detail with consolidated metadata. 404 if not found or different tenant.                       |
-| `PATCH`  | `/{id}`                                | `MEMBER`                | 200    | Partial update — null fields ignored                                                                |
-| `DELETE` | `/{id}`                                | `ADMIN`, `TENANT_OWNER` | 204    | Soft delete: sets `status = ARCHIVED`. Hard delete: admin endpoint (Phase 3)                        |
-| `POST`   | `/from-master-catalog/{masterVenueId}` | `MEMBER`                | 201    | Explicit promote from Master Catalog. Idempotent: re-promote returns the existing tenant venue row. |
+| Method   | Path                                 | Authority               | Status | Notes                                                                                               |
+| -------- | ------------------------------------ | ----------------------- | ------ | --------------------------------------------------------------------------------------------------- |
+| `GET`    | `/`                                  | `MEMBER`                | 200    | Hybrid search + filter. `scope=TENANT_ONLY\|MASTER_CATALOG_ONLY\|BOTH` (default `TENANT_ONLY`)      |
+| `POST`   | `/`                                  | `MEMBER`                | 201    | Enforces `max_venues` plan limit before insert                                                      |
+| `GET`    | `/{id}`                              | `MEMBER`                | 200    | Full detail with consolidated metadata. 404 if not found or different tenant.                       |
+| `PATCH`  | `/{id}`                              | `MEMBER`                | 200    | Partial update — null fields ignored                                                                |
+| `DELETE` | `/{id}`                              | `ADMIN`, `TENANT_OWNER` | 204    | Soft delete: sets `status = ARCHIVED`. Hard delete: admin endpoint (Phase 3)                        |
+| `POST`   | `/from-master-venue/{masterVenueId}` | `MEMBER`                | 201    | Explicit promote from Master Catalog. Idempotent: re-promote returns the existing tenant venue row. |
 
 ### Search parameters (`GET /`)
 
@@ -130,7 +130,7 @@ Read-only public projection for tenant members. Write/edit/delete lives under Pl
 | `size`         | integer           | Default: 20, max: 100                                             |
 | `sort`         | string            | `name,asc`, `city,asc`, `capacity,desc` (default: `name,asc`)     |
 
-No semantic search on master venues in MVP — keyword + structured + geo only. Semantic search over master catalog is Phase 2 (see [roadmap-decisions.md](roadmap-decisions.md)).
+No semantic search on master venues in MVP — keyword + structured + geo only. Semantic search over master venue is Phase 2 (see [roadmap-decisions.md](roadmap-decisions.md)).
 
 ### DTOs
 

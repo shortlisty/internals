@@ -10,7 +10,7 @@
 - [architecture-overview.md](architecture-overview.md) — platform context and foundation reuse
 - [services.md](services.md) — which service owns which table; the code-sharing rule
 - [aggregation.md](aggregation.md) — how conflicting field values are resolved at write time
-- [master-catalog.md](master-catalog.md) — `public.master_venue` tables and MC_INHERIT provenance
+- [master-venue.md](master-venue.md) — `public.master_venue` tables and MC_INHERIT provenance
 - [etl-pipeline.md](etl-pipeline.md) — how extraction jobs produce `venue_metadata_events`
 - [ui-venue-management.md](ui-venue-management.md) — UI types, form spec, asset gallery components
 - [ui-shared-packages.md](ui-shared-packages.md) — `@shortlisty/ui-types`: TypeScript mirrors of all entities here
@@ -505,9 +505,9 @@ No scheduled backfill job, no downtime, no `ALTER TABLE` on JSONB. If all rows m
 
 The migrator records the pre-migration version of every document it sees via Micrometer. See [observability.md](observability.md) for the `docintelligence_metadata_schema_version_seen_total` metric.
 
-### Schema version in master catalog metadata
+### Schema version in master venue metadata
 
-`public.master_venue.metadata` follows the same `_schema_version` contract. Master catalog import jobs run `VenueMetadataMigrator.ensureCurrent()` before `INSERT/UPDATE public.master_venue`. See [master-catalog.md](master-catalog.md).
+`public.master_venue.metadata` follows the same `_schema_version` contract. Master catalog import jobs run `VenueMetadataMigrator.ensureCurrent()` before `INSERT/UPDATE public.master_venue`. See [master-venue.md](master-venue.md).
 
 ---
 
@@ -602,7 +602,7 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
       <column name="master_venue_id" type="UUID">
         <remarks>App-level FK to public.master_venue.id. No DB-level FK constraint
         (cross-schema FKs not supported in PostgreSQL across tenant schemas + public).
-        Populated on explicit promote (POST /api/v1/venues/from-master-catalog/{id}) or on
+        Populated on explicit promote (POST /api/v1/venues/from-master-venue/{id}) or on
         extraction-time MC_INHERIT unambiguous MATCH.</remarks>
       </column>
       <!-- analytics -->
@@ -834,7 +834,7 @@ The `TenantLiquibaseRunner` from `foundation-tenancy` applies `system/master.xml
 | Table                   | Key columns                                                                                                                                                                                                                                                                              | Notes                                                                                                                 |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `master_venue`          | `id` UUID PK, `name` VARCHAR(255), `address` TEXT, `city` VARCHAR(100), `location` GEOGRAPHY, `metadata` JSONB, `confidence` NUMERIC(3,2), `source` VARCHAR(50)                                                                                                                          | Platform seed data. Read-only to tenants. `metadata._schema_version` mandatory.                                       |
-| `master_venue_alias`    | `id` UUID PK, `master_venue_id` UUID FK, `alias` VARCHAR(255)                                                                                                                                                                                                                            | Alternative names for master catalog deduplication                                                                    |
+| `master_venue_alias`    | `id` UUID PK, `master_venue_id` UUID FK, `alias` VARCHAR(255)                                                                                                                                                                                                                            | Alternative names for master venue deduplication                                                                      |
 | `master_venue_external` | `id` UUID PK, `master_venue_id` UUID FK, `provider` VARCHAR, `provider_external_id` VARCHAR, `raw_payload` JSONB, `confidence` NUMERIC, `crawled_at` TIMESTAMP                                                                                                                           | 1 MasterVenue ↔ N external provider records from Tagvenue, Cvent, etc.                                                |
 | `master_venue_asset`    | `id` UUID PK, `master_venue_id` UUID FK, `asset_type` VARCHAR(50), `photo_category` VARCHAR(50), `display_order` INT, `label` VARCHAR(255), `file_name` VARCHAR(255), `content_type` VARCHAR(100), `size_bytes` BIGINT, `s3_key` VARCHAR(512), `source_url` TEXT, `provider` VARCHAR(50) | 1 MasterVenue ↔ N assets. Photos and attachments; UNIQUE (`master_venue_id`, `file_name`) keeps re-ingest idempotent. |
 
@@ -888,7 +888,7 @@ PostgreSQL schema-per-tenant means `public.master_venue` lives in a different sc
    - `MasterVenueQueryMapper` (search branch B): read-only SELECT with a fixed column whitelist
    - `MasterVenueMatcherMapper` (extraction-time MC_INHERIT merge): same qualified reads
    - `MasterCatalogAdminMapper` (`PLATFORM_ADMIN` only): reads + writes `public.master_venue` / aliases / external / assets
-   - `MasterVenueAssetMapper` (master catalog ingestion): reads + writes `public.master_venue_asset` only
+   - `MasterVenueAssetMapper` (master venue ingestion): reads + writes `public.master_venue_asset` only
 
    These mapper interfaces and their XML are a shared artifact (`com.iqkv:docintelligence-venue`) consumed by all three Java services ([D16](../roadmap/decisions/D16-shared-artifacts.md)), so the rule above is enforced at code review rather than by which repository a mapper lives in.
 
@@ -896,7 +896,7 @@ PostgreSQL schema-per-tenant means `public.master_venue` lives in a different sc
 
 3. **No cross-schema DDL-level FK constraints.** The `venues.master_venue_id → master_venue.id` reference is application-enforced only.
 
-4. **Role-level hardening (pre-production):** The `docintelligence-catalog-service` connection pool holds `SELECT` on `public.master_venue` / aliases / external / assets. `INSERT / UPDATE / DELETE` on `public` tables is revoked; only the `master_catalog_admin` connection holds write grants.
+4. **Role-level hardening (pre-production):** The `docintelligence-catalog-service` connection pool holds `SELECT` on `public.master_venue` / aliases / external / assets. `INSERT / UPDATE / DELETE` on `public` tables is revoked; only the `master_venue_admin` connection holds write grants.
 
 ---
 

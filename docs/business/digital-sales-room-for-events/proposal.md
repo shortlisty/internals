@@ -174,7 +174,7 @@ EA, HR, or events leads at mid-to-large companies running quarterly offsites, an
 
 ### Future revenue
 
-- **Master venue listings:** venues pay for a verified profile in the master catalog that agencies can surface into pitches directly, reducing ingestion time
+- **Master venue listings:** venues pay for a verified profile in the master venue that agencies can surface into pitches directly, reducing ingestion time
 - **Lead signal products:** anonymised aggregate data on which venue types and configurations appear most in approved pitches — sold to hospitality operators for market intelligence
 
 ### Unit economics target

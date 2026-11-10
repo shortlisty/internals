@@ -12,7 +12,7 @@
 - [aggregation.md](aggregation.md) — metadata aggregation and FIFO race-condition prevention
 - [etl-pipeline.md](etl-pipeline.md) — async ETL pipeline internals
 - [events.md](events.md) — RabbitMQ event contracts and queue topology
-- [master-catalog.md](master-catalog.md) — master catalog cold-start and MC_INHERIT merge
+- [master-venue.md](master-venue.md) — master venue cold-start and MC_INHERIT merge
 
 ---
 
@@ -57,10 +57,10 @@ Code that is not a contract between two services is shared instead of copied. Th
 
 ### `docintelligence-catalog-processing-worker`
 
-- **Responsibilities (designed):** document ETL pipeline (parse → chunk → extract → embed), extraction job lifecycle, master catalog match and MC_INHERIT merge, metadata aggregation, scheduled maintenance jobs (stale re-aggregation, cost reporting)
+- **Responsibilities (designed):** document ETL pipeline (parse → chunk → extract → embed), extraction job lifecycle, master venue match and MC_INHERIT merge, metadata aggregation, scheduled maintenance jobs (stale re-aggregation, cost reporting)
 - **Implemented:** infrastructure skeleton only — Spring Boot main class, MyBatis wiring (scans `com.iqkv.docintelligence.venue` mappers from the shared artifact), MinIO client, RabbitMQ message converter, Jackson config. No processing logic exists yet.
 - **Nature:** async background worker — no inbound HTTP, no REST API, no service discovery entry. Event-driven only.
-- **Database:** shares the docintelligence PostgreSQL instance with `docintelligence-catalog-service` (see [D13](../roadmap/decisions/D13-shared-database-per-product.md)). Will read `venue_assets`, write `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.master_venue` for the master catalog match step. None of this is implemented yet.
+- **Database:** shares the docintelligence PostgreSQL instance with `docintelligence-catalog-service` (see [D13](../roadmap/decisions/D13-shared-database-per-product.md)). Will read `venue_assets`, write `extraction_jobs`, `venue_metadata_events`, `item_vectors`, `ai_cost_tracking`. Also reads `public.master_venue` for the master venue match step. None of this is implemented yet.
 - **Consumes (future sprint):** `asset.uploaded` (RabbitMQ) — triggers ETL pipeline (see [etl-pipeline.md](etl-pipeline.md))
 - **Publishes (future sprint):** `extraction.started`, `extraction.completed`, `extraction.failed` (RabbitMQ)
 - **External calls (future sprint):** self-hosted LLM inference endpoint (Phi-4 / Qwen2.5 via Ollama or vLLM), optionally Docling sidecar (Phase 2) — see [D12](../roadmap/decisions/D12-self-hosted-inference-stack.md)
@@ -68,7 +68,7 @@ Code that is not a contract between two services is shared instead of copied. Th
 
 > The worker reads the uploaded object from S3 and writes its extraction results to the tenant schema. Those edges are omitted from the diagram above for clarity. The processing pipeline itself is a future sprint; see [roadmap-decisions.md § Before sprint 1](roadmap-decisions.md).
 >
-> Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers: `docintelligence-mc-ingest-<source>-scraper`. Master Catalog population runs in `docintelligence-master-venue-worker` (Spring Boot). Full cold-start strategy in [master-catalog.md](master-catalog.md).
+> Scraping (e.g. Tagvenue) is extracted to standalone Node.js scrapers: `docintelligence-mc-ingest-<source>-scraper`. Master Catalog population runs in `docintelligence-master-venue-worker` (Spring Boot). Full cold-start strategy in [master-venue.md](master-venue.md).
 
 ### Table ownership
 
@@ -89,7 +89,7 @@ Both services share one PostgreSQL schema. Ownership defines who may write to a 
 
 Cross-boundary reads from `docintelligence-catalog-processing-worker` are limited to two cases: a `SELECT` on `venue_assets` by `asset_id` (delivered in the `asset.uploaded` event payload), which is a foreign key lookup rather than business logic, and read-only access to `public.master_venue*` for the MC match step. Both are intentional.
 
-The master catalog tables (`master_venue`, `master_venue_alias`, `master_venue_external`, `master_venue_asset`) are created once in the `public` schema by `docintelligence-catalog-service`'s `system/master.xml` changelog — see [data-model.md](data-model.md) — so DDL ownership stays with `docintelligence-catalog-service` while the write owner is `docintelligence-master-venue-worker` (see [D15](../roadmap/decisions/D15-dedicated-master-venue-worker.md)). Admin CRUD over master catalog rows and the dedup-check endpoint are served by `docintelligence-catalog-service`.
+The master venue tables (`master_venue`, `master_venue_alias`, `master_venue_external`, `master_venue_asset`) are created once in the `public` schema by `docintelligence-catalog-service`'s `system/master.xml` changelog — see [data-model.md](data-model.md) — so DDL ownership stays with `docintelligence-catalog-service` while the write owner is `docintelligence-master-venue-worker` (see [D15](../roadmap/decisions/D15-dedicated-master-venue-worker.md)). Admin CRUD over master venue rows and the dedup-check endpoint are served by `docintelligence-catalog-service`.
 
 ---
 
@@ -155,30 +155,30 @@ The presigned PUT URL is scoped to the exact key. The client uploads directly. T
 #### Master catalog files
 
 ```
-docintelligence/master-catalog/imports/{importId}/{fileName}
-docintelligence/master-catalog/exports/{date}/{snapshot}.jsonl.gz
-docintelligence/master-catalog/venues/{venueId}/assets/{assetId}/{fileName}
+docintelligence/master-venue/imports/{importId}/{fileName}
+docintelligence/master-venue/exports/{date}/{snapshot}.jsonl.gz
+docintelligence/master-venue/venues/{venueId}/assets/{assetId}/{fileName}
 ```
 
-| Path                                                                | Purpose                                                                           |
-| ------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `docintelligence/master-catalog/imports/{importId}/`                | One folder per import batch (admin-triggered). Contains raw CSV/JSON input files. |
-| `docintelligence/master-catalog/exports/{date}/`                    | Nightly compacted snapshots of `public.master_venue` for downstream consumers.    |
-| `docintelligence/master-catalog/venues/{venueId}/assets/{assetId}/` | Photos and attachments of a master venue of record; one folder per asset.         |
+| Path                                                              | Purpose                                                                           |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `docintelligence/master-venue/imports/{importId}/`                | One folder per import batch (admin-triggered). Contains raw CSV/JSON input files. |
+| `docintelligence/master-venue/exports/{date}/`                    | Nightly compacted snapshots of `public.master_venue` for downstream consumers.    |
+| `docintelligence/master-venue/venues/{venueId}/assets/{assetId}/` | Photos and attachments of a master venue of record; one folder per asset.         |
 
 ### Tenant isolation
 
 - All tenant objects scoped under `docintelligence/tenants/{tenantKey}/`. Cross-tenant read is structurally impossible without knowing the other tenant's key.
 - The service account holds a single S3 IAM policy allowing `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` on the full `docintelligence/*` prefix. Presigned URLs are scoped to the exact object key.
-- Master catalog paths (`docintelligence/master-catalog/*`) are not accessible via tenant-issued presigned URLs. Written only by the platform's internal job service account (`docintelligence-master-venue-worker`).
+- Master catalog paths (`docintelligence/master-venue/*`) are not accessible via tenant-issued presigned URLs. Written only by the platform's internal job service account (`docintelligence-master-venue-worker`).
 
 ### Lifecycle rules
 
-| Rule                             | Prefix                                              | Action                                                                                                 |
-| -------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Extraction artefact expiry       | `docintelligence/tenants/*/venues/*/assets/*/`      | Transition to Glacier/IA after 90 days if `extraction_status = COMPLETED`. Managed via S3 object tags. |
-| Master catalog import cleanup    | `docintelligence/master-catalog/imports/processed/` | Delete after 30 days.                                                                                  |
-| Master catalog snapshot rotation | `docintelligence/master-catalog/exports/`           | Keep last 14 daily snapshots; delete older.                                                            |
+| Rule                             | Prefix                                            | Action                                                                                                 |
+| -------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Extraction artefact expiry       | `docintelligence/tenants/*/venues/*/assets/*/`    | Transition to Glacier/IA after 90 days if `extraction_status = COMPLETED`. Managed via S3 object tags. |
+| Master catalog import cleanup    | `docintelligence/master-venue/imports/processed/` | Delete after 30 days.                                                                                  |
+| Master catalog snapshot rotation | `docintelligence/master-venue/exports/`           | Keep last 14 daily snapshots; delete older.                                                            |
 
 Object tags set by `docintelligence-catalog-service` at `POST /api/v1/venues/{venueId}/assets/{id}/confirm`:
 

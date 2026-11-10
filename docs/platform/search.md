@@ -1,7 +1,7 @@
 # Shortlisty — Search Architecture
 
 > **Audience:** Engineers.
-> **Purpose:** All search modes, the cross-source orchestration pattern for merging tenant venues with the master catalog backdrop, and how the `scope` parameter controls what is returned.
+> **Purpose:** All search modes, the cross-source orchestration pattern for merging tenant venues with the master venue backdrop, and how the `scope` parameter controls what is returned.
 
 ---
 
@@ -9,7 +9,7 @@
 
 - [data-model.md](data-model.md) — index strategy (`IVFFlat`, `GIN`, `GIST`), `item_vectors` table, `venues.master_venue_id`
 - [services.md](services.md) — `docintelligence-catalog-service` owns the search API; cross-schema access rules for `public.master_venue`
-- [master-catalog.md](master-catalog.md) — MC_INHERIT provenance; `master_venue_id` populated at extraction time
+- [master-venue.md](master-venue.md) — MC_INHERIT provenance; `master_venue_id` populated at extraction time
 - [api.md](api.md) — `GET /api/v1/venues/` endpoint, `scope` query param, response DTOs; `GET /api/v1/venues/master-venues` MEMBER search endpoint
 - [observability.md](observability.md) — `docintelligence_search_requests_total`, `docintelligence_search_latency_seconds`, `docintelligence_search_failures_total`
 
@@ -39,7 +39,7 @@ All search is served by `docintelligence-catalog-service` querying PostgreSQL di
 
 ---
 
-## Cross-source search (tenant venues + master catalog backdrop)
+## Cross-source search (tenant venues + master venue backdrop)
 
 **Problem.** Master catalog lives in `public.master_venue`, tenant venues live in `t_{tenantKey}.venues`. A single cross-schema SQL `UNION ALL` would technically work but it breaks the schema-per-tenant isolation abstraction and couples two datasets that have different index statistics, different signal sets, and different column-level permission policies.
 
@@ -62,7 +62,7 @@ All search is served by `docintelligence-catalog-service` querying PostgreSQL di
           └───────┬──────────────────┬───────┘
                   │                  │
    ┌──────────────▼───────┐  ┌──────▼──────────────────────────┐
-   │  Branch A: tenant    │  │  Branch B: master catalog       │
+   │  Branch A: tenant    │  │  Branch B: master venue       │
    │  venues              │  │  (backdrop, disabled by default)│
    │  (VenueMapper)       │  │  (MasterVenueQueryMapper)       │
    │  — no schema qualify │  │  — explicitly schema-qualified: │
@@ -94,19 +94,19 @@ All search is served by `docintelligence-catalog-service` querying PostgreSQL di
 
 ### Rejected alternatives
 
-- _(Rejected)_ Materialised master catalog copy per tenant schema. Duplicates N×master catalog rows; scraper/admin updates would need fan-out propagation — consistency nightmare.
+- _(Rejected)_ Materialised master venue copy per tenant schema. Duplicates N×master venue rows; scraper/admin updates would need fan-out propagation — consistency nightmare.
 - _(Rejected)_ Single `UNION ALL` or JOIN in one SQL statement with `public.` qualified names. Breaks `search_path` isolation abstraction, risks admin-only column leakage if the mapper SELECT list is later widened naively, and couples two sources that may scale independently.
-- _(Rejected for MVP)_ Dedicated OpenSearch/Elasticsearch cluster. Over-engineering at MVP scales (< 500 master catalog entries, < 1000 tenant venues per tenant). Promote if master catalog count breaches 100K rows or tenant-side vector recall becomes a bottleneck (see [roadmap-decisions.md](roadmap-decisions.md) Phase 2).
+- _(Rejected for MVP)_ Dedicated OpenSearch/Elasticsearch cluster. Over-engineering at MVP scales (< 500 master venue entries, < 1000 tenant venues per tenant). Promote if master venue count breaches 100K rows or tenant-side vector recall becomes a bottleneck (see [roadmap-decisions.md](roadmap-decisions.md) Phase 2).
 
 ### Failure isolation
 
-Branch B (master catalog backdrop) timeout or SQL exception → search does **not** fail the whole request. Returns branch A results with:
+Branch B (master venue backdrop) timeout or SQL exception → search does **not** fail the whole request. Returns branch A results with:
 
 ```
 Warning: 299 - "Master catalog backdrop merge unavailable, results incomplete"
 ```
 
-response header and increments `docintelligence_search_failures_total{branch="master_catalog"}`.
+response header and increments `docintelligence_search_failures_total{branch="master_venue"}`.
 
 ### Search parameters
 
@@ -129,9 +129,9 @@ response header and increments `docintelligence_search_failures_total{branch="ma
 - Each `VenueSummaryView` record includes `origin: "TENANT"` only by default. Old `"REGISTRY"` as a surfaced origin to UI is removed. MC values merge INTO tenant rows invisibly; provenance tracked only internally in `metadata_sources` per field with `MC_INHERIT` source.
 - `totalElements` in `VenueSummaryListResponse` is deliberately _approximate_ for `scope=BOTH` (equal ranks across two top-K → real total is unknown without issuing two `COUNT(*)`). Clients show "1K+" or "Load more" buttons rather than rendering a page-50 pagination bar.
 
-### Explicit promote from master catalog
+### Explicit promote from master venue
 
-Power user/admin explicitly promotes a master catalog entry → client calls `POST /api/v1/venues/from-master-catalog/{masterVenueId}` (see [api.md](api.md)). Creates a fresh tenant-owned `venues` row copying master catalog fields into `metadata` with `metadata_sources[*].source = "MC_INHERIT"` priority 7. Dedup key: `t_{tenant}.venues.master_venue_id = masterVenue.id`. Subsequent searches show the result as origin `TENANT`.
+Power user/admin explicitly promotes a master venue entry → client calls `POST /api/v1/venues/from-master-venue/{masterVenueId}` (see [api.md](api.md)). Creates a fresh tenant-owned `venues` row copying master venue fields into `metadata` with `metadata_sources[*].source = "MC_INHERIT"` priority 7. Dedup key: `t_{tenant}.venues.master_venue_id = masterVenue.id`. Subsequent searches show the result as origin `TENANT`.
 
 ---
 

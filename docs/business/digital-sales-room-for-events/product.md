@@ -58,7 +58,7 @@ How venue data enters the library without manual re-entry.
 - Direct upload for PDFs, photos, floor plans, spec sheets
 - AI extraction pipeline: Tika (parsing) → GPT-4o (structured extraction) → confidence scores per field
 - Human verification screen: planner reviews AI output against source, corrects in one click
-- Master catalog match: if the venue is in the master catalog, gap-fill at MC_INHERIT priority (invisible backdrop merge)
+- Master catalog match: if the venue is in the master venue, gap-fill at MC_INHERIT priority (invisible backdrop merge)
 
 ### 2. Venue catalog
 

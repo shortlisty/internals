@@ -7,14 +7,14 @@
 
 ## Summary
 
-Tenant venue profiles give planners a private catalog of venues they own. A planner can create a venue from scratch or promote one from the master catalog, view and edit its profile, upload documents and assets, and delete it. This is the main user-facing outcome of v0.1 — without it, nothing else the planner does has a place to live.
+Tenant venue profiles give planners a private catalog of venues they own. A planner can create a venue from scratch or promote one from the master venue, view and edit its profile, upload documents and assets, and delete it. This is the main user-facing outcome of v0.1 — without it, nothing else the planner does has a place to live.
 
 ---
 
 ## User stories
 
 - As a planner, I want to create a venue with core fields (name, address, city, capacity, category, summary) so that I have a record for it.
-- As a planner, I want autocomplete suggestions from the master catalog when creating a venue so that I can promote an existing venue in one click.
+- As a planner, I want autocomplete suggestions from the master venue when creating a venue so that I can promote an existing venue in one click.
 - As a planner, I want to view a venue profile page with all core fields rendered so that I can review what I have stored.
 - As a planner, I want to edit the core fields of a venue I own so that I can keep the record up to date.
 - As a planner, I want to upload documents (PDF, DOCX, images) to a venue and see them listed so that supporting materials live with the venue.

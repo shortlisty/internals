@@ -50,11 +50,11 @@ import type { VenueMetadata, FieldProvenance } from "@/entities/venue";
  * 'tenant'         — personal record owned by the tenant. Has profile_stage, annotations,
  *                    assets, extraction provenance. Written by tenant members.
  *
- * 'master_catalog' — platform reference record. Has confidence score, multi-source aliases,
+ * 'master_venue' — platform reference record. Has confidence score, multi-source aliases,
  *                    external provider links. Written only by PLATFORM_ADMIN.
  *                    More data-complete than a typical tenant Venue at any given moment.
  */
-export type VenueContext = "tenant" | "master_catalog";
+export type VenueContext = "tenant" | "master_venue";
 
 /** Common fields shared by both entities — used in shared components. */
 export interface AnyVenue {
@@ -72,7 +72,7 @@ export interface AnyVenue {
   createdAt: string;
   updatedAt: string;
 
-  // ── Tenant-only fields (undefined on master_catalog) ──────────────
+  // ── Tenant-only fields (undefined on master_venue) ──────────────
   displayName?: string | null;
   profileStage?: ProfileStage;
   status?: VenueStatus;
@@ -148,7 +148,7 @@ export type {
 **Rule:** shared components (`VenueProfileHeader`, `VenueProfileTabs`, `VenueFormField`,
 `VenueListItem`) accept `AnyVenue` and branch on `context` only where rendering genuinely differs.
 Tenant-only panels (`VenueAnnotationsPanel`, `VenueQuickFillBar`) are not rendered when
-`context === 'master_catalog'`.
+`context === 'master_venue'`.
 
 ---
 
@@ -228,7 +228,7 @@ export type { AnyVenue } from "@/addons/venue-management/types";
 /** Flat projection for master venue list. */
 export interface MasterVenueSummary {
   id: string;
-  context: "master_catalog";
+  context: "master_venue";
   name: string;
   city: string | null;
   countryCode: string | null;
@@ -248,7 +248,7 @@ export interface MasterVenueSummaryListResponse {
 
 /** Full detail — used in admin edit form. */
 export interface MasterVenueDetail extends MasterVenueSummary, AnyVenue {
-  context: "master_catalog";
+  context: "master_venue";
   aliases: string[];
   externalProviders: Array<{
     provider: string;
@@ -389,16 +389,16 @@ src/
 │       └── types.ts               ← MasterVenueSummary, MasterVenueDetail
 ├── features/
 │   ├── create-master-venue/
-│   └── edit-master-venue/         ← same VenueMetadataForm, context='master_catalog'
+│   └── edit-master-venue/         ← same VenueMetadataForm, context='master_venue'
 ├── widgets/
-│   └── master-venue-list/         ← same VenueListItem, context='master_catalog'
+│   └── master-venue-list/         ← same VenueListItem, context='master_venue'
 └── pages/
     └── master-venues/             ← /master-venues (PLATFORM_ADMIN only)
 ```
 
 The `venue-management` addon is **shared between both apps** — either as a workspace package or
 copied. Components, registry, and utils are identical. The admin app passes
-`context='master_catalog'` to suppress tenant-only panels.
+`context='master_venue'` to suppress tenant-only panels.
 
 ---
 
@@ -444,7 +444,7 @@ export interface FieldDefinition {
   requiredForStage?: ProfileStage; // tenant only — drives completion nudge
   quickFill?: boolean;
   showSourceBadge?: boolean; // show provenance badge next to this field
-  readOnly?: boolean; // field cannot be edited (e.g. master catalog context)
+  readOnly?: boolean; // field cannot be edited (e.g. master venue context)
   action?: FieldAction;
   min?: number;
   max?: number;
@@ -949,7 +949,7 @@ VenueProfilePage  (/venues/:id  or  /master-venues/:id)
 │
 ├── VenueProfileHeader          ← name, city, status/confidence badge
 │     context='tenant'      → ProfileStagePill + displayName (editable inline)
-│     context='master_catalog' → ConfidenceBadge + catalogSource chip
+│     context='master_venue' → ConfidenceBadge + catalogSource chip
 │
 ├── VenueProfileTabs            ← tab bar; completion dots (tenant only)
 │   └── [tab panel × 4]
@@ -963,7 +963,7 @@ VenueProfilePage  (/venues/:id  or  /master-venues/:id)
 │               ├── StringArrayField   tag-input
 │               └── SourceBadge        confidence chip + alternatives popover
 │                     context='tenant'         → full provenance (confidence, source, alternatives)
-│                     context='master_catalog' → catalog confidence at row level
+│                     context='master_venue' → catalog confidence at row level
 │
 ├── VenueAnnotationsPanel       ← rendered only when context='tenant'
 └── VenueAssetGallery           ← rendered only when context='tenant'
@@ -992,7 +992,7 @@ VenueListPage  (/venues  or  /master-venues)
 ├── VenueList
 │   └── VenueListItem           ← same component, context controls badge column
 │         context='tenant'         → ProfileStagePill + quick-fill nudge
-│         context='master_catalog' → ConfidenceBadge + source chip
+│         context='master_venue' → ConfidenceBadge + source chip
 └── VenueQuickFillBar           ← rendered only when context='tenant'
 ```
 
@@ -1016,7 +1016,7 @@ const FIELD_RENDERERS: Record<FieldType, React.ComponentType<VenueFormFieldProps
 export interface VenueFormFieldProps {
   definition: FieldDefinition;
   value: unknown;
-  provenance?: FieldProvenance; // undefined for master_catalog (row-level confidence only)
+  provenance?: FieldProvenance; // undefined for master_venue (row-level confidence only)
   onChange: (key: string, value: unknown) => void;
   readOnly?: boolean;
 }
@@ -1059,7 +1059,7 @@ The `data-skin` attribute is set by the parent layout (Sales Room, admin app, te
   --vmi-badge-catalog: var(--mantine-color-violet-6);
 }
 
-/* ── Admin app: master catalog ───────────────────────── */
+/* ── Admin app: master venue ───────────────────────── */
 [data-skin="admin"] {
   --vmi-form-tab-active: var(--mantine-color-red-6);
   --vmi-section-bg: var(--mantine-color-gray-1);
@@ -1112,7 +1112,7 @@ GET  /api/v1/venues/admin/master-venues/{id}
 POST /api/v1/venues/admin/master-venues
 PUT  /api/v1/venues/admin/master-venues/{id}
 
-// master-venue MEMBER read (tenant app — search + browse master catalog)
+// master-venue MEMBER read (tenant app — search + browse master venue)
 GET  /api/v1/venues/master-venues?search=&city=&country_code=&capacity=&page=&size=
 GET  /api/v1/venues/master-venues/{id}
 ```
@@ -1130,7 +1130,7 @@ GET  /api/v1/venues/master-venues/{id}
 | `/master-venues/:id` | platform admin | PLATFORM\_ADMIN | `VenueProfilePage` |
 
 Note: `/master-venues` routes use the **same page components** as `/venues`, passing
-`context='master_catalog'` — not separate page implementations.
+`context='master_venue'` — not separate page implementations.
 
 ---
 
@@ -1226,7 +1226,7 @@ DELETE /api/v1/venues/{id}/annotations/{annotationId}
 ```
 
 Fixture data should cover all four `profileStage` values and both `context` variants
-(`tenant`, `master_catalog`) to exercise full rendering logic.
+(`tenant`, `master_venue`) to exercise full rendering logic.
 
 ### Promotion checklist (blank → foundation-ui-app)
 
@@ -1240,7 +1240,7 @@ When the prototype UX is approved:
 - [ ] Wire `FeatureGate` / `useEntitlements` where plan limits apply
 - [ ] Replace MSW handlers with real backend (remove from `handlers/index.ts`)
 - [ ] Add routes to TanStack Router tree (see §9)
-- [ ] Repeat for `foundation-ui-platform-admin` with `context='master_catalog'`
+- [ ] Repeat for `foundation-ui-platform-admin` with `context='master_venue'`
 
 MSW handlers from `foundation-ui-blank` are kept as-is for local dev and Playwright fixtures.
 
@@ -1317,7 +1317,7 @@ src/shared/api/
 src/addons/venue-management/
   ...                      Identical copy of the tenant app addon — same index.ts,
                            types.ts, spec/, and components/. The admin app passes
-                           context='master_catalog' to suppress tenant-only panels.
+                           context='master_venue' to suppress tenant-only panels.
                            No separate admin addon. No duplication.
 
 src/entities/master-venue/

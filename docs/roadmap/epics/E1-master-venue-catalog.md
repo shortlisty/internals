@@ -15,7 +15,7 @@ The master venue catalog is the platform-wide reference library of venues. It pr
 
 - As a platform admin, I want to create, edit, and delete master venue entries so that the reference library stays accurate.
 - As a platform admin, I want to seed the catalog with a curated venue set so that tenant autocomplete has real data from day one.
-- As a planner creating a tenant venue, I want autocomplete suggestions from the master catalog so that I can promote an existing venue instead of re-typing it.
+- As a planner creating a tenant venue, I want autocomplete suggestions from the master venue so that I can promote an existing venue instead of re-typing it.
 
 ---
 
@@ -23,7 +23,7 @@ The master venue catalog is the platform-wide reference library of venues. It pr
 
 - Shared platform libraries: common types, venue schema contracts, shared database access
 - Master venue database schema (core fields: name, address, city, capacity, category, summary)
-- Seed data: a curated set of venues loaded into the master catalog
+- Seed data: a curated set of venues loaded into the master venue
 - Admin API: create, read, update, delete master venue entries
 - Platform admin UI for master venue entry management (list, create, view, edit, delete)
 - S3 bucket/folder structure for venue document and asset storage

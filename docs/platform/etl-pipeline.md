@@ -10,7 +10,7 @@
 - [services.md](services.md) — service responsibilities, table ownership, code-sharing rules
 - [data-model.md](data-model.md) — `ExtractionJob`, `VenueAsset`, `item_vectors` table definitions
 - [aggregation.md](aggregation.md) — what happens after `ExtractionCompletedEvent` is published
-- [master-catalog.md](master-catalog.md) — Stage 3 MC_INHERIT merge (MasterVenueMatcher)
+- [master-venue.md](master-venue.md) — Stage 3 MC_INHERIT merge (MasterVenueMatcher)
 - [events.md](events.md) — `asset.uploaded` trigger, `extraction.*` event contracts
 - [observability.md](observability.md) — extraction metrics and latency histograms
 
@@ -66,7 +66,7 @@ The pipeline contracts — `ExtractionJob`, `ExtractionStatus`, `ExtractorType`,
 
 1. **Embed** — `EmbeddingModel` (`text-embedding-3-small`, 1536 dims). Skipped for `DATA_TABLE` and `PRICE_LIST` (CSV/XLSX) — `table_data` is already populated; only metadata stored in `item_vectors`.
 2. **Store** — `TenantAwarePgVectorStore` writes chunks + embeddings to `item_vectors` table in the tenant's schema. Table defined in the tenant changelog owned by `docintelligence-catalog-service` (see [services.md § 4](services.md)).
-3. **Master catalog match** — `MasterVenueMatcher` runs the full MC_INHERIT merge algorithm (trigram name similarity via `pg_trgm` GIN index on `master_venue_alias`, PostGIS `ST_DWithin` 200m radius, combined confidence formula, thresholds 0.75 with geo / 0.90 name-only, ambiguity delta guard ≥ 0.08). No LLM calls. Full algorithm, thresholds, and field-copy semantics in [master-catalog.md](master-catalog.md).
+3. **Master catalog match** — `MasterVenueMatcher` runs the full MC_INHERIT merge algorithm (trigram name similarity via `pg_trgm` GIN index on `master_venue_alias`, PostGIS `ST_DWithin` 200m radius, combined confidence formula, thresholds 0.75 with geo / 0.90 name-only, ambiguity delta guard ≥ 0.08). No LLM calls. Full algorithm, thresholds, and field-copy semantics in [master-venue.md](master-venue.md).
 4. **Aggregate** — publishes `ExtractionCompletedEvent` → `MetadataAggregationConsumer` in `docintelligence-catalog-service` updates `venues.metadata` via `VenueMetadataMigrator.ensureCurrent()` and recalculates `profile_stage` (`SEEDED → ENRICHED → CURATED → READY`) in the same DB transaction. Full aggregation design including `profile_stage` transition rules in [aggregation.md](aggregation.md).
 
 ---

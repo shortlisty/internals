@@ -11,7 +11,7 @@ Tenant venue profiles let an event planner create, edit, view, and delete the ve
 
 ## Why it matters
 
-The master catalog is invisible to the planner. The value they feel is "I can add the venues I work with, keep their documents, and find them again." Without tenant venue profiles there is no catalog, no pitch board input, and no product. Plan enforcement at venue creation is what makes tiered pricing real — a Free tenant cannot silently exceed their venue cap.
+The master venue is invisible to the planner. The value they feel is "I can add the venues I work with, keep their documents, and find them again." Without tenant venue profiles there is no catalog, no pitch board input, and no product. Plan enforcement at venue creation is what makes tiered pricing real — a Free tenant cannot silently exceed their venue cap.
 
 ## Where it could land
 
@@ -29,7 +29,7 @@ Tasks are ordered by dependency. Each is sized for 2–3 h including tests and C
 
 - [ ] `[docintelligence-catalog-service]` `VenueMapper` (MyBatis): `insert`, `findById`, `findAll` (paginated + filters), `update`, `archive`. `VenueDtos` records. `VenueMetadataTypeHandler` wired in ResultMap. Integration tests against Testcontainers.
 - [ ] `[docintelligence-catalog-service]` `VenueRestResource` (`/api/v1/venues`, `MEMBER`): `POST /` (201, enforces `max_venues` plan limit → 402), `GET /` (200, `VenueSummaryListResponse`), `GET /{id}` (200), `PATCH /{id}` (200), `DELETE /{id}` (204, soft-archive, `TENANT_OWNER`/`ADMIN` only). Integration tests per endpoint.
-- [ ] `[docintelligence-catalog-service]` `POST /venues/from-master-catalog/{masterVenueId}` (`MEMBER`, 201): clone master venue fields into new tenant `venues` row with `MC_INHERIT` provenance in `metadata_sources`. Idempotent — re-promote returns existing row. Integration test.
+- [ ] `[docintelligence-catalog-service]` `POST /venues/from-master-venue/{masterVenueId}` (`MEMBER`, 201): clone master venue fields into new tenant `venues` row with `MC_INHERIT` provenance in `metadata_sources`. Idempotent — re-promote returns existing row. Integration test.
 - [ ] `[tenant-ui]` Venue list page (`/venues`): card grid — name, city, status badge, asset count. Empty state. `MEMBER` access.
 - [ ] `[tenant-ui]` Create venue form (`/venues/new`): name, address, city, capacity, category, description. On name input call master venue suggest (debounced `GET /api/v1/master-venues?q=`). One-click promote from suggestion. Submit → `POST /venues`.
 - [ ] `[tenant-ui]` Venue detail page (`/venues/:id`): render all core fields + metadata panel. Document list (assets). Edit inline via `PATCH`. Archive via `DELETE`. Status badge.
@@ -48,7 +48,7 @@ Tasks are ordered by dependency. Each is sized for 2–3 h including tests and C
 ## Open questions
 
 - [ ] Are soft-archived venues restorable, or is archive permanent in this increment?
-- [ ] Does the create-venue form validate against the master catalog before allowing a free-text venue, or is free-text always allowed?
+- [ ] Does the create-venue form validate against the master venue before allowing a free-text venue, or is free-text always allowed?
 
 ## Status
 

@@ -11,7 +11,7 @@ The master venue catalog is a platform-wide reference dataset of venues that pow
 
 ## Why it matters
 
-Without a curated master catalog, every tenant retypes the same venue data from scratch and duplicate venue records proliferate across tenants. A platform-maintained reference set lets a planner pick a known venue in one click, inherit verified base fields, and focus on their agency-specific notes instead of re-keying an address. The catalog's domain classes and schema contracts are also the foundation that the document intelligence and search layers build on.
+Without a curated master venue, every tenant retypes the same venue data from scratch and duplicate venue records proliferate across tenants. A platform-maintained reference set lets a planner pick a known venue in one click, inherit verified base fields, and focus on their agency-specific notes instead of re-keying an address. The catalog's domain classes and schema contracts are also the foundation that the document intelligence and search layers build on.
 
 ## Where it could land
 
@@ -50,7 +50,7 @@ Tasks are ordered by dependency. Each is sized for 2–3 h including tests and C
 - [ ] `[docintelligence-catalog-service]` `AdminMasterVenueRestResource` (`/api/v1/admin/master-venues`, `PLATFORM_ADMIN`): `GET /`, `POST /`, `GET /{id}`, `PUT /{id}`, `PATCH /{id}`, `DELETE /{id}`. No TenantContext — operates on `public` schema directly. `ProblemDetail` error responses. Controller + service + mapper integration tests.
 - [ ] `[docintelligence-catalog-service]` `AdminMasterVenueRestResource` continuation: `POST /{id}/merge` (`ForceMergeRequest`, three strategies), `POST /dedup-check` (`DeduplicationCheckRequest` → `DeduplicationCheckResponse`). Integration tests covering merge strategies and dedup recommendations.
 - [ ] `[docintelligence-catalog-service]` `AdminMasterVenueAliasRestResource` (`/api/v1/admin/master-venues/{id}/aliases`, `PLATFORM_ADMIN`): `GET /`, `POST /`, `GET /{aliasId}`, `PUT /{aliasId}`, `DELETE /{aliasId}`. Integration tests. 404 when parent `master_venue` not found.
-- [ ] `[docintelligence-catalog-service]` `POST /bulk-import` (`PLATFORM_ADMIN`, status 202): accepts `BulkImportRequest` (S3 key + force_mode), enqueues `admin.master-catalog.import.apply` RabbitMQ event, returns `BulkImportJobResponse`. Integration test verifies event published.
+- [ ] `[docintelligence-catalog-service]` `POST /bulk-import` (`PLATFORM_ADMIN`, status 202): accepts `BulkImportRequest` (S3 key + force_mode), enqueues `admin.master-venue.import.apply` RabbitMQ event, returns `BulkImportJobResponse`. Integration test verifies event published.
 
 ### Master Venue Public Read
 
